@@ -1,0 +1,20 @@
+{
+  "name": "ipl/web",
+  "type": "library",
+  "description": "Icinga PHP Library - Web Components",
+  "keywords": ["html"],
+  "homepage": "https://github.com/Icinga/ipl-web",
+  "require": {
+    "php": ">=5.6.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "ipl\\Web\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "ipl\\Tests\\Web\\": "tests"
+    }
+  }
+}
