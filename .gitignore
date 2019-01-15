@@ -4,3 +4,7 @@
 # Except those related to Git and Travis CI
 !.git*
 !.travis.yml
+
+# Exclude files from composer install
+vendor/
+composer.lock

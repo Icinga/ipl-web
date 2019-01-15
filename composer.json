@@ -4,9 +4,6 @@
   "description": "Icinga PHP Library - Web Components",
   "keywords": ["html"],
   "homepage": "https://github.com/Icinga/ipl-web",
-  "require": {
-    "php": ">=5.6.0"
-  },
   "autoload": {
     "psr-4": {
       "ipl\\Web\\": "src"
@@ -16,5 +13,22 @@
     "psr-4": {
       "ipl\\Tests\\Web\\": "tests"
     }
+  },
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/Icinga/ipl-stdlib",
+      "no-api": true
+    },
+    {
+      "type": "vcs",
+      "url": "https://github.com/Icinga/ipl-html",
+      "no-api": true
+    }
+  ],
+  "require": {
+    "php": ">=5.6.0",
+    "ipl/stdlib": "dev-master",
+    "ipl/html": "dev-master"
   }
 }
