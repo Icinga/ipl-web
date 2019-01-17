@@ -86,9 +86,14 @@ class CompatController extends Controller
      *
      * @throws InvalidArgumentException
      */
-    protected function setTitle($title, ...$args)
+    protected function setTitle($title)
     {
-        $title = vsprintf($title, $args);
+        $args = func_get_args();
+        array_shift($args);
+
+        if (! empty($args)) {
+            $title = vsprintf($title, $args);
+        }
 
         $this->view->title = $title;
 
