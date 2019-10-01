@@ -4,6 +4,7 @@ namespace ipl\Web\Compat;
 
 use InvalidArgumentException;
 use Icinga\Web\Controller;
+use ipl\Html\HtmlDocument;
 use ipl\Html\ValidHtml;
 use ipl\Web\Widget\Content;
 use ipl\Web\Widget\Controls;
@@ -11,6 +12,9 @@ use ipl\Web\Widget\Tabs;
 
 class CompatController extends Controller
 {
+    /** @var HtmlDocument */
+    protected $document;
+
     /** @var Controls */
     protected $controls;
 
@@ -26,6 +30,8 @@ class CompatController extends Controller
 
         unset($this->view->tabs);
 
+        $this->document = new HtmlDocument();
+        $this->document->setSeparator("\n");
         $this->controls = new Controls();
         $this->content = new Content();
         $this->tabs = new Tabs();
@@ -34,8 +40,17 @@ class CompatController extends Controller
 
         ViewRenderer::inject();
 
-        $this->view->controls = $this->controls;
-        $this->view->content = $this->content;
+        $this->view->document = $this->document;
+    }
+
+    /**
+     * Get the document
+     *
+     * @return HtmlDocument
+     */
+    public function getDocument()
+    {
+        return $this->document;
     }
 
     /**
@@ -104,5 +119,18 @@ class CompatController extends Controller
         ]);
 
         return $this;
+    }
+
+    public function postDispatch()
+    {
+        if (! $this->content->isEmpty()) {
+            $this->document->prepend($this->content);
+        }
+
+        if (! $this->controls->isEmpty()) {
+            $this->document->prepend($this->controls);
+        }
+
+        parent::postDispatch();
     }
 }

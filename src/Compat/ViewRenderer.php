@@ -38,9 +38,7 @@ class ViewRenderer extends Zf1ViewRenderer
     {
         $view = $this->view;
 
-        if (($view->controls->isEmpty() && $view->content->isEmpty())
-            || $this->getRequest()->getParam('error_handler') !== null
-        ) {
+        if ($view->document->isEmpty() || $this->getRequest()->getParam('error_handler') !== null) {
             parent::render($action, $name, $noController);
 
             return;
@@ -50,10 +48,7 @@ class ViewRenderer extends Zf1ViewRenderer
             $name = $this->getResponseSegment();
         }
 
-        $this->getResponse()->appendBody(
-            $view->controls->render() . "\n" . $view->content->render(),
-            $name
-        );
+        $this->getResponse()->appendBody($view->document->render(), $name);
 
         $this->setNoRender();
     }
