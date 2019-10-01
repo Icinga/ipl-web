@@ -1,57 +1,61 @@
-.state-ball {
+.ball {
   border-radius: 50%;
   display: inline-block;
   text-align: center;
+}
 
-  &.state-critical,
+.ball-size-xs {
+  height: 1/3em;
+  line-height: 1/3em;
+  width: 1/3em;
+}
+
+.ball-size-s {
+  height: 0.5em;
+  line-height: 0.5em;
+  width: 0.5em;
+}
+
+.ball-size-m {
+  height: 1em;
+  line-height: 1em;
+  width: 1em;
+}
+
+.ball-size-l {
+  width: 2.5em;
+  line-height: 2.5em;
+  height: 2.5em;
+}
+
+.state-ball {
+  .ball();
+
+  &.state-pending {
+    background-color: @color-pending;
+  }
+
+  &.state-up {
+    background-color: @color-ok;
+  }
+
   &.state-down {
     background-color: @color-critical;
   }
 
-  &.state-unknown {
-    background-color: @color-unknown;
+  &.state-ok {
+    background-color: @color-ok;
   }
 
   &.state-warning {
     background-color: @color-warning;
   }
 
-  &.state-ok,
-  &.state-up {
-    background-color: @color-ok;
+  &.state-critical {
+    background-color: @color-critical;
   }
 
-  &.state-pending {
-    background-color: @color-pending;
-  }
-
-  &.size-xs {
-    line-height: 0.75em;
-    height: 0.75em;
-    width: 0.75em;
-  }
-
-  &.size-s {
-    line-height: 1em;
-    height: 1em;
-    width: 1em;
-  }
-
-  &.size-m {
-    line-height: 2em;
-    height: 2em;
-    width: 2em;
-  }
-
-  &.size-l {
-    line-height: 2.5em;
-    height: 2.5em;
-    width: 2.5em;
-  }
-
-  > i {
-    color: white;
-    font-style: normal;
-    text-transform: uppercase;
+  &.state-unknown {
+    background-color: @color-unknown;
   }
 }
