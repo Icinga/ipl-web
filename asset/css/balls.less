@@ -28,34 +28,64 @@
   height: 2.5em;
 }
 
+.ball-outline(@color) {
+  border: 2px solid @color;
+  color: @color;
+}
+
+.ball-solid(@color) {
+  background-color: @color;
+  color: white;
+  padding: 2px;
+}
+
 .state-ball {
   .ball();
 
   &.state-pending {
-    background-color: @color-pending;
+    .ball-solid(@color-pending);
   }
 
-  &.state-up {
-    background-color: @color-ok;
+  &.state-up:not(.ball-size-l) {
+    .ball-solid(@color-up);
+  }
+
+  &.state-up.ball-size-l {
+    .ball-outline(@color-up);
   }
 
   &.state-down {
-    background-color: @color-critical;
+    .ball-solid(@color-down);
   }
 
-  &.state-ok {
-    background-color: @color-ok;
+  &.state-ok:not(.ball-size-l) {
+    .ball-solid(@color-ok);
+  }
+
+  &.state-ok.ball-size-l {
+    .ball-outline(@color-ok);
   }
 
   &.state-warning {
-    background-color: @color-warning;
+    .ball-solid(@color-warning);
   }
 
   &.state-critical {
-    background-color: @color-critical;
+    .ball-solid(@color-critical);
   }
 
   &.state-unknown {
-    background-color: @color-unknown;
+    .ball-solid(@color-unknown);
+  }
+
+  &.handled {
+    opacity: 0.6;
+  }
+
+  i {
+    text-align: center;
+    &:before {
+      margin-right: 0;
+    }
   }
 }
