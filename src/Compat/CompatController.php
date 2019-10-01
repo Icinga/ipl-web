@@ -6,8 +6,8 @@ use InvalidArgumentException;
 use Icinga\Web\Controller;
 use ipl\Html\HtmlDocument;
 use ipl\Html\ValidHtml;
-use ipl\Web\Widget\Content;
-use ipl\Web\Widget\Controls;
+use ipl\Web\Layout\Content;
+use ipl\Web\Layout\Controls;
 use ipl\Web\Widget\Tabs;
 
 class CompatController extends Controller

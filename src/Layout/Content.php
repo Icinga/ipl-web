@@ -1,6 +1,6 @@
 <?php
 
-namespace ipl\Web\Widget;
+namespace ipl\Web\Layout;
 
 use ipl\Html\BaseHtmlElement;
 
