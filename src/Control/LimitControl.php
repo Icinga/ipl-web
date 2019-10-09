@@ -4,6 +4,7 @@ namespace ipl\Web\Control;
 
 use ipl\Html\Form;
 use ipl\Html\FormDecorator\DivDecorator;
+use ipl\Web\Url;
 
 /**
  * Allows to adjust the limit of the number of items to display
@@ -21,6 +22,9 @@ class LimitControl extends Form
         '500' => '500'
     ];
 
+    /** @var Url */
+    protected $url;
+
     /** @var string Name of the URL parameter which stores the limit */
     protected $limitParam = 'limit';
 
@@ -29,8 +33,14 @@ class LimitControl extends Form
 
     protected $method = 'GET';
 
+    public function __construct(Url $url)
+    {
+        $this->url = $url;
+    }
+
     /**
      * Get the name of the URL parameter which stores the limit
+     *
      * @return string
      */
     public function getLimitParam()
@@ -52,6 +62,16 @@ class LimitControl extends Form
         return $this;
     }
 
+    /**
+     * Get the limit
+     *
+     * @return int
+     */
+    public function getLimit()
+    {
+        return $this->url->getParam($this->getLimitParam(), static::DEFAULT_LIMIT);
+    }
+
     protected function assemble()
     {
         $this->setDefaultElementDecorator(new DivDecorator());
@@ -60,7 +80,7 @@ class LimitControl extends Form
             'class'   => 'autosubmit',
             'label'   => '#',
             'options' => static::$limits,
-            'value'   => static::DEFAULT_LIMIT
+            'value'   => $this->getLimit()
         ]);
     }
 }
