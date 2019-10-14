@@ -52,11 +52,12 @@
     .ball-solid(@color-pending);
   }
 
-  &.state-up:not(.ball-size-l) {
+  &.state-up:not(.ball-size-l):not(.ball-size-xl) {
     .ball-solid(@color-up);
   }
 
-  &.state-up.ball-size-l {
+  &.state-up.ball-size-l,
+  &.state-up.ball-size-xl {
     .ball-outline(@color-up);
   }
 
@@ -64,11 +65,12 @@
     .ball-solid(@color-down);
   }
 
-  &.state-ok:not(.ball-size-l) {
+  &.state-ok:not(.ball-size-l):not(.ball-size-xl) {
     .ball-solid(@color-ok);
   }
 
-  &.state-ok.ball-size-l {
+  &.state-ok.ball-size-l,
+  &.state-ok.ball-size-xl {
     .ball-outline(@color-ok);
   }
 
