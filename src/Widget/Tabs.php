@@ -3,6 +3,9 @@
 namespace ipl\Web\Widget;
 
 use Exception;
+use Icinga\Web\Widget\Tabextension\DashboardAction;
+use Icinga\Web\Widget\Tabextension\MenuAction;
+use Icinga\Web\Widget\Tabextension\OutputFormat;
 use InvalidArgumentException;
 use ipl\Html\ValidHtml;
 
@@ -11,6 +14,28 @@ use ipl\Html\ValidHtml;
  */
 class Tabs extends \Icinga\Web\Widget\Tabs implements ValidHtml
 {
+    /** @var bool Whether the legacy extensions should be shown by default */
+    protected $legacyExtensionsEnabled = true;
+
+    /** @var bool Whether data exports are enabled */
+    protected $dataExportsEnabled = false;
+
+    /**
+     * Don't show legacy extensions by default
+     */
+    public function disableLegacyExtensions()
+    {
+        $this->legacyExtensionsEnabled = false;
+    }
+
+    /**
+     * Show export actions for JSON and CSV
+     */
+    public function enableDataExports()
+    {
+        $this->dataExportsEnabled = true;
+    }
+
     /**
      * Activate the tab with the given name
      *
@@ -50,5 +75,20 @@ class Tabs extends \Icinga\Web\Widget\Tabs implements ValidHtml
         }
 
         return $this;
+    }
+
+    public function render()
+    {
+        if ($this->legacyExtensionsEnabled) {
+            $this->extend(new OutputFormat(
+                $this->dataExportsEnabled
+                    ? []
+                    : [OutputFormat::TYPE_CSV, OutputFormat::TYPE_JSON]
+            ))
+                ->extend(new DashboardAction())
+                ->extend(new MenuAction());
+        }
+
+        return parent::render();
     }
 }
