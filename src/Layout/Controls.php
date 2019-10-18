@@ -43,6 +43,15 @@ class Controls extends BaseHtmlElement
         return $this;
     }
 
+    public function isEmpty()
+    {
+        if (! parent::isEmpty()) {
+            return false;
+        }
+
+        return $this->tabs->count() === 0;
+    }
+
     protected function assemble()
     {
         $this->prepend($this->getTabs());
