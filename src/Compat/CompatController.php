@@ -127,7 +127,7 @@ class CompatController extends Controller
             $this->document->prepend($this->content);
         }
 
-        if (! $this->controls->isEmpty()) {
+        if (! $this->view->compact && ! $this->controls->isEmpty()) {
             $this->document->prepend($this->controls);
         }
 
