@@ -28,7 +28,7 @@
   ],
   "require": {
     "php": ">=5.4.0",
-    "ipl/html": "^0.2.2",
-    "ipl/stdlib": "^0.3.0"
+    "ipl/html": ">=0.2.2",
+    "ipl/stdlib": ">=0.3.0"
   }
 }
