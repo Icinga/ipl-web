@@ -2,14 +2,13 @@
 
 namespace ipl\Web\Control;
 
-use ipl\Html\Form;
-use ipl\Html\FormDecorator\DivDecorator;
+use ipl\Web\Compat\CompatForm;
 use ipl\Web\Url;
 
 /**
  * Allows to adjust the limit of the number of items to display
  */
-class LimitControl extends Form
+class LimitControl extends CompatForm
 {
     /** @var int Default limit */
     const DEFAULT_LIMIT = 25;
@@ -27,9 +26,6 @@ class LimitControl extends Form
 
     /** @var string Name of the URL parameter which stores the limit */
     protected $limitParam = 'limit';
-
-    // TODO(el): Remove 'method' => 'GET' once ipl-html supports this out of the box
-    protected $defaultAttributes = ['class' => 'limit-control', 'method' => 'GET'];
 
     protected $method = 'GET';
 
@@ -74,7 +70,8 @@ class LimitControl extends Form
 
     protected function assemble()
     {
-        $this->setDefaultElementDecorator(new DivDecorator());
+        // TODO(el): Remove 'method' => 'GET' once ipl-html supports this out of the box
+        $this->addAttributes(['class' => 'limit-control', 'method' => 'GET']);
 
         $this->addElement('select', $this->getLimitParam(), [
             'class'   => 'autosubmit',
