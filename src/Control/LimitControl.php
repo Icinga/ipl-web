@@ -73,11 +73,17 @@ class LimitControl extends CompatForm
         // TODO(el): Remove 'method' => 'GET' once ipl-html supports this out of the box
         $this->addAttributes(['class' => 'limit-control inline', 'method' => 'GET']);
 
+        $limit = $this->getLimit();
+        $limits = static::$limits;
+        if (! isset($limits[$limit])) {
+            $limits[$limit] = $limit;
+        }
+
         $this->addElement('select', $this->getLimitParam(), [
             'class'   => 'autosubmit',
             'label'   => '#',
-            'options' => static::$limits,
-            'value'   => $this->getLimit()
+            'options' => $limits,
+            'value'   => $limit
         ]);
     }
 }
