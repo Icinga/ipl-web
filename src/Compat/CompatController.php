@@ -30,6 +30,13 @@ class CompatController extends Controller
 
         unset($this->view->tabs);
 
+        $this->params->shift('isIframe');
+        $this->params->shift('showFullscreen');
+        $this->params->shift('showCompact');
+        $this->params->shift('renderLayout');
+        $this->params->shift('_disableLayout');
+        $this->params->shift('_dev');
+
         $this->document = new HtmlDocument();
         $this->document->setSeparator("\n");
         $this->controls = new Controls();
