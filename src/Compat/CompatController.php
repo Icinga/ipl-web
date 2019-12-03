@@ -8,6 +8,7 @@ use ipl\Html\HtmlDocument;
 use ipl\Html\ValidHtml;
 use ipl\Web\Layout\Content;
 use ipl\Web\Layout\Controls;
+use ipl\Web\Layout\Footer;
 use ipl\Web\Widget\Tabs;
 
 class CompatController extends Controller
@@ -20,6 +21,9 @@ class CompatController extends Controller
 
     /** @var Content */
     protected $content;
+
+    /** @var Footer */
+    protected $footer;
 
     /** @var Tabs */
     protected $tabs;
@@ -41,6 +45,7 @@ class CompatController extends Controller
         $this->document->setSeparator("\n");
         $this->controls = new Controls();
         $this->content = new Content();
+        $this->footer = new Footer();
         $this->tabs = new Tabs();
 
         $this->controls->setTabs($this->tabs);
@@ -99,6 +104,20 @@ class CompatController extends Controller
     }
 
     /**
+     * Add footer
+     *
+     * @param ValidHtml $footer
+     *
+     * @return $this
+     */
+    protected function addFooter(ValidHtml $footer)
+    {
+        $this->footer->add($footer);
+
+        return $this;
+    }
+
+    /**
      * Add an active tab with the given title and set it as the window's title too
      *
      * @param string $title
@@ -136,6 +155,10 @@ class CompatController extends Controller
 
         if (! $this->view->compact && ! $this->controls->isEmpty()) {
             $this->document->prepend($this->controls);
+        }
+
+        if (! $this->footer->isEmpty()) {
+            $this->document->add($this->footer);
         }
 
         parent::postDispatch();
