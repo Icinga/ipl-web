@@ -1,9 +1,10 @@
 # Exclude all hidden files
 .*
 
-# Except those related to Git and Travis CI
+# Except those related to Git and GitHub
 !.git*
-!.travis.yml
+!.github*
+!.phpcs.xml
 
 # Exclude files from composer install
 vendor/
