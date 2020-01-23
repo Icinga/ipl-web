@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<ruleset name="IPL">
+    <description>Sniff our code a while</description>
+
+    <file>src/</file>
+
+    <arg name="report-width" value="auto"/>
+    <arg name="report-full"/>
+    <arg name="report-gitblame"/>
+    <arg name="report-summary"/>
+    <arg name="encoding" value="UTF-8"/>
+
+    <rule ref="PSR12">
+        <exclude name="PSR12.Properties.ConstantVisibility.NotFound"/>
+    </rule>
+
+    <rule ref="Generic.Files.LineLength">
+        <properties>
+            <property name="lineLimit" value="120"/>
+            <property name="absoluteLineLimit" value="0"/>
+        </properties>
+    </rule>
+</ruleset>
