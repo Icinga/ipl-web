@@ -15,9 +15,9 @@ class Dropdown extends BaseHtmlElement
     /** @var array */
     protected $links = [];
 
-    protected $tag = 'div';
-
     protected $defaultAttributes = ['class' => 'dropdown'];
+
+    protected $tag = 'div';
 
     /**
      * Create a dropdown element
