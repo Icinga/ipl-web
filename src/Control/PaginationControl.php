@@ -17,12 +17,6 @@ use ipl\Web\Widget\Icon;
  */
 class PaginationControl extends BaseHtmlElement
 {
-    /** @var Paginatable The pagination adapter which handles the underlying data source */
-    protected $paginatable;
-
-    /** @var Url The URL to base off pagination URLs */
-    protected $url;
-
     /** @var int Default maximum number of items which should be shown per page */
     protected $defaultPageSize = 25;
 
@@ -34,6 +28,12 @@ class PaginationControl extends BaseHtmlElement
 
     /** @var string */
     protected $pageSpacer = '…';
+
+    /** @var Paginatable The pagination adapter which handles the underlying data source */
+    protected $paginatable;
+
+    /** @var Url The URL to base off pagination URLs */
+    protected $url;
 
     /** @var int Cache for the total number of items */
     private $totalCount;
