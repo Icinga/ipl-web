@@ -5,7 +5,7 @@ namespace ipl\Web\Control;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\Html;
-use ipl\Stdlib\Contract\PaginationInterface;
+use ipl\Stdlib\Contract\Paginatable;
 use ipl\Web\Url;
 use ipl\Web\Widget\Icon;
 
@@ -17,7 +17,7 @@ use ipl\Web\Widget\Icon;
  */
 class PaginationControl extends BaseHtmlElement
 {
-    /** @var PaginationInterface The pagination adapter which handles the underlying data source */
+    /** @var Paginatable The pagination adapter which handles the underlying data source */
     protected $paginatable;
 
     /** @var Url The URL to base off pagination URLs */
@@ -48,10 +48,10 @@ class PaginationControl extends BaseHtmlElement
     /**
      * Create a pagination control
      *
-     * @param PaginationInterface $paginatable The paginatable
-     * @param Url                 $url         The URL to base off paging URLs
+     * @param Paginatable $paginatable The paginatable
+     * @param Url         $url         The URL to base off paging URLs
      */
-    public function __construct(PaginationInterface $paginatable, Url $url)
+    public function __construct(Paginatable $paginatable, Url $url)
     {
         $this->paginatable = $paginatable;
         $this->url = $url;
