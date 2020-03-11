@@ -13,14 +13,14 @@ use ipl\Web\Widget\Tabs;
 
 class CompatController extends Controller
 {
-    /** @var HtmlDocument */
-    protected $document;
+    /** @var Content */
+    protected $content;
 
     /** @var Controls */
     protected $controls;
 
-    /** @var Content */
-    protected $content;
+    /** @var HtmlDocument */
+    protected $document;
 
     /** @var Footer */
     protected $footer;
