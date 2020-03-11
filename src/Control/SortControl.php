@@ -140,8 +140,7 @@ class SortControl extends CompatForm
 
     protected function assemble()
     {
-        // TODO(el): Remove 'method' => 'GET' once ipl-html supports this out of the box
-        $this->addAttributes(['class' => 'sort-control inline', 'method' => 'GET']);
+        $this->addAttributes(['class' => 'sort-control inline']);
 
         $columns = $this->getColumns();
         $sort = $this->getSort();
