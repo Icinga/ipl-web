@@ -13,11 +13,11 @@ use ipl\Web\Widget\Icon;
  */
 class SortControl extends CompatForm
 {
-    /** @var Url Request URL */
-    protected $url;
-
     /** @var string Name of the URL parameter which stores the sort column */
     protected $sortParam = 'sort';
+
+    /** @var Url Request URL */
+    protected $url;
 
     /** @var array Possible sort columns as sort string-value pairs */
     private $columns;
