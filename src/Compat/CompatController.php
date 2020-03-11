@@ -76,20 +76,6 @@ class CompatController extends Controller
     }
 
     /**
-     * Add a control
-     *
-     * @param ValidHtml $control
-     *
-     * @return $this
-     */
-    protected function addControl(ValidHtml $control)
-    {
-        $this->controls->add($control);
-
-        return $this;
-    }
-
-    /**
      * Add content
      *
      * @param ValidHtml $content
@@ -99,6 +85,20 @@ class CompatController extends Controller
     protected function addContent(ValidHtml $content)
     {
         $this->content->add($content);
+
+        return $this;
+    }
+
+    /**
+     * Add a control
+     *
+     * @param ValidHtml $control
+     *
+     * @return $this
+     */
+    protected function addControl(ValidHtml $control)
+    {
+        $this->controls->add($control);
 
         return $this;
     }
