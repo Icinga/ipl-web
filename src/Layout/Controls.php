@@ -10,14 +10,14 @@ use ipl\Web\Widget\Tabs;
  */
 class Controls extends BaseHtmlElement
 {
-    protected $tag = 'div';
+    /** @var Tabs */
+    protected $tabs;
 
     protected $contentSeparator = "\n";
 
     protected $defaultAttributes = ['class' => 'controls'];
 
-    /** @var Tabs */
-    protected $tabs;
+    protected $tag = 'div';
 
     /**
      * Get the tabs
