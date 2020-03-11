@@ -21,11 +21,11 @@ class LimitControl extends CompatForm
         '500' => '500'
     ];
 
-    /** @var Url */
-    protected $url;
-
     /** @var string Name of the URL parameter which stores the limit */
     protected $limitParam = 'limit';
+
+    /** @var Url */
+    protected $url;
 
     protected $method = 'GET';
 
