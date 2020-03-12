@@ -4,6 +4,7 @@
   "description": "Icinga PHP Library - Web Components",
   "keywords": ["html"],
   "homepage": "https://github.com/Icinga/ipl-web",
+  "license": "MIT",
   "autoload": {
     "psr-4": {
       "ipl\\Web\\": "src"
