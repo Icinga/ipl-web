@@ -4,17 +4,17 @@ namespace ipl\Web\Compat;
 
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
-use ipl\Html\FormDecorator\DecoratorInterface;
-use ipl\Html\FormElement\BaseFormElement;
-use ipl\Html\FormElement\SubmitElement;
+use ipl\Html\Contract\FormElement;
+use ipl\Html\Contract\FormElementDecorator;
+use ipl\Html\Contract\FormSubmitElement;
 use ipl\Html\Html;
 
 /**
  * Compat form element decorator based on div elements
  */
-class CompatDecorator extends BaseHtmlElement implements DecoratorInterface
+class CompatDecorator extends BaseHtmlElement implements FormElementDecorator
 {
-    /** @var BaseFormElement The decorated form element */
+    /** @var FormElement The decorated form element */
     protected $formElement;
 
     /** @var bool Whether the form element has been added already */
@@ -22,14 +22,13 @@ class CompatDecorator extends BaseHtmlElement implements DecoratorInterface
 
     protected $tag = 'div';
 
-    public function decorate(BaseFormElement $formElement)
+    public function decorate(FormElement $formElement)
     {
         $decorator = clone $this;
 
         $decorator->formElement = $formElement;
 
-        // TODO(el): Replace with SubmitElementInterface once introduced
-        if ($formElement instanceof SubmitElement) {
+        if ($formElement instanceof FormSubmitElement) {
             $class = 'control-group form-controls';
 
             $formElement->getAttributes()->add(['class' => 'btn-primary']);
@@ -80,8 +79,10 @@ class CompatDecorator extends BaseHtmlElement implements DecoratorInterface
         if ($label !== null) {
             $attributes = null;
 
-            if ($this->formElement->getAttributes()->has('id')) {
-                $attributes = new Attributes(['for' => $this->formElement->getAttributes()->get('id')]);
+            $elementAttributes = $this->formElement->getAttributes();
+
+            if (isset($elementAttributes['id'])) {
+                $attributes = new Attributes(['for' => $elementAttributes['id']]);
             }
 
             return Html::tag('div', ['class' => 'control-label-group'], Html::tag('label', $attributes, $label));
@@ -108,7 +109,7 @@ class CompatDecorator extends BaseHtmlElement implements DecoratorInterface
 
     protected function assemble()
     {
-        if ($this->formElement->hasBeenValidatedAndIsNotValid()) {
+        if ($this->formElement->hasBeenValidated() && ! $this->formElement->isValid()) {
             $this->getAttributes()->add('class', 'has-error');
         }
 

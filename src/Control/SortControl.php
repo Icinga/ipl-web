@@ -13,11 +13,11 @@ use ipl\Web\Widget\Icon;
  */
 class SortControl extends CompatForm
 {
-    /** @var Url Request URL */
-    protected $url;
-
     /** @var string Name of the URL parameter which stores the sort column */
     protected $sortParam = 'sort';
+
+    /** @var Url Request URL */
+    protected $url;
 
     /** @var array Possible sort columns as sort string-value pairs */
     private $columns;
@@ -140,8 +140,7 @@ class SortControl extends CompatForm
 
     protected function assemble()
     {
-        // TODO(el): Remove 'method' => 'GET' once ipl-html supports this out of the box
-        $this->addAttributes(['class' => 'sort-control inline', 'method' => 'GET']);
+        $this->addAttributes(['class' => 'sort-control inline']);
 
         $columns = $this->getColumns();
         $sort = $this->getSort();

@@ -29,6 +29,11 @@ class ViewRenderer extends Zf1ViewRenderer
         Zf1HelperBroker::addHelper($inject);
     }
 
+    public function getName()
+    {
+        return 'ViewRenderer';
+    }
+
     /**
      * Render the view w/o using a view script
      *
@@ -51,10 +56,5 @@ class ViewRenderer extends Zf1ViewRenderer
         $this->getResponse()->appendBody($view->document->render(), $name);
 
         $this->setNoRender();
-    }
-
-    public function getName()
-    {
-        return 'ViewRenderer';
     }
 }

@@ -10,10 +10,12 @@ class CompatForm extends Form
 
     public function hasDefaultElementDecorator()
     {
-        if ($this->defaultElementDecorator === null) {
-            $this->defaultElementDecorator = new CompatDecorator();
+        if (parent::hasDefaultElementDecorator()) {
+            return true;
         }
 
-        return parent::hasDefaultElementDecorator();
+        $this->setDefaultElementDecorator(new CompatDecorator());
+
+        return true;
     }
 }

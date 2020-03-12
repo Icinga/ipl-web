@@ -21,11 +21,11 @@ class LimitControl extends CompatForm
         '500' => '500'
     ];
 
-    /** @var Url */
-    protected $url;
-
     /** @var string Name of the URL parameter which stores the limit */
     protected $limitParam = 'limit';
+
+    /** @var Url */
+    protected $url;
 
     protected $method = 'GET';
 
@@ -70,8 +70,7 @@ class LimitControl extends CompatForm
 
     protected function assemble()
     {
-        // TODO(el): Remove 'method' => 'GET' once ipl-html supports this out of the box
-        $this->addAttributes(['class' => 'limit-control inline', 'method' => 'GET']);
+        $this->addAttributes(['class' => 'limit-control inline']);
 
         $limit = $this->getLimit();
         $limits = static::$limits;

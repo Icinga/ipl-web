@@ -15,10 +15,10 @@ class Link extends BaseHtmlElement
 {
     use BaseTarget;
 
-    protected $tag = 'a';
-
     /** @var Url */
     protected $url;
+
+    protected $tag = 'a';
 
     /**
      * Create a link element

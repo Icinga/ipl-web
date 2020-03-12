@@ -16,12 +16,12 @@ class ActionBar extends BaseHtmlElement
 
     protected $contentSeparator = ' ';
 
-    protected $tag = 'div';
-
     protected $defaultAttributes = [
         'class'            => 'action-bar',
         'data-base-target' => '_self'
     ];
+
+    protected $tag = 'div';
 
     /**
      * Create a action bar

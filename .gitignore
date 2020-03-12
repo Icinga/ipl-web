@@ -1,10 +1,8 @@
 # Exclude all hidden files
 .*
 
-# Except those related to Git and GitHub
+# Except those related to Git (and GitHub)
 !.git*
-!.github*
-!.phpcs.xml
 
 # Exclude files from composer install
 vendor/

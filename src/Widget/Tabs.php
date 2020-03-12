@@ -14,11 +14,11 @@ use ipl\Html\ValidHtml;
  */
 class Tabs extends \Icinga\Web\Widget\Tabs implements ValidHtml
 {
-    /** @var bool Whether the legacy extensions should be shown by default */
-    protected $legacyExtensionsEnabled = true;
-
     /** @var bool Whether data exports are enabled */
     protected $dataExportsEnabled = false;
+
+    /** @var bool Whether the legacy extensions should be shown by default */
+    protected $legacyExtensionsEnabled = true;
 
     /**
      * Don't show legacy extensions by default

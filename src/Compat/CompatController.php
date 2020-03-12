@@ -13,14 +13,14 @@ use ipl\Web\Widget\Tabs;
 
 class CompatController extends Controller
 {
-    /** @var HtmlDocument */
-    protected $document;
+    /** @var Content */
+    protected $content;
 
     /** @var Controls */
     protected $controls;
 
-    /** @var Content */
-    protected $content;
+    /** @var HtmlDocument */
+    protected $document;
 
     /** @var Footer */
     protected $footer;
@@ -76,20 +76,6 @@ class CompatController extends Controller
     }
 
     /**
-     * Add a control
-     *
-     * @param ValidHtml $control
-     *
-     * @return $this
-     */
-    protected function addControl(ValidHtml $control)
-    {
-        $this->controls->add($control);
-
-        return $this;
-    }
-
-    /**
      * Add content
      *
      * @param ValidHtml $content
@@ -99,6 +85,20 @@ class CompatController extends Controller
     protected function addContent(ValidHtml $content)
     {
         $this->content->add($content);
+
+        return $this;
+    }
+
+    /**
+     * Add a control
+     *
+     * @param ValidHtml $control
+     *
+     * @return $this
+     */
+    protected function addControl(ValidHtml $control)
+    {
+        $this->controls->add($control);
 
         return $this;
     }
@@ -127,11 +127,8 @@ class CompatController extends Controller
      *
      * @throws InvalidArgumentException
      */
-    protected function setTitle($title)
+    protected function setTitle($title, ...$args)
     {
-        $args = func_get_args();
-        array_shift($args);
-
         if (! empty($args)) {
             $title = vsprintf($title, $args);
         }

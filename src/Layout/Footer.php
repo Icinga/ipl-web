@@ -9,9 +9,9 @@ use ipl\Html\BaseHtmlElement;
  */
 class Footer extends BaseHtmlElement
 {
-    protected $tag = 'div';
-
     protected $contentSeparator = "\n";
 
     protected $defaultAttributes = ['class' => 'footer'];
+
+    protected $tag = 'div';
 }
