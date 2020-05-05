@@ -13,6 +13,8 @@ use ipl\Web\Widget\Icon;
  */
 class SortControl extends CompatForm
 {
+    protected $defaultAttributes = ['class' => 'icinga-form inline sort-control'];
+
     /** @var string Name of the URL parameter which stores the sort column */
     protected $sortParam = 'sort';
 
@@ -140,8 +142,6 @@ class SortControl extends CompatForm
 
     protected function assemble()
     {
-        $this->addAttributes(['class' => 'sort-control inline']);
-
         $columns = $this->getColumns();
         $sort = $this->getSort();
 
@@ -184,7 +184,11 @@ class SortControl extends CompatForm
             'label'   => 'Sort By',
             'options' => $columns,
             'value'   => $value
-        ]);
+        ])
+            ->getElement($this->getSortParam())
+            ->getWrapper()
+            ->getAttributes()
+            ->add('class', 'icinga-controls');
 
         $toggleButton = new ButtonElement($this->getSortParam(), [
             'class' => 'link-button spinner',
