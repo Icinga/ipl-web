@@ -2,10 +2,10 @@
 
 namespace ipl\Web\Control;
 
-use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\Html;
 use ipl\Stdlib\Contract\Paginatable;
+use ipl\Web\Compat\CompatForm;
 use ipl\Web\Url;
 use ipl\Web\Widget\Icon;
 
@@ -248,40 +248,43 @@ class PaginationControl extends BaseHtmlElement
             return [];
         }
 
-        if ($pageCount <= 10) {
-            // If there are less than or exactly 10 pages, show them all
-            return range(1, $pageCount);
-        }
-
         $currentPageNumber = $this->getCurrentPageNumber();
 
-        if ($currentPageNumber <= 5) {
-            // Show the first 7 and the last two pages if we are on page 1-5
-            $range = range(1, 7);
-            $range[] = $this->pageSpacer;
-            $range[] = $pageCount - 1;
-            $range[] = $pageCount;
+        if ($currentPageNumber === 1) {
 
-            return $range;
         }
 
-        $range = range(1, 2);
+        return [
+            range(2, $this->getPageCount()-1)
+        ];
 
-        if ($currentPageNumber >= $pageCount - 5) {
-            // Show the first 2 and the last 6 pages if we are on one of the last 5 pages
-            $range[] = $this->pageSpacer;
-
-            return array_merge($range, range($pageCount - 6, $pageCount));
-        }
-
-        // Show the first 2, the last 2 and 4 pages in between
-        $range[] = $this->pageSpacer;
-
-        return array_merge(
-            $range,
-            range($currentPageNumber - 1, $currentPageNumber + 2),
-            [$this->pageSpacer, $pageCount - 1, $pageCount]
-        );
+//        if ($currentPageNumber <= 5) {
+//            // Show the first 7 and the last two pages if we are on page 1-5
+//            $range = range(1, 7);
+//            $range[] = $this->pageSpacer;
+//            $range[] = $pageCount - 1;
+//            $range[] = $pageCount;
+//
+//            return $range;
+//        }
+//
+//        $range = range(1, 2);
+//
+//        if ($currentPageNumber >= $pageCount - 5) {
+//            // Show the first 2 and the last 6 pages if we are on one of the last 5 pages
+//            $range[] = $this->pageSpacer;
+//
+//            return array_merge($range, range($pageCount - 6, $pageCount));
+//        }
+//
+//        // Show the first 2, the last 2 and 4 pages in between
+//        $range[] = $this->pageSpacer;
+//
+//        return array_merge(
+//            $range,
+//            range($currentPageNumber - 1, $currentPageNumber + 2),
+//            [$this->pageSpacer, $pageCount - 1, $pageCount]
+//        );
     }
 
     /**
@@ -332,7 +335,7 @@ class PaginationControl extends BaseHtmlElement
      */
     protected function createPreviousPageItem()
     {
-        $prevIcon = new Icon('angle-double-left');
+        $prevIcon = new Icon('left-open');
 
         $currentPageNumber = $this->getCurrentPageNumber();
 
@@ -370,7 +373,7 @@ class PaginationControl extends BaseHtmlElement
      */
     protected function createNextPageItem()
     {
-        $nextIcon = new Icon('angle-double-right');
+        $nextIcon = new Icon('right-open');
 
         $currentPageNumber = $this->getCurrentPageNumber();
 
@@ -407,6 +410,32 @@ class PaginationControl extends BaseHtmlElement
         return $message;
     }
 
+    function createFirstPageItem() {
+        $firstItem = Html::tag('li', ['class' => 'nav-item']);
+
+        $firstItem->add(Html::tag(
+            'a', [
+                'href' => $this->url->setParam($this->getPageParam(), 1)
+            ],
+            $this->getFirstItemNumberOfPage(1)
+        ));
+
+        return $firstItem;
+    }
+
+    function createLastPageItem() {
+        $lastItem = Html::tag('li', ['class' => 'nav-item']);
+
+        $lastItem->add(Html::tag(
+            'a', [
+                'href' => $this->url->setParam('page', false)
+            ],
+            $this->getPageCount()
+        ));
+
+        return $lastItem;
+    }
+
     protected function assemble()
     {
         if ($this->getPageCount() < 2) {
@@ -425,38 +454,41 @@ class PaginationControl extends BaseHtmlElement
 
         $paginator = Html::tag('ul', ['class' => 'tab-nav nav']);
 
+        $paginator->add($this->createFirstPageItem());
+
         $paginator->add($this->createPreviousPageItem());
 
-        $currentPageNumber = $this->getCurrentPageNumber();
+        $f = new CompatForm($this->url);
+        $f->addAttributes(['class' => 'inline']);
+        $f->setMethod('GET');
 
-        foreach ($this->getPages() as $pageNumber) {
-            // HTML attributes for the HTML link element
-            $linkAttributes = new Attributes(['class' => ['nav-item']]);
+        $select = Html::tag('select', [
+            'name' => $this->getPageParam(),
+            'class' => 'autosubmit'
+        ]);
 
-            switch ($pageNumber) {
-                case $this->pageSpacer:
-                    $content = Html::tag('span', null, $pageNumber);
-                    $linkAttributes->add('class', 'disabled');
-                    break;
-                /** @noinspection PhpMissingBreakStatementInspection */
-                case $currentPageNumber:
-                    $linkAttributes->add('class', 'active');
-                // Move to default
-                default:
-                    $content = Html::tag(
-                        'a',
-                        [
-                            'href'  => $this->createUrl($pageNumber),
-                            'title' => $this->createLabel($pageNumber)
-                        ],
-                        $pageNumber
-                    );
+        if ($this->getCurrentPageNumber() == 1) {
+            $select->add(Html::tag('option', ['disabled' => '', 'selected' => ''], '…'));
+        }
+        foreach (range(2, $this->getPageCount()-1) as $page) {
+            $option = Html::tag('option', [
+                'value' => $page
+            ], $page);
+
+            if ($page === $this->getCurrentPageNumber()) {
+                $option->addAttributes(['selected' => '']);
             }
 
-            $paginator->add(Html::tag('li', $linkAttributes, $content));
+            $select->add($option);
         }
 
+        $f->add($select);
+
+        $paginator->add(Html::tag('li', $f));
+
         $paginator->add($this->createNextPageItem());
+
+        $paginator->add($this->createLastPageItem());
 
         $this->add($paginator);
     }
