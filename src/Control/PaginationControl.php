@@ -410,15 +410,37 @@ class PaginationControl extends BaseHtmlElement
         return $message;
     }
 
-    function createFirstPageItem() {
+    /**
+     * Create and return the first page item
+     *
+     * @return BaseHtmlElement
+     */
+    function createFirstPageItem()
+    {
+        $currentPageNumber = $this->getCurrentPageNumber();
+
+        $url = clone $this->url;
+
         $firstItem = Html::tag('li', ['class' => 'nav-item']);
 
-        $firstItem->add(Html::tag(
-            'a', [
-                'href' => $this->url->setParam($this->getPageParam(), 1)
-            ],
-            $this->getFirstItemNumberOfPage(1)
-        ));
+        if ($currentPageNumber === 1) {
+            $firstItem->addAttributes(['class' => 'disabled']);
+            $firstItem->add(Html::tag(
+                'span', [
+                    'class' => 'first-page'
+                ],
+                $this->getFirstItemNumberOfPage(1))
+            );
+        } else {
+            $firstItem->add(Html::tag(
+                'a', [
+                    'class' => 'first-page',
+                    'href' => $url->remove(['page'])->getAbsoluteUrl(),
+                    'title' => $this->createLabel(1)
+                ],
+                $this->getFirstItemNumberOfPage(1)
+            ));
+        }
 
         return $firstItem;
     }
