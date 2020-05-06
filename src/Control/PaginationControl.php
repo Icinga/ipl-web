@@ -236,58 +236,6 @@ class PaginationControl extends BaseHtmlElement
     }
 
     /**
-     * Get the pages to render links for
-     *
-     * @return array
-     */
-    public function getPages()
-    {
-        $pageCount = $this->getPageCount();
-
-        if ($pageCount < 2) {
-            return [];
-        }
-
-        $currentPageNumber = $this->getCurrentPageNumber();
-
-        if ($currentPageNumber === 1) {
-
-        }
-
-        return [
-            range(2, $this->getPageCount()-1)
-        ];
-
-//        if ($currentPageNumber <= 5) {
-//            // Show the first 7 and the last two pages if we are on page 1-5
-//            $range = range(1, 7);
-//            $range[] = $this->pageSpacer;
-//            $range[] = $pageCount - 1;
-//            $range[] = $pageCount;
-//
-//            return $range;
-//        }
-//
-//        $range = range(1, 2);
-//
-//        if ($currentPageNumber >= $pageCount - 5) {
-//            // Show the first 2 and the last 6 pages if we are on one of the last 5 pages
-//            $range[] = $this->pageSpacer;
-//
-//            return array_merge($range, range($pageCount - 6, $pageCount));
-//        }
-//
-//        // Show the first 2, the last 2 and 4 pages in between
-//        $range[] = $this->pageSpacer;
-//
-//        return array_merge(
-//            $range,
-//            range($currentPageNumber - 1, $currentPageNumber + 2),
-//            [$this->pageSpacer, $pageCount - 1, $pageCount]
-//        );
-    }
-
-    /**
      * Get the first item number of the given page
      *
      * @param int $pageNumber
