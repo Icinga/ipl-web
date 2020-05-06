@@ -183,7 +183,7 @@ class PaginationControl extends BaseHtmlElement
             return 1;
         }
 
-        return ceil($this->getTotalCount() / $pageSize);
+        return (int) ceil($this->getTotalCount() / $pageSize);
     }
 
     /**
@@ -445,15 +445,33 @@ class PaginationControl extends BaseHtmlElement
         return $firstItem;
     }
 
-    function createLastPageItem() {
+    /**
+     * Create and return the last page item
+     *
+     * @return BaseHtmlElement
+     */
+    function createLastPageItem()
+    {
+        $currentPageNumber = $this->getCurrentPageNumber();
         $lastItem = Html::tag('li', ['class' => 'nav-item']);
 
-        $lastItem->add(Html::tag(
-            'a', [
-                'href' => $this->url->setParam('page', false)
-            ],
-            $this->getPageCount()
-        ));
+        if ($currentPageNumber === $this->getPageCount()) {
+            $lastItem->addAttributes(['class' => 'disabled']);
+            $lastItem->add(Html::tag(
+                'span',
+                ['class' => 'last-page'],
+                $this->getPageCount()
+            ));
+        } else {
+            $lastItem->add(Html::tag(
+                'a', [
+                    'class' => 'last-page',
+                    'href' => $this->url->setParam('page', $this->getPageCount()),
+                    'title' => $this->createLabel($this->getPageCount())
+                ],
+                $this->getPageCount()
+            ));
+        }
 
         return $lastItem;
     }
