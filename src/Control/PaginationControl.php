@@ -476,6 +476,50 @@ class PaginationControl extends BaseHtmlElement
         return $lastItem;
     }
 
+    /**
+     * Create and return the page selector item
+     *
+     * @return BaseHtmlElement
+     */
+    protected function createPageSelectorItem()
+    {
+        $currentPageNumber = $this->getCurrentPageNumber();
+
+        $form = new CompatForm($this->url);
+        $form->addAttributes(['class' => 'inline']);
+        $form->setMethod('GET');
+
+        $select = Html::tag('select', [
+            'name' => $this->getPageParam(),
+            'class' => 'autosubmit',
+            'title' => 'Go to page …'
+        ]);
+
+        if (isset($currentPageNumber)) {
+            if ($currentPageNumber === 1 || $currentPageNumber === $this->getPageCount()) {
+                $select->add(Html::tag('option', ['disabled' => '', 'selected' => ''], '…'));
+            }
+        }
+
+        foreach (range(2, $this->getPageCount() - 1) as $page) {
+            $option = Html::tag('option', [
+                'value' => $page
+            ], $page);
+
+            if ($page == $currentPageNumber) {
+                $option->addAttributes(['selected' => '']);
+            }
+
+            $select->add($option);
+        }
+
+        $form->add($select);
+
+        $pageSelectorItem = Html::tag('li', $form);
+
+        return $pageSelectorItem;
+    }
+
     protected function assemble()
     {
         if ($this->getPageCount() < 2) {
