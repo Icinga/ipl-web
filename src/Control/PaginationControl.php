@@ -522,6 +522,9 @@ class PaginationControl extends BaseHtmlElement
 
     protected function assemble()
     {
+
+        $currentPageNumber = $this->getCurrentPageNumber();
+
         if ($this->getPageCount() < 2) {
             return;
         }
@@ -542,33 +545,7 @@ class PaginationControl extends BaseHtmlElement
 
         $paginator->add($this->createPreviousPageItem());
 
-        $f = new CompatForm($this->url);
-        $f->addAttributes(['class' => 'inline']);
-        $f->setMethod('GET');
-
-        $select = Html::tag('select', [
-            'name' => $this->getPageParam(),
-            'class' => 'autosubmit'
-        ]);
-
-        if ($this->getCurrentPageNumber() == 1) {
-            $select->add(Html::tag('option', ['disabled' => '', 'selected' => ''], '…'));
-        }
-        foreach (range(2, $this->getPageCount()-1) as $page) {
-            $option = Html::tag('option', [
-                'value' => $page
-            ], $page);
-
-            if ($page === $this->getCurrentPageNumber()) {
-                $option->addAttributes(['selected' => '']);
-            }
-
-            $select->add($option);
-        }
-
-        $f->add($select);
-
-        $paginator->add(Html::tag('li', $f));
+        $paginator->add($this->createPageSelectorItem());
 
         $paginator->add($this->createNextPageItem());
 
