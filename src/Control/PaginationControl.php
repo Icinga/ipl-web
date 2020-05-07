@@ -283,7 +283,7 @@ class PaginationControl extends BaseHtmlElement
      */
     protected function createPreviousPageItem()
     {
-        $prevIcon = new Icon('left-open');
+        $prevIcon = new Icon('angle-left');
 
         $currentPageNumber = $this->getCurrentPageNumber();
 
@@ -321,7 +321,7 @@ class PaginationControl extends BaseHtmlElement
      */
     protected function createNextPageItem()
     {
-        $nextIcon = new Icon('right-open');
+        $nextIcon = new Icon('angle-right');
 
         $currentPageNumber = $this->getCurrentPageNumber();
 
