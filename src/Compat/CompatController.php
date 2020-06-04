@@ -40,6 +40,9 @@ class CompatController extends Controller
         $this->params->shift('renderLayout');
         $this->params->shift('_disableLayout');
         $this->params->shift('_dev');
+        if ($this->params->get('view') === 'compact') {
+            $this->params->remove('view');
+        }
 
         $this->document = new HtmlDocument();
         $this->document->setSeparator("\n");
