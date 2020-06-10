@@ -363,7 +363,7 @@ class PaginationControl extends BaseHtmlElement
      *
      * @return BaseHtmlElement
      */
-    function createFirstPageItem()
+    protected function createFirstPageItem()
     {
         $currentPageNumber = $this->getCurrentPageNumber();
 
@@ -374,14 +374,14 @@ class PaginationControl extends BaseHtmlElement
         if ($currentPageNumber === 1) {
             $firstItem->addAttributes(['class' => 'disabled']);
             $firstItem->add(Html::tag(
-                'span', [
-                    'class' => 'first-page'
-                ],
-                $this->getFirstItemNumberOfPage(1))
-            );
+                'span',
+                ['class' => 'first-page'],
+                $this->getFirstItemNumberOfPage(1)
+            ));
         } else {
             $firstItem->add(Html::tag(
-                'a', [
+                'a',
+                [
                     'class' => 'first-page',
                     'href' => $url->remove(['page'])->getAbsoluteUrl(),
                     'title' => $this->createLabel(1)
@@ -398,7 +398,7 @@ class PaginationControl extends BaseHtmlElement
      *
      * @return BaseHtmlElement
      */
-    function createLastPageItem()
+    protected function createLastPageItem()
     {
         $currentPageNumber = $this->getCurrentPageNumber();
         $lastItem = Html::tag('li', ['class' => 'nav-item']);
@@ -412,7 +412,8 @@ class PaginationControl extends BaseHtmlElement
             ));
         } else {
             $lastItem->add(Html::tag(
-                'a', [
+                'a',
+                [
                     'class' => 'last-page',
                     'href' => $this->url->setParam('page', $this->getPageCount()),
                     'title' => $this->createLabel($this->getPageCount())
