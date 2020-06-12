@@ -27,6 +27,13 @@
         this.input = input;
 
         /**
+         * The mode this completion runs in
+         *
+         * @type {string}
+         */
+        this.mode = 'simple';
+
+        /**
          * The currently running suggest XHR request
          *
          * @type {{}}
@@ -60,6 +67,13 @@
          * @type {{}}
          */
         this.lastCompletedTerm = null;
+
+        /**
+         * The current term type
+         *
+         * @type {string}
+         */
+        this.termType = 'column';
 
         /**
          * Whether to keep any used terms
@@ -174,7 +188,7 @@
             });
             this.updatePlaceholder();
             $input.val('');
-        } else {
+        } else if (this.mode === 'simple') {
             var terms = $input.val();
             if (! terms) {
                 var params = this.icinga.utils.parseUrl($input.closest('.container').data('icingaUrl')).params;
@@ -225,8 +239,21 @@
 
         // Unset the input's name, to prevent its submission (It may actually have a name, as no-js fallback)
         $input.prop('name', '');
-        // Enable the hidden input, due to the same reason as above
-        $($input.data('term-input')).prop('disabled', false);
+
+        if (_this.mode === 'advanced') {
+            // Rewrite the form's action. There's no particular search parameter in advanced mode
+            var $form = $(event.currentTarget).closest('form');
+            var action = $form.attr('action');
+            if (! action) {
+                action = _this.icinga.loader.getLinkTargetFor($form).closest('.container').data('icingaUrl');
+            }
+
+            $form.attr('action', _this.icinga.utils.addUrlFlag(
+                action, _this.usedTerms.map(function (e) { return e.search}).join('')));
+        } else {
+            // Enable the hidden input, otherwise it's not submitted
+            $($input.data('term-input')).prop('disabled', false);
+        }
 
         // Reset all states, the user is about to navigate away
         _this.abort();
@@ -313,16 +340,14 @@
         var termContainer = $input.data('term-container');
         var termSuggestions = $input.data('term-suggestions');
 
-        var term, query;
+        var term;
 
         switch (event.which) {
             case 8: // Backspace
                 var $suggestions = $(termSuggestions);
                 term = _this.readPartialTerm();
                 if (term) {
-                    query = {};
-                    query[$(termInput).prop('name')] = _this.addWildcards(term);
-                    _this.suggest($input.data('suggest-url'), query, $suggestions);
+                    _this.suggest($input.data('suggest-url'), _this.addWildcards(term), $suggestions);
                 } else {
                     _this.hideSuggestions($suggestions);
                 }
@@ -360,13 +385,17 @@
                 } else if (event.which === 46) {
                     _this.clearSelectedTerms(termContainer, termInput);
                     _this.updatePlaceholder();
+                } else if (_this.termType !== 'column' && (event.key === '&' || event.key === '|')) {
+                    if (_this.exchangeTerm(termContainer, termInput, 'logical_operator')) {
+                        _this.hideSuggestions($(termSuggestions));
+                        _this.updatePlaceholder();
+                        return;
+                    }
                 }
 
                 term = _this.readPartialTerm();
                 if (term) {
-                    query = {};
-                    query[$(termInput).prop('name')] = _this.addWildcards(term);
-                    _this.suggest($input.data('suggest-url'), query, $(termSuggestions));
+                    _this.suggest($input.data('suggest-url'), _this.addWildcards(term), $(termSuggestions));
                 } else {
                     _this.hideSuggestions($(termSuggestions));
                 }
@@ -386,11 +415,8 @@
                 var $input = $(_this.input);
                 var term = $el.html().trim();
 
-                var query = {};
-                query[$($input.data('term-input')).prop('name')] = _this.addWildcards(term);
-
                 _this.complete(term, $el.prop('class'), $el.data('term'));
-                _this.suggest($input.data('suggest-url'), query, $($input.data('term-suggestions')));
+                _this.suggest($input.data('suggest-url'), _this.addWildcards(term), $($input.data('term-suggestions')));
                 _this.focusElement($input);
                 break;
             case 37: // Arrow left
@@ -497,9 +523,10 @@
     /**
      * @param   termContainer
      * @param   termInput
+     * @param   termType
      * @returns {boolean}
      */
-    Completion.prototype.exchangeTerm = function (termContainer, termInput) {
+    Completion.prototype.exchangeTerm = function (termContainer, termInput, termType) {
         var newTerm = this.readFullTerm();
         if (! newTerm) {
             return false;
@@ -516,8 +543,17 @@
 
         this.abort();
 
+        if (typeof termType === 'undefined') {
+            termType = this.termType;
+        }
+
         var $input = $(this.input);
-        var termData = { 'class': $input.data('term-default-class'), 'search': newTerm, 'term': newTerm };
+        var termData = {
+            'class': $input.data('term-default-class'),
+            'type': termType,
+            'search': newTerm,
+            'term': newTerm
+        };
 
         if (this.ignoreSpaceUntil !== null) {
             if (this.ignoreSpaceSince === 0 && newTerm[this.ignoreSpaceSince] === this.ignoreSpaceUntil) {
@@ -571,6 +607,8 @@
             // Term label overflowed
             $term.prop('title', termData.term);
         }
+
+        this.nextTermType(termData.type);
     };
 
     /**
@@ -689,9 +727,18 @@
 
         var self = this;
         this.nextSuggestion = setTimeout(function () {
-            if (self.usedTerms.length) {
-                query['!' + this.icinga.utils.objectKeys(query)[0]] =
-                    self.usedTerms.map(function (e) { return e.term}).join();
+            var data = {};
+            var suggestParameter;
+
+            if (self.mode === 'advanced') {
+                suggestParameter = self.termType;
+            } else {
+                suggestParameter = $($(self.input).data('term-input')).prop('name');
+            }
+
+            data[suggestParameter] = query;
+            if (self.usedTerms.length && self.mode === 'simple') {
+                data['!' + suggestParameter] = self.usedTerms.map(function (e) { return e.term}).join();
             }
 
             var headers = { 'X-Icinga-WindowId': self.icinga.ui.getWindowId() };
@@ -703,7 +750,7 @@
             var req = $.ajax({
                 type    : 'GET',
                 headers : headers,
-                url     : this.icinga.utils.addUrlParams(url, query),
+                url     : this.icinga.utils.addUrlParams(url, data),
                 context : self
             });
 
@@ -798,6 +845,25 @@
         if ($element.length) {
             $element[0].focus();
         }
+    };
+
+    Completion.prototype.nextTermType = function (type) {
+        switch (type) {
+            case 'column':
+                this.termType = 'operator';
+                break;
+            case 'operator':
+                this.termType = 'value';
+                break;
+            case 'value':
+                this.termType = 'logical_operator';
+                break;
+            case 'logical_operator':
+                this.termType = 'column';
+                break;
+        }
+
+        return this.termType;
     };
 
     return Completion;
