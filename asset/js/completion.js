@@ -268,8 +268,13 @@
                 action = _this.icinga.loader.getLinkTargetFor($form).closest('.container').data('icingaUrl');
             }
 
-            $form.attr('action', _this.icinga.utils.addUrlFlag(
-                action, _this.usedTerms.map(function (e) { return e.search}).join('')));
+            $form.attr('action', _this.icinga.utils.addUrlFlag(action, _this.usedTerms.map(function (e) {
+                if (!! e.inactive) {
+                    return '';
+                } else {
+                    return e.search;
+                }
+            }).join('')));
         } else {
             // Enable the hidden input, otherwise it's not submitted
             $($input.data('term-input')).prop('disabled', false);
@@ -409,12 +414,26 @@
 
                 term = _this.readPartialTerm();
                 if (term) {
-                    if (_this.mode === 'full' && _this.hasTerms() && _this.logical_operators.includes(term)) {
-                        // Don't wait for user confirmation, exchange the term instantly if it's a logical operator
-                        if (_this.exchangeTerm(termContainer, termInput, 'logical_operator')) {
-                            _this.hideSuggestions($(termSuggestions));
-                            _this.updatePlaceholder();
-                            return;
+                    if (_this.mode === 'full' && _this.hasTerms()) {
+                        if (_this.logical_operators.includes(term)) {
+                            // Don't wait for user confirmation, exchange the term instantly if it's a logical operator
+                            if (_this.exchangeTerm(termContainer, termInput, 'logical_operator')) {
+                                _this.hideSuggestions($(termSuggestions));
+                                _this.updatePlaceholder();
+                                return;
+                            }
+                        } else if (_this.termType === 'column' && _this.lastTerm().type !== 'logical_operator') {
+                            _this.addTerm(
+                                {
+                                    inactive: true,
+                                    class: 'logical_operator',
+                                    type: 'logical_operator',
+                                    search: _this.default_logical_operator,
+                                    term: _this.default_logical_operator
+                                },
+                                termContainer,
+                                termInput
+                            );
                         }
                     }
 
@@ -591,19 +610,7 @@
             this.lastCompletedTerm = null;
         }
 
-        if (termType === 'column' && this.hasTerms() && this.lastTerm().type !== 'logical_operator') {
-            this.addTerm(
-                {
-                    class: 'logical_operator',
-                    type: 'logical_operator',
-                    search: this.default_logical_operator,
-                    term: this.default_logical_operator
-                },
-                termContainer,
-                termInput
-            );
-        }
-
+        this.activateLastTerm(termContainer);
         this.addTerm(termData, termContainer, termInput);
         $input.val('');
         return true;
@@ -632,7 +639,11 @@
         var html = '<button type="button"';
         html += ' data-term-index="' + termIndex + '"';
         if (termData.class) {
-            html += ' class="' + termData.class + '"';
+            html += ' class="' + termData.class;
+            if (!! termData.inactive) {
+                html += ' inactive';
+            }
+            html += '"';
         }
         html += '>' + this.icinga.utils.escape(termData.term) + '</button>';
 
@@ -665,6 +676,17 @@
         }
 
         return this.usedTerms[this.usedTerms.length - 1];
+    };
+
+    /**
+     * @param   termContainer
+     */
+    Completion.prototype.activateLastTerm = function (termContainer) {
+        var lastTerm = this.lastTerm();
+        if (lastTerm !== null && !! lastTerm.inactive) {
+            lastTerm.inactive = false;
+            $('[data-term-index=' + (this.usedTerms.length - 1) + ']', termContainer).removeClass('inactive');
+        }
     };
 
     /**
