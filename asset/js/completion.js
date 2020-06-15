@@ -647,6 +647,17 @@
     };
 
     /**
+     * @return  {{}}
+     */
+    Completion.prototype.lastTerm = function () {
+        if (! this.hasTerms()) {
+            return null;
+        }
+
+        return this.usedTerms[this.usedTerms.length - 1];
+    };
+
+    /**
      * @param   termContainer
      * @param   termInput
      */
