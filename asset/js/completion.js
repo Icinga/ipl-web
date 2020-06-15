@@ -43,9 +43,9 @@
         /**
          * The mode this completion runs in
          *
-         * @type {string}
+         * @type {String}
          */
-        this.mode = 'simple';
+        this.mode = 'basic';
 
         /**
          * The currently running suggest XHR request
@@ -85,9 +85,9 @@
         /**
          * The current term type
          *
-         * @type {string}
+         * @type {String}
          */
-        this.termType = 'column';
+        this.termType = null;
 
         /**
          * Whether to keep any used terms
@@ -114,6 +114,12 @@
     Completion.prototype.bind = function () {
         var $input = $(this.input);
         var $form = $input.closest('form');
+
+        // Initializations
+        this.mode = $input.data('term-completion') || this.mode;
+        if (this.mode === 'full') {
+            this.termType = 'column';
+        }
 
         // Form submissions
         $form.on('submit', { self: this }, this.onSubmit);
@@ -202,7 +208,7 @@
             });
             this.updatePlaceholder();
             $input.val('');
-        } else if (this.mode === 'simple') {
+        } else if (this.mode === 'basic') {
             var terms = $input.val();
             if (! terms) {
                 var params = this.icinga.utils.parseUrl($input.closest('.container').data('icingaUrl')).params;
@@ -254,8 +260,8 @@
         // Unset the input's name, to prevent its submission (It may actually have a name, as no-js fallback)
         $input.prop('name', '');
 
-        if (_this.mode === 'advanced') {
-            // Rewrite the form's action. There's no particular search parameter in advanced mode
+        if (_this.mode === 'full') {
+            // Rewrite the form's action. There's no particular search parameter in full mode
             var $form = $(event.currentTarget).closest('form');
             var action = $form.attr('action');
             if (! action) {
@@ -636,7 +642,9 @@
             $term.prop('title', termData.term);
         }
 
-        this.nextTermType(termData.type);
+        if (termData.type !== null) {
+            this.nextTermType(termData.type);
+        }
     };
 
     /**
@@ -685,6 +693,14 @@
         terms = terms.replace(new RegExp('(^|\\s)' + searchPattern + '($|\\s)'), ' ');
         $termInput.val(terms.trim());
         $term.remove();
+
+        if (this.mode === 'full') {
+            if (this.hasTerms()) {
+                this.nextTermType(this.lastTerm().type);
+            } else {
+                this.termType = 'column';
+            }
+        }
     };
 
     /**
@@ -776,14 +792,14 @@
             var data = {};
             var suggestParameter;
 
-            if (self.mode === 'advanced') {
+            if (self.mode === 'full') {
                 suggestParameter = self.termType;
             } else {
                 suggestParameter = $($(self.input).data('term-input')).prop('name');
             }
 
             data[suggestParameter] = query;
-            if (self.hasTerms() && self.mode === 'simple') {
+            if (self.hasTerms() && self.mode === 'basic') {
                 data['!' + suggestParameter] = self.usedTerms.map(function (e) { return e.term}).join();
             }
 
