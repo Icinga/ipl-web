@@ -15,14 +15,14 @@
         /**
          * Supported logical operators
          *
-         * @type {string[]}
+         * @type {String[]}
          */
         this.logical_operators = ['&', '|'];
 
         /**
          * The default logical operator
          *
-         * @type {string}
+         * @type {String}
          */
         this.default_logical_operator = '&';
 
@@ -405,17 +405,19 @@
                 } else if (event.which === 46) {
                     _this.clearSelectedTerms(termContainer, termInput);
                     _this.updatePlaceholder();
-                } else if (_this.termType !== 'column' && _this.logical_operators.includes(event.key)) {
-                    // Don't wait for user confirmation, exchange the term instantly if it's a logical operator
-                    if (_this.exchangeTerm(termContainer, termInput, 'logical_operator')) {
-                        _this.hideSuggestions($(termSuggestions));
-                        _this.updatePlaceholder();
-                        return;
-                    }
                 }
 
                 term = _this.readPartialTerm();
                 if (term) {
+                    if (_this.mode === 'full' && _this.hasTerms() && _this.logical_operators.includes(term)) {
+                        // Don't wait for user confirmation, exchange the term instantly if it's a logical operator
+                        if (_this.exchangeTerm(termContainer, termInput, 'logical_operator')) {
+                            _this.hideSuggestions($(termSuggestions));
+                            _this.updatePlaceholder();
+                            return;
+                        }
+                    }
+
                     _this.suggest($input.data('suggest-url'), _this.addWildcards(term), $(termSuggestions));
                 } else {
                     _this.hideSuggestions($(termSuggestions));
@@ -589,7 +591,7 @@
             this.lastCompletedTerm = null;
         }
 
-        if (this.mode === 'advanced' && this.termType === 'column' && this.usedTerms.length) {
+        if (termType === 'column' && this.hasTerms() && this.lastTerm().type !== 'logical_operator') {
             this.addTerm(
                 {
                     class: 'logical_operator',
