@@ -22,6 +22,15 @@
         this.logical_operators = ['&', '|'];
 
         /**
+         * Supported relational operators
+         *
+         * The first is also the default.
+         *
+         * @type {String[]}
+         */
+        this.relational_operators = ['=', '!=', '>', '<', '>=', '<='];
+
+        /**
          * Yes, we also need Icinga (..)
          *
          * @type {{}}
@@ -608,6 +617,21 @@
         this.activateLastTerm(termContainer);
         this.addTerm(termData, termContainer, termInput);
         $input.val('');
+
+        if (termType === 'column') {
+            this.addTerm(
+                {
+                    inactive: true,
+                    class: 'operator',
+                    type: 'operator',
+                    search: this.relational_operators[0],
+                    term: this.relational_operators[0]
+                },
+                termContainer,
+                termInput
+            );
+        }
+
         return true;
     };
 
