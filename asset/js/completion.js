@@ -195,7 +195,7 @@
         }
 
         var _this = this;
-        if (this.usedTerms.length) {
+        if (this.hasTerms()) {
             var $termContainer = $($input.data('term-container'));
             $.each(this.usedTerms, function (termIndex, termData) {
                 _this.addTerm(termData, $termContainer, $input.data('term-input'), termIndex);
@@ -486,7 +486,7 @@
         var $button = $(event.currentTarget);
         if ($button.prop('type') === 'submit' || ($button.is('button') && ! !!$button.prop('type'))) {
             if (! $input.is('[data-manage-required="false"]')) {
-                if (_this.usedTerms.length) {
+                if (_this.hasTerms()) {
                     $input.prop('required', false);
                 } else if (! !!$input.prop('required')) {
                     $input.prop('required', true);
@@ -640,6 +640,13 @@
     };
 
     /**
+     * @return {boolean}
+     */
+    Completion.prototype.hasTerms = function () {
+        return this.usedTerms.length > 0;
+    };
+
+    /**
      * @param   termContainer
      * @param   termInput
      */
@@ -765,7 +772,7 @@
             }
 
             data[suggestParameter] = query;
-            if (self.usedTerms.length && self.mode === 'simple') {
+            if (self.hasTerms() && self.mode === 'simple') {
                 data['!' + suggestParameter] = self.usedTerms.map(function (e) { return e.term}).join();
             }
 
@@ -859,7 +866,7 @@
 
     Completion.prototype.updatePlaceholder = function () {
         var $input = $(this.input);
-        if (! this.usedTerms.length) {
+        if (! this.hasTerms()) {
             if ($input.data('placeholder')) {
                 $input.prop('placeholder', $input.data('placeholder'));
             }
