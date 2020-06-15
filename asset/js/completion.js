@@ -15,16 +15,11 @@
         /**
          * Supported logical operators
          *
+         * The first is also the default.
+         *
          * @type {String[]}
          */
         this.logical_operators = ['&', '|'];
-
-        /**
-         * The default logical operator
-         *
-         * @type {String}
-         */
-        this.default_logical_operator = '&';
 
         /**
          * Yes, we also need Icinga (..)
@@ -428,8 +423,8 @@
                                     inactive: true,
                                     class: 'logical_operator',
                                     type: 'logical_operator',
-                                    search: _this.default_logical_operator,
-                                    term: _this.default_logical_operator
+                                    search: _this.logical_operators[0],
+                                    term: _this.logical_operators[0]
                                 },
                                 termContainer,
                                 termInput
