@@ -13,6 +13,20 @@
 
     var Completion = function (icinga, input) {
         /**
+         * Supported logical operators
+         *
+         * @type {string[]}
+         */
+        this.logical_operators = ['&', '|'];
+
+        /**
+         * The default logical operator
+         *
+         * @type {string}
+         */
+        this.default_logical_operator = '&';
+
+        /**
          * Yes, we also need Icinga (..)
          *
          * @type {{}}
@@ -385,7 +399,8 @@
                 } else if (event.which === 46) {
                     _this.clearSelectedTerms(termContainer, termInput);
                     _this.updatePlaceholder();
-                } else if (_this.termType !== 'column' && (event.key === '&' || event.key === '|')) {
+                } else if (_this.termType !== 'column' && _this.logical_operators.includes(event.key)) {
+                    // Don't wait for user confirmation, exchange the term instantly if it's a logical operator
                     if (_this.exchangeTerm(termContainer, termInput, 'logical_operator')) {
                         _this.hideSuggestions($(termSuggestions));
                         _this.updatePlaceholder();
@@ -566,6 +581,19 @@
             termData.class = this.lastCompletedTerm.class;
             termData.search = this.lastCompletedTerm.search;
             this.lastCompletedTerm = null;
+        }
+
+        if (this.mode === 'advanced' && this.termType === 'column' && this.usedTerms.length) {
+            this.addTerm(
+                {
+                    class: 'logical_operator',
+                    type: 'logical_operator',
+                    search: this.default_logical_operator,
+                    term: this.default_logical_operator
+                },
+                termContainer,
+                termInput
+            );
         }
 
         this.addTerm(termData, termContainer, termInput);
@@ -856,8 +884,6 @@
                 this.termType = 'value';
                 break;
             case 'value':
-                this.termType = 'logical_operator';
-                break;
             case 'logical_operator':
                 this.termType = 'column';
                 break;
