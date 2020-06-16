@@ -258,6 +258,13 @@
         var _this = event.data.self;
         var $input = $(_this.input);
 
+        if (_this.mode === 'full' && $(':focus', event.target).is('[data-term-index]')) {
+            // Don't submit the form if a user updates a term
+            event.stopPropagation();
+            event.preventDefault();
+            return false;
+        }
+
         // TODO: This omits incomplete quoted terms. Since it seems not to be possible to prevent submission
         // in this case we'll need some workaround here. Maybe using the incomplete term anyway?
         _this.exchangeTerm($input.data('term-container'), $input.data('term-input'));
@@ -512,6 +519,10 @@
      */
     Completion.prototype.onTermClick = function (event) {
         var _this = event.data.self;
+        if (_this.mode === 'full') {
+            return;
+        }
+
         var $input = $(_this.input);
         var $term = $(event.currentTarget);
 
@@ -525,16 +536,30 @@
      */
     Completion.prototype.onTermKeyDown = function (event) {
         var _this = event.data.self;
+        var $term = $(event.currentTarget);
 
         switch (event.which) {
+            case 13: // Enter
+                if (_this.mode === 'full') {
+                    if ($term.attr('type') === 'button') {
+                        _this.editTerm($term);
+                    } else {
+                        _this.saveTerm($term);
+                    }
+                }
+                break;
             case 37: // Arrow left
-            case 39: // Arrow right
-                event.preventDefault();
-                if (event.which === 37) {
+                if ($term.attr('type') !== 'text' || $term[0].selectionStart === 0) {
+                    event.preventDefault();
                     _this.moveFocusBackward($(_this.input).data('term-container'));
-                } else {
+                }
+                break;
+            case 39: // Arrow right
+                if ($term.attr('type') !== 'text' || $term[0].selectionStart === $term.val().length) {
+                    event.preventDefault();
                     _this.moveFocusForward($(_this.input).data('term-container'));
                 }
+                break;
         }
     };
 
@@ -716,6 +741,35 @@
      */
     Completion.prototype.hasTerms = function () {
         return this.usedTerms.length > 0;
+    };
+
+    /**
+     * @param $term
+     */
+    Completion.prototype.editTerm = function ($term) {
+        var term = this.usedTerms[$term.data('term-index')];
+
+        if (term.search !== term.term) {
+            // It's a term with a specific label, set the actual term as value then
+            $term.attr('value', term.search);
+        }
+
+        $term.attr('type', 'text');
+        $term[0].select();
+    };
+
+    /**
+     * @param $term
+     */
+    Completion.prototype.saveTerm = function ($term) {
+        var value = $term.val();
+        var term = this.usedTerms[$term.data('term-index')];
+
+        term.search = value;
+        term.term = value;
+        term.inactive = false;
+
+        $term.attr('type', 'button');
     };
 
     /**
