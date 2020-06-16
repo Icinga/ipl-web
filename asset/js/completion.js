@@ -340,7 +340,7 @@
                     $suggestion = $suggestion.first();
 
                     _this.complete(
-                        $suggestion.html().trim(),
+                        $suggestion.attr('value').trim(),
                         $suggestion.prop('class'),
                         $suggestion.data('term')
                     );
@@ -472,7 +472,7 @@
                 event.preventDefault();
                 var $el = $(event.currentTarget);
                 var $input = $(_this.input);
-                var term = $el.html().trim();
+                var term = $el.attr('value').trim();
 
                 _this.complete(term, $el.prop('class'), $el.data('term'));
                 _this.suggest($input.data('suggest-url'), _this.addWildcards(term), $($input.data('term-suggestions')));
@@ -498,7 +498,7 @@
         var _this = event.data.self;
         var $el = $(event.currentTarget);
         var $input = $(_this.input);
-        var term = $el.html().trim();
+        var term = $el.attr('value').trim();
 
         _this.complete(term, $el.prop('class'), $el.data('term'));
         _this.exchangeTerm($input.data('term-container'), $input.data('term-input'));
@@ -686,8 +686,9 @@
         existingTerms += termData.search;
         $termInput.val(existingTerms);
 
-        var html = '<button type="button"';
+        var html = '<input type="button"';
         html += ' data-term-index="' + termIndex + '"';
+        html += ' value="' + termData.term + '"';
         if (termData.class) {
             html += ' class="' + termData.class;
             if (!! termData.inactive) {
@@ -695,7 +696,7 @@
             }
             html += '"';
         }
-        html += '>' + this.icinga.utils.escape(termData.term) + '</button>';
+        html += '>';
 
         $(termContainer).append(html);
 
@@ -744,7 +745,7 @@
      * @param   termInput
      */
     Completion.prototype.popTerm = function (termContainer, termInput) {
-        var $term = $('button', termContainer).last();
+        var $term = $('input', termContainer).last();
         if ($term.length) {
             this.removeTerm($term, termInput);
         }
@@ -781,14 +782,14 @@
      * @param   termContainer
      */
     Completion.prototype.selectTerms = function (termContainer) {
-        $('button', termContainer).addClass('selected');
+        $('input', termContainer).addClass('selected');
     };
 
     /**
      * @param   termContainer
      */
     Completion.prototype.deselectTerms = function (termContainer) {
-        $('button.selected', termContainer).removeClass('selected');
+        $('input.selected', termContainer).removeClass('selected');
     };
 
     /**
@@ -797,7 +798,7 @@
      */
     Completion.prototype.clearSelectedTerms = function (termContainer, termInput) {
         var _this = this;
-        $('button.selected', termContainer).each(function (_, el) {
+        $('input.selected', termContainer).each(function (_, el) {
             _this.removeTerm($(el), termInput);
         });
     };
@@ -929,11 +930,10 @@
     };
 
     Completion.prototype.moveFocusForward = function (where) {
-        // TODO: Use are more flexible selector than button (:focusable is jQuery UI only..)
-        var $focused = $('button:focus', where);
+        var $focused = $('input:focus', where);
 
         if ($focused.length) {
-            var $buttons = $('button', where);
+            var $buttons = $('input', where);
             var next = $buttons.get($buttons.index($focused) + 1);
             if (next) {
                 this.focusElement($(next));
@@ -941,23 +941,22 @@
                 this.focusElement($(this.input));
             }
         } else {
-            this.focusElement($('button', where).first());
+            this.focusElement($('input', where).first());
         }
     };
 
     Completion.prototype.moveFocusBackward = function (where) {
-        // TODO: Use are more flexible selector than button (:focusable is jQuery UI only..)
-        var $focused = $('button:focus', where);
+        var $focused = $('input:focus', where);
 
         if ($focused.length) {
-            var $buttons = $('button', where);
+            var $buttons = $('input', where);
             if ($buttons.index($focused) > 0) {
                 this.focusElement($($buttons.get($buttons.index($focused) - 1)));
             } else {
                 this.focusElement($(this.input));
             }
         } else {
-            this.focusElement($('button', where).last());
+            this.focusElement($('input', where).last());
         }
     };
 
