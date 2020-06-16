@@ -137,7 +137,7 @@
         $form.on('keyup', '[data-term-input]', { self: this }, this.onInputKeyUp);
         $form.on('keydown', '[data-term]', { self: this }, this.onSuggestionKeyDown);
         $form.on('click', '[data-term]', { self: this }, this.onSuggestionClick);
-        $form.on('click', '[data-term-index]', { self: this }, this.onTermClick);
+        $form.on('click', '[data-term-index][type=button]', { self: this }, this.onTermClick);
         $form.on('keydown', '[data-term-index][type=button]', { self: this }, this.onTermKeyDown);
         $form.on('keypress', '[data-term-index][type=text]', { self: this, term: true }, this.onInputKeyPress);
         $form.on('keydown', '[data-term-index][type=text]', { self: this, term: true }, this.onInputKeyDown);
@@ -366,6 +366,9 @@
                 if (isTerm) {
                     _this.saveTerm($input);
                     _this.hideSuggestions($(termSuggestions));
+                    // The input is now of type button, not aborting propagation will trigger onClick due to keyUp
+                    event.stopPropagation();
+                    return false;
                 }
                 break;
             case 37: // Arrow left
@@ -549,6 +552,7 @@
     Completion.prototype.onTermClick = function (event) {
         var _this = event.data.self;
         if (_this.mode === 'full') {
+            _this.editTerm($(event.currentTarget));
             return;
         }
 
@@ -565,14 +569,8 @@
      */
     Completion.prototype.onTermKeyDown = function (event) {
         var _this = event.data.self;
-        var $term = $(event.currentTarget);
 
         switch (event.which) {
-            case 13: // Enter
-                if (_this.mode === 'full') {
-                    _this.editTerm($term);
-                }
-                break;
             case 37: // Arrow left
                 _this.moveFocusBackward($(_this.input).data('term-container'));
                 break;
