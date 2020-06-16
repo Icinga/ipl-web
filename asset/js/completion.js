@@ -351,9 +351,9 @@
                 if (! $(termSuggestions).is(':empty')) {
                     event.preventDefault();
                     if (event.which === 38) {
-                        _this.moveFocusBackward();
+                        _this.moveFocusBackward(termSuggestions);
                     } else {
-                        _this.moveFocusForward();
+                        _this.moveFocusForward(termSuggestions);
                     }
                 }
         }
@@ -468,12 +468,12 @@
             case 37: // Arrow left
             case 38: // Arrow up
                 event.preventDefault();
-                _this.moveFocusBackward();
+                _this.moveFocusBackward($(_this.input).data('term-suggestions'));
                 break;
             case 39: // Arrow right
             case 40: // Arrow down
                 event.preventDefault();
-                _this.moveFocusForward();
+                _this.moveFocusForward($(_this.input).data('term-suggestions'));
                 break;
         }
     };
@@ -897,40 +897,36 @@
         this.nextSuggestion = null;
     };
 
-    Completion.prototype.moveFocusForward = function () {
-        var $input = $(this.input);
-        var termSuggestions = $input.data('term-suggestions');
+    Completion.prototype.moveFocusForward = function (where) {
         // TODO: Use are more flexible selector than button (:focusable is jQuery UI only..)
-        var $focused = $('button:focus', termSuggestions);
+        var $focused = $('button:focus', where);
 
         if ($focused.length) {
-            var $buttons = $('button', termSuggestions);
+            var $buttons = $('button', where);
             var next = $buttons.get($buttons.index($focused) + 1);
             if (next) {
                 this.focusElement($(next));
             } else {
-                this.focusElement($input);
+                this.focusElement($(this.input));
             }
         } else {
-            this.focusElement($('button', termSuggestions).first());
+            this.focusElement($('button', where).first());
         }
     };
 
-    Completion.prototype.moveFocusBackward = function () {
-        var $input = $(this.input);
-        var termSuggestions = $input.data('term-suggestions');
+    Completion.prototype.moveFocusBackward = function (where) {
         // TODO: Use are more flexible selector than button (:focusable is jQuery UI only..)
-        var $focused = $('button:focus', termSuggestions);
+        var $focused = $('button:focus', where);
 
         if ($focused.length) {
-            var $buttons = $('button', termSuggestions);
+            var $buttons = $('button', where);
             if ($buttons.index($focused) > 0) {
                 this.focusElement($($buttons.get($buttons.index($focused) - 1)));
             } else {
-                this.focusElement($input);
+                this.focusElement($(this.input));
             }
         } else {
-            this.focusElement($('button', termSuggestions).last());
+            this.focusElement($('button', where).last());
         }
     };
 
