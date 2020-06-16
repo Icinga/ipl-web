@@ -319,25 +319,29 @@
      */
     Completion.prototype.onInputKeyDown = function (event) {
         var _this = event.data.self;
-        var $input = $(_this.input);
-        var termInput = $input.data('term-input');
-        var termContainer = $input.data('term-container');
-        var termSuggestions = $input.data('term-suggestions');
+        var isTerm = !!event.data.term;
+        var $input = $(event.currentTarget);
+        var $thisInput = $(_this.input);
+        var termInput = $thisInput.data('term-input');
+        var termContainer = $thisInput.data('term-container');
+        var termSuggestions = $thisInput.data('term-suggestions');
 
         switch (event.which) {
             case 32: // Spacebar
-                if (_this.exchangeTerm(termContainer, termInput)) {
+                if (! isTerm && _this.exchangeTerm(termContainer, termInput)) {
                     _this.hideSuggestions($(termSuggestions));
                     _this.updatePlaceholder();
                     return false;
                 }
                 break;
             case 8: // Backspace
-                _this.clearSelectedTerms(termContainer, termInput);
+                if (! isTerm) {
+                    _this.clearSelectedTerms(termContainer, termInput);
 
-                if (! $input.val()) {
-                    _this.popTerm(termContainer, termInput);
-                    _this.updatePlaceholder();
+                    if (! $input.val()) {
+                        _this.popTerm(termContainer, termInput);
+                        _this.updatePlaceholder();
+                    }
                 }
                 break;
             case 9: // Tab
@@ -349,7 +353,8 @@
                     _this.complete(
                         $suggestion.attr('value').trim(),
                         $suggestion.prop('class'),
-                        $suggestion.data('term')
+                        $suggestion.data('term'),
+                        $input
                     );
                     _this.hideSuggestions($(termSuggestions));
                 }
@@ -384,19 +389,21 @@
      */
     Completion.prototype.onInputKeyUp = function (event) {
         var _this = event.data.self;
-        var $input = $(_this.input);
-        var termInput = $input.data('term-input');
-        var termContainer = $input.data('term-container');
-        var termSuggestions = $input.data('term-suggestions');
+        var isTerm = !!event.data.term;
+        var $input = $(event.currentTarget);
+        var $thisInput = $(_this.input);
+        var termInput = $thisInput.data('term-input');
+        var termContainer = $thisInput.data('term-container');
+        var termSuggestions = $thisInput.data('term-suggestions');
 
         var term;
 
         switch (event.which) {
             case 8: // Backspace
                 var $suggestions = $(termSuggestions);
-                term = _this.readPartialTerm();
+                term = _this.readPartialTerm($input);
                 if (term) {
-                    _this.suggest($input.data('suggest-url'), _this.addWildcards(term), $suggestions);
+                    _this.suggest($thisInput.data('suggest-url'), _this.addWildcards(term), $suggestions, $input);
                 } else {
                     _this.hideSuggestions($suggestions);
                 }
@@ -407,10 +414,10 @@
             case 35: // End
             case 37: // ArrowLeft
             case 39: // ArrowRight
-                _this.deselectTerms(termContainer);
+                isTerm || _this.deselectTerms(termContainer);
                 break;
             case 36: // HOME
-                if (event.shiftKey) {
+                if (! isTerm && event.shiftKey) {
                     _this.selectTerms(termContainer);
                 }
                 break;
@@ -422,23 +429,25 @@
                 break;  // Do not suggest anything
             case 50: // Double quote
             case 191: // Single quote
-                if (event.shiftKey && _this.ignoreSpaceUntil === null) {
+                if (! isTerm && event.shiftKey && _this.ignoreSpaceUntil === null) {
                     _this.ignoreSpaceUntil = event.key;
                     _this.ignoreSpaceSince = _this.input.selectionStart - 1;
                     break;
                 }
             default:
-                if (event.which === 65 && (event.ctrlKey || event.metaKey)) {  // a
-                    _this.selectTerms(termContainer);
-                    break;
-                } else if (event.which === 46) {
-                    _this.clearSelectedTerms(termContainer, termInput);
-                    _this.updatePlaceholder();
+                if (! isTerm) {
+                    if (event.which === 65 && (event.ctrlKey || event.metaKey)) {  // a
+                        _this.selectTerms(termContainer);
+                        break;
+                    } else if (event.which === 46) {
+                        _this.clearSelectedTerms(termContainer, termInput);
+                        _this.updatePlaceholder();
+                    }
                 }
 
-                term = _this.readPartialTerm();
+                term = _this.readPartialTerm($input);
                 if (term) {
-                    if (_this.mode === 'full' && _this.hasTerms()) {
+                    if (! isTerm && _this.mode === 'full' && _this.hasTerms()) {
                         if (_this.logical_operators.includes(term)) {
                             // Don't wait for user confirmation, exchange the term instantly if it's a logical operator
                             if (_this.exchangeTerm(termContainer, termInput, 'logical_operator')) {
@@ -461,7 +470,7 @@
                         }
                     }
 
-                    _this.suggest($input.data('suggest-url'), _this.addWildcards(term), $(termSuggestions));
+                    _this.suggest($thisInput.data('suggest-url'), _this.addWildcards(term), $(termSuggestions), $input);
                 } else {
                     _this.hideSuggestions($(termSuggestions));
                 }
@@ -478,11 +487,14 @@
             case 9: // Tab
                 event.preventDefault();
                 var $el = $(event.currentTarget);
-                var $input = $(_this.input);
+                var $thisInput = $(_this.input);
+                var $suggestions = $($thisInput.data('term-suggestions'));
+                var $input = $suggestions.data('input');
                 var term = $el.attr('value').trim();
 
-                _this.complete(term, $el.prop('class'), $el.data('term'));
-                _this.suggest($input.data('suggest-url'), _this.addWildcards(term), $($input.data('term-suggestions')));
+                _this.complete(term, $el.prop('class'), $el.data('term'), $input);
+                _this.suggest(
+                    $thisInput.data('suggest-url'), _this.addWildcards(term), $suggestions, $input);
                 _this.focusElement($input);
                 break;
             case 37: // Arrow left
@@ -504,12 +516,14 @@
     Completion.prototype.onSuggestionClick = function (event) {
         var _this = event.data.self;
         var $el = $(event.currentTarget);
-        var $input = $(_this.input);
+        var $thisInput = $(_this.input);
+        var $suggestions = $($thisInput.data('term-suggestions'));
+        var $input = $suggestions.data('input');
         var term = $el.attr('value').trim();
 
-        _this.complete(term, $el.prop('class'), $el.data('term'));
-        _this.exchangeTerm($input.data('term-container'), $input.data('term-input'));
-        _this.hideSuggestions($($input.data('term-suggestions')));
+        _this.complete(term, $el.prop('class'), $el.data('term'), $input);
+        _this.exchangeTerm($thisInput.data('term-container'), $thisInput.data('term-input'));
+        _this.hideSuggestions($suggestions);
         _this.updatePlaceholder();
         _this.focusElement($input);
     };
@@ -586,28 +600,31 @@
      * @param term
      * @param termClass
      * @param searchTerm
+     * @param where
      */
-    Completion.prototype.complete = function (term, termClass, searchTerm) {
-        this.lastCompletedTerm = { 'search': searchTerm, 'class': termClass };
-        this.writePartialTerm(term);
+    Completion.prototype.complete = function (term, termClass, searchTerm, where) {
+        this.lastCompletedTerm = { 'search': searchTerm, 'class': termClass, 'term': term };
+        this.writePartialTerm(term, where);
     };
 
     /**
      * @param term
+     * @param where
      */
-    Completion.prototype.writePartialTerm = function (term) {
+    Completion.prototype.writePartialTerm = function (term, where) {
         if (this.ignoreSpaceUntil !== null && this.ignoreSpaceSince === 0) {
             term = this.ignoreSpaceUntil + term;
         }
 
-        $(this.input).val(term);
+        $(where).val(term);
     };
 
     /**
+     * @param where
      * @returns {string}
      */
-    Completion.prototype.readPartialTerm = function () {
-        var term = this.readFullTerm();
+    Completion.prototype.readPartialTerm = function (where) {
+        var term = this.readFullTerm(where);
         if (this.ignoreSpaceUntil !== null && this.ignoreSpaceSince === 0) {
             term = term.slice(1);
         }
@@ -616,10 +633,11 @@
     };
 
     /**
+     * @param where
      * @returns {string}
      */
-    Completion.prototype.readFullTerm = function () {
-        return $(this.input).val().trim();
+    Completion.prototype.readFullTerm = function (where) {
+        return $(where).val().trim();
     };
 
     /**
@@ -629,7 +647,7 @@
      * @returns {boolean}
      */
     Completion.prototype.exchangeTerm = function (termContainer, termInput, termType) {
-        var newTerm = this.readFullTerm();
+        var newTerm = this.readFullTerm(this.input);
         if (! newTerm) {
             return false;
         } else if (this.ignoreSpaceUntil !== null && newTerm[this.ignoreSpaceSince] === this.ignoreSpaceUntil) {
@@ -860,13 +878,13 @@
     /**
      * @param   data
      * @param   $suggestions
+     * @param   $at
      */
-    Completion.prototype.showSuggestions = function (data, $suggestions) {
+    Completion.prototype.showSuggestions = function (data, $suggestions, $at) {
         $suggestions.html(data);
 
-        var $input = $(this.input),
-            inputPos = $input.position(),
-            inputWidth = $input.outerWidth(true),
+        var inputPos = $at.position(),
+            inputWidth = $at.outerWidth(true),
             suggestionWidth = $suggestions.outerWidth(true);
         if (inputPos.left + suggestionWidth > inputPos.left + inputWidth) {
             $suggestions.css({left: inputPos.left + inputWidth - suggestionWidth});
@@ -874,6 +892,7 @@
             $suggestions.css({left: inputPos.left});
         }
 
+        $suggestions.data('input', $at);
         $suggestions.show();
     };
 
@@ -883,6 +902,7 @@
     Completion.prototype.hideSuggestions = function ($suggestions) {
         $suggestions.hide();
         $suggestions.html('');
+        $suggestions.removeData('input');
     };
 
     /**
@@ -912,8 +932,9 @@
      * @param   url
      * @param   query
      * @param   $target
+     * @param   $to
      */
-    Completion.prototype.suggest = function (url, query, $target) {
+    Completion.prototype.suggest = function (url, query, $target, $to) {
         this.abort();
 
         var self = this;
@@ -945,6 +966,7 @@
                 context : self
             });
 
+            req.$to = $to;
             req.$target = $target;
             req.done(self.onCompletionResponse);
             req.fail(self.onCompletionFailure);
@@ -960,8 +982,8 @@
      * @param req
      */
     Completion.prototype.onCompletionResponse = function (data, textStatus, req) {
-        if (data && this.readPartialTerm()) {
-            this.showSuggestions(data, req.$target);
+        if (data && this.readPartialTerm(req.$to)) {
+            this.showSuggestions(data, req.$target, req.$to);
         } else {
             this.hideSuggestions(req.$target);
         }
@@ -974,7 +996,7 @@
      */
     Completion.prototype.onCompletionFailure = function (req, textStatus, errorThrown) {
         if (textStatus !== 'abort') {
-            this.showSuggestions(errorThrown, req.$target);
+            this.showSuggestions(errorThrown, req.$target, req.$to);
         }
     };
 
@@ -991,6 +1013,8 @@
             var next = $buttons.get($buttons.index($focused) + 1);
             if (next) {
                 this.focusElement($(next));
+            } else if (!! $(where).data('input')) {
+                this.focusElement($(where).data('input'));
             } else {
                 this.focusElement($(this.input));
             }
@@ -1006,6 +1030,8 @@
             var $buttons = $('input', where);
             if ($buttons.index($focused) > 0) {
                 this.focusElement($($buttons.get($buttons.index($focused) - 1)));
+            } else if (!! $(where).data('input')) {
+                this.focusElement($(where).data('input'));
             } else {
                 this.focusElement($(this.input));
             }
