@@ -138,7 +138,10 @@
         $form.on('keydown', '[data-term]', { self: this }, this.onSuggestionKeyDown);
         $form.on('click', '[data-term]', { self: this }, this.onSuggestionClick);
         $form.on('click', '[data-term-index]', { self: this }, this.onTermClick);
-        $form.on('keydown', '[data-term-index]', { self: this }, this.onTermKeyDown);
+        $form.on('keydown', '[data-term-index][type=button]', { self: this }, this.onTermKeyDown);
+        $form.on('keypress', '[data-term-index][type=text]', { self: this, term: true }, this.onInputKeyPress);
+        $form.on('keydown', '[data-term-index][type=text]', { self: this, term: true }, this.onInputKeyDown);
+        $form.on('keyup', '[data-term-index][type=text]', { self: this, term: true }, this.onInputKeyUp);
 
         // Ensure we'll survive
         $input.data('completion', this);
@@ -359,6 +362,12 @@
                     _this.hideSuggestions($(termSuggestions));
                 }
                 break;
+            case 13: // Enter
+                if (isTerm) {
+                    _this.saveTerm($input);
+                    _this.hideSuggestions($(termSuggestions));
+                }
+                break;
             case 37: // Arrow left
                 if ($input[0].selectionStart === 0 && _this.hasTerms()) {
                     event.preventDefault();
@@ -522,9 +531,15 @@
         var term = $el.attr('value').trim();
 
         _this.complete(term, $el.prop('class'), $el.data('term'), $input);
-        _this.exchangeTerm($thisInput.data('term-container'), $thisInput.data('term-input'));
+
+        if ($input.is('[data-term-index]')) {
+            _this.saveTerm($input);
+        } else {
+            _this.exchangeTerm($thisInput.data('term-container'), $thisInput.data('term-input'));
+            _this.updatePlaceholder();
+        }
+
         _this.hideSuggestions($suggestions);
-        _this.updatePlaceholder();
         _this.focusElement($input);
     };
 
@@ -555,24 +570,14 @@
         switch (event.which) {
             case 13: // Enter
                 if (_this.mode === 'full') {
-                    if ($term.attr('type') === 'button') {
-                        _this.editTerm($term);
-                    } else {
-                        _this.saveTerm($term);
-                    }
+                    _this.editTerm($term);
                 }
                 break;
             case 37: // Arrow left
-                if ($term.attr('type') !== 'text' || $term[0].selectionStart === 0) {
-                    event.preventDefault();
-                    _this.moveFocusBackward($(_this.input).data('term-container'));
-                }
+                _this.moveFocusBackward($(_this.input).data('term-container'));
                 break;
             case 39: // Arrow right
-                if ($term.attr('type') !== 'text' || $term[0].selectionStart === $term.val().length) {
-                    event.preventDefault();
-                    _this.moveFocusForward($(_this.input).data('term-container'));
-                }
+                _this.moveFocusForward($(_this.input).data('term-container'));
                 break;
         }
     };
@@ -604,7 +609,11 @@
      */
     Completion.prototype.complete = function (term, termClass, searchTerm, where) {
         this.lastCompletedTerm = { 'search': searchTerm, 'class': termClass, 'term': term };
-        this.writePartialTerm(term, where);
+        if (this.mode === 'full') {
+            this.writePartialTerm(searchTerm, where);
+        } else {
+            this.writePartialTerm(term, where);
+        }
     };
 
     /**
@@ -683,8 +692,15 @@
             this.ignoreSpaceUntil = null;
             this.ignoreSpaceSince = null;
         } else if (this.lastCompletedTerm !== null) {
+            if (this.mode === 'full') {
+                if (termData.search === this.lastCompletedTerm.search) {
+                    termData.term = this.lastCompletedTerm.term;
+                }
+            } else {
+                termData.search = this.lastCompletedTerm.search;
+            }
+
             termData.class = this.lastCompletedTerm.class;
-            termData.search = this.lastCompletedTerm.search;
             this.lastCompletedTerm = null;
         }
 
@@ -783,9 +799,26 @@
         var value = $term.val();
         var term = this.usedTerms[$term.data('term-index')];
 
-        term.search = value;
-        term.term = value;
-        term.inactive = false;
+        if (value !== term.search) {
+            // The user didn't change anything
+            term.search = value;
+            term.term = value;
+            term.inactive = false;
+        }
+
+        if (this.lastCompletedTerm !== null) {
+            if (term.search === this.lastCompletedTerm.search) {
+                term.term = this.lastCompletedTerm.term;
+            }
+
+            term.class = this.lastCompletedTerm.class;
+            this.lastCompletedTerm = null;
+        }
+
+        if (term.search !== term.term) {
+            // Now show the label again
+            $term.val(term.term);
+        }
 
         $term.attr('type', 'button');
     };
@@ -943,7 +976,11 @@
             var suggestParameter;
 
             if (self.mode === 'full') {
-                suggestParameter = self.termType;
+                if ($to.is('[data-term-index]')) {
+                    suggestParameter = self.usedTerms[$to.data('term-index')].type;
+                } else {
+                    suggestParameter = self.termType;
+                }
             } else {
                 suggestParameter = $($(self.input).data('term-input')).prop('name');
             }
