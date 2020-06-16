@@ -138,6 +138,7 @@
         $form.on('keydown', '[data-term]', { self: this }, this.onSuggestionKeyDown);
         $form.on('click', '[data-term]', { self: this }, this.onSuggestionClick);
         $form.on('click', '[data-term-index]', { self: this }, this.onTermClick);
+        $form.on('keydown', '[data-term-index]', { self: this }, this.onTermKeyDown);
 
         // Ensure we'll survive
         $input.data('completion', this);
@@ -346,6 +347,18 @@
                     _this.hideSuggestions($(termSuggestions));
                 }
                 break;
+            case 37: // Arrow left
+                if ($input[0].selectionStart === 0 && _this.hasTerms()) {
+                    event.preventDefault();
+                    _this.moveFocusBackward(termContainer);
+                }
+                break;
+            case 39: // Arrow right
+                if ($input[0].selectionStart === $input.val().length && _this.hasTerms()) {
+                    event.preventDefault();
+                    _this.moveFocusForward(termContainer);
+                }
+                break;
             case 38: // Arrow up
             case 40: // Arrow down
                 if (! $(termSuggestions).is(':empty')) {
@@ -505,6 +518,24 @@
         _this.removeTerm($term, $input.data('term-input'));
         _this.updatePlaceholder();
         _this.focusElement($input);
+    };
+
+    /**
+     * @param event
+     */
+    Completion.prototype.onTermKeyDown = function (event) {
+        var _this = event.data.self;
+
+        switch (event.which) {
+            case 37: // Arrow left
+            case 39: // Arrow right
+                event.preventDefault();
+                if (event.which === 37) {
+                    _this.moveFocusBackward($(_this.input).data('term-container'));
+                } else {
+                    _this.moveFocusForward($(_this.input).data('term-container'));
+                }
+        }
     };
 
     /**
