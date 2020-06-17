@@ -15,7 +15,7 @@ class StateBall extends BaseHtmlElement
     const SIZE_BIG = 'l';
     const SIZE_LARGE = 'xl';
 
-    protected $tag = 'div';
+    protected $tag = 'span';
 
     /**
      * Create a new state ball element
