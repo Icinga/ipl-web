@@ -162,7 +162,7 @@
         this.usedTerms = [];
 
         // Then the widget
-        this.updatePlaceholder();
+        this.togglePlaceholder();
         var $input = $(this.input);
         $($input.data('term-input')).val('');
         $($input.data('term-container')).html('');
@@ -214,7 +214,7 @@
             $.each(this.usedTerms, function (termIndex, termData) {
                 _this.addTerm(termData, $termContainer, $input.data('term-input'), termIndex);
             });
-            this.updatePlaceholder();
+            this.togglePlaceholder();
             $input.val('');
         } else if (this.mode === 'basic') {
             var terms = $input.val();
@@ -246,7 +246,7 @@
 
                     _this.addTerm(termData, $input.data('term-container'), $input.data('term-input'));
                 });
-                this.updatePlaceholder();
+                this.togglePlaceholder();
                 $input.val('');
             }
         }
@@ -333,7 +333,7 @@
             case 32: // Spacebar
                 if (! isTerm && _this.exchangeTerm(termContainer, termInput)) {
                     _this.hideSuggestions($(termSuggestions));
-                    _this.updatePlaceholder();
+                    _this.togglePlaceholder();
                     return false;
                 }
                 break;
@@ -343,7 +343,7 @@
 
                     if (! $input.val()) {
                         _this.popTerm(termContainer, termInput);
-                        _this.updatePlaceholder();
+                        _this.togglePlaceholder();
                     }
                 }
                 break;
@@ -453,7 +453,7 @@
                         break;
                     } else if (event.which === 46) {
                         _this.clearSelectedTerms(termContainer, termInput);
-                        _this.updatePlaceholder();
+                        _this.togglePlaceholder();
                     }
                 }
 
@@ -464,7 +464,7 @@
                             // Don't wait for user confirmation, exchange the term instantly if it's a logical operator
                             if (_this.exchangeTerm(termContainer, termInput, 'logical_operator')) {
                                 _this.hideSuggestions($(termSuggestions));
-                                _this.updatePlaceholder();
+                                _this.togglePlaceholder();
                                 return;
                             }
                         } else if (_this.termType === 'column' && _this.lastTerm().type !== 'logical_operator') {
@@ -539,7 +539,7 @@
             _this.saveTerm($input);
         } else {
             _this.exchangeTerm($thisInput.data('term-container'), $thisInput.data('term-input'));
-            _this.updatePlaceholder();
+            _this.togglePlaceholder();
         }
 
         _this.hideSuggestions($suggestions);
@@ -560,7 +560,7 @@
         var $term = $(event.currentTarget);
 
         _this.removeTerm($term, $input.data('term-input'));
-        _this.updatePlaceholder();
+        _this.togglePlaceholder();
         _this.focusElement($input);
     };
 
@@ -1075,7 +1075,7 @@
         }
     };
 
-    Completion.prototype.updatePlaceholder = function () {
+    Completion.prototype.togglePlaceholder = function () {
         var $input = $(this.input);
         if (! this.hasTerms()) {
             if ($input.data('placeholder')) {
