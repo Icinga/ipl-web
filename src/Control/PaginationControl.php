@@ -441,7 +441,7 @@ class PaginationControl extends BaseHtmlElement
         $select = Html::tag('select', [
             'name' => $this->getPageParam(),
             'class' => 'autosubmit',
-            'title' => 'Go to page …'
+            'title' => t('Go to page …')
         ]);
 
         if (isset($currentPageNumber)) {
@@ -471,9 +471,6 @@ class PaginationControl extends BaseHtmlElement
 
     protected function assemble()
     {
-
-        $currentPageNumber = $this->getCurrentPageNumber();
-
         if ($this->getPageCount() < 2) {
             return;
         }
@@ -490,15 +487,13 @@ class PaginationControl extends BaseHtmlElement
 
         $paginator = Html::tag('ul', ['class' => 'tab-nav nav']);
 
-        $paginator->add($this->createFirstPageItem());
-
-        $paginator->add($this->createPreviousPageItem());
-
-        $paginator->add($this->createPageSelectorItem());
-
-        $paginator->add($this->createNextPageItem());
-
-        $paginator->add($this->createLastPageItem());
+        $paginator->add([
+            $this->createFirstPageItem(),
+            $this->createPreviousPageItem(),
+            $this->createPageSelectorItem(),
+            $this->createNextPageItem(),
+            $this->createLastPageItem()
+        ]);
 
         $this->add($paginator);
     }
