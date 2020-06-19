@@ -132,11 +132,12 @@
         $form.on('click', 'button, input[type="submit"]', { self: this }, this.onButtonClick);
 
         // User interactions
+        $form.on('input', '[data-term-input], [data-term-index]', { self: this }, this.onInput);
         $form.on('keypress', '[data-term-input]', { self: this }, this.onInputKeyPress);
         $form.on('keydown', '[data-term-input]', { self: this }, this.onInputKeyDown);
         $form.on('keyup', '[data-term-input]', { self: this }, this.onInputKeyUp);
-        $form.on('keydown', '[data-term]', { self: this }, this.onSuggestionKeyDown);
-        $form.on('click', '[data-term]', { self: this }, this.onSuggestionClick);
+        $form.on('keydown', 'input[data-term]', { self: this }, this.onSuggestionKeyDown);
+        $form.on('click', 'input[data-term]', { self: this }, this.onSuggestionClick);
         if (this.mode === 'basic') {
             $form.on('click', '[data-term-index]', { self: this }, this.onTermClick);
             $form.on('keydown', '[data-term-index]', { self: this }, this.onTermKeyDown);
@@ -301,6 +302,16 @@
 
         // But keep any used terms (Otherwise reset in onRendered)
         _this.keepUsedTerms = true;
+    };
+
+    /**
+     * @param event
+     */
+    Completion.prototype.onInput = function (event) {
+        var _this = event.data.self;
+        var $input = $(event.target);
+
+        _this.updateTermData($input.parent(), { term: $input.val() });
     };
 
     /**
@@ -643,6 +654,7 @@
         }
 
         $input.val(term);
+        this.updateTermData($input.parent(), { term: term });
     };
 
     /**
@@ -773,6 +785,11 @@
             }
             html += '"';
         }
+        if (termData.type !== null) {
+            html += ' data-term-type="' + termData.type + '"';
+        }
+        html += ' data-term="' + termData.term + '"';
+        html += ' data-term-search="' + termData.search + '"';
         html += ' data-term-index="' + termIndex + '"';
         if (this.mode === 'basic') {
             html += '><input type="button"';
@@ -828,6 +845,26 @@
             }
 
             this.lastCompletedTerm = null;
+        }
+
+        this.updateTermData($term, term);
+    };
+
+    /**
+     * @param $term
+     * @param data
+     */
+    Completion.prototype.updateTermData = function ($term, data) {
+        $term.attr('data-term', data.term);
+
+        if (!! data.search || data.search === '') {
+            $term.attr('data-term-search', data.search);
+        }
+
+        if (!! data.inactive) {
+            $term.addClass('inactive');
+        } else if ($term.hasClass('inactive')) {
+            $term.removeClass('inactive');
         }
     };
 
