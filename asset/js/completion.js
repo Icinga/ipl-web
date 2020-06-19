@@ -137,11 +137,16 @@
         $form.on('keyup', '[data-term-input]', { self: this }, this.onInputKeyUp);
         $form.on('keydown', '[data-term]', { self: this }, this.onSuggestionKeyDown);
         $form.on('click', '[data-term]', { self: this }, this.onSuggestionClick);
-        $form.on('click', '[data-term-index][type=button]', { self: this }, this.onTermClick);
-        $form.on('keydown', '[data-term-index][type=button]', { self: this }, this.onTermKeyDown);
-        $form.on('keypress', '[data-term-index][type=text]', { self: this, term: true }, this.onInputKeyPress);
-        $form.on('keydown', '[data-term-index][type=text]', { self: this, term: true }, this.onInputKeyDown);
-        $form.on('keyup', '[data-term-index][type=text]', { self: this, term: true }, this.onInputKeyUp);
+        if (this.mode === 'basic') {
+            $form.on('click', '[data-term-index]', { self: this }, this.onTermClick);
+            $form.on('keydown', '[data-term-index]', { self: this }, this.onTermKeyDown);
+        } else {
+            $form.on('blur', '[data-term-index]', { self: this }, this.onTermBlur);
+            $form.on('focus', '[data-term-index], [data-term-input]', { self: this }, this.onInputFocus);
+            $form.on('keypress', '[data-term-index]', { self: this, term: true }, this.onInputKeyPress);
+            $form.on('keydown', '[data-term-index]', { self: this, term: true }, this.onInputKeyDown);
+            $form.on('keyup', '[data-term-index]', { self: this, term: true }, this.onInputKeyUp);
+        }
 
         // Ensure we'll survive
         $input.data('completion', this);
@@ -261,13 +266,6 @@
         var _this = event.data.self;
         var $input = $(_this.input);
 
-        if (_this.mode === 'full' && $(':focus', event.target).is('[data-term-index]')) {
-            // Don't submit the form if a user updates a term
-            event.stopPropagation();
-            event.preventDefault();
-            return false;
-        }
-
         // TODO: This omits incomplete quoted terms. Since it seems not to be possible to prevent submission
         // in this case we'll need some workaround here. Maybe using the incomplete term anyway?
         _this.exchangeTerm($input.data('term-container'), $input.data('term-input'));
@@ -308,6 +306,20 @@
     /**
      * @param event
      */
+    Completion.prototype.onInputFocus = function (event) {
+        var _this = event.data.self;
+        var $input = $(_this.input);
+        var $term = $(event.currentTarget);
+        var $suggestions = $($input.data('term-suggestions'));
+
+        if (! $term.is($suggestions.data('term'))) {
+            _this.hideSuggestions($suggestions);
+        }
+    };
+
+    /**
+     * @param event
+     */
     Completion.prototype.onInputKeyPress = function (event) {
         var _this = event.data.self;
         var $input = $(_this.input);
@@ -323,7 +335,8 @@
     Completion.prototype.onInputKeyDown = function (event) {
         var _this = event.data.self;
         var isTerm = !!event.data.term;
-        var $input = $(event.currentTarget);
+        var $input = $(event.target);
+        var $term = $(event.currentTarget);
         var $thisInput = $(_this.input);
         var termInput = $thisInput.data('term-input');
         var termContainer = $thisInput.data('term-container');
@@ -357,18 +370,15 @@
                         $suggestion.attr('value').trim(),
                         $suggestion.prop('class'),
                         $suggestion.data('term'),
-                        $input
+                        $term
                     );
                     _this.hideSuggestions($(termSuggestions));
                 }
                 break;
             case 13: // Enter
                 if (isTerm) {
-                    _this.saveTerm($input);
+                    _this.saveTerm($term);
                     _this.hideSuggestions($(termSuggestions));
-                    // The input is now of type button, not aborting propagation will trigger onClick due to keyUp
-                    event.stopPropagation();
-                    return false;
                 }
                 break;
             case 37: // Arrow left
@@ -402,7 +412,7 @@
     Completion.prototype.onInputKeyUp = function (event) {
         var _this = event.data.self;
         var isTerm = !!event.data.term;
-        var $input = $(event.currentTarget);
+        var $term = $(event.currentTarget);
         var $thisInput = $(_this.input);
         var termInput = $thisInput.data('term-input');
         var termContainer = $thisInput.data('term-container');
@@ -413,9 +423,9 @@
         switch (event.which) {
             case 8: // Backspace
                 var $suggestions = $(termSuggestions);
-                term = _this.readPartialTerm($input);
+                term = _this.readPartialTerm($term);
                 if (term) {
-                    _this.suggest($thisInput.data('suggest-url'), _this.addWildcards(term), $suggestions, $input);
+                    _this.suggest($thisInput.data('suggest-url'), _this.addWildcards(term), $suggestions, $term);
                 } else {
                     _this.hideSuggestions($suggestions);
                 }
@@ -457,7 +467,7 @@
                     }
                 }
 
-                term = _this.readPartialTerm($input);
+                term = _this.readPartialTerm($term);
                 if (term) {
                     if (! isTerm && _this.mode === 'full' && _this.hasTerms()) {
                         if (_this.logical_operators.includes(term)) {
@@ -482,7 +492,7 @@
                         }
                     }
 
-                    _this.suggest($thisInput.data('suggest-url'), _this.addWildcards(term), $(termSuggestions), $input);
+                    _this.suggest($thisInput.data('suggest-url'), _this.addWildcards(term), $(termSuggestions), $term);
                 } else {
                     _this.hideSuggestions($(termSuggestions));
                 }
@@ -499,15 +509,14 @@
             case 9: // Tab
                 event.preventDefault();
                 var $el = $(event.currentTarget);
-                var $thisInput = $(_this.input);
-                var $suggestions = $($thisInput.data('term-suggestions'));
-                var $input = $suggestions.data('input');
+                var $input = $(_this.input);
+                var $suggestions = $($input.data('term-suggestions'));
+                var $term = $suggestions.data('term');
                 var term = $el.attr('value').trim();
 
-                _this.complete(term, $el.prop('class'), $el.data('term'), $input);
-                _this.suggest(
-                    $thisInput.data('suggest-url'), _this.addWildcards(term), $suggestions, $input);
-                _this.focusElement($input);
+                _this.complete(term, $el.prop('class'), $el.data('term'), $term);
+                _this.suggest($input.data('suggest-url'), _this.addWildcards(term), $suggestions, $term);
+                _this.focusElement($term);
                 break;
             case 37: // Arrow left
             case 38: // Arrow up
@@ -528,17 +537,17 @@
     Completion.prototype.onSuggestionClick = function (event) {
         var _this = event.data.self;
         var $el = $(event.currentTarget);
-        var $thisInput = $(_this.input);
-        var $suggestions = $($thisInput.data('term-suggestions'));
-        var $input = $suggestions.data('input');
+        var $input = $(_this.input);
+        var $suggestions = $($input.data('term-suggestions'));
+        var $term = $suggestions.data('term');
         var term = $el.attr('value').trim();
 
-        _this.complete(term, $el.prop('class'), $el.data('term'), $input);
+        _this.complete(term, $el.prop('class'), $el.data('term'), $term);
 
-        if ($input.is('[data-term-index]')) {
-            _this.saveTerm($input);
+        if ($term.is('[data-term-index]')) {
+            _this.saveTerm($term);
         } else {
-            _this.exchangeTerm($thisInput.data('term-container'), $thisInput.data('term-input'));
+            _this.exchangeTerm($input.data('term-container'), $input.data('term-input'));
             _this.togglePlaceholder();
         }
 
@@ -549,13 +558,18 @@
     /**
      * @param event
      */
-    Completion.prototype.onTermClick = function (event) {
+    Completion.prototype.onTermBlur = function (event) {
         var _this = event.data.self;
         if (_this.mode === 'full') {
-            _this.editTerm($(event.currentTarget));
-            return;
+            _this.saveTerm($(event.currentTarget));
         }
+    };
 
+    /**
+     * @param event
+     */
+    Completion.prototype.onTermClick = function (event) {
+        var _this = event.data.self;
         var $input = $(_this.input);
         var $term = $(event.currentTarget);
 
@@ -623,7 +637,12 @@
             term = this.ignoreSpaceUntil + term;
         }
 
-        $(where).val(term);
+        var $input = $(where);
+        if (! $input.is('input')) {
+            $input = $input.children('input').first();
+        }
+
+        $input.val(term);
     };
 
     /**
@@ -644,7 +663,12 @@
      * @returns {string}
      */
     Completion.prototype.readFullTerm = function (where) {
-        return $(where).val().trim();
+        var $input = $(where);
+        if (! $input.is('input')) {
+            $input = $input.children('input').first();
+        }
+
+        return $input.val().trim();
     };
 
     /**
@@ -690,15 +714,11 @@
             this.ignoreSpaceUntil = null;
             this.ignoreSpaceSince = null;
         } else if (this.lastCompletedTerm !== null) {
-            if (this.mode === 'full') {
-                if (termData.search === this.lastCompletedTerm.search) {
-                    termData.term = this.lastCompletedTerm.term;
-                }
-            } else {
+            if (termData.term === this.lastCompletedTerm.term) {
                 termData.search = this.lastCompletedTerm.search;
+                termData.class = this.lastCompletedTerm.class;
             }
 
-            termData.class = this.lastCompletedTerm.class;
             this.lastCompletedTerm = null;
         }
 
@@ -734,18 +754,18 @@
             termIndex = this.usedTerms.push(termData) - 1;
         }
 
-        var $termInput = $(termInput);
-        var existingTerms = $termInput.val();
-        if (existingTerms) {
-            existingTerms += ' ';
+        if (this.mode === 'basic') {
+            var $termInput = $(termInput);
+            var existingTerms = $termInput.val();
+            if (existingTerms) {
+                existingTerms += ' ';
+            }
+
+            existingTerms += termData.search;
+            $termInput.val(existingTerms);
         }
 
-        existingTerms += termData.search;
-        $termInput.val(existingTerms);
-
-        var html = '<input type="button"';
-        html += ' data-term-index="' + termIndex + '"';
-        html += ' value="' + termData.term + '"';
+        var html = '<label';
         if (termData.class) {
             html += ' class="' + termData.class;
             if (!! termData.inactive) {
@@ -753,7 +773,14 @@
             }
             html += '"';
         }
-        html += '>';
+        html += ' data-term-index="' + termIndex + '"';
+        if (this.mode === 'basic') {
+            html += '><input type="button"';
+        } else {
+            html += '><input type="text"';
+        }
+        html += ' value="' + termData.term + '"';
+        html += '></label>';
 
         $(termContainer).append(html);
 
@@ -778,47 +805,30 @@
     /**
      * @param $term
      */
-    Completion.prototype.editTerm = function ($term) {
-        var term = this.usedTerms[$term.data('term-index')];
-
-        if (term.search !== term.term) {
-            // It's a term with a specific label, set the actual term as value then
-            $term.attr('value', term.search);
+    Completion.prototype.saveTerm = function ($term) {
+        var $input = $term;
+        if (! $input.is('input')) {
+            $input = $term.children('input').first();
         }
 
-        $term.attr('type', 'text');
-        $term[0].select();
-    };
-
-    /**
-     * @param $term
-     */
-    Completion.prototype.saveTerm = function ($term) {
-        var value = $term.val();
+        var value = $input.val();
         var term = this.usedTerms[$term.data('term-index')];
 
-        if (value !== term.search) {
-            // The user didn't change anything
+        if (value !== term.term) {
+            // The user did change something
             term.search = value;
             term.term = value;
             term.inactive = false;
         }
 
         if (this.lastCompletedTerm !== null) {
-            if (term.search === this.lastCompletedTerm.search) {
-                term.term = this.lastCompletedTerm.term;
+            if (term.term === this.lastCompletedTerm.term) {
+                term.search = this.lastCompletedTerm.search;
+                term.class = this.lastCompletedTerm.class;
             }
 
-            term.class = this.lastCompletedTerm.class;
             this.lastCompletedTerm = null;
         }
-
-        if (term.search !== term.term) {
-            // Now show the label again
-            $term.val(term.term);
-        }
-
-        $term.attr('type', 'button');
     };
 
     /**
@@ -848,7 +858,7 @@
      * @param   termInput
      */
     Completion.prototype.popTerm = function (termContainer, termInput) {
-        var $term = $('input', termContainer).last();
+        var $term = $('[data-term-index]', termContainer).last();
         if ($term.length) {
             this.removeTerm($term, termInput);
         }
@@ -859,40 +869,40 @@
      * @param termInput
      */
     Completion.prototype.removeTerm = function ($term, termInput) {
-        var $termInput = $(termInput);
-        var terms = $termInput.val();
-
         var termData = this.usedTerms.splice($term.data('term-index'), 1)[0];
         $term.nextAll().each(function (_, el) {
             $(el).data('term-index', $(el).data('term-index') - 1);
         });
 
-        var searchPattern = termData.search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        terms = terms.replace(new RegExp('(^|\\s)' + searchPattern + '($|\\s)'), ' ');
-        $termInput.val(terms.trim());
-        $term.remove();
-
-        if (this.mode === 'full') {
+        if (this.mode === 'basic') {
+            var $termInput = $(termInput);
+            var terms = $termInput.val();
+            var searchPattern = termData.search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            terms = terms.replace(new RegExp('(^|\\s)' + searchPattern + '($|\\s)'), ' ');
+            $termInput.val(terms.trim());
+        } else {
             if (this.hasTerms()) {
                 this.nextTermType(this.lastTerm().type);
             } else {
                 this.termType = 'column';
             }
         }
+
+        $term.remove();
     };
 
     /**
      * @param   termContainer
      */
     Completion.prototype.selectTerms = function (termContainer) {
-        $('input', termContainer).addClass('selected');
+        $('[data-term-index]', termContainer).addClass('selected');
     };
 
     /**
      * @param   termContainer
      */
     Completion.prototype.deselectTerms = function (termContainer) {
-        $('input.selected', termContainer).removeClass('selected');
+        $('[data-term-index].selected', termContainer).removeClass('selected');
     };
 
     /**
@@ -901,7 +911,7 @@
      */
     Completion.prototype.clearSelectedTerms = function (termContainer, termInput) {
         var _this = this;
-        $('input.selected', termContainer).each(function (_, el) {
+        $('[data-term-index].selected', termContainer).each(function (_, el) {
             _this.removeTerm($(el), termInput);
         });
     };
@@ -923,7 +933,7 @@
             $suggestions.css({left: inputPos.left});
         }
 
-        $suggestions.data('input', $at);
+        $suggestions.data('term', $at);
         $suggestions.show();
     };
 
@@ -933,7 +943,7 @@
     Completion.prototype.hideSuggestions = function ($suggestions) {
         $suggestions.hide();
         $suggestions.html('');
-        $suggestions.removeData('input');
+        $suggestions.removeData('term');
     };
 
     /**
@@ -1048,8 +1058,8 @@
             var next = $buttons.get($buttons.index($focused) + 1);
             if (next) {
                 this.focusElement($(next));
-            } else if (!! $(where).data('input')) {
-                this.focusElement($(where).data('input'));
+            } else if (!! $(where).data('term')) {
+                this.focusElement($(where).data('term'));
             } else {
                 this.focusElement($(this.input));
             }
@@ -1065,8 +1075,8 @@
             var $buttons = $('input', where);
             if ($buttons.index($focused) > 0) {
                 this.focusElement($($buttons.get($buttons.index($focused) - 1)));
-            } else if (!! $(where).data('input')) {
-                this.focusElement($(where).data('input'));
+            } else if (!! $(where).data('term')) {
+                this.focusElement($(where).data('term'));
             } else {
                 this.focusElement($(this.input));
             }
@@ -1088,6 +1098,10 @@
     };
 
     Completion.prototype.focusElement = function ($element) {
+        if (! $element.is('input')) {
+            $element = $element.children('input').first();
+        }
+
         if ($element.length) {
             $element[0].focus();
         }
