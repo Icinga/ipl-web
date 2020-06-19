@@ -204,10 +204,6 @@
     Completion.prototype.restoreTerms = function () {
         var $input = $(this.input);
 
-        if (! $input.is('[data-reverse-term]')) {
-            return false;
-        }
-
         if (! this.keepUsedTerms) {
             this.usedTerms = [];
         } else {
@@ -222,6 +218,8 @@
             });
             this.togglePlaceholder();
             $input.val('');
+        } else if (! $input.is('[data-reverse-term]')) {
+            return false;
         } else if (this.mode === 'basic') {
             var terms = $input.val();
             if (! terms) {
