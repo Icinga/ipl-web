@@ -1014,13 +1014,20 @@
         var self = this;
         this.nextSuggestion = setTimeout(function () {
             var data = {};
-            var suggestParameter;
+            var termIndex, suggestParameter;
 
             if (self.mode === 'full') {
                 if ($to.is('[data-term-index]')) {
-                    suggestParameter = self.usedTerms[$to.data('term-index')].type;
+                    termIndex = $to.data('term-index');
+                    suggestParameter = self.usedTerms[termIndex].type;
                 } else {
+                    termIndex = self.usedTerms.length;
                     suggestParameter = self.termType;
+                }
+
+                if (suggestParameter === 'value' && self.hasTerms()) {
+                    // Also transmit the previous column as context
+                    data['column'] = self.usedTerms[termIndex - 2].term;
                 }
             } else {
                 suggestParameter = $($(self.input).data('term-input')).prop('name');
