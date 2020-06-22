@@ -272,25 +272,8 @@
         // Unset the input's name, to prevent its submission (It may actually have a name, as no-js fallback)
         $input.prop('name', '');
 
-        if (_this.mode === 'full') {
-            // Rewrite the form's action. There's no particular search parameter in full mode
-            var $form = $(event.currentTarget).closest('form');
-            var action = $form.attr('action');
-            if (! action) {
-                action = _this.icinga.loader.getLinkTargetFor($form).closest('.container').data('icingaUrl');
-            }
-
-            $form.attr('action', _this.icinga.utils.addUrlFlag(action, _this.usedTerms.map(function (e) {
-                if (!! e.inactive) {
-                    return '';
-                } else {
-                    return e.search;
-                }
-            }).join('')));
-        } else {
-            // Enable the hidden input, otherwise it's not submitted
-            $($input.data('term-input')).prop('disabled', false);
-        }
+        // Enable the hidden input, otherwise it's not submitted
+        $($input.data('term-input')).prop('disabled', false);
 
         // Reset all states, the user is about to navigate away
         _this.abort();
@@ -764,10 +747,10 @@
             termIndex = this.usedTerms.push(termData) - 1;
         }
 
-        if (this.mode === 'basic') {
+        if (! !!termData.inactive) {
             var $termInput = $(termInput);
             var existingTerms = $termInput.val();
-            if (existingTerms) {
+            if (existingTerms && this.mode === 'basic') {
                 existingTerms += ' ';
             }
 
@@ -884,6 +867,8 @@
         var lastTerm = this.lastTerm();
         if (lastTerm !== null && !! lastTerm.inactive) {
             lastTerm.inactive = false;
+            var $termInput = $($(this.input).data('term-input'));
+            $termInput.val($termInput.val() + lastTerm.term);
             $('[data-term-index=' + (this.usedTerms.length - 1) + ']', termContainer).removeClass('inactive');
         }
     };
@@ -909,13 +894,26 @@
             $(el).data('term-index', $(el).data('term-index') - 1);
         });
 
-        if (this.mode === 'basic') {
+        if (! !!termData.inactive) {
             var $termInput = $(termInput);
             var terms = $termInput.val();
-            var searchPattern = termData.search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            terms = terms.replace(new RegExp('(^|\\s)' + searchPattern + '($|\\s)'), ' ');
+            if (this.mode === 'basic') {
+                var searchPattern = termData.search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                terms = terms.replace(new RegExp('(^|\\s)' + searchPattern + '($|\\s)'), ' ');
+            } else {
+                terms = this.usedTerms.map(function (e) {
+                    if (!! e.inactive) {
+                        return '';
+                    } else {
+                        return e.search;
+                    }
+                }).join('')
+            }
+
             $termInput.val(terms.trim());
-        } else {
+        }
+
+        if (this.mode === 'full') {
             if (this.hasTerms()) {
                 this.nextTermType(this.lastTerm().type);
             } else {
