@@ -87,6 +87,13 @@
         this.lastCompletedTerm = null;
 
         /**
+         * The term that is currently previewed
+         *
+         * @type {{}}
+         */
+        this.previewedTerm = null;
+
+        /**
          * The current term type
          *
          * @type {String}
@@ -319,6 +326,7 @@
         var termContainer = $input.data('term-container');
 
         _this.clearSelectedTerms(termContainer, termInput);
+        _this.togglePlaceholder();
     };
 
     /**
@@ -348,8 +356,9 @@
 
                     if (! $input.val()) {
                         _this.popTerm(termContainer, termInput);
-                        _this.togglePlaceholder();
                     }
+
+                    _this.togglePlaceholder();
                 }
                 break;
             case 9: // Tab
@@ -469,18 +478,15 @@
                                 _this.togglePlaceholder();
                                 return;
                             }
-                        } else if (_this.termType === 'column' && _this.lastTerm().type !== 'logical_operator') {
-                            _this.addTerm(
-                                {
-                                    inactive: true,
-                                    class: 'logical_operator',
-                                    type: 'logical_operator',
-                                    search: _this.logical_operators[0],
-                                    term: _this.logical_operators[0]
-                                },
-                                termContainer,
-                                termInput
-                            );
+                        } else if (_this.previewedTerm !== null) {
+                            if (term !== _this.previewedTerm.term) {
+                                _this.addTerm(_this.previewedTerm, termContainer, termInput);
+                                _this.togglePlaceholder();
+                            } else {
+                                _this.exchangeTerm(termContainer, termInput);
+                                _this.togglePlaceholder();
+                                return;
+                            }
                         }
                     }
 
@@ -715,23 +721,8 @@
             this.lastCompletedTerm = null;
         }
 
-        this.activateLastTerm(termContainer);
         this.addTerm(termData, termContainer, termInput);
         this.writePartialTerm('', $input);
-
-        if (termType === 'column') {
-            this.addTerm(
-                {
-                    inactive: true,
-                    class: 'operator',
-                    type: 'operator',
-                    search: this.relational_operators[0],
-                    term: this.relational_operators[0]
-                },
-                termContainer,
-                termInput
-            );
-        }
 
         return true;
     };
@@ -747,17 +738,14 @@
             termIndex = this.usedTerms.push(termData) - 1;
         }
 
-        if (! !!termData.inactive) {
-            var $termInput = $(termInput);
-            var existingTerms = $termInput.val();
-            if (existingTerms && this.mode === 'basic') {
-                existingTerms += ' ';
-            }
-
-            existingTerms += termData.search;
-            $termInput.val(existingTerms);
+        var $termInput = $(termInput);
+        var existingTerms = $termInput.val();
+        if (existingTerms && this.mode === 'basic') {
+            existingTerms += ' ';
         }
 
+        existingTerms += termData.search;
+        $termInput.val(existingTerms);
 
         $(termContainer).append(this.renderTerm(termData, termIndex));
 
@@ -795,7 +783,6 @@
             // The user did change something
             term.search = value;
             term.term = value;
-            term.inactive = false;
         }
 
         if (this.lastCompletedTerm !== null) {
@@ -820,12 +807,6 @@
         if (!! data.search || data.search === '') {
             $term.attr('data-term-search', data.search);
         }
-
-        if (!! data.inactive) {
-            $term.addClass('inactive');
-        } else if ($term.hasClass('inactive')) {
-            $term.removeClass('inactive');
-        }
     };
 
     /**
@@ -837,19 +818,6 @@
         }
 
         return this.usedTerms[this.usedTerms.length - 1];
-    };
-
-    /**
-     * @param   termContainer
-     */
-    Completion.prototype.activateLastTerm = function (termContainer) {
-        var lastTerm = this.lastTerm();
-        if (lastTerm !== null && !! lastTerm.inactive) {
-            lastTerm.inactive = false;
-            var $termInput = $($(this.input).data('term-input'));
-            $termInput.val($termInput.val() + lastTerm.term);
-            $('[data-term-index=' + (this.usedTerms.length - 1) + ']', termContainer).removeClass('inactive');
-        }
     };
 
     /**
@@ -873,24 +841,16 @@
             $(el).data('term-index', $(el).data('term-index') - 1);
         });
 
-        if (! !!termData.inactive) {
-            var $termInput = $(termInput);
-            var terms = $termInput.val();
-            if (this.mode === 'basic') {
-                var searchPattern = termData.search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                terms = terms.replace(new RegExp('(^|\\s)' + searchPattern + '($|\\s)'), ' ');
-            } else {
-                terms = this.usedTerms.map(function (e) {
-                    if (!! e.inactive) {
-                        return '';
-                    } else {
-                        return e.search;
-                    }
-                }).join('')
-            }
-
-            $termInput.val(terms.trim());
+        var $termInput = $(termInput);
+        var terms = $termInput.val();
+        if (this.mode === 'basic') {
+            var searchPattern = termData.search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            terms = terms.replace(new RegExp('(^|\\s)' + searchPattern + '($|\\s)'), ' ');
+        } else {
+            terms = this.usedTerms.map(function (e) { return e.search }).join('')
         }
+
+        $termInput.val(terms.trim());
 
         if (this.mode === 'full') {
             if (this.hasTerms()) {
@@ -1014,7 +974,7 @@
 
             data[suggestParameter] = query;
             if (self.hasTerms() && self.mode === 'basic') {
-                data['!' + suggestParameter] = self.usedTerms.map(function (e) { return e.term}).join();
+                data['!' + suggestParameter] = self.usedTerms.map(function (e) { return e.term }).join();
             }
 
             var headers = { 'X-Icinga-WindowId': self.icinga.ui.getWindowId() };
@@ -1106,14 +1066,42 @@
 
     Completion.prototype.togglePlaceholder = function () {
         var $input = $(this.input);
+        var placeholder = '';
+
         if (! this.hasTerms()) {
             if ($input.data('placeholder')) {
-                $input.prop('placeholder', $input.data('placeholder'));
+                placeholder = $input.data('placeholder');
             }
         } else if (!! $input.prop('placeholder')) {
-            $input.data('placeholder', $input.prop('placeholder'));
-            $input.prop('placeholder', '');
+            if (! $input.data('placeholder')) {
+                $input.data('placeholder', $input.prop('placeholder'));
+            }
         }
+
+        switch (this.termType) {
+            case 'operator':
+                this.previewedTerm = {
+                    class: 'operator',
+                    type: 'operator',
+                    search: this.relational_operators[0],
+                    term: this.relational_operators[0]
+                };
+                placeholder = this.previewedTerm.term;
+                break;
+            case 'logical_operator':
+                this.previewedTerm = {
+                    class: 'logical_operator',
+                    type: 'logical_operator',
+                    search: this.logical_operators[0],
+                    term: this.logical_operators[0]
+                };
+                placeholder = this.previewedTerm.term;
+                break;
+            default:
+                this.previewedTerm = null;
+        }
+
+        $input.prop('placeholder', placeholder);
     };
 
     Completion.prototype.focusElement = function ($element) {
@@ -1135,6 +1123,8 @@
                 this.termType = 'value';
                 break;
             case 'value':
+                this.termType = 'logical_operator';
+                break;
             case 'logical_operator':
                 this.termType = 'column';
                 break;
