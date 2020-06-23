@@ -758,29 +758,8 @@
             $termInput.val(existingTerms);
         }
 
-        var html = '<label';
-        if (termData.class) {
-            html += ' class="' + termData.class;
-            if (!! termData.inactive) {
-                html += ' inactive';
-            }
-            html += '"';
-        }
-        if (termData.type !== null) {
-            html += ' data-term-type="' + termData.type + '"';
-        }
-        html += ' data-term="' + termData.term + '"';
-        html += ' data-term-search="' + termData.search + '"';
-        html += ' data-term-index="' + termIndex + '"';
-        if (this.mode === 'basic') {
-            html += '><input type="button"';
-        } else {
-            html += '><input type="text"';
-        }
-        html += ' value="' + termData.term + '"';
-        html += '></label>';
 
-        $(termContainer).append(html);
+        $(termContainer).append(this.renderTerm(termData, termIndex));
 
         var $term = $('[data-term-index="' + termIndex + '"]', termContainer);
         if ($term[0].scrollWidth > $term.innerWidth()) {
@@ -1162,6 +1141,41 @@
         }
 
         return this.termType;
+    };
+
+    /**
+     * @param termData
+     * @param termIndex
+     * @return {string}
+     */
+    Completion.prototype.renderTerm = function (termData, termIndex) {
+        var html = '<label';
+
+        if (termData.class) {
+            html += ' class="' + termData.class + '"';
+        }
+
+        if (termData.type !== null) {
+            html += ' data-term-type="' + termData.type + '"';
+        }
+
+        html += ' data-term="' + termData.term + '"';
+        html += ' data-term-search="' + termData.search + '"';
+
+        if (typeof termIndex !== 'undefined') {
+            html += ' data-term-index="' + termIndex + '"';
+        }
+
+        if (this.mode === 'basic') {
+            html += '><input type="button"';
+        } else {
+            html += '><input type="text"';
+        }
+
+        html += ' value="' + termData.term + '"';
+        html += '></label>';
+
+        return html;
     };
 
     return Completion;
