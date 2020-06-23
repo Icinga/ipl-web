@@ -173,7 +173,7 @@
         $($input.data('term-input')).val('');
         $($input.data('term-container')).html('');
         this.hideSuggestions($($input.data('term-suggestions')));
-        $input.val('');
+        this.writePartialTerm('', $input);
         $input[0].blur();
     };
 
@@ -217,7 +217,7 @@
                 _this.addTerm(termData, $termContainer, $input.data('term-input'), termIndex);
             });
             this.togglePlaceholder();
-            $input.val('');
+            this.writePartialTerm('', $input);
         } else if (! $input.is('[data-reverse-term]')) {
             return false;
         } else if (this.mode === 'basic') {
@@ -251,7 +251,7 @@
                     _this.addTerm(termData, $input.data('term-container'), $input.data('term-input'));
                 });
                 this.togglePlaceholder();
-                $input.val('');
+                this.writePartialTerm('', $input);
             }
         }
 
@@ -717,7 +717,7 @@
 
         this.activateLastTerm(termContainer);
         this.addTerm(termData, termContainer, termInput);
-        $input.val('');
+        this.writePartialTerm('', $input);
 
         if (termType === 'column') {
             this.addTerm(
