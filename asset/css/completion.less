@@ -1,53 +1,62 @@
+.filter {
+  width: 100%;
+}
+
 form.completion {
-  max-width: 40em;
+  width: 100%;
+  background-color: @low-sat-blue;
+  .rounded-corners();
+  display: flex;
+  justify-content: flex-start;
+  padding-left: 2em;
+  position: relative;
 
-  .terms {
-    display: inline-block;
+  input {
+    background: none;
+    border: none;
+  }
 
-    &:empty {
-      display: none;
+  input[type="submit"] {
+    margin-left: auto;
+    background-color: @icinga-blue;
+    color: @text-color-inverted;
+    border: none;
+    border-top-right-radius: .25em;
+    border-bottom-right-radius: .25em;
+  }
+
+  .terms label {
+    input {
+      background: gray;
+      color: white;
+      .rounded-corners();
+      width: auto;
+    }
+
+    input:focus {
+      background-color: @icinga-blue;
     }
   }
 
-  input {
-    border: none;
-    border-bottom: 1px solid @gray-lighter;
-    background: none;
-    .appearance(none);
-  }
+  [id^="suggestions-"] {
+    position: absolute;
+    top: 100%;
 
-  input[type=submit],
-  button[type=submit],
-  button:not([type]) {
-    float: right;
+    ul {
+      background: white;
+      border: @gray-light;
+      box-shadow:  0 0 1em 0 rgba(0,0,0,.3);
+      margin: 0;
+
+      li {
+        list-style-type: none;
+        padding: .5em;
+      }
+    }
   }
 }
 
 // Inspired by https://css-tricks.com/auto-growing-inputs-textareas/
 form.completion label {
-  position: relative;
-  display: inline-flex;
-  flex-direction: column;
 
-  &::after,
-  input {
-    width: auto;
-    min-width: 1ch;
-    font: inherit;
-    padding: 0;
-    margin: 0;
-    resize: none;
-  }
-
-  input {
-    width: 100%;
-    position: absolute;
-  }
-
-  &::after {
-    height: 0;
-    content: attr(data-term);
-    visibility: hidden;
-    white-space: pre-wrap;
-  }
 }
