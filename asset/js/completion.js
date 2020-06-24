@@ -525,6 +525,11 @@
                 term = _this.readPartialTerm($term);
                 if (term) {
                     if (! isTerm && _this.previewedTerm !== null && _this.mode === 'full' && _this.hasTerms()) {
+                        if (_this.nextOperator(term).partialMatches) {
+                            // TODO: Quickfix, the preview should accordingly adjust if there are partial matches
+                            return;
+                        }
+
                         if (term !== _this.previewedTerm.term) {
                             _this.addTerm(_this.previewedTerm, termContainer, termInput);
                             _this.togglePlaceholder();
