@@ -384,6 +384,12 @@
                         $term
                     );
                     _this.hideSuggestions($(termSuggestions));
+                } else if (! isTerm && _this.mode === 'full') {
+                    if (_this.previewedTerm !== null) {
+                        _this.addTerm(_this.previewedTerm, termContainer, termInput);
+                        _this.togglePlaceholder();
+                        return false;
+                    }
                 }
                 break;
             case 13: // Enter
@@ -518,16 +524,14 @@
 
                 term = _this.readPartialTerm($term);
                 if (term) {
-                    if (! isTerm && _this.mode === 'full' && _this.hasTerms()) {
-                        if (_this.previewedTerm !== null) {
-                            if (term !== _this.previewedTerm.term) {
-                                _this.addTerm(_this.previewedTerm, termContainer, termInput);
-                                _this.togglePlaceholder();
-                            } else {
-                                _this.exchangeTerm(termContainer, termInput);
-                                _this.togglePlaceholder();
-                                return;
-                            }
+                    if (! isTerm && _this.previewedTerm !== null && _this.mode === 'full' && _this.hasTerms()) {
+                        if (term !== _this.previewedTerm.term) {
+                            _this.addTerm(_this.previewedTerm, termContainer, termInput);
+                            _this.togglePlaceholder();
+                        } else {
+                            _this.exchangeTerm(termContainer, termInput);
+                            _this.togglePlaceholder();
+                            return;
                         }
                     }
 
@@ -798,6 +802,7 @@
 
         if (termData.type !== null) {
             this.termType = this.nextTermType(termData.type);
+            this.togglePreview(); // TODO: Shouldn't this also be explicitly necessary?
         }
     };
 
@@ -899,6 +904,8 @@
             } else {
                 this.termType = 'column';
             }
+
+            this.togglePreview();
         }
 
         $term.remove();
@@ -1119,20 +1126,30 @@
             }
         }
 
+        $input.prop('placeholder', placeholder);
+    };
+
+    Completion.prototype.togglePreview = function () {
+        var $input = $(this.input);
+
+        if (this.previewedTerm !== null) {
+            $input.next().remove();
+        }
+
         switch (this.termType) {
             case 'operator':
                 this.previewedTerm = this.relational_operators[0];
-                placeholder = this.previewedTerm.term;
                 break;
             case 'logical_operator':
                 this.previewedTerm = this.logical_operators[0];
-                placeholder = this.previewedTerm.term;
                 break;
             default:
                 this.previewedTerm = null;
         }
 
-        $input.prop('placeholder', placeholder);
+        if (this.previewedTerm !== null) {
+            $input.after(this.renderPreview(this.previewedTerm.term));
+        }
     };
 
     Completion.prototype.focusElement = function ($element) {
@@ -1258,6 +1275,14 @@
         html += '></label>';
 
         return html;
+    };
+
+    /**
+     * @param {string} content
+     * @return {string}
+     */
+    Completion.prototype.renderPreview = function (content) {
+        return '<span>' + content + '</span>';
     };
 
     return Completion;
