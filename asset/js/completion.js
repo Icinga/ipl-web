@@ -17,18 +17,28 @@
          *
          * The first is also the default.
          *
-         * @type {String[]}
+         * @type {{}[]}
          */
-        this.logical_operators = ['&', '|'];
+        this.logical_operators = [
+            { term: '&', search: '&', class: 'logical_operator', type: 'logical_operator' },
+            { term: '|', search: '|', class: 'logical_operator', type: 'logical_operator' },
+        ];
 
         /**
          * Supported relational operators
          *
          * The first is also the default.
          *
-         * @type {String[]}
+         * @type {{}[]}
          */
-        this.relational_operators = ['=', '!=', '>', '<', '>=', '<='];
+        this.relational_operators = [
+            { term: '=', search: '=', class: 'operator', type: 'operator' },
+            { term: '!=', search: '!=', class: 'operator', type: 'operator' },
+            { term: '>', search: '>', class: 'operator', type: 'operator' },
+            { term: '<', search: '<', class: 'operator', type: 'operator' },
+            { term: '>=', search: '>=', class: 'operator', type: 'operator' },
+            { term: '<=', search: '<=', class: 'operator', type: 'operator' }
+        ];
 
         /**
          * Yes, we also need Icinga (..)
@@ -344,7 +354,7 @@
 
         switch (event.which) {
             case 32: // Spacebar
-                if (! isTerm && _this.exchangeTerm(termContainer, termInput)) {
+                if (! isTerm && _this.mode === 'basic' && _this.exchangeTerm(termContainer, termInput)) {
                     _this.hideSuggestions($(termSuggestions));
                     _this.togglePlaceholder();
                     return false;
@@ -402,6 +412,44 @@
                         _this.moveFocusBackward(termSuggestions);
                     } else {
                         _this.moveFocusForward(termSuggestions);
+                    }
+                }
+                break;
+            case 27: // ESC
+            case 35: // End
+            case 36: // HOME
+            case 16: // Shift
+            case 50: // Double quote
+            case 191: // Single quote
+                break;  // Ignore these in default
+            default:
+                // Spaces are not used as context switches in full mode, operators are used instead
+                if (isTerm || _this.mode === 'basic') {
+                    break;
+                }
+
+                var input = event.key;
+                if (_this.termType === 'operator') {
+                    input = _this.readPartialTerm($input) + input;
+                }
+
+                var operators = _this.nextOperator(input);
+                if (operators.partialMatches || operators.length === 1 && operators[0].term === input) {
+                    _this.hideSuggestions($(termSuggestions));
+
+                    if (operators.partialMatches) {
+                        _this.exchangeTerm(termContainer, termInput);
+                        _this.togglePlaceholder();
+                    } else {
+                        if (_this.termType !== operators[0].type) {
+                            _this.exchangeTerm(termContainer, termInput);
+                        } else {
+                            _this.writePartialTerm('', $input);
+                        }
+
+                        _this.addTerm(operators[0], termContainer, termInput);
+                        _this.togglePlaceholder();
+                        return false;
                     }
                 }
         }
@@ -471,14 +519,7 @@
                 term = _this.readPartialTerm($term);
                 if (term) {
                     if (! isTerm && _this.mode === 'full' && _this.hasTerms()) {
-                        if (_this.logical_operators.includes(term)) {
-                            // Don't wait for user confirmation, exchange the term instantly if it's a logical operator
-                            if (_this.exchangeTerm(termContainer, termInput, 'logical_operator')) {
-                                _this.hideSuggestions($(termSuggestions));
-                                _this.togglePlaceholder();
-                                return;
-                            }
-                        } else if (_this.previewedTerm !== null) {
+                        if (_this.previewedTerm !== null) {
                             if (term !== _this.previewedTerm.term) {
                                 _this.addTerm(_this.previewedTerm, termContainer, termInput);
                                 _this.togglePlaceholder();
@@ -756,7 +797,7 @@
         }
 
         if (termData.type !== null) {
-            this.nextTermType(termData.type);
+            this.termType = this.nextTermType(termData.type);
         }
     };
 
@@ -854,7 +895,7 @@
 
         if (this.mode === 'full') {
             if (this.hasTerms()) {
-                this.nextTermType(this.lastTerm().type);
+                this.termType = this.nextTermType(this.lastTerm().type);
             } else {
                 this.termType = 'column';
             }
@@ -1080,21 +1121,11 @@
 
         switch (this.termType) {
             case 'operator':
-                this.previewedTerm = {
-                    class: 'operator',
-                    type: 'operator',
-                    search: this.relational_operators[0],
-                    term: this.relational_operators[0]
-                };
+                this.previewedTerm = this.relational_operators[0];
                 placeholder = this.previewedTerm.term;
                 break;
             case 'logical_operator':
-                this.previewedTerm = {
-                    class: 'logical_operator',
-                    type: 'logical_operator',
-                    search: this.logical_operators[0],
-                    term: this.logical_operators[0]
-                };
+                this.previewedTerm = this.logical_operators[0];
                 placeholder = this.previewedTerm.term;
                 break;
             default:
@@ -1114,23 +1145,84 @@
         }
     };
 
+    /**
+     * @param {string} type
+     * @return {string}
+     */
     Completion.prototype.nextTermType = function (type) {
         switch (type) {
             case 'column':
-                this.termType = 'operator';
-                break;
+                return 'operator';
             case 'operator':
-                this.termType = 'value';
-                break;
+                return 'value';
             case 'value':
-                this.termType = 'logical_operator';
-                break;
+                return 'logical_operator';
             case 'logical_operator':
-                this.termType = 'column';
-                break;
+                return 'column';
+        }
+    };
+
+    /**
+     * @param {string} input
+     * @param {string} termType
+     * @return {{}}
+     */
+    Completion.prototype.nextOperator = function (input, termType) {
+        if (typeof termType === 'undefined') {
+            termType = this.termType;
         }
 
-        return this.termType;
+        var operators = [],
+            partialMatch = false;
+
+        if (termType === 'column' && input === '(') {
+            if (! this.hasTerms() || this.lastTerm().type === 'logical_operator') {
+                operators.push({
+                    term: '(',
+                    search: '(',
+                    class: 'logical_operator',
+                    type: 'logical_operator'
+                });
+            }
+        } else {
+            switch (true) {
+                case termType === 'column':
+                    if (! this.hasTerms() && ! this.readPartialTerm(this.input)) {
+                        break;
+                    }
+                case termType === 'operator':
+                    this.relational_operators.forEach(function (op) {
+                        if (op.term.length > input.length && input === op.term.slice(0, input.length)) {
+                            operators.push(op);
+                            partialMatch = true;
+                        }
+                    });
+                    if (! partialMatch) {
+                        operators = operators.concat(this.relational_operators);
+                    }
+                case termType === 'value':
+                case termType === 'logical_operator':
+                    operators.push({
+                        term: ')',
+                        search: ')',
+                        class: 'logical_operator',
+                        type: 'logical_operator'
+                    });
+                    operators = operators.concat(this.logical_operators);
+            }
+        }
+
+        if (! partialMatch) {
+            var exactMatch = operators.find(function (op) {
+                return input === op.term;
+            });
+            if (typeof exactMatch !== 'undefined') {
+                return [ exactMatch ];
+            }
+        }
+
+        operators.partialMatches = partialMatch;
+        return operators;
     };
 
     /**
