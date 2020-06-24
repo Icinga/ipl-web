@@ -352,6 +352,8 @@
         var termContainer = $thisInput.data('term-container');
         var termSuggestions = $thisInput.data('term-suggestions');
 
+        var operators, operatorIndex;
+
         switch (event.which) {
             case 32: // Spacebar
                 if (! isTerm && _this.mode === 'basic' && _this.exchangeTerm(termContainer, termInput)) {
@@ -411,14 +413,49 @@
                 }
                 break;
             case 38: // Arrow up
+                if (! $(termSuggestions).is(':empty')) {
+                    event.preventDefault();
+                    _this.moveFocusBackward(termSuggestions);
+                } else if (_this.previewedTerm !== null) {
+                    switch (_this.previewedTerm.type) {
+                        case 'operator':
+                            operators = _this.relational_operators;
+                            break;
+                        case 'logical_operator':
+                            operators = _this.logical_operators;
+                            break;
+                    }
+
+                    operatorIndex = operators.indexOf(_this.previewedTerm) - 1;
+                    if (operatorIndex === -1) {
+                        operatorIndex = operators.length - 1;
+                    }
+
+                    _this.previewedTerm = operators[operatorIndex];
+                    _this.updatePreview();
+                }
+                break;
             case 40: // Arrow down
                 if (! $(termSuggestions).is(':empty')) {
                     event.preventDefault();
-                    if (event.which === 38) {
-                        _this.moveFocusBackward(termSuggestions);
-                    } else {
-                        _this.moveFocusForward(termSuggestions);
+                    _this.moveFocusForward(termSuggestions);
+                } else if (_this.previewedTerm !== null) {
+                    switch (_this.previewedTerm.type) {
+                        case 'operator':
+                            operators = _this.relational_operators;
+                            break;
+                        case 'logical_operator':
+                            operators = _this.logical_operators;
+                            break;
                     }
+
+                    operatorIndex = operators.indexOf(_this.previewedTerm) + 1;
+                    if (operatorIndex === operators.length) {
+                        operatorIndex = 0;
+                    }
+
+                    _this.previewedTerm = operators[operatorIndex];
+                    _this.updatePreview();
                 }
                 break;
             case 27: // ESC
@@ -439,7 +476,7 @@
                     input = _this.readPartialTerm($input) + input;
                 }
 
-                var operators = _this.nextOperator(input);
+                operators = _this.nextOperator(input);
                 if (operators.partialMatches || operators.length === 1 && operators[0].term === input) {
                     _this.hideSuggestions($(termSuggestions));
 
@@ -1155,6 +1192,10 @@
         if (this.previewedTerm !== null) {
             $input.after(this.renderPreview(this.previewedTerm.term));
         }
+    };
+
+    Completion.prototype.updatePreview = function () {
+        $(this.input).next().text(this.previewedTerm.term);
     };
 
     Completion.prototype.focusElement = function ($element) {
