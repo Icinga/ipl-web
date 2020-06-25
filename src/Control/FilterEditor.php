@@ -210,7 +210,7 @@ class FilterEditor extends Form
 
         $this->add(new SubmitElement('submit', ['label' => $this->getSubmitLabel()]));
 
-        $this->add(new HtmlElement('div', ['id' => $suggestionsId]));
+        $this->add(new HtmlElement('div', ['id' => $suggestionsId, 'class' => 'suggestions']));
     }
 
     public function assembleFilter()
