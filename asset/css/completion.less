@@ -9,12 +9,20 @@ form.completion {
   position: relative;
   padding-left: 2em;
   flex-wrap: nowrap;
+  .rounded-corners();
 
   input {
     .appearance(none);
     border: none;
-    height: 2.25em;
     background: none;
+  }
+
+  label input {
+    height: 2.25em;
+  }
+
+  .search-input {
+    padding: 0 .5em;
   }
 
   > label {
@@ -27,10 +35,12 @@ form.completion {
     float: right;
     background: @icinga-blue;
     color: @text-color-inverted;
+    border-top-right-radius: .25em;
+    border-bottom-right-radius: .25em;
   }
 
   .terms {
-    label {
+    > label {
       width: auto;
       position: relative;
       margin-right: .125em;
@@ -51,20 +61,28 @@ form.completion {
   .suggestions {
     position: absolute;
     top: 100%;
+    min-width: 12em;
     background: @text-color-inverted;
     border: 1px solid @gray-light;
-    border-bottom-right-radius: .25em;
-    border-bottom-left-radius:  .25em;
+    border-bottom-right-radius: .5em;
+    border-bottom-left-radius:  .5em;
 
     > ul {
-      padding: 0;
+      padding: .5em 0;
       margin: 0;
       list-style-type: none;
     }
 
+    input {
+      padding: .75em .5em;
+    }
+
     input:focus {
       background: @icinga-blue;
-      color: @text-color-inverted
+      color: @text-color-inverted;
+      outline: none;
+      width: 100%;
+      text-align: left;
     }
   }
 }
