@@ -194,7 +194,6 @@ class FilterEditor extends Form
 
         $searchInput = new InputElement($this->getSearchParameter(), [
             'type'                  => 'text',
-            'required'              => true,
             'placeholder'           => 'type something..',
             'class'                 => 'autofocus search-input',
             'id'                    => $searchInputId,
