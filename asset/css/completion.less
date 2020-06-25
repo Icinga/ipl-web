@@ -3,60 +3,98 @@
 }
 
 form.completion {
-  width: 100%;
-  background-color: @low-sat-blue;
-  .rounded-corners();
+  background: @low-sat-blue;
+  .clearfix();
   display: flex;
-  justify-content: flex-start;
-  padding-left: 2em;
   position: relative;
+  padding-left: 2em;
+  flex-wrap: nowrap;
 
   input {
+    .appearance(none);
+    border: none;
+    height: 2.25em;
     background: none;
-    border: none;
   }
 
-  input[type="submit"] {
-    margin-left: auto;
-    background-color: @icinga-blue;
+  > label {
+    flex: 1 1 auto;
+  }
+
+  input[type=submit],
+  button[type=submit],
+  button:not([type]) {
+    float: right;
+    background: @icinga-blue;
     color: @text-color-inverted;
-    border: none;
-    border-top-right-radius: .25em;
-    border-bottom-right-radius: .25em;
   }
 
-  .terms label {
-    input {
-      background: gray;
-      color: white;
-      .rounded-corners();
+  .terms {
+    label {
       width: auto;
+      position: relative;
+      margin-right: .125em;
+
+      input {
+        background-color: @gray;
+        .rounded-corners();
+        color: @text-color-inverted;
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0; left: 0;
+        text-align: center;
+      }
+    }
+  }
+
+  .suggestions {
+    position: absolute;
+    top: 100%;
+    background: @text-color-inverted;
+    border: 1px solid @gray-light;
+    border-bottom-right-radius: .25em;
+    border-bottom-left-radius:  .25em;
+
+    > ul {
+      padding: 0;
+      margin: 0;
+      list-style-type: none;
     }
 
     input:focus {
-      background-color: @icinga-blue;
-    }
-  }
-
-  [id^="suggestions-"] {
-    position: absolute;
-    top: 100%;
-
-    ul {
-      background: white;
-      border: @gray-light;
-      box-shadow:  0 0 1em 0 rgba(0,0,0,.3);
-      margin: 0;
-
-      li {
-        list-style-type: none;
-        padding: .5em;
-      }
+      background: @icinga-blue;
+      color: @text-color-inverted
     }
   }
 }
 
 // Inspired by https://css-tricks.com/auto-growing-inputs-textareas/
 form.completion label {
+  display: inline-flex;
+  flex-direction: column;
+  flex-width: none;
+  position: relative;
 
+  input {
+    flex: 1 1 auto;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    max-width: none;
+
+    & + span {
+      position: absolute;
+      top: 100%
+    }
+  }
+
+  // determines the width of the pill
+  &::after {
+    height: 0;
+    content: attr(data-term);
+    visibility: hidden;
+    white-space: pre-wrap;
+    padding: 0 .5em;
+  }
 }
