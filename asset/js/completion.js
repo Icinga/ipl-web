@@ -182,7 +182,12 @@
         this.ignoreSpaceUntil = null;
         this.ignoreSpaceSince = null;
         this.lastCompletedTerm = null;
+        this.previewedTerm = null;
         this.usedTerms = [];
+
+        if (this.mode === 'full') {
+            this.termType = 'column';
+        }
 
         // Then the widget
         this.togglePlaceholder();
@@ -200,10 +205,13 @@
      * @param input
      */
     Completion.prototype.refresh = function (input) {
-        if (input !== this.input) {
-            this.input = input;
-            this.bind();
+        if (input === this.input) {
+            // If the DOM node is still the same, nothing has changed
+            return;
         }
+
+        this.input = input;
+        this.bind();
 
         if (! this.restoreTerms()) {
             this.reset();
@@ -220,6 +228,7 @@
 
     Completion.prototype.restoreTerms = function () {
         var $input = $(this.input);
+        var $termContainer = $($input.data('term-container'));
 
         if (! this.keepUsedTerms) {
             this.usedTerms = [];
@@ -229,15 +238,12 @@
 
         var _this = this;
         if (this.hasTerms()) {
-            var $termContainer = $($input.data('term-container'));
             $.each(this.usedTerms, function (termIndex, termData) {
                 _this.addTerm(termData, $termContainer, $input.data('term-input'), termIndex);
             });
             this.togglePlaceholder();
             this.writePartialTerm('', $input);
-        } else if (! $input.is('[data-reverse-term]')) {
-            return false;
-        } else if (this.mode === 'basic') {
+        } else if (this.mode === 'basic' && $input.is('[data-reverse-term]')) {
             var terms = $input.val();
             if (! terms) {
                 var params = this.icinga.utils.parseUrl($input.closest('.container').data('icingaUrl')).params;
@@ -265,14 +271,17 @@
                         termData.term = parts[2];
                     }
 
-                    _this.addTerm(termData, $input.data('term-container'), $input.data('term-input'));
+                    _this.addTerm(termData, $termContainer, $input.data('term-input'));
                 });
                 this.togglePlaceholder();
                 this.writePartialTerm('', $input);
             }
+        } else {
+            this.registerTerms($termContainer);
+            this.togglePlaceholder();
         }
 
-        return true;
+        return this.usedTerms.length > 0;
     };
 
     /**
@@ -299,7 +308,7 @@
         _this.lastCompletedTerm = null;
 
         // But keep any used terms (Otherwise reset in onRendered)
-        _this.keepUsedTerms = true;
+        _this.keepUsedTerms = _this.mode === 'basic';
     };
 
     /**
@@ -755,6 +764,34 @@
         }
 
         return $input.val().trim();
+    };
+
+    /**
+     * @param termContainer
+     */
+    Completion.prototype.registerTerms = function (termContainer) {
+        var _this = this;
+        $(termContainer).children().each(function () {
+            var $term = $(this);
+
+            var termData = {
+                'search': $term.data('term-search'),
+                'term'  : $term.data('term')
+            };
+            if ($term.hasAttr('class')) {
+                termData['class'] = $term.attr('class');
+            }
+            if ($term.data('term-type')) {
+                termData['type'] = $term.data('term-type');
+            }
+
+            _this.usedTerms[$term.data('term-index')] = termData;
+        });
+
+        if (this.termType !== null) {
+            this.termType = this.nextTermType(this.lastTerm().type);
+            this.togglePreview(); // TODO: Shouldn't this also be explicitly necessary?
+        }
     };
 
     /**

@@ -8,6 +8,7 @@ use ipl\Html\FormElement\HiddenElement;
 use ipl\Html\FormElement\InputElement;
 use ipl\Html\FormElement\SubmitElement;
 use ipl\Html\HtmlElement;
+use ipl\Web\Control\FilterEditor\Terms;
 use ipl\Web\Url;
 
 class FilterEditor extends Form
@@ -177,20 +178,16 @@ class FilterEditor extends Form
         $searchInputId = $this->protectId('search-input');
         $suggestionsId = $this->protectId('suggestions');
 
-        $termContainer = new HtmlElement('div', [
-            'id'    => $termContainerId,
-            'class' => 'terms'
-        ]);
-        if (($filter = $this->getFilter()) !== null) {
-            // TODO: Either pre-render the filter as terms or provide a way for JS to restore the terms
-        }
-
-        $this->add($termContainer);
-
-        $this->addElement(new HiddenElement($this->getSearchParameter(), [
+        $termContainer = (new Terms())->setAttribute('id', $termContainerId);
+        $termInput = new HiddenElement($this->getSearchParameter(), [
             'id'        => $termInputId,
             'disabled'  => true
-        ]));
+        ]);
+
+        if (! $this->getFilter()->isEmpty() && ! $this->getRequest()->getHeaderLine('X-Icinga-Autorefresh')) {
+            $termInput->setValue($this->getFilter()->toQueryString());
+            $termContainer->setFilter($this->getFilter());
+        }
 
         $searchInput = new InputElement($this->getSearchParameter(), [
             'type'                  => 'text',
@@ -204,17 +201,22 @@ class FilterEditor extends Form
             'data-term-suggestions' => '#' . $suggestionsId,
             'data-suggest-url'      => $this->getSuggestionUrl()
         ]);
-        $this->registerElement($searchInput)
-            ->add(new HtmlElement('label', null, $searchInput));
 
-        $this->add(new SubmitElement('submit', ['label' => $this->getSubmitLabel()]));
+        $this->registerElement($termInput);
+        $this->registerElement($searchInput);
 
-        $this->add(new HtmlElement('div', ['id' => $suggestionsId, 'class' => 'suggestions']));
+        $this->add([
+            $termContainer,
+            $termInput,
+            new HtmlElement('label', null, $searchInput),
+            new SubmitElement('submit', ['label' => $this->getSubmitLabel()]),
+            new HtmlElement('div', ['id' => $suggestionsId, 'class' => 'suggestions'])
+        ]);
     }
 
     public function assembleFilter()
     {
-        $q = $this->getValue('q');
+        $q = $this->getValue($this->getSearchParameter());
         $filter = Filter::fromQueryString($q);
         if ($filter->isExpression() && $filter->getExpression() === true) {
             $filter = Filter::matchAny();
