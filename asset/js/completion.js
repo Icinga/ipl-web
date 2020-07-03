@@ -715,11 +715,7 @@
      */
     Completion.prototype.complete = function (term, termClass, searchTerm, where) {
         this.lastCompletedTerm = { 'search': searchTerm, 'class': termClass, 'term': term };
-        if (this.mode === 'full') {
-            this.writePartialTerm(searchTerm, where);
-        } else {
-            this.writePartialTerm(term, where);
-        }
+        this.writePartialTerm(term, where);
     };
 
     /**
@@ -1093,7 +1089,7 @@
 
                 if (suggestParameter === 'value' && self.hasTerms()) {
                     // Also transmit the previous column as context
-                    data['column'] = self.usedTerms[termIndex - 2].term;
+                    data['column'] = self.usedTerms[termIndex - 2].search;
                 }
             } else {
                 suggestParameter = $($(self.input).data('term-input')).prop('name');
