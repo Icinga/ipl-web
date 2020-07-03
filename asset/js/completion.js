@@ -369,6 +369,13 @@
                     _this.hideSuggestions($(termSuggestions));
                     _this.togglePlaceholder();
                     return false;
+                } else if (_this.mode === 'full' && ! $input.val()) {
+                    if (_this.previewedTerm !== null) {
+                        _this.addTerm(_this.previewedTerm, termContainer, termInput);
+                    }
+
+                    _this.suggest($thisInput.data('suggest-url'), '', $(termSuggestions), $term);
+                    return false;
                 }
                 break;
             case 8: // Backspace
@@ -526,7 +533,7 @@
                 var $suggestions = $(termSuggestions);
                 term = _this.readPartialTerm($term);
                 if (term) {
-                    _this.suggest($thisInput.data('suggest-url'), _this.addWildcards(term), $suggestions, $term);
+                    _this.suggest($thisInput.data('suggest-url'), term, $suggestions, $term);
                 } else {
                     _this.hideSuggestions($suggestions);
                 }
@@ -586,7 +593,7 @@
                         }
                     }
 
-                    _this.suggest($thisInput.data('suggest-url'), _this.addWildcards(term), $(termSuggestions), $term);
+                    _this.suggest($thisInput.data('suggest-url'), term, $(termSuggestions), $term);
                 } else {
                     _this.hideSuggestions($(termSuggestions));
                 }
@@ -609,7 +616,7 @@
                 var term = $el.attr('value').trim();
 
                 _this.complete(term, $el.prop('class'), $el.data('term'), $term);
-                _this.suggest($input.data('suggest-url'), _this.addWildcards(term), $suggestions, $term);
+                _this.suggest($input.data('suggest-url'), term, $suggestions, $term);
                 _this.focusElement($term);
                 break;
             case 37: // Arrow left
@@ -1046,7 +1053,7 @@
      * @returns {String}
      */
     Completion.prototype.addWildcards = function (term) {
-        if (term.slice(0, 1) !== '*' && term.slice(-1) !== '*') {
+        if (term && term.slice(0, 1) !== '*' && term.slice(-1) !== '*') {
             return term + '*';
         }
 
@@ -1095,7 +1102,7 @@
                 suggestParameter = $($(self.input).data('term-input')).prop('name');
             }
 
-            data[suggestParameter] = query;
+            data[suggestParameter] = self.addWildcards(query);
             if (self.hasTerms() && self.mode === 'basic') {
                 data['!' + suggestParameter] = self.usedTerms.map(function (e) { return e.term }).join();
             }
@@ -1115,6 +1122,7 @@
 
             req.$to = $to;
             req.$target = $target;
+            req.userInput = query;
             req.done(self.onCompletionResponse);
             req.fail(self.onCompletionFailure);
             req.always(self.onCompletionComplete);
@@ -1129,7 +1137,7 @@
      * @param req
      */
     Completion.prototype.onCompletionResponse = function (data, textStatus, req) {
-        if (data && this.readPartialTerm(req.$to)) {
+        if (data && this.readPartialTerm(req.$to) === req.userInput) {
             this.showSuggestions(data, req.$target, req.$to);
         } else {
             this.hideSuggestions(req.$target);
