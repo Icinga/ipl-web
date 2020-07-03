@@ -64,7 +64,13 @@ class Terms extends BaseHtmlElement
         $operator = $filter->getSign();
         $value = $filter->getExpression();
 
-        $this->assembleTerm('column', 'column', $column, $column);
+        $columnLabel = $column;
+        if (isset($filter->metaData['label'])) {
+            // TODO: Change once filters have native meta data
+            $columnLabel = $filter->metaData['label'];
+        }
+
+        $this->assembleTerm('column', 'column', $column, $columnLabel);
 
         if (! $filter->isBooleanTrue()) {
             $this->assembleTerm('operator', 'operator', $operator, $operator);
