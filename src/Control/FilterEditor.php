@@ -210,7 +210,11 @@ class FilterEditor extends Form
             $termInput,
             new HtmlElement('label', null, $searchInput),
             new SubmitElement('submit', ['label' => $this->getSubmitLabel()]),
-            new HtmlElement('div', ['id' => $suggestionsId, 'class' => 'suggestions'])
+            new HtmlElement('div', [
+                'id'                => $suggestionsId,
+                'class'             => 'suggestions',
+                'data-base-target'  => $suggestionsId
+            ])
         ]);
     }
 
