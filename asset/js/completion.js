@@ -153,7 +153,7 @@
         $form.on('keypress', '[data-term-input]', { self: this }, this.onInputKeyPress);
         $form.on('keydown', '[data-term-input]', { self: this }, this.onInputKeyDown);
         $form.on('keyup', '[data-term-input]', { self: this }, this.onInputKeyUp);
-        $form.on('keydown', 'input[data-term]', { self: this }, this.onSuggestionKeyDown);
+        $form.on('keydown', $input.data('term-suggestions'), { self: this }, this.onSuggestionKeyDown);
         $form.on('click', 'input[data-term]', { self: this }, this.onSuggestionClick);
         if (this.mode === 'basic') {
             $form.on('click', '[data-term-index]', { self: this }, this.onTermClick);
@@ -605,13 +605,13 @@
      */
     Completion.prototype.onSuggestionKeyDown = function (event) {
         var _this = event.data.self;
+        var $input = $(_this.input);
+        var $suggestions = $($input.data('term-suggestions'));
 
         switch (event.which) {
             case 9: // Tab
                 event.preventDefault();
-                var $el = $(event.currentTarget);
-                var $input = $(_this.input);
-                var $suggestions = $($input.data('term-suggestions'));
+                var $el = $(event.target);
                 var $term = $suggestions.data('term');
                 var term = $el.attr('value').trim();
 
@@ -620,11 +620,21 @@
                 _this.focusElement($term);
                 break;
             case 37: // Arrow left
+                var $previousPage = $suggestions.find('.pagination > .previous-page');
+                if ($previousPage.length) {
+                    $previousPage.click();
+                    break;
+                }
             case 38: // Arrow up
                 event.preventDefault();
                 _this.moveFocusBackward($(_this.input).data('term-suggestions'));
                 break;
             case 39: // Arrow right
+                var $nextPage = $suggestions.find('.pagination > .next-page');
+                if ($nextPage.length) {
+                    $nextPage.click();
+                    break;
+                }
             case 40: // Arrow down
                 event.preventDefault();
                 _this.moveFocusForward($(_this.input).data('term-suggestions'));
