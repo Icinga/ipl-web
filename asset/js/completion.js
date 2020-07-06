@@ -801,7 +801,7 @@
             _this.usedTerms[$term.data('term-index')] = termData;
         });
 
-        if (this.termType !== null) {
+        if (this.termType !== null && this.hasTerms()) {
             this.termType = this.nextTermType(this.lastTerm().type);
             this.togglePreview(); // TODO: Shouldn't this also be explicitly necessary?
         }
@@ -1212,6 +1212,8 @@
         if (! this.hasTerms()) {
             if ($input.data('placeholder')) {
                 placeholder = $input.data('placeholder');
+            } else {
+                return;
             }
         } else if (!! $input.prop('placeholder')) {
             if (! $input.data('placeholder')) {
