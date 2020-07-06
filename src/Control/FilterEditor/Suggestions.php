@@ -95,14 +95,14 @@ class Suggestions extends BaseHtmlElement
                 $pagination->add(new Link(new Icon('angle-double-left'), $this->url->with([
                     'limit' => $limit,
                     'page'  => $this->pageNo - 1
-                ])));
+                ]), ['class' => 'previous-page']));
             }
 
             if ($this->hasMore($data, $offset + $limit)) {
                 $pagination->add(new Link(new Icon('angle-double-right'), $this->url->with([
                     'limit' => $limit,
                     'page'  => $this->pageNo + 1
-                ])));
+                ]), ['class' => 'next-page']));
             }
 
             if (! $pagination->isEmpty()) {
