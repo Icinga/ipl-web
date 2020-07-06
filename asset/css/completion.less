@@ -59,6 +59,7 @@ form.completion {
   }
 
   .suggestions {
+    z-index: 1; // Required so that nothing else can overlap it (such as opaque elements)
     position: absolute;
     top: 100%;
     min-width: 12em;
