@@ -412,7 +412,7 @@
                 break;
             case 13: // Enter
                 if (isTerm) {
-                    _this.saveTerm($term);
+                    _this.saveTerm($term, termInput);
                     _this.hideSuggestions($(termSuggestions));
                 }
                 break;
@@ -656,7 +656,7 @@
         _this.complete(term, $el.prop('class'), $el.data('term'), $term);
 
         if ($term.is('[data-term-index]')) {
-            _this.saveTerm($term);
+            _this.saveTerm($term, $input.data('term-input'));
         } else {
             _this.exchangeTerm($input.data('term-container'), $input.data('term-input'));
             _this.togglePlaceholder();
@@ -671,9 +671,7 @@
      */
     Completion.prototype.onTermBlur = function (event) {
         var _this = event.data.self;
-        if (_this.mode === 'full') {
-            _this.saveTerm($(event.currentTarget));
-        }
+        _this.saveTerm($(event.currentTarget), $(_this.input).data('term-input'));
     };
 
     /**
@@ -907,8 +905,9 @@
 
     /**
      * @param $term
+     * @param termInput
      */
-    Completion.prototype.saveTerm = function ($term) {
+    Completion.prototype.saveTerm = function ($term, termInput) {
         var $input = $term;
         if (! $input.is('input')) {
             $input = $term.children('input').first();
@@ -932,6 +931,12 @@
             this.lastCompletedTerm = null;
         }
 
+        var termSeparator = '';
+        if (this.mode === 'basic') {
+            termSeparator = ' ';
+        }
+
+        $(termInput).val(this.usedTerms.map(function (e) { return e.search }).join(termSeparator).trim());
         this.updateTermData($term, term);
     };
 
