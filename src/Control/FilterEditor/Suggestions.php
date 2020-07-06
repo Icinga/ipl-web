@@ -2,6 +2,7 @@
 
 namespace ipl\Web\Control\FilterEditor;
 
+use Countable;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\FormElement\InputElement;
 use ipl\Html\HtmlElement;
@@ -11,6 +12,7 @@ use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\Link;
 use IteratorIterator;
 use LimitIterator;
+use OuterIterator;
 use Traversable;
 
 class Suggestions extends BaseHtmlElement
@@ -96,16 +98,31 @@ class Suggestions extends BaseHtmlElement
                 ])));
             }
 
-            // TODO: Only add this if there's anything left
-            $pagination->add(new Link(new Icon('angle-double-right'), $this->url->with([
-                'limit' => $limit,
-                'page'  => $this->pageNo + 1
-            ])));
+            if ($this->hasMore($data, $offset + $limit)) {
+                $pagination->add(new Link(new Icon('angle-double-right'), $this->url->with([
+                    'limit' => $limit,
+                    'page'  => $this->pageNo + 1
+                ])));
+            }
 
             if (! $pagination->isEmpty()) {
                 $this->add($pagination);
             }
         }
+    }
+
+    protected function hasMore($data, $than)
+    {
+        if (is_array($data)) {
+            return count($data) > $than;
+        } elseif ($data instanceof Countable) {
+            return $data->count() > $than;
+        } elseif ($data instanceof OuterIterator) {
+            return $this->hasMore($data->getInnerIterator(), $than);
+        }
+
+        // Show next page link in any case for unknown traversables
+        return true;
     }
 
     public function renderUnwrapped()
