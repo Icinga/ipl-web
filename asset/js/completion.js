@@ -850,6 +850,10 @@
             'term': newTerm
         };
 
+        if (termType === 'column' || termType === 'value') {
+            termData.search = this.icinga.utils.fixedEncodeURIComponent(termData.search);
+        }
+
         if (this.ignoreSpaceUntil !== null) {
             if (this.ignoreSpaceSince === 0 && newTerm[this.ignoreSpaceSince] === this.ignoreSpaceUntil) {
                 termData.term = newTerm.slice(1, -1);
