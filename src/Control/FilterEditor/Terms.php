@@ -14,10 +14,10 @@ class Terms extends BaseHtmlElement
 
     protected $defaultAttributes = ['class' => 'terms'];
 
-    /** @var Filter */
+    /** @var callable|Filter */
     protected $filter;
 
-    public function setFilter(Filter $filter)
+    public function setFilter($filter)
     {
         $this->filter = $filter;
 
@@ -26,12 +26,16 @@ class Terms extends BaseHtmlElement
 
     protected function assemble()
     {
-        if ($this->filter === null || $this->filter->isEmpty()) {
+        $filter = $this->filter;
+        if (is_callable($filter)) {
+            $filter = $filter();
+        }
+
+        if ($filter === null || $filter->isEmpty()) {
             return;
         }
 
-        $filter = $this->filter;
-        if ($this->filter->isChain()) {
+        if ($filter->isChain()) {
             /** @var FilterChain $filter */
             $this->assembleConditions($filter);
         } else {
