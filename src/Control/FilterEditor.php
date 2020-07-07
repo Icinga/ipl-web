@@ -3,11 +3,13 @@
 namespace ipl\Web\Control;
 
 use Icinga\Data\Filter\Filter;
+use Icinga\Data\Filter\FilterParseException;
 use ipl\Html\Form;
 use ipl\Html\FormElement\HiddenElement;
 use ipl\Html\FormElement\InputElement;
 use ipl\Html\FormElement\SubmitElement;
 use ipl\Html\HtmlElement;
+use ipl\Validator\CallbackValidator;
 use ipl\Web\Control\FilterEditor\Terms;
 use ipl\Web\Url;
 
@@ -184,9 +186,13 @@ class FilterEditor extends Form
             'disabled'  => true
         ]);
 
-        if (! $this->getFilter()->isEmpty() && ! $this->getRequest()->getHeaderLine('X-Icinga-Autorefresh')) {
-            $termInput->setValue($this->getFilter()->toQueryString());
-            $termContainer->setFilter($this->getFilter());
+        if (! $this->getRequest()->getHeaderLine('X-Icinga-Autorefresh')) {
+            $termContainer->setFilter(function () {
+                return $this->getFilter();
+            });
+            $termInput->getAttributes()->registerAttributeCallback('value', function () {
+                return $this->getFilter()->toQueryString();
+            });
         }
 
         $searchInput = new InputElement($this->getSearchParameter(), [
@@ -199,10 +205,39 @@ class FilterEditor extends Form
             'data-term-input'       => '#' . $termInputId,
             'data-term-container'   => '#' . $termContainerId,
             'data-term-suggestions' => '#' . $suggestionsId,
-            'data-suggest-url'      => $this->getSuggestionUrl()
+            'data-suggest-url'      => $this->getSuggestionUrl(),
+            'validators'            => [
+                new CallbackValidator(function ($q, CallbackValidator $validator) {
+                    try {
+                        $filter = Filter::fromQueryString($q);
+                    } catch (FilterParseException $e) {
+                        $charAt = $e->getCharPos() - 1;
+
+                        $this->getElement($this->getSearchParameter())
+                            ->setValue(substr($q, $charAt))
+                            ->addAttributes([
+                                'title'     => sprintf(t('Unexpected %s at start of input'), $e->getChar()),
+                                'pattern'   => sprintf('^(?!\%s).*', $e->getChar())
+                            ]);
+
+                        $probablyValidQueryString = substr($q, 0, $charAt);
+                        $this->setFilter(Filter::fromQueryString($probablyValidQueryString));
+                        return false;
+                    }
+
+                    if ($filter->isExpression() && $filter->getExpression() === true) {
+                        $filter = Filter::matchAny();
+                        foreach ($this->getSearchColumns() as $column) {
+                            $filter->addFilter(Filter::where($column, "*$q*"));
+                        }
+                    }
+
+                    $this->setFilter($filter);
+                    return true;
+                })
+            ]
         ]);
 
-        $this->registerElement($termInput);
         $this->registerElement($searchInput);
 
         $this->add([
@@ -216,19 +251,5 @@ class FilterEditor extends Form
                 'data-base-target'  => $suggestionsId
             ])
         ]);
-    }
-
-    public function assembleFilter()
-    {
-        $q = $this->getValue($this->getSearchParameter());
-        $filter = Filter::fromQueryString($q);
-        if ($filter->isExpression() && $filter->getExpression() === true) {
-            $filter = Filter::matchAny();
-            foreach ($this->getSearchColumns() as $column) {
-                $filter->addFilter(Filter::where($column, "*$q*"));
-            }
-        }
-
-        return $filter;
     }
 }

@@ -291,6 +291,11 @@
             this.togglePlaceholder();
         }
 
+        if (typeof $input[0].reportValidity !== 'undefined') {
+            // IE doesn't provide the reportValidity function
+            setTimeout(function () { $input[0].reportValidity(); }, 0);
+        }
+
         return this.usedTerms.length > 0;
     };
 
@@ -530,6 +535,7 @@
     Completion.prototype.onInputKeyUp = function (event) {
         var _this = event.data.self;
         var isTerm = !!event.data.term;
+        var $input = $(event.target);
         var $term = $(event.currentTarget);
         var $thisInput = $(_this.input);
         var termInput = $thisInput.data('term-input');
@@ -586,7 +592,7 @@
                 }
 
                 term = _this.readPartialTerm($term);
-                if (term) {
+                if (term && $input[0].checkValidity()) {
                     if (! isTerm && _this.previewedTerm !== null && _this.mode === 'full' && _this.hasTerms()) {
                         if (_this.nextOperator(term).partialMatches) {
                             // TODO: Quickfix, the preview should accordingly adjust if there are partial matches
