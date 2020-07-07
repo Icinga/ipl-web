@@ -49,9 +49,9 @@ class Terms extends BaseHtmlElement
             }
 
             if ($filter->isChain()) {
-                $this->assembleTerm('logical_operator', 'logical_operator', '(', '(');
+                $this->assembleTerm('grouping_operator_open', 'grouping_operator', '(', '(');
                 $this->assembleConditions($filter);
-                $this->assembleTerm('logical_operator', 'logical_operator', ')', ')');
+                $this->assembleTerm('grouping_operator_close', 'grouping_operator', ')', ')');
             } else {
                 $this->assembleCondition($filter);
             }
