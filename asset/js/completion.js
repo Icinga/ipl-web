@@ -25,6 +25,16 @@
         ];
 
         /**
+         * Supported grouping operators
+         *
+         * @type {{close: {}, open: {}}}
+         */
+        this.grouping_operators = {
+            open: { term: '(', search: '(', class: 'grouping_operator_open', type: 'grouping_operator' },
+            close: { term: ')', search: ')', class: 'grouping_operator_close', type: 'grouping_operator' }
+        };
+
+        /**
          * Supported relational operators
          *
          * The first is also the default.
@@ -800,7 +810,7 @@
         });
 
         if (this.termType !== null && this.hasTerms()) {
-            this.termType = this.nextTermType(this.lastTerm().type);
+            this.termType = this.nextTermType(this.lastTerm());
             this.togglePreview(); // TODO: Shouldn't this also be explicitly necessary?
         }
     };
@@ -891,7 +901,7 @@
         }
 
         if (termData.type !== null) {
-            this.termType = this.nextTermType(termData.type);
+            this.termType = this.nextTermType(termData);
             this.togglePreview(); // TODO: Shouldn't this also be explicitly necessary?
         }
     };
@@ -997,7 +1007,7 @@
 
         if (this.mode === 'full') {
             if (this.hasTerms()) {
-                this.termType = this.nextTermType(this.lastTerm().type);
+                this.termType = this.nextTermType(this.lastTerm());
             } else {
                 this.termType = 'column';
             }
@@ -1267,11 +1277,11 @@
     };
 
     /**
-     * @param {string} type
+     * @param {{}} termData
      * @return {string}
      */
-    Completion.prototype.nextTermType = function (type) {
-        switch (type) {
+    Completion.prototype.nextTermType = function (termData) {
+        switch (termData.type) {
             case 'column':
                 return 'operator';
             case 'operator':
@@ -1280,57 +1290,46 @@
                 return 'logical_operator';
             case 'logical_operator':
                 return 'column';
+            case 'grouping_operator':
+                if (termData === this.grouping_operators.open) {
+                    return 'column';
+                } else { // if (termData === this.grouping_operators.close) {
+                    return 'logical_operator';
+                }
         }
     };
 
     /**
      * @param {string} input
-     * @param {string} termType
      * @return {{}}
      */
-    Completion.prototype.nextOperator = function (input, termType) {
-        if (typeof termType === 'undefined') {
-            termType = this.termType;
-        }
-
+    Completion.prototype.nextOperator = function (input) {
         var operators = [],
             partialMatch = false;
 
-        if (termType === 'column' && input === '(') {
-            if (! this.hasTerms() || this.lastTerm().type === 'logical_operator') {
-                operators.push({
-                    term: '(',
-                    search: '(',
-                    class: 'logical_operator',
-                    type: 'logical_operator'
+        switch (this.termType) {
+            case 'column':
+                if (! this.readPartialTerm(this.input)) {
+                    if (! this.hasTerms() || this.lastTerm().type === 'logical_operator') {
+                        operators.push(this.grouping_operators.open);
+                    }
+
+                    break;
+                }
+            case 'operator':
+                this.relational_operators.forEach(function (op) {
+                    if (op.term.length > input.length && input === op.term.slice(0, input.length)) {
+                        operators.push(op);
+                        partialMatch = true;
+                    }
                 });
-            }
-        } else {
-            switch (true) {
-                case termType === 'column':
-                    if (! this.hasTerms() && ! this.readPartialTerm(this.input)) {
-                        break;
-                    }
-                case termType === 'operator':
-                    this.relational_operators.forEach(function (op) {
-                        if (op.term.length > input.length && input === op.term.slice(0, input.length)) {
-                            operators.push(op);
-                            partialMatch = true;
-                        }
-                    });
-                    if (! partialMatch) {
-                        operators = operators.concat(this.relational_operators);
-                    }
-                case termType === 'value':
-                case termType === 'logical_operator':
-                    operators.push({
-                        term: ')',
-                        search: ')',
-                        class: 'logical_operator',
-                        type: 'logical_operator'
-                    });
-                    operators = operators.concat(this.logical_operators);
-            }
+                if (! partialMatch) {
+                    operators = operators.concat(this.relational_operators);
+                }
+            case 'value':
+            case 'logical_operator':
+                operators.push(this.grouping_operators.close);
+                operators = operators.concat(this.logical_operators);
         }
 
         if (! partialMatch) {
