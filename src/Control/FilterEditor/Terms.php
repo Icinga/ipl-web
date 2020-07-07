@@ -70,11 +70,14 @@ class Terms extends BaseHtmlElement
             $columnLabel = $filter->metaData['label'];
         }
 
-        $this->assembleTerm('column', 'column', $column, $columnLabel);
+        $this->assembleTerm('column', 'column', rawurlencode($column), $columnLabel);
 
         if (! $filter->isBooleanTrue()) {
             $this->assembleTerm('operator', 'operator', $operator, $operator);
-            $this->assembleTerm('value', 'value', $value, $value);
+
+            if (! empty($value)) {
+                $this->assembleTerm('value', 'value', rawurlencode($value), $value);
+            }
         }
     }
 
