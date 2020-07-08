@@ -291,12 +291,12 @@
             this.togglePlaceholder();
         }
 
-        if (typeof $input[0].reportValidity !== 'undefined') {
-            // IE doesn't provide the reportValidity function
-            setTimeout(function () { $input[0].reportValidity(); }, 0);
+        if (this.hasTerms()) {
+            this.reportValidity($input.closest('form')[0]);
+            return true;
         }
 
-        return this.usedTerms.length > 0;
+        return false;
     };
 
     /**
@@ -545,15 +545,6 @@
         var term;
 
         switch (event.which) {
-            case 8: // Backspace
-                var $suggestions = $(termSuggestions);
-                term = _this.readPartialTerm($term);
-                if (term) {
-                    _this.suggest($thisInput.data('suggest-url'), term, $suggestions, $term);
-                } else {
-                    _this.hideSuggestions($suggestions);
-                }
-                break;
             case 27: // ESC
                 _this.hideSuggestions($(termSuggestions));
                 break;
@@ -589,6 +580,9 @@
                         _this.clearSelectedTerms(termContainer, termInput);
                         _this.togglePlaceholder();
                     }
+                } else if (! _this.checkValidity($term)) {
+                    _this.reportValidity($input[0]);
+                    break;
                 }
 
                 term = _this.readPartialTerm($term);
@@ -935,6 +929,10 @@
 
         var value = $input.val();
         var term = this.usedTerms[$term.data('term-index')];
+
+        if (! this.checkValidity($term, term.type)) {
+            return false;
+        }
 
         if (value !== term.term) {
             // The user did change something
@@ -1287,6 +1285,53 @@
     };
 
     /**
+     * @param $term
+     * @param type
+     * @return {boolean}
+     */
+    Completion.prototype.checkValidity = function ($term, type) {
+        if (typeof type === 'undefined') {
+            type = $term.data('term-type');
+        }
+
+        var $input = $term.children('input').first();
+        var input = $input.val();
+
+        var options;
+        switch (type) {
+            case 'operator':
+            case 'logical_operator':
+            case 'grouping_operator':
+                options = this.nextOperator(input, type);
+                break;
+            default:
+                return true;
+        }
+
+        if (! input || options.partialMatches || options.length === 1) {
+            $input[0].setCustomValidity('');
+        } else {
+            $input[0].setCustomValidity(
+                $(this.input).data('choose-template').replace('%s', options.map(function (e) {
+                    return e.term;
+                }).join(', '))
+            );
+        }
+
+        return $input[0].checkValidity();
+    };
+
+    /**
+     * @param element
+     */
+    Completion.prototype.reportValidity = function (element) {
+        if (typeof element.reportValidity !== 'undefined') {
+            // IE doesn't provide the reportValidity function
+            setTimeout(function () { element.reportValidity(); }, 0);
+        }
+    };
+
+    /**
      * @param {{}} termData
      * @return {string}
      */
@@ -1311,13 +1356,18 @@
 
     /**
      * @param {string} input
+     * @param {string} termType
      * @return {{}}
      */
-    Completion.prototype.nextOperator = function (input) {
+    Completion.prototype.nextOperator = function (input, termType) {
         var operators = [],
             partialMatch = false;
 
-        switch (this.termType) {
+        if (typeof termType === 'undefined') {
+            termType = this.termType;
+        }
+
+        switch (termType) {
             case 'column':
                 if (! this.readPartialTerm(this.input)) {
                     if (! this.hasTerms() || this.lastTerm().type === 'logical_operator') {
@@ -1327,12 +1377,14 @@
                     break;
                 }
             case 'operator':
-                this.relational_operators.forEach(function (op) {
-                    if (op.term.length > input.length && input === op.term.slice(0, input.length)) {
-                        operators.push(op);
-                        partialMatch = true;
-                    }
-                });
+                if (!! input) {
+                    this.relational_operators.forEach(function (op) {
+                        if (op.term.length > input.length && input === op.term.slice(0, input.length)) {
+                            operators.push(op);
+                            partialMatch = true;
+                        }
+                    });
+                }
                 if (! partialMatch) {
                     operators = operators.concat(this.relational_operators);
                 }
@@ -1342,7 +1394,7 @@
                 operators = operators.concat(this.logical_operators);
         }
 
-        if (! partialMatch) {
+        if (! partialMatch && !! input) {
             var exactMatch = operators.find(function (op) {
                 return input === op.term;
             });
