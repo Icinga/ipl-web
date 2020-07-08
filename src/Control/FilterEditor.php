@@ -204,6 +204,7 @@ class FilterEditor extends Form
             'data-term-container'   => '#' . $termContainerId,
             'data-term-suggestions' => '#' . $suggestionsId,
             'data-suggest-url'      => $this->getSuggestionUrl(),
+            'data-choose-template'  => t('Please type one of: %s', '..<comma separated list>'),
             'validators'            => [
                 new CallbackValidator(function ($q, CallbackValidator $validator) {
                     try {
