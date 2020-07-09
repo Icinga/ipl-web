@@ -7,7 +7,6 @@ form.completion {
   .clearfix();
   display: flex;
   position: relative;
-  padding-left: 2em;
   flex-wrap: nowrap;
   .rounded-corners();
 
@@ -18,7 +17,8 @@ form.completion {
   }
 
   label input {
-    height: 2.25em;
+    height: 1.75em;
+    margin-top: .25em;
   }
 
   .search-input {
@@ -40,6 +40,11 @@ form.completion {
   }
 
   .terms {
+    padding-left: 2em;
+    background-image: url("../img/icons/search_icinga_blue.png");
+    background-repeat: no-repeat;
+    background-position: .5em center;
+
     > label {
       width: auto;
       position: relative;
@@ -50,7 +55,7 @@ form.completion {
         .rounded-corners();
         color: @text-color-inverted;
         position: absolute;
-        top: 0;
+        top: .25em;
         right: 0;
         bottom: 0; left: 0;
         text-align: center;
