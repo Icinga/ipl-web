@@ -85,14 +85,19 @@ form.completion {
 
     input {
       padding: .75em .5em;
+      display: block;
+      width: 100%;
+      text-align: left;
     }
 
     input:focus {
       background: @icinga-blue;
       color: @text-color-inverted;
       outline: none;
-      width: 100%;
-      text-align: left;
+    }
+
+    input:not(:focus):hover {
+      background: fade(@icinga-blue, 30%)
     }
   }
 }
