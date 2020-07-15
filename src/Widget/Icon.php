@@ -26,7 +26,7 @@ class Icon extends BaseHtmlElement
     {
         $this
             ->getAttributes()
-                ->add('class', ['icon', "icon-$name"])
+                ->add('class', ['icon', 'fa', "fa-$name"])
                 ->add($attributes);
     }
 }
