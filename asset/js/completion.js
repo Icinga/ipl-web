@@ -1058,14 +1058,15 @@
      */
     Completion.prototype.showSuggestions = function (data, $suggestions, $at) {
         $suggestions.html(data);
-
-        var inputPos = $at.position(),
+        
+        var inputPosX = $at[0].getBoundingClientRect().left - $at.parents('form')[0].getBoundingClientRect().left,
             inputWidth = $at.outerWidth(true),
             suggestionWidth = $suggestions.outerWidth(true);
-        if (inputPos.left + suggestionWidth > inputPos.left + inputWidth) {
-            $suggestions.css({left: inputPos.left + inputWidth - suggestionWidth});
+
+        if (inputPosX + suggestionWidth > inputPosX + inputWidth) {
+            $suggestions.css({left: inputPosX + inputWidth - suggestionWidth});
         } else {
-            $suggestions.css({left: inputPos.left});
+            $suggestions.css({left: inputPosX});
         }
 
         $suggestions.data('term', $at);
