@@ -304,19 +304,20 @@
             let data = event.detail;
             let input = event.target;
 
-            if (data.label === '') {
-                this.hideSuggestions();
-            } else {
-                if (typeof data.label !== 'undefined') {
-                    this.completedValue = data.label;
-                    data.label = this.addWildcards(data.label);
+            if (data.term && typeof data.term.label !== 'undefined') {
+                if (data.term.label === '') {
+                    this.hideSuggestions();
+                    return;
                 } else {
-                    this.completedValue = '';
+                    this.completedValue = data.term.label;
+                    data.term.label = this.addWildcards(data.term.label);
                 }
-
-                this.completedInput = input;
-                this.requestCompletion(data, input);
+            } else {
+                this.completedValue = '';
             }
+
+            this.completedInput = input;
+            this.requestCompletion(data, input);
         }
     }
 

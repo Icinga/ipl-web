@@ -268,7 +268,7 @@
             label.remove();
         }
 
-        complete(data, input) {
+        complete(input, data = {}) {
             if (this.completer !== null) {
                 $(input).trigger('complete', data);
             }
@@ -408,7 +408,7 @@
 
             if (input === document.activeElement) {
                 // If the input is focused, complete the new value just like we do it for user-input
-                this.complete({ ...termData }, input);
+                this.complete(input, { term: { ...termData } });
             }
         }
 
@@ -432,7 +432,7 @@
 
             let termData = { label: input.value };
             this.updateTermData(termData, input);
-            this.complete(termData, input);
+            this.complete(input, { term: termData });
 
             if (! isTerm) {
                 this.clearSelectedTerms();

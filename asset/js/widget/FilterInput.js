@@ -137,23 +137,27 @@
             this.togglePreview();
         }
 
-        complete(data, input) {
-            let termIndex = input.parentNode.dataset.termIndex;
-            if (termIndex) {
-                data.type = this.usedTerms[termIndex].type;
-            } else {
-                termIndex = this.usedTerms.length;
-                data.type = this.termType;
+        complete(input, data = {}) {
+            if (typeof data.term === 'undefined') {
+                data.term = {};
             }
 
-            switch (data.type) {
+            let termIndex = input.parentNode.dataset.termIndex;
+            if (termIndex) {
+                data.term.type = this.usedTerms[termIndex].type;
+            } else {
+                termIndex = this.usedTerms.length;
+                data.term.type = this.termType;
+            }
+
+            switch (data.term.type) {
                 case 'value':
                     data.operator = this.usedTerms[--termIndex].search;
                 case 'operator':
                     data.column = this.usedTerms[--termIndex].search;
             }
 
-            super.complete(data, input);
+            super.complete(input, data);
         }
 
         nextTermType(termData) {
@@ -345,7 +349,7 @@
                             this.addTerm(this.previewedTerm);
                         }
 
-                        this.complete({}, input);
+                        this.complete(input);
                         event.preventDefault();
                     }
                     break;
