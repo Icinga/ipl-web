@@ -242,7 +242,7 @@ class FilterEditor extends Form
         $this->add([
             $termContainer,
             $termInput,
-            new HtmlElement('label', null, $searchInput),
+            new HtmlElement('label', ['data-term-label' => ''], $searchInput),
             new SubmitElement('submit', ['label' => $this->getSubmitLabel()]),
             new HtmlElement('div', [
                 'id'                => $suggestionsId,

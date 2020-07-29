@@ -70,20 +70,21 @@ class Suggestions extends BaseHtmlElement
             }
 
             $attributes = [
-                'type'      => 'button',
-                'tabindex'  => -1,
-                'data-term' => $term
+                'type'              => 'button',
+                'tabindex'          => -1,
+                'data-term-search'  => $term
             ];
             if (is_array($meta)) {
                 foreach ($meta as $key => $value) {
                     if ($key === 'label') {
                         $attributes['value'] = $value;
-                    } else {
-                        $attributes['data-' . $key] = $value;
                     }
+
+                    $attributes['data-term-' . $key] = $value;
                 }
             } else {
                 $attributes['value'] = $meta;
+                $attributes['data-term-label'] = $meta;
             }
 
             $this->add(new HtmlElement('li', null, new InputElement(null, $attributes)));
