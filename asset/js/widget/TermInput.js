@@ -61,10 +61,10 @@
             super.addTerm(termData, termIndex);
         }
 
-        complete(data, input) {
+        complete(input, data = {}) {
             data.exclude = this.usedTerms.map(termData => termData.search);
 
-            super.complete(data, input);
+            super.complete(input, data);
         }
 
         /**

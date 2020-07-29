@@ -67,7 +67,7 @@
          * @param {string} type
          * @param {{}} detail
          */
-        trigger(type, detail = {}) {
+        trigger(type, detail = null) {
             setTimeout(() => {
                 this.element.dispatchEvent(new CustomEvent(type, {
                     cancelable: false,
