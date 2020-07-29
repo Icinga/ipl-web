@@ -85,17 +85,17 @@ class Terms extends BaseHtmlElement
         }
     }
 
-    protected function assembleTerm($class, $type, $search, $term)
+    protected function assembleTerm($class, $type, $search, $label)
     {
         $this->add(new HtmlElement('label', [
             'data-term-index'   => $this->count(),
             'data-term-class'   => $class,
             'data-term-type'    => $type,
             'data-term-search'  => $search,
-            'data-term'         => $term
+            'data-term-label'   => $label
         ], new HtmlElement('input', [
             'type'  => 'text',
-            'value' => $term
+            'value' => $label
         ])));
     }
 }
