@@ -15,7 +15,7 @@ use ipl\Web\Url;
 
 class FilterEditor extends Form
 {
-    protected $defaultAttributes = ['class' => 'completion'];
+    protected $defaultAttributes = ['class' => 'completion', 'role' => 'search'];
 
     /** @var Filter */
     protected $filter;
@@ -196,7 +196,7 @@ class FilterEditor extends Form
         $searchInput = new InputElement($this->getSearchParameter(), [
             'type'                  => 'text',
             'placeholder'           => 'type something..',
-            'class'                 => 'autofocus search-input',
+            'class'                 => 'search-input',
             'id'                    => $searchInputId,
             'autocomplete'          => 'off',
             'data-term-completion'  => 'full',
