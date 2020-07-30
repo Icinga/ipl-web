@@ -254,12 +254,15 @@
         }
 
         onKeyDown(event) {
+            let suggestions;
+
             switch (event.key) {
                 case 'Tab':
-                    if (this.termSuggestions.childNodes.length === 1) {
+                    suggestions = this.termSuggestions.querySelectorAll('input');
+                    if (suggestions.length === 1) {
                         event.preventDefault();
                         let input = event.target;
-                        let suggestion = this.termSuggestions.firstChild;
+                        let suggestion = suggestions[0];
 
                         $(input).focus();
                         this.complete(input, suggestion.value, { ...suggestion.dataset });
@@ -270,13 +273,15 @@
                     this.hideSuggestions();
                     break;
                 case 'ArrowUp':
-                    if (this.termSuggestions.childNodes.length) {
+                    suggestions = this.termSuggestions.querySelectorAll('input');
+                    if (suggestions.length) {
                         event.preventDefault();
                         this.moveToSuggestion(true);
                     }
                     break;
                 case 'ArrowDown':
-                    if (this.termSuggestions.childNodes.length) {
+                    suggestions = this.termSuggestions.querySelectorAll('input');
+                    if (suggestions.length) {
                         event.preventDefault();
                         this.moveToSuggestion();
                     }
