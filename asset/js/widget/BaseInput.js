@@ -383,11 +383,6 @@
 
             this.lastCompletedTerm = termData;
             this.writePartialTerm(termData.label, input);
-
-            if (input === document.activeElement) {
-                // If the input is focused, complete the new value just like we do it for user-input
-                this.complete(input, { term: { ...termData } });
-            }
         }
 
         onCompletion(event) {

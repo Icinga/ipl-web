@@ -16,6 +16,7 @@
             this.activeSuggestion = null;
             this.completedInput = null;
             this.completedValue = null;
+            this.completedData = null;
             this._termSuggestions = null;
         }
 
@@ -72,8 +73,16 @@
             this.input = null;
         }
 
-        showSuggestions(html, input) {
-            this.termSuggestions.innerHTML = html;
+        renderSuggestions(html) {
+            let template = document.createElement('template');
+            template.innerHTML = html;
+
+            return template.content;
+        }
+
+        showSuggestions(suggestions, input) {
+            this.termSuggestions.innerHTML = '';
+            this.termSuggestions.appendChild(suggestions);
             this.termSuggestions.style.display = '';
 
             let formRect = input.form.getBoundingClientRect();
@@ -93,6 +102,7 @@
 
             this.completedInput = null;
             this.completedValue = null;
+            this.completedData = null;
         }
 
         prepareCompletionData(input, data = null) {
@@ -127,7 +137,7 @@
             }
         }
 
-        requestCompletion(input, data) {
+        requestCompletion(input, data, continuous = false) {
             this.abort();
 
             this.nextSuggestion = setTimeout(() => {
@@ -148,7 +158,18 @@
                 req.addEventListener('loadend', () => {
                     if (req.readyState > 0) {
                         if (req.responseText) {
-                            this.showSuggestions(req.responseText, input);
+                            let suggestions = this.renderSuggestions(req.responseText);
+
+                            if (continuous) {
+                                let options = suggestions.querySelectorAll('input');
+                                if (options.length === 1 && options[0].value === this.completedValue) {
+                                    this.complete(input, options[0].value, { ...options[0].dataset });
+                                } else {
+                                    this.showSuggestions(suggestions, input);
+                                }
+                            } else {
+                                this.showSuggestions(suggestions, input);
+                            }
                         } else {
                             this.hideSuggestions();
                         }
@@ -173,19 +194,19 @@
                 $(input).trigger('suggestion', data);
             } else {
                 input.value = value;
-
-                data[input.name] = this.addWildcards(value);
-                this.requestCompletion(input, data);
-                this.completedValue = value;
             }
         }
 
         complete(input, value, data) {
+            $(input).focus();
+
             if (this.instrumented) {
                 $(input).trigger('completion', data);
             } else {
                 input.value = value;
             }
+
+            this.hideSuggestions();
         }
 
         moveToSuggestion(backwards = false) {
@@ -242,6 +263,11 @@
 
                     $(this.completedInput).focus();
                     this.suggest(this.completedInput, input.value, { ...input.dataset });
+
+                    let [value, data] = this.prepareCompletionData(input);
+                    this.completedValue = value;
+                    this.completedData.term = data.term;
+                    this.requestCompletion(this.completedInput, this.completedData, true);
                     break;
                 case 'ArrowLeft':
                 case 'ArrowUp':
@@ -259,10 +285,7 @@
         onSuggestionClick(event) {
             let input = event.target;
 
-            $(this.completedInput).focus();
             this.complete(this.completedInput, input.value, { ...input.dataset });
-
-            this.hideSuggestions();
         }
 
         onKeyDown(event) {
@@ -276,9 +299,7 @@
                         let input = event.target;
                         let suggestion = suggestions[0];
 
-                        $(input).focus();
                         this.complete(input, suggestion.value, { ...suggestion.dataset });
-                        this.hideSuggestions();
                     }
                     break;
                 case 'Escape':
