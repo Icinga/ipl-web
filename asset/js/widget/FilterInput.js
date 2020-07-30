@@ -146,6 +146,16 @@
                 data.term.type = this.termType;
             }
 
+            // Special cases
+            switch (data.term.type) {
+                case 'grouping_operator':
+                    return;
+                case 'operator':
+                case 'logical_operator':
+                    data.suggestions = this.renderSuggestions(this.nextOperator(data.term.label));
+            }
+
+            // Additional metadata
             switch (data.term.type) {
                 case 'value':
                     data.operator = this.usedTerms[--termIndex].search;
@@ -195,14 +205,18 @@
                 case 'operator':
                     if (value) {
                         this.relational_operators.forEach((op) => {
-                            if (op.label.length > value.length && value === op.label.slice(0, value.length)) {
+                            if (op.label.length >= value.length && value === op.label.slice(0, value.length)) {
                                 operators.push(op);
-                                partialMatch = true;
+                                if (! partialMatch) {
+                                    partialMatch = op.label.length > value.length;
+                                }
                             }
                         });
                     }
                     if (! partialMatch) {
                         operators = operators.concat(this.relational_operators);
+                    } else {
+                        break;
                     }
                 case 'value':
                 case 'logical_operator':
@@ -210,7 +224,9 @@
                     operators = operators.concat(this.logical_operators);
                     break;
                 case 'grouping_operator':
-                    if (termIndex !== null) {
+                    if (termIndex === null) {
+                        // pass
+                    } else if (termIndex > 0) {
                         let previousTerm = this.usedTerms[termIndex - 1];
                         switch (previousTerm.type) {
                             case 'column':
@@ -224,6 +240,8 @@
                             case 'grouping_operator':
                                 operators.push(previousTerm);
                         }
+                    } else {
+                        operators.push(this.grouping_operators.open);
                     }
             }
 
@@ -279,10 +297,6 @@
         }
 
         togglePreview() {
-            if (this.input.nextSibling !== null) {
-                this.input.nextSibling.remove();
-            }
-
             switch (this.termType) {
                 case 'operator':
                     this.previewedTerm = this.relational_operators[0];
@@ -295,12 +309,35 @@
             }
 
             if (this.previewedTerm !== null) {
-                this.input.after(this.renderPreview(this.previewedTerm.label));
+                if (this.input.nextSibling !== null) {
+                    this.input.nextSibling.innerText = this.previewedTerm.label;
+                } else {
+                    this.input.after(this.renderPreview(this.previewedTerm.label));
+                }
+            } else if (this.input.nextSibling !== null) {
+                this.input.nextSibling.remove();
             }
         }
 
-        updatePreview() {
-            this.input.nextSibling.innerText = this.previewedTerm.label;
+        renderSuggestions(suggestions) {
+            let template = document.createElement('template');
+            template.innerHTML = '<li><input type="button"></li>';
+            let itemTemplate = template.content.firstChild;
+
+            let list = document.createElement('ul');
+
+            suggestions.forEach((term) => {
+                let item = itemTemplate.cloneNode(true);
+                item.firstChild.value = term.label;
+
+                for (let name in term) {
+                    item.firstChild.dataset[name] = term[name];
+                }
+
+                list.appendChild(item);
+            });
+
+            return list;
         }
 
         renderPreview(content) {
@@ -329,6 +366,19 @@
          * Event listeners
          */
 
+        onCompletion(event) {
+            super.onCompletion(event);
+
+            let input = event.target;
+            if (input.parentNode.dataset.index >= 0) {
+                return;
+            }
+
+            if (this.previewedTerm !== null) {
+                this.complete(this.input, { term: { label: '' } });
+            }
+        }
+
         onKeyDown(event) {
             let input = event.target;
             if (this.previewedTerm !== null && event.key === ' ' && ! input.value) {
@@ -350,48 +400,6 @@
                         this.addTerm(this.previewedTerm);
                         this.togglePlaceholder();
                         event.preventDefault();
-                    }
-                    break;
-                case 'ArrowUp':
-                    if (this.previewedTerm !== null) {
-                        let operators;
-                        switch (this.previewedTerm.type) {
-                            case 'operator':
-                                operators = this.relational_operators;
-                                break;
-                            case 'logical_operator':
-                                operators = this.logical_operators;
-                                break;
-                        }
-
-                        let operatorIndex = operators.indexOf(this.previewedTerm) - 1;
-                        if (operatorIndex === -1) {
-                            operatorIndex = operators.length - 1;
-                        }
-
-                        this.previewedTerm = operators[operatorIndex];
-                        this.updatePreview();
-                    }
-                    break;
-                case 'ArrowDown':
-                    if (this.previewedTerm !== null) {
-                        let operators;
-                        switch (this.previewedTerm.type) {
-                            case 'operator':
-                                operators = this.relational_operators;
-                                break;
-                            case 'logical_operator':
-                                operators = this.logical_operators;
-                                break;
-                        }
-
-                        let operatorIndex = operators.indexOf(this.previewedTerm) + 1;
-                        if (operatorIndex === operators.length) {
-                            operatorIndex = 0;
-                        }
-
-                        this.previewedTerm = operators[operatorIndex];
-                        this.updatePreview();
                     }
                     break;
                 default:
@@ -437,14 +445,9 @@
 
             let isTerm = input.parentNode.dataset.index >= 0;
 
-            let value = this.readPartialTerm(input);
-            if (value && input.checkValidity()) {
-                if (! isTerm && this.previewedTerm !== null && this.hasTerms()) {
-                    if (this.nextOperator(value).partialMatches) {
-                        // TODO: Quickfix, the preview should accordingly adjust if there are partial matches
-                        return;
-                    }
-
+            if (! isTerm && this.previewedTerm !== null) {
+                let value = this.readPartialTerm(input);
+                if (value && ! this.nextOperator(value).partialMatches) {
                     if (value !== this.previewedTerm.label) {
                         this.addTerm(this.previewedTerm);
                         this.togglePlaceholder();
