@@ -339,7 +339,12 @@
             this.completedInput = input;
             this.completedValue = value;
             this.completedData = data;
-            this.requestCompletion(input, data);
+
+            if (typeof data.suggestions !== 'undefined') {
+                this.showSuggestions(data.suggestions, input);
+            } else {
+                this.requestCompletion(input, data);
+            }
         }
     }
 
