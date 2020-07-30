@@ -70,9 +70,9 @@ class Suggestions extends BaseHtmlElement
             }
 
             $attributes = [
-                'type'              => 'button',
-                'tabindex'          => -1,
-                'data-term-search'  => $term
+                'type'          => 'button',
+                'tabindex'      => -1,
+                'data-search'   => $term
             ];
             if (is_array($meta)) {
                 foreach ($meta as $key => $value) {
@@ -80,11 +80,11 @@ class Suggestions extends BaseHtmlElement
                         $attributes['value'] = $value;
                     }
 
-                    $attributes['data-term-' . $key] = $value;
+                    $attributes['data-' . $key] = $value;
                 }
             } else {
                 $attributes['value'] = $meta;
-                $attributes['data-term-label'] = $meta;
+                $attributes['data-label'] = $meta;
             }
 
             $this->add(new HtmlElement('li', null, new InputElement(null, $attributes)));

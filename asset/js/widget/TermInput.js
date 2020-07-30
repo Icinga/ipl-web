@@ -85,7 +85,7 @@
             }
 
             let label = event.target.parentNode;
-            if (label.dataset.termIndex >= 0) {
+            if (label.dataset.index >= 0) {
                 return;
             }
 
@@ -99,7 +99,7 @@
             super.onKeyUp(event);
 
             let label = event.target.parentNode;
-            if (label.dataset.termIndex >= 0) {
+            if (label.dataset.index >= 0) {
                 return;
             }
 

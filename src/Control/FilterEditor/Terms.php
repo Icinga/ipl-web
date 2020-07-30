@@ -88,11 +88,11 @@ class Terms extends BaseHtmlElement
     protected function assembleTerm($class, $type, $search, $label)
     {
         $this->add(new HtmlElement('label', [
-            'data-term-index'   => $this->count(),
-            'data-term-class'   => $class,
-            'data-term-type'    => $type,
-            'data-term-search'  => $search,
-            'data-term-label'   => $label
+            'class'         => $class,
+            'data-index'    => $this->count(),
+            'data-type'     => $type,
+            'data-search'   => $search,
+            'data-label'    => $label
         ], new HtmlElement('input', [
             'type'  => 'text',
             'value' => $label
