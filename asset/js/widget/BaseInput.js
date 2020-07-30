@@ -395,6 +395,7 @@
 
             if (! isTerm) {
                 this.exchangeTerm();
+                this.togglePlaceholder();
             }
         }
 
