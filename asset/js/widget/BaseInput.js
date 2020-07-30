@@ -245,7 +245,7 @@
                 this.removeTerm(this.termContainer.lastChild);
 
                 if (this.completer !== null) {
-                    this.completer.abort();
+                    this.completer.reset();
                 }
             }
         }
