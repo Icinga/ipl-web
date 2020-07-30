@@ -25,6 +25,9 @@ class Suggestions extends BaseHtmlElement
     /** @var Traversable */
     protected $data;
 
+    /** @var string */
+    protected $type;
+
     /** @var int */
     protected $limit = 25;
 
@@ -41,6 +44,13 @@ class Suggestions extends BaseHtmlElement
     public function setData($data)
     {
         $this->data = $data;
+
+        return $this;
+    }
+
+    public function setType($type)
+    {
+        $this->type = $type;
 
         return $this;
     }
@@ -74,6 +84,10 @@ class Suggestions extends BaseHtmlElement
                 'tabindex'      => -1,
                 'data-search'   => $term
             ];
+            if ($this->type !== null) {
+                $attributes['data-type'] = $this->type;
+            }
+
             if (is_array($meta)) {
                 foreach ($meta as $key => $value) {
                     if ($key === 'label') {
