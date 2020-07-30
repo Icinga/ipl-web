@@ -36,7 +36,7 @@
             $form.on('submit', this.onSubmit, this);
 
             // User interactions
-            $form.on('focusin', 'input[type="text"]', this.onFocus, this);
+            $form.on('focusout', 'input[type="text"]', this.onFocusOut, this);
             $form.on('keydown', 'input[type="text"]', this.onKeyDown, this);
             $form.on('click', termSuggestions + ' input[type="button"]', this.onSuggestionClick, this);
             $form.on('keydown', termSuggestions + ' input[type="button"]', this.onSuggestionKeyDown, this);
@@ -247,11 +247,16 @@
             this.reset();
         }
 
-        onFocus(event) {
+        onFocusOut(event) {
             let input = event.target;
 
-            if (input !== this.completedInput) {
-                this.hideSuggestions();
+            if (input === this.completedInput) {
+                setTimeout(() => {
+                    if (! this.termSuggestions.contains(document.activeElement)) {
+                        // Hide the suggestions if the user doesn't navigate them
+                        this.hideSuggestions();
+                    }
+                }, 0);
             }
         }
 
