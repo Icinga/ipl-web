@@ -268,7 +268,7 @@
             label.remove();
         }
 
-        complete(input, data = {}) {
+        complete(input, data) {
             if (this.completer !== null) {
                 $(input).trigger('complete', data);
             }
@@ -422,6 +422,12 @@
             let isTerm = input.parentNode.dataset.index >= 0;
 
             switch (event.key) {
+                case ' ':
+                    if (! input.value) {
+                        this.complete(input, { term: { label: '' } });
+                        event.preventDefault();
+                    }
+                    break;
                 case 'Backspace':
                     if (! isTerm) {
                         this.clearSelectedTerms();

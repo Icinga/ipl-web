@@ -95,8 +95,20 @@
             this.completedValue = null;
         }
 
+        prepareCompletionData(input, data = null) {
+            if (data === null) {
+                data = { term: { ...input.dataset } };
+                data.term.label = input.value;
+            }
+
+            let value = data.term.label;
+            data.term.label = this.addWildcards(data.term.label);
+
+            return [value, data];
+        }
+
         addWildcards(value) {
-            if (value && value.slice(0, 1) !== '*' && value.slice(-1) !== '*') {
+            if (value.slice(0, 1) !== '*' && value.slice(-1) !== '*') {
                 return value + '*';
             }
 
@@ -115,7 +127,7 @@
             }
         }
 
-        requestCompletion(data, input) {
+        requestCompletion(input, data) {
             this.abort();
 
             this.nextSuggestion = setTimeout(() => {
@@ -163,7 +175,7 @@
                 input.value = value;
 
                 data[input.name] = this.addWildcards(value);
-                this.requestCompletion(data, input);
+                this.requestCompletion(input, data);
                 this.completedValue = value;
             }
         }
@@ -292,37 +304,21 @@
         onInput(event) {
             let input = event.target;
 
-            let value = input.value;
-            if (value) {
-                let data = { ...input.dataset };
-                data[input.name] = this.addWildcards(value);
-
-                this.requestCompletion(data, input);
-                this.completedInput = input;
-                this.completedValue = value;
-            } else {
-                this.hideSuggestions();
-            }
+            let [value, data] = this.prepareCompletionData(input);
+            this.completedInput = input;
+            this.completedValue = value;
+            this.completedData = data;
+            this.requestCompletion(input, data);
         }
 
         onComplete(event) {
-            let data = event.detail;
             let input = event.target;
 
-            if (data.term && typeof data.term.label !== 'undefined') {
-                if (data.term.label === '') {
-                    this.hideSuggestions();
-                    return;
-                } else {
-                    this.completedValue = data.term.label;
-                    data.term.label = this.addWildcards(data.term.label);
-                }
-            } else {
-                this.completedValue = '';
-            }
-
+            let [value, data] = this.prepareCompletionData(input, event.detail);
             this.completedInput = input;
-            this.requestCompletion(data, input);
+            this.completedValue = value;
+            this.completedData = data;
+            this.requestCompletion(input, data);
         }
     }
 
