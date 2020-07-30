@@ -43,10 +43,10 @@
             $form.on('click', 'button, input[type="submit"]', this.onButtonClick, this);
 
             // User interactions
-            $form.on('input', '[data-term-label]', this.onInput, this);
-            $form.on('keydown', '[data-term-label]', this.onKeyDown, this);
-            $form.on('keyup', '[data-term-label]', this.onKeyUp, this);
-            $form.on('focusout', '[data-term-index]', this.onTermBlur, this);
+            $form.on('input', '[data-label]', this.onInput, this);
+            $form.on('keydown', '[data-label]', this.onKeyDown, this);
+            $form.on('keyup', '[data-label]', this.onKeyUp, this);
+            $form.on('focusout', '[data-index]', this.onTermBlur, this);
 
             // Should terms be completed?
             if (this.input.dataset.termCompletion) {
@@ -55,8 +55,8 @@
                     this.completer.bind();
                 }
 
-                $form.on('suggestion', '[data-term-label]', this.onSuggestion, this);
-                $form.on('completion', '[data-term-label]', this.onCompletion, this);
+                $form.on('suggestion', '[data-label]', this.onSuggestion, this);
+                $form.on('completion', '[data-label]', this.onCompletion, this);
             }
 
             return this;
@@ -119,14 +119,14 @@
         registerTerms() {
             this.termContainer.childNodes.forEach((label) => {
                 let termData = {
-                    'search': label.dataset.termSearch,
-                    'label' : label.dataset.termLabel
+                    'search': label.dataset.search,
+                    'label' : label.dataset.label
                 };
                 if (label.className) {
                     termData['class'] = label.className;
                 }
 
-                this.registerTerm(termData, label.dataset.termIndex);
+                this.registerTerm(termData, label.dataset.index);
             });
         }
 
@@ -212,7 +212,7 @@
         }
 
         saveTerm(input) {
-            let termIndex = input.parentNode.dataset.termIndex;
+            let termIndex = input.parentNode.dataset.index;
             let termData = this.readFullTerm(input, termIndex);
 
             // Only save if something has changed
@@ -225,10 +225,10 @@
 
         updateTermData(termData, input) {
             let label = input.parentNode;
-            label.dataset.termLabel = termData.label;
+            label.dataset.label = termData.label;
 
             if (!! termData.search || termData.search === '') {
-                label.dataset.termSearch = termData.search;
+                label.dataset.search = termData.search;
             }
         }
 
@@ -252,12 +252,12 @@
 
         removeTerm(label) {
             // Cut the term's data
-            this.usedTerms.splice(label.dataset.termIndex, 1);
+            this.usedTerms.splice(label.dataset.index, 1);
 
             // Re-index following remaining terms
             let sibling = label.nextSibling;
             while (sibling !== null) {
-                sibling.dataset.termIndex -= 1;
+                sibling.dataset.index -= 1;
                 sibling = sibling.nextSibling;
             }
 
@@ -315,35 +315,13 @@
                 label.classList.add(termData.class);
             }
 
-            label.dataset.termLabel = termData.label;
-            label.dataset.termSearch = termData.search;
-            label.dataset.termIndex = termIndex;
+            label.dataset.label = termData.label;
+            label.dataset.search = termData.search;
+            label.dataset.index = termIndex;
 
             label.firstChild.value = termData.label;
 
             return label;
-        }
-
-        // TODO: Use for what?
-        dataFromTermData(termData) {
-            let data = {};
-            for (let key in termData) {
-                data['term' + key[0].toUpperCase() + key.slice(1)] = termData[key];
-            }
-
-            return data;
-        }
-
-        termDataFromData(data) {
-            let termData = {};
-            for (let key in data) {
-                if (key.slice(0, 4) === 'term') {
-                    let firstChar = key[4];
-                    termData[firstChar.toLowerCase() + key.slice(5)] = data[key];
-                }
-            }
-
-            return termData;
         }
 
         moveFocusForward() {
@@ -398,7 +376,7 @@
 
             let termData;
             if (typeof data === 'object') {
-                termData = this.termDataFromData(data);
+                termData = data;
             } else {
                 termData = { label: data, search: data };
             }
@@ -414,9 +392,8 @@
 
         onCompletion(event) {
             let input = event.target;
-            let isTerm = input.parentNode.dataset.termIndex >= 0;
-
-            let termData = this.termDataFromData(event.detail);
+            let termData = event.detail;
+            let isTerm = input.parentNode.dataset.index >= 0;
 
             this.lastCompletedTerm = termData;
             this.writePartialTerm(termData.label, input);
@@ -428,7 +405,7 @@
 
         onInput(event) {
             let input = event.target;
-            let isTerm = input.parentNode.dataset.termIndex >= 0;
+            let isTerm = input.parentNode.dataset.index >= 0;
 
             let termData = { label: input.value };
             this.updateTermData(termData, input);
@@ -442,7 +419,7 @@
 
         onKeyDown(event) {
             let input = event.target;
-            let isTerm = input.parentNode.dataset.termIndex >= 0;
+            let isTerm = input.parentNode.dataset.index >= 0;
 
             switch (event.key) {
                 case 'Backspace':
@@ -477,7 +454,7 @@
         }
 
         onKeyUp(event) {
-            if (event.target.parentNode.dataset.termIndex >= 0) {
+            if (event.target.parentNode.dataset.index >= 0) {
                 return;
             }
 

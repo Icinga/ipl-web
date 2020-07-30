@@ -86,8 +86,8 @@
 
         registerTerm(termData, termIndex = null) {
             if (termIndex !== null) {
-                let label = this.termContainer.querySelector('[data-term-index="' + termIndex + '"]');
-                termData.type = label.dataset.termType;
+                let label = this.termContainer.querySelector('[data-index="' + termIndex + '"]');
+                termData.type = label.dataset.type;
             }
 
             return super.registerTerm(termData, termIndex);
@@ -142,7 +142,7 @@
                 data.term = {};
             }
 
-            let termIndex = input.parentNode.dataset.termIndex;
+            let termIndex = input.parentNode.dataset.index;
             if (termIndex) {
                 data.term.type = this.usedTerms[termIndex].type;
             } else {
@@ -244,11 +244,11 @@
 
         checkValidity(input, type = null, termIndex = null) {
             if (type === null) {
-                type = input.parentNode.dataset.termType;
+                type = input.parentNode.dataset.type;
             }
 
-            if (termIndex === null && input.parentNode.dataset.termIndex >= 0) {
-                termIndex = input.parentNode.dataset.termIndex;
+            if (termIndex === null && input.parentNode.dataset.index >= 0) {
+                termIndex = input.parentNode.dataset.index;
             }
 
             let value = input.value;
@@ -315,7 +315,7 @@
 
         renderTerm(termData, termIndex) {
             let label = super.renderTerm(termData, termIndex);
-            label.dataset.termType = termData.type;
+            label.dataset.type = termData.type;
 
             return label;
         }
@@ -340,7 +340,7 @@
             }
 
             let input = event.target;
-            let isTerm = input.parentNode.dataset.termIndex >= 0;
+            let isTerm = input.parentNode.dataset.index >= 0;
 
             switch (event.key) {
                 case ' ':
@@ -443,7 +443,7 @@
                 return;
             }
 
-            let isTerm = input.parentNode.dataset.termIndex >= 0;
+            let isTerm = input.parentNode.dataset.index >= 0;
 
             let value = this.readPartialTerm(input);
             if (value && input.checkValidity()) {
