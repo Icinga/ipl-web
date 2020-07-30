@@ -137,11 +137,7 @@
             this.togglePreview();
         }
 
-        complete(input, data = {}) {
-            if (typeof data.term === 'undefined') {
-                data.term = {};
-            }
-
+        complete(input, data) {
             let termIndex = input.parentNode.dataset.index;
             if (termIndex) {
                 data.term.type = this.usedTerms[termIndex].type;
@@ -334,25 +330,21 @@
          */
 
         onKeyDown(event) {
+            let input = event.target;
+            if (this.previewedTerm !== null && event.key === ' ' && ! input.value) {
+                // Done early because pushing space in this case will already show suggestions.
+                // But in case of a previewed term, these should be for the next term type.
+                this.addTerm(this.previewedTerm);
+            }
+
             super.onKeyDown(event);
             if (event.defaultPrevented) {
                 return;
             }
 
-            let input = event.target;
             let isTerm = input.parentNode.dataset.index >= 0;
 
             switch (event.key) {
-                case ' ':
-                    if (! input.value) {
-                        if (this.previewedTerm !== null) {
-                            this.addTerm(this.previewedTerm);
-                        }
-
-                        this.complete(input);
-                        event.preventDefault();
-                    }
-                    break;
                 case 'Tab':
                     if (! isTerm && this.previewedTerm !== null) {
                         this.addTerm(this.previewedTerm);
