@@ -80,7 +80,7 @@
 
             if (this.hasTerms()) {
                 this.termType = this.nextTermType(this.lastTerm());
-                this.togglePreview(); // TODO: Shouldn't this also be explicitly necessary?
+                this.togglePreview();
             }
         }
 
@@ -114,7 +114,7 @@
             super.addTerm(termData, termIndex);
 
             this.termType = this.nextTermType(termData);
-            this.togglePreview(); // TODO: Shouldn't this also be explicitly necessary?
+            this.togglePreview();
         }
 
         saveTerm(input) {
