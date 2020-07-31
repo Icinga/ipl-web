@@ -90,7 +90,23 @@
                 termData.type = label.dataset.type;
             }
 
-            return super.registerTerm(termData, termIndex);
+            termIndex = super.registerTerm(termData, termIndex);
+
+            if (termData.type === 'grouping_operator') {
+                let counterpart;
+                if (termData.label === this.grouping_operators.open.label) {
+                    counterpart = this.nextPendingGroupClose(termIndex);
+                } else { // if (termData.label === this.grouping_operators.close.label) {
+                    counterpart = this.lastPendingGroupOpen(termIndex);
+                }
+
+                if (counterpart !== null) {
+                    termData.counterpart = counterpart;
+                    this.usedTerms[counterpart].counterpart = termIndex;
+                }
+            }
+
+            return termIndex;
         }
 
         readFullTerm(input, termIndex = null) {
@@ -113,6 +129,14 @@
         addTerm(termData, termIndex = null) {
             super.addTerm(termData, termIndex);
 
+            if (termData.counterpart >= 0) {
+                let otherLabel = this.termContainer.querySelector(`[data-index="${ termData.counterpart }"]`);
+                if (otherLabel !== null) {
+                    otherLabel.dataset.counterpart = termIndex || this.usedTerms[termData.counterpart].counterpart;
+                    this.checkValidity(otherLabel.firstChild);
+                }
+            }
+
             this.termType = this.nextTermType(termData);
             this.togglePreview();
         }
@@ -130,6 +154,13 @@
 
             if (this.hasTerms()) {
                 this.termType = this.nextTermType(this.lastTerm());
+
+                if (label.dataset.counterpart >= 0) {
+                    let otherLabel = this.termContainer.querySelector(`[data-counterpart="${ label.dataset.index }"]`);
+                    delete this.usedTerms[otherLabel.dataset.index].counterpart;
+                    delete otherLabel.dataset.counterpart;
+                    this.checkValidity(otherLabel.firstChild);
+                }
             } else {
                 this.termType = 'column';
             }
@@ -177,12 +208,48 @@
                 case 'logical_operator':
                     return 'column';
                 case 'grouping_operator':
-                    if (termData === this.grouping_operators.open) {
+                    if (termData.label === this.grouping_operators.open.label) {
                         return 'column';
-                    } else { // if (termData === this.grouping_operators.close) {
+                    } else { // if (termData.label === this.grouping_operators.close.label) {
                         return 'logical_operator';
                     }
             }
+        }
+
+        lastPendingGroupOpen(before) {
+            if (before === null) {
+                before = this.usedTerms.length;
+            }
+
+            for (let i = before - 1; i >= 0; i--) {
+                let termData = this.usedTerms[i];
+                if (
+                    termData.label === this.grouping_operators.open.label
+                    && typeof termData.counterpart === 'undefined'
+                ) {
+                    return i;
+                }
+            }
+
+            return null;
+        }
+
+        nextPendingGroupClose(after) {
+            if (after === null) {
+                after = 0;
+            }
+
+            for (let i = after + 1; i < this.usedTerms.length; i++) {
+                let termData = this.usedTerms[i];
+                if (
+                    termData.label === this.grouping_operators.close.label
+                    && typeof termData.counterpart === 'undefined'
+                ) {
+                    return i;
+                }
+            }
+
+            return null;
         }
 
         nextOperator(value, termType = null, termIndex = null) {
@@ -220,7 +287,10 @@
                     }
                 case 'value':
                 case 'logical_operator':
-                    operators.push(this.grouping_operators.close);
+                    if (this.lastPendingGroupOpen(termIndex) !== null) {
+                        operators.push(this.grouping_operators.close);
+                    }
+
                     operators = operators.concat(this.logical_operators);
                     break;
                 case 'grouping_operator':
@@ -278,17 +348,17 @@
                     return true;
             }
 
-            if (! value || options.partialMatches || (options.length === 1 && options[0].label === value)) {
-                input.setCustomValidity('');
-            } else {
-                input.setCustomValidity(
-                    this.input.dataset.chooseTemplate.replace(
-                        '%s',
-                        options.map(e => e.label).join(', ')
-                    )
+            let message = '';
+            if (value && ! options.partialMatches && (options.length > 1 || options[0].label !== value)) {
+                message = this.input.dataset.chooseTemplate.replace(
+                    '%s',
+                    options.map(e => e.label).join(', ')
                 );
+            } else if (type === 'grouping_operator' && typeof this.usedTerms[termIndex].counterpart === 'undefined') {
+                message = this.input.dataset.incompleteGroup;
             }
 
+            input.setCustomValidity(message);
             return input.checkValidity();
         }
 
@@ -349,6 +419,9 @@
         renderTerm(termData, termIndex) {
             let label = super.renderTerm(termData, termIndex);
             label.dataset.type = termData.type;
+            if (termData.counterpart >= 0) {
+                label.dataset.counterpart = termData.counterpart;
+            }
 
             return label;
         }
@@ -428,7 +501,7 @@
                             this.writePartialTerm('', input);
                         }
 
-                        this.addTerm(operators[0]);
+                        this.addTerm({ ...operators[0] });
                         this.togglePlaceholder();
                         event.preventDefault();
                     }

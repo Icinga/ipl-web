@@ -53,9 +53,16 @@ class Terms extends BaseHtmlElement
             }
 
             if ($filter->isChain()) {
-                $this->assembleTerm('grouping_operator_open', 'grouping_operator', '(', '(');
+                $opening = $this->assembleTerm('grouping_operator_open', 'grouping_operator', '(', '(');
                 $this->assembleConditions($filter);
-                $this->assembleTerm('grouping_operator_close', 'grouping_operator', ')', ')');
+                $closing = $this->assembleTerm('grouping_operator_close', 'grouping_operator', ')', ')');
+
+                $opening->addAttributes([
+                    'data-counterpart' => $closing->getAttributes()->get('data-index')->getValue()
+                ]);
+                $closing->addAttributes([
+                    'data-counterpart' => $opening->getAttributes()->get('data-index')->getValue()
+                ]);
             } else {
                 $this->assembleCondition($filter);
             }
@@ -87,7 +94,7 @@ class Terms extends BaseHtmlElement
 
     protected function assembleTerm($class, $type, $search, $label)
     {
-        $this->add(new HtmlElement('label', [
+        $term = new HtmlElement('label', [
             'class'         => $class,
             'data-index'    => $this->count(),
             'data-type'     => $type,
@@ -96,6 +103,10 @@ class Terms extends BaseHtmlElement
         ], new HtmlElement('input', [
             'type'  => 'text',
             'value' => $label
-        ])));
+        ]));
+
+        $this->add($term);
+
+        return $term;
     }
 }
