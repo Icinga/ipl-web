@@ -335,7 +335,7 @@
                 termIndex = input.parentNode.dataset.index;
             }
 
-            let value = input.value;
+            let value = this.readPartialTerm(input);
 
             let options;
             switch (type) {
@@ -454,7 +454,7 @@
 
         onKeyDown(event) {
             let input = event.target;
-            if (this.previewedTerm !== null && event.key === ' ' && ! input.value) {
+            if (this.previewedTerm !== null && event.key === ' ' && ! this.readPartialTerm(input)) {
                 // Done early because pushing space in this case will already show suggestions.
                 // But in case of a previewed term, these should be for the next term type.
                 this.addTerm(this.previewedTerm);
