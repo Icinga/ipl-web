@@ -403,7 +403,7 @@
             let input = event.target;
             let isTerm = input.parentNode.dataset.index >= 0;
 
-            let termData = { label: input.value };
+            let termData = { label: this.readPartialTerm(input) };
             this.updateTermData(termData, input);
             this.complete(input, { term: termData });
 
@@ -419,7 +419,7 @@
 
             switch (event.key) {
                 case ' ':
-                    if (! input.value) {
+                    if (! this.readPartialTerm(input)) {
                         this.complete(input, { term: { label: '' } });
                         event.preventDefault();
                     }
