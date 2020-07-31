@@ -252,6 +252,20 @@
             return null;
         }
 
+        getOperator(value) {
+            let operators;
+            switch (this.termType) {
+                case 'operator':
+                    operators = this.relational_operators;
+                    break;
+                case 'logical_operator':
+                    operators = this.logical_operators;
+                    break;
+            }
+
+            return operators.find((term) => term.label === value) || null;
+        }
+
         nextOperator(value, termType = null, termIndex = null) {
             let operators = [],
                 partialMatch = false;
@@ -485,9 +499,11 @@
                         break;
                     }
 
+                    let currentValue;
                     let value = event.key;
                     if (this.termType === 'operator') {
-                        value = this.readPartialTerm(input) + value;
+                        currentValue = this.readPartialTerm(input);
+                        value = currentValue + value;
                     }
 
                     let operators = this.nextOperator(value);
@@ -504,6 +520,13 @@
                         this.addTerm({ ...operators[0] });
                         this.togglePlaceholder();
                         event.preventDefault();
+                    } else if (currentValue) {
+                        let partialOperator = this.getOperator(currentValue);
+                        if (partialOperator !== null) {
+                            // If no exact match is found, the user seems to want the partial operator.
+                            this.addTerm({ ...partialOperator });
+                            this.writePartialTerm('', input);
+                        }
                     }
             }
         }
