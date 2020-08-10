@@ -241,18 +241,16 @@
         }
 
         popTerm() {
-            if (this.termContainer.hasChildNodes()) {
-                this.removeTerm(this.termContainer.lastChild);
-
-                if (this.completer !== null) {
-                    this.completer.reset();
-                }
+            if (this.completer !== null) {
+                this.completer.reset();
             }
+
+            return this.removeTerm(this.termContainer.lastChild);
         }
 
         removeTerm(label) {
             // Cut the term's data
-            this.usedTerms.splice(label.dataset.index, 1);
+            let [termData] = this.usedTerms.splice(label.dataset.index, 1);
 
             // Re-index following remaining terms
             let sibling = label.nextSibling;
@@ -266,6 +264,8 @@
 
             // Remove it from the DOM
             label.remove();
+
+            return termData;
         }
 
         complete(input, data) {
@@ -430,8 +430,9 @@
                     if (! isTerm) {
                         this.clearSelectedTerms();
 
-                        if (! input.value) {
-                            this.popTerm();
+                        if (! input.value && this.termContainer.hasChildNodes()) {
+                            // Removing the last char programmatically is not necessary since we're in a keydown event
+                            this.input.value = this.popTerm().label;
                         }
 
                         this.togglePlaceholder();

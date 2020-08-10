@@ -150,12 +150,12 @@
         }
 
         removeTerm(label) {
-            super.removeTerm(label);
+            let termData = super.removeTerm(label);
 
             if (this.hasTerms()) {
                 this.termType = this.nextTermType(this.lastTerm());
 
-                if (label.dataset.counterpart >= 0) {
+                if (termData.counterpart >= 0) {
                     let otherLabel = this.termContainer.querySelector(`[data-counterpart="${ label.dataset.index }"]`);
                     delete this.usedTerms[otherLabel.dataset.index].counterpart;
                     delete otherLabel.dataset.counterpart;
@@ -166,6 +166,7 @@
             }
 
             this.togglePreview();
+            return termData;
         }
 
         complete(input, data) {
