@@ -325,33 +325,35 @@
         }
 
         moveFocusForward() {
+            let toFocus;
+
             let focused = this.termContainer.querySelector('input:focus');
             if (focused !== null) {
                 let inputs = Array.from(this.termContainer.querySelectorAll('input'));
                 let next = inputs[inputs.indexOf(focused) + 1];
-                if (next) {
-                    $(next).focus();
-                } else {
-                    $(this.input).focus();
-                }
+                toFocus = next || this.input;
             } else {
-                $(this.termContainer.firstChild).focus();
+                toFocus = this.termContainer.firstChild.firstChild;
             }
+
+            toFocus.selectionStart = toFocus.selectionEnd = 0;
+            $(toFocus).focus();
         }
 
         moveFocusBackward() {
+            let toFocus;
+
             let focused = this.termContainer.querySelector('input:focus');
             if (focused !== null) {
                 let inputs = Array.from(this.termContainer.querySelectorAll('input'));
                 let previous = inputs[inputs.indexOf(focused) - 1];
-                if (previous) {
-                    $(previous).focus();
-                } else {
-                    $(this.input).focus();
-                }
+                toFocus = previous || this.input;
             } else {
-                $(this.termContainer.lastChild).focus();
+                toFocus = this.termContainer.lastChild.firstChild;
             }
+
+            toFocus.selectionStart = toFocus.selectionEnd = toFocus.value.length;
+            $(toFocus).focus();
         }
 
         /**
