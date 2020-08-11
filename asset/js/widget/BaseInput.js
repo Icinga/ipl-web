@@ -117,7 +117,7 @@
         }
 
         registerTerms() {
-            this.termContainer.childNodes.forEach((label) => {
+            this.termContainer.querySelectorAll('[data-index]').forEach((label) => {
                 let termData = {
                     'search': label.dataset.search,
                     'label' : label.dataset.label
@@ -247,7 +247,8 @@
                 this.completer.reset();
             }
 
-            return this.removeTerm(this.termContainer.lastChild);
+            let lastTermIndex = this.usedTerms.length - 1;
+            return this.removeTerm(this.termContainer.querySelector(`[data-index="${ lastTermIndex }"]`));
         }
 
         removeTerm(label) {
@@ -277,11 +278,11 @@
         }
 
         selectTerms() {
-            this.termContainer.childNodes.forEach(e => e.classList.add('selected'));
+            this.termContainer.querySelectorAll('[data-index]').forEach(el => el.classList.add('selected'));
         }
 
         deselectTerms() {
-            this.termContainer.childNodes.forEach(e => e.classList.remove('selected'));
+            this.termContainer.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
         }
 
         clearSelectedTerms() {
@@ -329,13 +330,13 @@
         moveFocusForward() {
             let toFocus;
 
+            let inputs = Array.from(this.termContainer.querySelectorAll('input'));
             let focused = this.termContainer.querySelector('input:focus');
             if (focused !== null) {
-                let inputs = Array.from(this.termContainer.querySelectorAll('input'));
                 let next = inputs[inputs.indexOf(focused) + 1];
                 toFocus = next || this.input;
             } else {
-                toFocus = this.termContainer.firstChild.firstChild;
+                toFocus = inputs.shift();
             }
 
             toFocus.selectionStart = toFocus.selectionEnd = 0;
@@ -345,13 +346,13 @@
         moveFocusBackward() {
             let toFocus;
 
+            let inputs = Array.from(this.termContainer.querySelectorAll('input'));
             let focused = this.termContainer.querySelector('input:focus');
             if (focused !== null) {
-                let inputs = Array.from(this.termContainer.querySelectorAll('input'));
                 let previous = inputs[inputs.indexOf(focused) - 1];
                 toFocus = previous || this.input;
             } else {
-                toFocus = this.termContainer.lastChild.firstChild;
+                toFocus = inputs.pop();
             }
 
             toFocus.selectionStart = toFocus.selectionEnd = toFocus.value.length;
