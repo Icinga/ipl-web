@@ -169,6 +169,16 @@
             return termData;
         }
 
+        reIndexTerms(from) {
+            super.reIndexTerms(from);
+
+            this.termContainer.querySelectorAll('[data-counterpart]').forEach(label => {
+                if (label.dataset.counterpart > from) {
+                    label.dataset.counterpart -= 1;
+                }
+            });
+        }
+
         complete(input, data) {
             let termIndex = input.parentNode.dataset.index;
             if (termIndex) {

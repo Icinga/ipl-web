@@ -252,15 +252,11 @@
         }
 
         removeTerm(label) {
+            // Re-index following remaining terms
+            this.reIndexTerms(label.dataset.index);
+
             // Cut the term's data
             let [termData] = this.usedTerms.splice(label.dataset.index, 1);
-
-            // Re-index following remaining terms
-            let sibling = label.nextSibling;
-            while (sibling !== null) {
-                sibling.dataset.index -= 1;
-                sibling = sibling.nextSibling;
-            }
 
             // Update the hidden input
             this.termInput.value = this.usedTerms.map(e => e.search).join(this.separator).trim();
@@ -269,6 +265,13 @@
             label.remove();
 
             return termData;
+        }
+
+        reIndexTerms(from) {
+            for (let i = ++from; i < this.usedTerms.length; i++) {
+                let label = this.termContainer.querySelector(`[data-index="${ i }"]`);
+                label.dataset.index -= 1;
+            }
         }
 
         complete(input, data) {
