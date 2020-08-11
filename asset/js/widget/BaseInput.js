@@ -431,8 +431,12 @@
                         this.clearSelectedTerms();
 
                         if (! input.value && this.termContainer.hasChildNodes()) {
-                            // Removing the last char programmatically is not necessary since we're in a keydown event
-                            this.input.value = this.popTerm().label;
+                            let termData = this.popTerm();
+                            if (! event.ctrlKey || event.metaKey) {
+                                // Removing the last char programmatically is not
+                                // necessary since we're in a keydown event
+                                this.input.value = termData.label;
+                            }
                         }
 
                         this.togglePlaceholder();
