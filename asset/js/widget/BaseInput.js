@@ -216,7 +216,9 @@
             let termData = this.readFullTerm(input, termIndex);
 
             // Only save if something has changed
-            if (this.usedTerms[termIndex].label !== termData.label) {
+            if (termData === false) {
+                // TODO: Decide how to handle this
+            } else if (this.usedTerms[termIndex].label !== termData.label) {
                 this.usedTerms[termIndex] = termData;
                 this.termInput.value = this.usedTerms.map(e => e.search).join(this.separator).trim();
                 this.updateTermData(termData, input);
