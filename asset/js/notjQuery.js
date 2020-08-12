@@ -15,6 +15,10 @@
          * @param {Element} element
          */
         constructor(element) {
+            if (! element) {
+                throw new Error("Can't create a notjQuery object for `" + element + "`");
+            }
+
             this.element = element;
         }
 
