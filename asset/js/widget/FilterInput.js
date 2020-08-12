@@ -313,8 +313,11 @@
             switch (termType) {
                 case 'column':
                     if (! this.readPartialTerm(this.input)) {
-                        if (! this.hasTerms() || this.lastTerm().type === 'logical_operator') {
-                            operators.push(this.grouping_operators.open);
+                        switch (true) {
+                            case ! this.hasTerms():
+                            case this.lastTerm().type === 'logical_operator':
+                            case this.lastTerm().label === this.grouping_operators.open.label:
+                                operators.push(this.grouping_operators.open);
                         }
 
                         break;
