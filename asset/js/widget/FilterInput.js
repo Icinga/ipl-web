@@ -169,6 +169,31 @@
             return termData;
         }
 
+        removeRange(labels) {
+            super.removeRange(labels);
+
+            if (this.hasTerms()) {
+                this.termType = this.nextTermType(this.lastTerm());
+
+                labels.forEach((label) => {
+                    if (label.dataset.counterpart >= 0) {
+                        let otherLabel = this.termContainer.querySelector(
+                            `[data-counterpart="${ label.dataset.index }"]`
+                        );
+                        if (otherLabel !== null) {
+                            delete this.usedTerms[otherLabel.dataset.index].counterpart;
+                            delete otherLabel.dataset.counterpart;
+                            this.checkValidity(otherLabel.firstChild);
+                        }
+                    }
+                });
+            } else {
+                this.termType = 'column';
+            }
+
+            this.togglePreview();
+        }
+
         reIndexTerms(from) {
             super.reIndexTerms(from);
 
