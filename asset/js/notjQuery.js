@@ -88,6 +88,22 @@
             // Put separately on the event loop because focus() forces layout.
             setTimeout(() => this.element.focus(), 0);
         }
+
+        /**
+         * Render the element string as DOM Element
+         *
+         * @todo Make this a static factory method, so that $.render(html) works
+         * @return {Element}
+         */
+        render() {
+            if (typeof this.element !== 'string') {
+                throw new Error("Can\'t render `" + this.element + "`");
+            }
+
+            let template = document.createElement('template');
+            template.innerHTML = this.element;
+            return template.content.firstChild;
+        }
     }
 
     /**
