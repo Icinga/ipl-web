@@ -443,9 +443,7 @@
         }
 
         renderSuggestions(suggestions) {
-            let template = document.createElement('template');
-            template.innerHTML = '<li><input type="button"></li>';
-            let itemTemplate = template.content.firstChild;
+            let itemTemplate = $('<li><input type="button"></li>').render();
 
             let list = document.createElement('ul');
 
@@ -464,9 +462,7 @@
         }
 
         renderPreview(content) {
-            let template = document.createElement('template');
-            template.innerHTML = '<span>' + content + '</span>';
-            return template.content.firstChild;
+            return $('<span>' + content + '</span>').render();
         }
 
         renderTerm(termData, termIndex) {

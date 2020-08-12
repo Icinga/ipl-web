@@ -335,9 +335,7 @@
         }
 
         renderTerm(termData, termIndex) {
-            let template = document.createElement('template');
-            template.innerHTML = '<label><input type="text"></label>';
-            let label = template.content.firstChild;
+            let label = $('<label><input type="text"></label>').render();
 
             if (termData.class) {
                 label.classList.add(termData.class);
