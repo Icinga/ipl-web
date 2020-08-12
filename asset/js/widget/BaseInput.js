@@ -253,7 +253,7 @@
 
         removeTerm(label) {
             // Re-index following remaining terms
-            this.reIndexTerms(label.dataset.index);
+            this.reIndexTerms(Number(label.dataset.index));
 
             // Cut the term's data
             let [termData] = this.usedTerms.splice(label.dataset.index, 1);
@@ -265,6 +265,25 @@
             label.remove();
 
             return termData;
+        }
+
+        removeRange(labels) {
+            let from = Number(labels[0].dataset.index);
+            let to = Number(labels[labels.length - 1].dataset.index);
+
+            if (to < this.usedTerms.length - 1) {
+                // Only re-index if there's something left
+                this.reIndexTerms(from);
+            }
+
+            this.usedTerms.splice(from, to - from + 1);
+            this.termInput.value = this.usedTerms.map(e => e.search).join(this.separator).trim();
+
+            this.removeRenderedRange(labels);
+        }
+
+        removeRenderedRange(labels) {
+            labels.forEach(label => this.removeRenderedTerm(label));
         }
 
         reIndexTerms(from) {
@@ -290,7 +309,10 @@
 
         clearSelectedTerms() {
             if (this.hasTerms()) {
-                this.termContainer.querySelectorAll('.selected').forEach(el => this.removeTerm(el));
+                let labels = this.termContainer.querySelectorAll('.selected');
+                if (labels.length) {
+                    this.removeRange(Array.from(labels));
+                }
             }
         }
 
