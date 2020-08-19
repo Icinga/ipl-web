@@ -52,6 +52,23 @@
 
             this.termType = 'column';
             this.previewedTerm = null;
+            this._currentGroup = null;
+        }
+
+        set currentGroup(value) {
+            if (value !== this.termContainer) {
+                this._currentGroup = value;
+            } else {
+                this._currentGroup = null;
+            }
+        }
+
+        get currentGroup() {
+            if (this._currentGroup !== null) {
+                return this._currentGroup;
+            }
+
+            return this.termContainer;
         }
 
         bind() {
@@ -64,9 +81,18 @@
 
             this.termType = 'column';
             this.previewedTerm = null;
+            this._currentGroup = null;
+        }
+
+        destroy() {
+            super.destroy();
+
+            this._currentGroup = null;
         }
 
         restoreTerms() {
+            this._currentGroup = null;
+
             if (super.restoreTerms()) {
                 this.reportValidity(this.input.form);
                 return true;
@@ -141,6 +167,44 @@
             this.togglePreview();
         }
 
+        addRenderedTerm(label) {
+            let newGroup = null;
+            let leaveGroup = false;
+
+            switch (label.dataset.type) {
+                case 'column':
+                    newGroup = this.renderCondition();
+                    break;
+                case 'value':
+                    leaveGroup = true;
+                    break;
+                case 'logical_operator':
+                    if (this.currentGroup.dataset.groupType === 'condition') {
+                        this.currentGroup = this.currentGroup.parentNode;
+                    }
+
+                    break;
+                case 'grouping_operator':
+                    if (label.dataset.label === this.grouping_operators.open.label) {
+                        newGroup = this.renderChain();
+                    } else {
+                        leaveGroup = true;
+                    }
+            }
+
+            if (newGroup !== null) {
+                newGroup.appendChild(label);
+                this.currentGroup.appendChild(newGroup);
+                this.currentGroup = newGroup;
+            } else {
+                this.currentGroup.appendChild(label);
+            }
+
+            if (leaveGroup) {
+                this.currentGroup = this.currentGroup.parentNode;
+            }
+        }
+
         saveTerm(input) {
             if (! this.checkValidity(input)) {
                 return false;
@@ -192,6 +256,62 @@
             }
 
             this.togglePreview();
+        }
+
+        removeRenderedTerm(label) {
+            let parent = label.parentNode;
+            if (parent.dataset.groupType && parent.childNodes.length === 1) {
+                if (this.currentGroup === parent) {
+                    this.currentGroup = parent.parentNode;
+                }
+
+                // If the parent is a group and the label is the only child, we can remove the entire group
+                parent.remove();
+            } else {
+                if (label.dataset.index >= this.usedTerms.length) {
+                    // It's been the last term
+                    switch (label.dataset.type) {
+                        case 'grouping_operator':
+                        case 'operator':
+                        case 'value':
+                            this.currentGroup = parent;
+                    }
+                }
+
+                label.remove();
+            }
+        }
+
+        removeRenderedRange(labels) {
+            let to = Number(labels[labels.length - 1].dataset.index);
+
+            while (labels.length) {
+                let label = labels.shift();
+                let parent = label.parentNode;
+                if (parent.dataset.groupType) {
+                    let counterpartIndex = Number(label.dataset.counterpart);
+                    if (isNaN(counterpartIndex)) {
+                        counterpartIndex = Number(
+                            Array.from(parent.querySelectorAll('[data-index]')).pop().dataset.index
+                        );
+                    }
+
+                    if (counterpartIndex <= to) {
+                        if (this.currentGroup === parent) {
+                            this.currentGroup = parent.parentNode;
+                        }
+
+                        // If the parent's terms are all to be removed, we'll remove the
+                        // entire parent to keep the DOM operations as efficient as possible
+                        parent.remove();
+
+                        labels.splice(0, counterpartIndex - Number(label.dataset.index));
+                        continue;
+                    }
+                }
+
+                this.removeRenderedTerm(label);
+            }
         }
 
         reIndexTerms(from) {
@@ -463,6 +583,14 @@
 
         renderPreview(content) {
             return $('<span>' + content + '</span>').render();
+        }
+
+        renderCondition() {
+            return $('<div class="filter-condition" data-group-type="condition"></div>').render();
+        }
+
+        renderChain() {
+            return $('<div class="filter-chain" data-group-type="chain"></div>').render();
         }
 
         renderTerm(termData, termIndex) {

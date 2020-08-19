@@ -204,7 +204,11 @@
             existingTerms += termData.search;
             this.termInput.value = existingTerms;
 
-            this.termContainer.appendChild(this.renderTerm(termData, termIndex));
+            this.addRenderedTerm(this.renderTerm(termData, termIndex));
+        }
+
+        addRenderedTerm(label) {
+            this.termContainer.appendChild(label);
         }
 
         hasTerms() {
@@ -262,9 +266,13 @@
             this.termInput.value = this.usedTerms.map(e => e.search).join(this.separator).trim();
 
             // Remove it from the DOM
-            label.remove();
+            this.removeRenderedTerm(label);
 
             return termData;
+        }
+
+        removeRenderedTerm(label) {
+            label.remove();
         }
 
         removeRange(labels) {
@@ -456,7 +464,7 @@
                     if (! isTerm) {
                         this.clearSelectedTerms();
 
-                        if (! input.value && this.termContainer.hasChildNodes()) {
+                        if (! input.value && this.hasTerms()) {
                             let termData = this.popTerm();
                             if (! event.ctrlKey || event.metaKey) {
                                 // Removing the last char programmatically is not
