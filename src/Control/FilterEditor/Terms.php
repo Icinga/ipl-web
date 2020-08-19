@@ -17,6 +17,8 @@ class Terms extends BaseHtmlElement
     /** @var callable|Filter */
     protected $filter;
 
+    private $currentIndex = 0;
+
     public function setFilter($filter)
     {
         $this->filter = $filter;
@@ -37,39 +39,48 @@ class Terms extends BaseHtmlElement
 
         if ($filter->isChain()) {
             /** @var FilterChain $filter */
-            $this->assembleConditions($filter);
+            $this->assembleConditions($filter, $this);
         } else {
             /** @var FilterExpression $filter */
-            $this->assembleCondition($filter);
+            $this->assembleCondition($filter, $this);
         }
     }
 
-    protected function assembleConditions(FilterChain $filters)
+    protected function assembleConditions(FilterChain $filters, BaseHtmlElement $where)
     {
         foreach ($filters->filters() as $i => $filter) {
             if ($i > 0) {
                 $logicalOperator = $filters->getOperatorSymbol();
-                $this->assembleTerm('logical_operator', 'logical_operator', $logicalOperator, $logicalOperator);
+                $this->assembleTerm('logical_operator', 'logical_operator', $logicalOperator, $logicalOperator, $where);
             }
 
             if ($filter->isChain()) {
-                $opening = $this->assembleTerm('grouping_operator_open', 'grouping_operator', '(', '(');
-                $this->assembleConditions($filter);
-                $closing = $this->assembleTerm('grouping_operator_close', 'grouping_operator', ')', ')');
-
-                $opening->addAttributes([
-                    'data-counterpart' => $closing->getAttributes()->get('data-index')->getValue()
-                ]);
-                $closing->addAttributes([
-                    'data-counterpart' => $opening->getAttributes()->get('data-index')->getValue()
-                ]);
+                $this->assembleChain($filter, $where);
             } else {
-                $this->assembleCondition($filter);
+                $this->assembleCondition($filter, $where);
             }
         }
     }
 
-    protected function assembleCondition(FilterExpression $filter)
+    protected function assembleChain(FilterChain $chain, BaseHtmlElement $where)
+    {
+        $group = new HtmlElement('div', ['class' => 'filter-chain', 'data-group-type' => 'chain']);
+
+        $opening = $this->assembleTerm('grouping_operator_open', 'grouping_operator', '(', '(', $group);
+        $this->assembleConditions($chain, $group);
+        $closing = $this->assembleTerm('grouping_operator_close', 'grouping_operator', ')', ')', $group);
+
+        $opening->addAttributes([
+            'data-counterpart' => $closing->getAttributes()->get('data-index')->getValue()
+        ]);
+        $closing->addAttributes([
+            'data-counterpart' => $opening->getAttributes()->get('data-index')->getValue()
+        ]);
+
+        $where->add($group);
+    }
+
+    protected function assembleCondition(FilterExpression $filter, BaseHtmlElement $where)
     {
         $column = $filter->getColumn();
         $operator = $filter->getSign();
@@ -81,22 +92,26 @@ class Terms extends BaseHtmlElement
             $columnLabel = $filter->metaData['label'];
         }
 
-        $this->assembleTerm('column', 'column', rawurlencode($column), $columnLabel);
+        $group = new HtmlElement('div', ['class' => 'filter-condition', 'data-group-type' => 'condition']);
+
+        $this->assembleTerm('column', 'column', rawurlencode($column), $columnLabel, $group);
 
         if (! $filter->isBooleanTrue()) {
-            $this->assembleTerm('operator', 'operator', $operator, $operator);
+            $this->assembleTerm('operator', 'operator', $operator, $operator, $group);
 
-            if (! empty($value)) {
-                $this->assembleTerm('value', 'value', rawurlencode($value), $value);
+            if (! empty($value) || ctype_digit($value)) {
+                $this->assembleTerm('value', 'value', rawurlencode($value), $value, $group);
             }
         }
+
+        $where->add($group);
     }
 
-    protected function assembleTerm($class, $type, $search, $label)
+    protected function assembleTerm($class, $type, $search, $label, BaseHtmlElement $where)
     {
         $term = new HtmlElement('label', [
             'class'         => $class,
-            'data-index'    => $this->count(),
+            'data-index'    => $this->currentIndex++,
             'data-type'     => $type,
             'data-search'   => $search,
             'data-label'    => $label
@@ -105,7 +120,7 @@ class Terms extends BaseHtmlElement
             'value' => $label
         ]));
 
-        $this->add($term);
+        $where->add($term);
 
         return $term;
     }
