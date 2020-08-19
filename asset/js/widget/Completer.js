@@ -324,6 +324,16 @@
                         this.moveToSuggestion();
                     }
                     break;
+                default:
+                    if (/[A-Z]/.test(event.key.charAt(0))) {
+                        // Ignore control keys not resulting in new input data
+                        break;
+                    }
+
+                    let typedSuggestion = this.termSuggestions.querySelector(`input[value="${ event.key }"]`);
+                    if (typedSuggestion !== null) {
+                        this.hideSuggestions();
+                    }
             }
         }
 

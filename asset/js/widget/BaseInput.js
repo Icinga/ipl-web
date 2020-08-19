@@ -107,7 +107,7 @@
             if (this.hasTerms()) {
                 this.usedTerms.forEach((termData, termIndex) => this.addTerm(termData, termIndex));
                 this.togglePlaceholder();
-                this.writePartialTerm('', this.input);
+                this.clearPartialTerm(this.input);
             } else {
                 this.registerTerms();
                 this.togglePlaceholder();
@@ -137,6 +137,14 @@
             } else {
                 return this.usedTerms.push(termData) - 1;
             }
+        }
+
+        clearPartialTerm(input) {
+            if (this.completer !== null) {
+                this.completer.reset();
+            }
+
+            this.writePartialTerm('', input);
         }
 
         writePartialTerm(value, input) {
@@ -181,12 +189,8 @@
                 return false;
             }
 
-            if (this.completer !== null) {
-                this.completer.reset();
-            }
-
             this.addTerm(termData);
-            this.writePartialTerm('', this.input);
+            this.clearPartialTerm(this.input);
 
             return true;
         }

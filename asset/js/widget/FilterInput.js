@@ -677,7 +677,7 @@
                         if (this.termType !== operators[0].type) {
                             this.exchangeTerm();
                         } else {
-                            this.writePartialTerm('', input);
+                            this.clearPartialTerm(input);
                         }
 
                         this.addTerm({ ...operators[0] });
@@ -688,7 +688,7 @@
                         if (partialOperator !== null) {
                             // If no exact match is found, the user seems to want the partial operator.
                             this.addTerm({ ...partialOperator });
-                            this.writePartialTerm('', input);
+                            this.clearPartialTerm(input);
                         }
                     }
             }
