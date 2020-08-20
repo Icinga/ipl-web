@@ -399,8 +399,7 @@
          */
 
         onSubmit(event) {
-            // TODO: This omits incomplete quoted terms. Since it seems not to be possible to prevent submission
-            // in this case we'll need some workaround here. Maybe using the incomplete term anyway?
+            // Register current input value, otherwise it's not submitted
             this.exchangeTerm();
 
             // Unset the input's name, to prevent its submission (It may actually have a name, as no-js fallback)
