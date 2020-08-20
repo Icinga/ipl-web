@@ -71,11 +71,6 @@
             return this.termContainer;
         }
 
-        bind() {
-            $(this.input).on('paste', this.onPaste, this);
-            return super.bind();
-        }
-
         reset() {
             super.reset();
 
@@ -720,17 +715,6 @@
             }
 
             super.onInput(event);
-        }
-
-        onPaste(event) {
-            if (this.hasTerms()) {
-                return;
-            }
-
-            this.termInput.value = event.clipboardData.getData('text/plain');
-            $(this.input.form).trigger('submit');
-
-            event.preventDefault();
         }
     }
 
