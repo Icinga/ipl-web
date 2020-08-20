@@ -633,7 +633,9 @@
 
         onKeyDown(event) {
             let input = event.target;
-            if (this.previewedTerm !== null && event.key === ' ' && ! this.readPartialTerm(input)) {
+            let isTerm = input.parentNode.dataset.index >= 0;
+
+            if (! isTerm && this.previewedTerm !== null && event.key === ' ' && ! this.readPartialTerm(input)) {
                 // Done early because pushing space in this case will already show suggestions.
                 // But in case of a previewed term, these should be for the next term type.
                 this.addTerm(this.previewedTerm);
@@ -643,8 +645,6 @@
             if (event.defaultPrevented) {
                 return;
             }
-
-            let isTerm = input.parentNode.dataset.index >= 0;
 
             switch (event.key) {
                 case 'Tab':
