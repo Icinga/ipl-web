@@ -48,6 +48,11 @@
             $form.on('keyup', '[data-label]', this.onKeyUp, this);
             $form.on('focusout', '[data-index]', this.onTermBlur, this);
 
+            // Copy/Paste
+            $(this.input).on('paste', this.onPaste, this);
+            $(this.input).on('copy', this.onCopyAndCut, this);
+            $(this.input).on('cut', this.onCopyAndCut, this);
+
             // Should terms be completed?
             if (this.input.dataset.termCompletion) {
                 if (this.completer === null) {
@@ -543,6 +548,43 @@
                 } else if (! this.input.required) {
                     this.input.required = true;
                 }
+            }
+        }
+
+        onPaste(event) {
+            if (this.hasTerms()) {
+                return;
+            }
+
+            this.termInput.value = event.clipboardData.getData('text/plain');
+            $(this.input.form).trigger('submit');
+
+            event.preventDefault();
+        }
+
+        onCopyAndCut(event) {
+            if (! this.hasTerms()) {
+                return;
+            }
+
+            let data = '';
+
+            let selectedTerms = this.termContainer.querySelectorAll('.selected');
+            if (selectedTerms.length) {
+                data = Array.from(selectedTerms).map(label => label.dataset.search).join(this.separator);
+            }
+
+            if (this.input.selectionStart < this.input.selectionEnd) {
+                data += this.separator + this.input.value.slice(this.input.selectionStart, this.input.selectionEnd);
+            }
+
+            event.clipboardData.setData('text/plain', data);
+            event.preventDefault();
+
+            if (event.type === 'cut') {
+                this.clearPartialTerm(this.input);
+                this.clearSelectedTerms();
+                this.togglePlaceholder();
             }
         }
     }
