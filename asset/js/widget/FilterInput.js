@@ -339,7 +339,9 @@
                     return;
                 case 'operator':
                 case 'logical_operator':
-                    data.suggestions = this.renderSuggestions(this.nextOperator(data.term.label));
+                    data.suggestions = this.renderSuggestions(
+                        this.nextOperator(data.term.label, data.term.type, termIndex)
+                    );
             }
 
             // Additional metadata
