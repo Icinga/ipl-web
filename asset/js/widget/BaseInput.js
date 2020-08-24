@@ -265,11 +265,13 @@
         }
 
         removeTerm(label) {
+            let termIndex = Number(label.dataset.index);
+
             // Re-index following remaining terms
-            this.reIndexTerms(Number(label.dataset.index));
+            this.reIndexTerms(termIndex);
 
             // Cut the term's data
-            let [termData] = this.usedTerms.splice(label.dataset.index, 1);
+            let [termData] = this.usedTerms.splice(termIndex, 1);
 
             // Update the hidden input
             this.termInput.value = this.usedTerms.map(e => e.search).join(this.separator).trim();

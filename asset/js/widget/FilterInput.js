@@ -215,7 +215,7 @@
                 this.termType = this.nextTermType(this.lastTerm());
 
                 if (termData.counterpart >= 0) {
-                    let otherLabel = this.termContainer.querySelector(`[data-counterpart="${ label.dataset.index }"]`);
+                    let otherLabel = this.termContainer.querySelector(`[data-index="${ termData.counterpart }"]`);
                     delete this.usedTerms[otherLabel.dataset.index].counterpart;
                     delete otherLabel.dataset.counterpart;
                     this.checkValidity(otherLabel.firstChild);
@@ -310,11 +310,20 @@
         }
 
         reIndexTerms(from) {
+            let fromLabel = this.termContainer.querySelector(`[data-index="${ from }"]`);
+
             super.reIndexTerms(from);
 
             this.termContainer.querySelectorAll('[data-counterpart]').forEach(label => {
                 if (label.dataset.counterpart > from) {
                     label.dataset.counterpart -= 1;
+
+                    let termIndex = Number(label.dataset.index);
+                    if (termIndex >= from && label !== fromLabel) {
+                        termIndex++;
+                    }
+
+                    this.usedTerms[termIndex].counterpart -= 1;
                 }
             });
         }
