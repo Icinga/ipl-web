@@ -294,13 +294,14 @@
         removeRange(labels) {
             let from = Number(labels[0].dataset.index);
             let to = Number(labels[labels.length - 1].dataset.index);
+            let deleteCount = to - from + 1;
 
             if (to < this.usedTerms.length - 1) {
                 // Only re-index if there's something left
-                this.reIndexTerms(from);
+                this.reIndexTerms(from, deleteCount);
             }
 
-            this.usedTerms.splice(from, to - from + 1);
+            this.usedTerms.splice(from, deleteCount);
             this.termInput.value = this.usedTerms.map(e => e.search).join(this.separator).trim();
 
             this.removeRenderedRange(labels);
@@ -310,10 +311,10 @@
             labels.forEach(label => this.removeRenderedTerm(label));
         }
 
-        reIndexTerms(from) {
+        reIndexTerms(from, howMuch = 1) {
             for (let i = ++from; i < this.usedTerms.length; i++) {
                 let label = this.termContainer.querySelector(`[data-index="${ i }"]`);
-                label.dataset.index -= 1;
+                label.dataset.index -= howMuch;
             }
         }
 
