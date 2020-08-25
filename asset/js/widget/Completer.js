@@ -325,7 +325,7 @@
                     }
                     break;
                 default:
-                    if (/[A-Z]/.test(event.key.charAt(0))) {
+                    if (/[A-Z]/.test(event.key.charAt(0)) || event.key === '"') {
                         // Ignore control keys not resulting in new input data
                         break;
                     }
