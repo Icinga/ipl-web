@@ -73,6 +73,8 @@
 
         bind() {
             $(this.termContainer).on('focusin', '[data-index]', this.onTermFocus, this);
+            $(this.termContainer).on('click', '[data-group-type="chain"] > button', this.onToggleChain, this);
+            $(this.termContainer).on('click', '[data-group-type="condition"] > button', this.onRemoveCondition, this);
             return super.bind();
         }
 
@@ -276,7 +278,8 @@
 
         removeRenderedTerm(label) {
             let parent = label.parentNode;
-            if (parent.dataset.groupType && parent.childNodes.length === 1) {
+            let children = parent.querySelectorAll(':scope > [data-index], :scope > [data-group-type]');
+            if (parent.dataset.groupType && children.length === 1) {
                 if (this.currentGroup === parent) {
                     this.currentGroup = parent.parentNode;
                 }
@@ -298,15 +301,17 @@
                 super.removeRenderedTerm(label);
 
                 if (parent.dataset.groupType === 'chain') {
-                    let hasNoGroupOperators = parent.childNodes[0].dataset.type !== 'grouping_operator'
-                        && parent.childNodes[parent.childNodes.length - 1].dataset.type !== 'grouping_operator';
+                    // Get a new nodes list first, otherwise the removed label is still part of it
+                    children = parent.querySelectorAll(':scope > [data-index], :scope > [data-group-type]');
+                    let hasNoGroupOperators = children[0].dataset.type !== 'grouping_operator'
+                        && children[children.length - 1].dataset.type !== 'grouping_operator';
                     if (hasNoGroupOperators) {
                         if (this.currentGroup === parent) {
                             this.currentGroup = parent.parentNode;
                         }
 
                         // Unwrap remaining terms, remove the resulting empty group
-                        Array.from(parent.childNodes).forEach(child => parent.parentNode.insertBefore(child, parent));
+                        Array.from(children).forEach(child => parent.parentNode.insertBefore(child, parent));
                         parent.remove();
                     }
                 }
@@ -323,7 +328,7 @@
                     let counterpartIndex = Number(label.dataset.counterpart);
                     if (isNaN(counterpartIndex)) {
                         counterpartIndex = Number(
-                            Array.from(parent.querySelectorAll('[data-index]')).pop().dataset.index
+                            Array.from(parent.querySelectorAll(':scope > [data-index]')).pop().dataset.index
                         );
                     }
 
@@ -345,21 +350,21 @@
             }
         }
 
-        reIndexTerms(from) {
+        reIndexTerms(from, howMuch = 1) {
             let fromLabel = this.termContainer.querySelector(`[data-index="${ from }"]`);
 
-            super.reIndexTerms(from);
+            super.reIndexTerms(from, howMuch);
 
             this.termContainer.querySelectorAll('[data-counterpart]').forEach(label => {
                 if (label.dataset.counterpart > from) {
-                    label.dataset.counterpart -= 1;
+                    label.dataset.counterpart -= howMuch;
 
                     let termIndex = Number(label.dataset.index);
                     if (termIndex >= from && label !== fromLabel) {
-                        termIndex++;
+                        termIndex += howMuch;
                     }
 
-                    this.usedTerms[termIndex].counterpart -= 1;
+                    this.usedTerms[termIndex].counterpart -= howMuch;
                 }
             });
         }
@@ -660,11 +665,20 @@
         }
 
         renderCondition() {
-            return $('<div class="filter-condition" data-group-type="condition"></div>').render();
+            return $(
+                '<div class="filter-condition" data-group-type="condition">'
+                + '<button type="button"><i class="icon-close"></i></button>'
+                + '</div>'
+            ).render();
         }
 
         renderChain() {
-            return $('<div class="filter-chain" data-group-type="chain"></div>').render();
+            // TODO: Don't show the toggle instantly, only once there are multiple conditions ..and actually a logical operator
+            return $(
+                '<div class="filter-chain" data-group-type="chain">'
+                + '<button type="button" data-operator="&">AND</button>'
+                + '</div>'
+            ).render();
         }
 
         renderTerm(termData, termIndex) {
@@ -689,6 +703,41 @@
         /**
          * Event listeners
          */
+
+        onTermFocus(event) {
+            if (! this.checkValidity(event.target)) {
+                this.reportValidity(event.target);
+            }
+        }
+
+        onToggleChain(event) {
+            let button = event.target.closest('button');
+
+            let operatorName, operatorData;
+            if (button.dataset.operator === this.logical_operators[0].label) {
+                operatorName = 'OR';
+                operatorData = this.logical_operators[1];
+            } else {
+                operatorName = 'AND';
+                operatorData = this.logical_operators[0];
+            }
+
+            button.innerText = operatorName;
+            button.dataset.operator = operatorData.label;
+            button.parentNode.querySelectorAll(':scope > [data-type="logical_operator"]').forEach(label => {
+                let termIndex = Number(label.dataset.index);
+                let termData = { ...operatorData };
+                this.usedTerms[termIndex] = termData;
+                button.parentNode.replaceChild(this.renderTerm(termData, termIndex), label);
+            });
+            this.termInput.value = this.usedTerms.map(e => e.search).join(this.separator).trim();
+        }
+
+        onRemoveCondition(event) {
+            let button = event.target.closest('button');
+            this.removeRange(Array.from(button.parentNode.querySelectorAll(':scope > [data-index]')));
+            // TODO: Remove unnecessary logical operators and chains
+        }
 
         onCompletion(event) {
             super.onCompletion(event);
@@ -767,12 +816,6 @@
                             this.clearPartialTerm(input);
                         }
                     }
-            }
-        }
-
-        onTermFocus(event) {
-            if (! this.checkValidity(event.target)) {
-                this.reportValidity(event.target);
             }
         }
 

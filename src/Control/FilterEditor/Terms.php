@@ -7,6 +7,7 @@ use Icinga\Data\Filter\FilterChain;
 use Icinga\Data\Filter\FilterExpression;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
+use ipl\Web\Widget\Icon;
 
 class Terms extends BaseHtmlElement
 {
@@ -64,7 +65,15 @@ class Terms extends BaseHtmlElement
 
     protected function assembleChain(FilterChain $chain, BaseHtmlElement $where)
     {
-        $group = new HtmlElement('div', ['class' => 'filter-chain', 'data-group-type' => 'chain']);
+        $group = new HtmlElement(
+            'div',
+            ['class' => 'filter-chain', 'data-group-type' => 'chain'],
+            new HtmlElement(
+                'button',
+                ['type' => 'button', 'data-operator' => $chain->getOperatorSymbol()],
+                $chain->getOperatorName()
+            )
+        );
 
         $opening = $this->assembleTerm('grouping_operator_open', 'grouping_operator', '(', '(', $group);
         $this->assembleConditions($chain, $group);
@@ -92,7 +101,11 @@ class Terms extends BaseHtmlElement
             $columnLabel = $filter->metaData['label'];
         }
 
-        $group = new HtmlElement('div', ['class' => 'filter-condition', 'data-group-type' => 'condition']);
+        $group = new HtmlElement(
+            'div',
+            ['class' => 'filter-condition', 'data-group-type' => 'condition'],
+            new HtmlElement('button', ['type' => 'button'], new Icon('cancel'))
+        );
 
         $this->assembleTerm('column', 'column', rawurlencode($column), $columnLabel, $group);
 
