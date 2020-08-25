@@ -188,6 +188,10 @@
                     if (label.dataset.label === this.grouping_operators.open.label) {
                         newGroup = this.renderChain();
                     } else {
+                        if (this.currentGroup.dataset.groupType === 'condition') {
+                            this.currentGroup = this.currentGroup.parentNode;
+                        }
+
                         leaveGroup = true;
                     }
             }
