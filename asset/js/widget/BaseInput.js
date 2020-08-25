@@ -224,13 +224,13 @@
             return this.usedTerms.length > 0;
         }
 
-        saveTerm(input) {
+        saveTerm(input, updateDOM = true) {
             let termIndex = input.parentNode.dataset.index;
             let termData = this.readFullTerm(input, termIndex);
 
             // Only save if something has changed
             if (termData === false) {
-                // TODO: Decide how to handle this
+                this.removeTerm(input.parentNode, updateDOM);
             } else if (this.usedTerms[termIndex].label !== termData.label) {
                 this.usedTerms[termIndex] = termData;
                 this.termInput.value = this.usedTerms.map(e => e.search).join(this.separator).trim();
@@ -256,15 +256,15 @@
         }
 
         popTerm() {
-            if (this.completer !== null) {
-                this.completer.reset();
-            }
-
             let lastTermIndex = this.usedTerms.length - 1;
             return this.removeTerm(this.termContainer.querySelector(`[data-index="${ lastTermIndex }"]`));
         }
 
-        removeTerm(label) {
+        removeTerm(label, updateDOM = true) {
+            if (this.completer !== null) {
+                this.completer.reset();
+            }
+
             let termIndex = Number(label.dataset.index);
 
             // Re-index following remaining terms
@@ -276,8 +276,13 @@
             // Update the hidden input
             this.termInput.value = this.usedTerms.map(e => e.search).join(this.separator).trim();
 
-            // Remove it from the DOM
-            this.removeRenderedTerm(label);
+            // Avoid saving the term, it's removed after all
+            label.firstChild.skipSaveOnBlur = true;
+
+            if (updateDOM) {
+                // Remove it from the DOM
+                this.removeRenderedTerm(label);
+            }
 
             return termData;
         }
@@ -369,36 +374,50 @@
             return label;
         }
 
-        moveFocusForward() {
+        moveFocusForward(from = null) {
             let toFocus;
 
             let inputs = Array.from(this.termContainer.querySelectorAll('input'));
-            let focused = this.termContainer.querySelector('input:focus');
-            if (focused !== null) {
-                let next = inputs[inputs.indexOf(focused) + 1];
-                toFocus = next || this.input;
-            } else {
+            if (from === null) {
+                let focused = this.termContainer.querySelector('input:focus');
+                from = inputs.indexOf(focused);
+            }
+
+            if (from === -1) {
                 toFocus = inputs.shift();
+            } else if (from + 1 < inputs.length) {
+                toFocus = inputs[from + 1];
+            } else {
+                toFocus = this.input;
             }
 
             toFocus.selectionStart = toFocus.selectionEnd = 0;
             $(toFocus).focus();
+
+            return toFocus;
         }
 
-        moveFocusBackward() {
+        moveFocusBackward(from = null) {
             let toFocus;
 
             let inputs = Array.from(this.termContainer.querySelectorAll('input'));
-            let focused = this.termContainer.querySelector('input:focus');
-            if (focused !== null) {
-                let previous = inputs[inputs.indexOf(focused) - 1];
-                toFocus = previous || this.input;
-            } else {
+            if (from === null) {
+                let focused = this.termContainer.querySelector('input:focus');
+                from = inputs.indexOf(focused);
+            }
+
+            if (from === -1) {
                 toFocus = inputs.pop();
+            } else if (from > 0 && from - 1 < inputs.length) {
+                toFocus = inputs[from - 1];
+            } else {
+                toFocus = this.input;
             }
 
             toFocus.selectionStart = toFocus.selectionEnd = toFocus.value.length;
             $(toFocus).focus();
+
+            return toFocus;
         }
 
         /**
@@ -461,7 +480,7 @@
 
         onKeyDown(event) {
             let input = event.target;
-            let isTerm = input.parentNode.dataset.index >= 0;
+            let termIndex = input.parentNode.dataset.index;
 
             switch (event.key) {
                 case ' ':
@@ -471,24 +490,51 @@
                     }
                     break;
                 case 'Backspace':
-                    if (! isTerm) {
-                        this.clearSelectedTerms();
+                    this.clearSelectedTerms();
 
+                    if (termIndex >= 0) {
+                        if (! input.value && this.removeTerm(input.parentNode) !== false) {
+                            let previous = this.moveFocusBackward(Number(termIndex));
+                            if (event.ctrlKey || event.metaKey) {
+                                this.clearPartialTerm(previous);
+                            } else {
+                                this.writePartialTerm(previous.value.slice(0, -1), previous);
+                            }
+
+                            event.preventDefault();
+                        }
+                    } else {
                         if (! input.value && this.hasTerms()) {
                             let termData = this.popTerm();
-                            if (! event.ctrlKey || event.metaKey) {
+                            if (! event.ctrlKey && ! event.metaKey) {
                                 // Removing the last char programmatically is not
-                                // necessary since we're in a keydown event
-                                this.input.value = termData.label;
+                                // necessary since the browser default is not prevented
+                                this.writePartialTerm(termData.label, input);
                             }
                         }
-
-                        this.togglePlaceholder();
                     }
+
+                    this.togglePlaceholder();
+                    break;
+                case 'Delete':
+                    this.clearSelectedTerms();
+
+                    if (termIndex >= 0 && ! input.value && this.removeTerm(input.parentNode) !== false) {
+                        let next = this.moveFocusForward(Number(termIndex) - 1);
+                        if (event.ctrlKey || event.metaKey) {
+                            this.clearPartialTerm(next);
+                        } else {
+                            this.writePartialTerm(next.value.slice(1), next);
+                        }
+
+                        event.preventDefault();
+                    }
+
+                    this.togglePlaceholder();
                     break;
                 case 'Enter':
-                    if (isTerm) {
-                        this.saveTerm(input);
+                    if (termIndex >= 0) {
+                        this.saveTerm(input, false);
                     }
                     break;
                 case 'ArrowLeft':
@@ -535,7 +581,13 @@
         }
 
         onTermBlur(event) {
-            this.saveTerm(event.target);
+            let input = event.target;
+            // skipSaveOnBlur is set if the input is about to be removed anyway.
+            // If saveTerm would remove the input as well, the other removal will fail
+            // without any chance to handle it. (Element.remove() blurs the input)
+            if (typeof input.skipSaveOnBlur === 'undefined' || ! input.skipSaveOnBlur) {
+                this.saveTerm(input);
+            }
         }
 
         onButtonClick(event) {

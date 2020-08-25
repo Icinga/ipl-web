@@ -71,6 +71,11 @@
             return this.termContainer;
         }
 
+        bind() {
+            $(this.termContainer).on('focusin', '[data-index]', this.onTermFocus, this);
+            return super.bind();
+        }
+
         reset() {
             super.reset();
 
@@ -200,19 +205,31 @@
             }
         }
 
-        saveTerm(input) {
+        saveTerm(input, updateDOM = true) {
             if (! this.checkValidity(input)) {
                 return false;
             }
 
-            return super.saveTerm(input);
+            return super.saveTerm(input, updateDOM);
         }
 
-        removeTerm(label) {
-            let termData = super.removeTerm(label);
+        removeTerm(label, updateDOM = true) {
+            let termIndex = Number(label.dataset.index);
+            if (termIndex < this.usedTerms.length - 1) {
+                // It's not the last term
+                if (! this.checkValidity(label.firstChild, label.dataset.type, termIndex)) {
+                    this.reportValidity(label.firstChild);
+                    return false;
+                }
+            }
+
+            let termData = super.removeTerm(label, updateDOM);
 
             if (this.hasTerms()) {
-                this.termType = this.nextTermType(this.lastTerm());
+                if (termIndex === this.usedTerms.length) {
+                    // It's been the last term
+                    this.termType = this.nextTermType(this.lastTerm());
+                }
 
                 if (termData.counterpart >= 0) {
                     let otherLabel = this.termContainer.querySelector(`[data-index="${ termData.counterpart }"]`);
@@ -261,6 +278,7 @@
                 }
 
                 // If the parent is a group and the label is the only child, we can remove the entire group
+                label.firstChild.skipSaveOnBlur = true;
                 parent.remove();
             } else {
                 if (label.dataset.index >= this.usedTerms.length) {
@@ -273,7 +291,21 @@
                     }
                 }
 
-                label.remove();
+                super.removeRenderedTerm(label);
+
+                if (parent.dataset.groupType === 'chain') {
+                    let hasNoGroupOperators = parent.childNodes[0].dataset.type !== 'grouping_operator'
+                        && parent.childNodes[parent.childNodes.length - 1].dataset.type !== 'grouping_operator';
+                    if (hasNoGroupOperators) {
+                        if (this.currentGroup === parent) {
+                            this.currentGroup = parent.parentNode;
+                        }
+
+                        // Unwrap remaining terms, remove the resulting empty group
+                        Array.from(parent.childNodes).forEach(child => parent.parentNode.insertBefore(child, parent));
+                        parent.remove();
+                    }
+                }
             }
         }
 
@@ -510,8 +542,13 @@
                 type = input.parentNode.dataset.type;
             }
 
+            if (! type || type === 'value') {
+                // type is undefined for the main input, values have no special validity rules
+                return input.checkValidity();
+            }
+
             if (termIndex === null && input.parentNode.dataset.index >= 0) {
-                termIndex = input.parentNode.dataset.index;
+                termIndex = Number(input.parentNode.dataset.index);
             }
 
             let value = this.readPartialTerm(input);
@@ -522,19 +559,46 @@
                 case 'logical_operator':
                 case 'grouping_operator':
                     options = this.nextOperator(value, type, termIndex);
-                    break;
-                default:
-                    return true;
             }
 
             let message = '';
-            if (value && ! options.partialMatches && (options.length > 1 || options[0].label !== value)) {
-                message = this.input.dataset.chooseTemplate.replace(
-                    '%s',
-                    options.map(e => e.label).join(', ')
-                );
-            } else if (type === 'grouping_operator' && typeof this.usedTerms[termIndex].counterpart === 'undefined') {
-                message = this.input.dataset.incompleteGroup;
+            if (type === 'column') {
+                let nextTermAt = termIndex + 1;
+                if (! value && nextTermAt < this.usedTerms.length && this.usedTerms[nextTermAt].type === 'operator') {
+                    message = this.input.dataset.chooseColumn;
+                }
+            } else {
+                let isRequired = options.length > 1 || options[0].label !== value;
+                if (options.partialMatches && options.length > 1) {
+                    isRequired = false;
+                } else if (type === 'operator' && ! value) {
+                    let nextTermAt = termIndex + 1;
+                    isRequired = nextTermAt < this.usedTerms.length && this.usedTerms[nextTermAt].type === 'value';
+                } else if (type === 'logical_operator' && ! value) {
+                    if (termIndex === 0 || termIndex === this.usedTerms.length - 1) {
+                        isRequired = false;
+                    } else {
+                        isRequired = this.usedTerms[termIndex - 1].label !== this.grouping_operators.open.label
+                            && this.usedTerms[termIndex + 1].label !== this.grouping_operators.close.label;
+                    }
+                } else if (type === 'grouping_operator') {
+                    if (typeof this.usedTerms[termIndex].counterpart === 'undefined') {
+                        if (value) {
+                            message = this.input.dataset.incompleteGroup;
+                        }
+
+                        isRequired = false;
+                    } else if (! value) {
+                        isRequired = false;
+                    }
+                }
+
+                if (isRequired) {
+                    message = this.input.dataset.chooseTemplate.replace(
+                        '%s',
+                        options.map(e => e.label).join(', ')
+                    );
+                }
             }
 
             input.setCustomValidity(message);
@@ -626,6 +690,8 @@
             super.onCompletion(event);
 
             let input = event.target;
+            this.checkValidity(input);
+
             if (input.parentNode.dataset.index >= 0) {
                 return;
             }
@@ -697,6 +763,12 @@
                             this.clearPartialTerm(input);
                         }
                     }
+            }
+        }
+
+        onTermFocus(event) {
+            if (! this.checkValidity(event.target)) {
+                this.reportValidity(event.target);
             }
         }
 

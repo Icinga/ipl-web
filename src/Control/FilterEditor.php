@@ -204,8 +204,9 @@ class FilterEditor extends Form
             'data-term-container'   => '#' . $termContainerId,
             'data-term-suggestions' => '#' . $suggestionsId,
             'data-suggest-url'      => $this->getSuggestionUrl(),
-            'data-incomplete-group' => t('Either remove this incomplete group or add its missing counterpart.'),
+            'data-incomplete-group' => t('Please close or remove this group.'),
             'data-choose-template'  => t('Please type one of: %s', '..<comma separated list>'),
+            'data-choose-column'    => t('Please enter a valid column.'),
             'validators'            => [
                 new CallbackValidator(function ($q, CallbackValidator $validator) {
                     try {
