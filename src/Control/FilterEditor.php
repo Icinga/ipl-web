@@ -214,12 +214,13 @@ class FilterEditor extends Form
                         $filter = Filter::fromQueryString($q);
                     } catch (FilterParseException $e) {
                         $charAt = $e->getCharPos() - 1;
+                        $char = $e->getChar();
 
                         $this->getElement($this->getSearchParameter())
                             ->setValue(substr($q, $charAt))
                             ->addAttributes([
-                                'title'     => sprintf(t('Unexpected %s at start of input'), $e->getChar()),
-                                'pattern'   => sprintf('^(?!\%s).*', $e->getChar())
+                                'title'     => sprintf(t('Unexpected %s at start of input'), $char),
+                                'pattern'   => sprintf('^(?!%s).*', $char === ')' ? '\)' : $char)
                             ]);
 
                         $probablyValidQueryString = substr($q, 0, $charAt);
