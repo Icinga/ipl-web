@@ -385,7 +385,7 @@
                 case 'operator':
                 case 'logical_operator':
                     data.suggestions = this.renderSuggestions(
-                        this.nextOperator(data.term.label, data.term.type, termIndex)
+                        this.validOperator(data.term.label, data.term.type, termIndex)
                     );
             }
 
@@ -477,18 +477,82 @@
                 termType = this.termType;
             }
 
+            if (termIndex === null && termType === 'column' && ! this.readPartialTerm(this.input)) {
+                switch (true) {
+                    case ! this.hasTerms():
+                    case this.lastTerm().type === 'logical_operator':
+                    case this.lastTerm().label === this.grouping_operators.open.label:
+                        operators.push(this.grouping_operators.open);
+                }
+
+                return operators;
+            }
+
             switch (termType) {
                 case 'column':
-                    if (! this.readPartialTerm(this.input)) {
-                        switch (true) {
-                            case ! this.hasTerms():
-                            case this.lastTerm().type === 'logical_operator':
-                            case this.lastTerm().label === this.grouping_operators.open.label:
-                                operators.push(this.grouping_operators.open);
+                    if (value) {
+                        this.relational_operators.forEach((op) => {
+                            if (op.label.length >= value.length && value === op.label.slice(0, value.length)) {
+                                operators.push(op);
+                                if (! partialMatch) {
+                                    partialMatch = op.label.length > value.length;
+                                }
+                            }
+                        });
+                        if (partialMatch) {
+                            break;
                         }
-
-                        break;
                     }
+
+                    if (! operators.length) {
+                        operators = operators.concat(this.relational_operators);
+                    }
+                case 'operator':
+                case 'value':
+                    operators = operators.concat(this.logical_operators);
+
+                    if (this.lastPendingGroupOpen(termIndex + 1) !== null) {
+                        operators.push(this.grouping_operators.close);
+                    }
+
+                    break;
+                case 'logical_operator':
+                    if (this.lastPendingGroupOpen(termIndex + 1) !== null) {
+                        operators.push(this.grouping_operators.close);
+                    }
+
+                    operators.push(this.grouping_operators.open);
+                    break;
+                case 'grouping_operator':
+                    let termData = this.usedTerms[termIndex];
+                    if (termData.search === this.grouping_operators.open.search) {
+                        operators.push(this.grouping_operators.open);
+                    } else if (this.lastPendingGroupOpen(termIndex + 1)) {
+                        operators.push(this.grouping_operators.close);
+                    }
+            }
+
+            if (! partialMatch && value) {
+                let exactMatch = operators.find(op => value === op.label);
+                if (exactMatch) {
+                    operators = [ exactMatch ];
+                    operators.exactMatch = true;
+                }
+            }
+
+            operators.partialMatches = partialMatch;
+            return operators;
+        }
+
+        validOperator(value, termType = null, termIndex = null) {
+            let operators = [],
+                partialMatch = false;
+
+            if (termType === null) {
+                termType = this.termType;
+            }
+
+            switch (termType) {
                 case 'operator':
                     if (value) {
                         this.relational_operators.forEach((op) => {
@@ -500,45 +564,32 @@
                             }
                         });
                     }
-                    if (! partialMatch) {
+
+                    if (! partialMatch && ! operators.length) {
                         operators = operators.concat(this.relational_operators);
-                    } else {
-                        break;
-                    }
-                case 'value':
-                case 'logical_operator':
-                    if (this.lastPendingGroupOpen(termIndex) !== null) {
-                        operators.push(this.grouping_operators.close);
                     }
 
+                    break;
+                case 'logical_operator':
                     operators = operators.concat(this.logical_operators);
                     break;
                 case 'grouping_operator':
-                    if (termIndex === null) {
-                        // pass
-                    } else if (termIndex > 0) {
-                        let previousTerm = this.usedTerms[termIndex - 1];
-                        switch (previousTerm.type) {
-                            case 'column':
-                            case 'operator':
-                            case 'value':
-                                operators.push(this.grouping_operators.close);
-                                break;
-                            case 'logical_operator':
-                                operators.push(this.grouping_operators.open);
-                                break;
-                            case 'grouping_operator':
-                                operators.push(previousTerm);
+                    let termData = this.usedTerms[termIndex];
+                    if (termData.counterpart >= 0) {
+                        let counterpart = this.usedTerms[termData.counterpart];
+                        if (counterpart.search === this.grouping_operators.open.search) {
+                            operators.push(this.grouping_operators.close);
+                        } else {
+                            operators.push(this.grouping_operators.open);
                         }
-                    } else {
-                        operators.push(this.grouping_operators.open);
                     }
             }
 
             if (! partialMatch && value) {
                 let exactMatch = operators.find(op => value === op.label);
                 if (exactMatch) {
-                    return [ exactMatch ];
+                    operators = [ exactMatch ];
+                    operators.exactMatch = true;
                 }
             }
 
@@ -567,7 +618,7 @@
                 case 'operator':
                 case 'logical_operator':
                 case 'grouping_operator':
-                    options = this.nextOperator(value, type, termIndex);
+                    options = this.validOperator(value, type, termIndex);
             }
 
             let message = '';
@@ -577,7 +628,7 @@
                     message = this.input.dataset.chooseColumn;
                 }
             } else {
-                let isRequired = options.length > 1 || options[0].label !== value;
+                let isRequired = ! options.exactMatch;
                 if (options.partialMatches && options.length > 1) {
                     isRequired = false;
                 } else if (type === 'operator' && ! value) {
@@ -831,7 +882,7 @@
 
             if (! isTerm && this.previewedTerm !== null) {
                 let value = this.readPartialTerm(input);
-                if (value && ! this.nextOperator(value).partialMatches) {
+                if (value && ! this.validOperator(value).partialMatches) {
                     if (value !== this.previewedTerm.label) {
                         this.addTerm(this.previewedTerm);
                         this.togglePlaceholder();
