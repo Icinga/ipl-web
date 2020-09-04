@@ -287,6 +287,15 @@
                     // It's been the last term
                     switch (label.dataset.type) {
                         case 'grouping_operator':
+                            if (label.dataset.search === this.grouping_operators.close.search) {
+                                // TODO: This should be done on demand, get rid of currentGroup please..
+                                let groupOpenAt = this.lastPendingGroupOpen(Number(label.dataset.index));
+                                if (groupOpenAt) {
+                                    let groupOpen = this.termContainer.querySelector(`[data-index="${ groupOpenAt }"]`);
+                                    this.currentGroup = groupOpen.parentNode;
+                                    break;
+                                }
+                            }
                         case 'operator':
                         case 'value':
                             this.currentGroup = parent;
