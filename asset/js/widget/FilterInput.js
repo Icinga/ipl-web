@@ -752,7 +752,7 @@
         renderCondition() {
             return $(
                 '<div class="filter-condition" data-group-type="condition">'
-                + '<button type="button"><i class="icon-close"></i></button>'
+                + '<button type="button"><i class="icon-cancel"></i></button>'
                 + '</div>'
             ).render();
         }
