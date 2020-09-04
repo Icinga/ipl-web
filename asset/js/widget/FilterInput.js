@@ -423,13 +423,24 @@
                 before = this.usedTerms.length;
             }
 
+            let level = 0;
             for (let i = before - 1; i >= 0; i--) {
                 let termData = this.usedTerms[i];
-                if (
-                    termData.label === this.grouping_operators.open.label
-                    && typeof termData.counterpart === 'undefined'
-                ) {
-                    return i;
+
+                if (termData.type === 'grouping_operator') {
+                    if (termData.label === this.grouping_operators.open.label) {
+                        if (level === 0) {
+                            return typeof termData.counterpart === 'undefined' ? i : null;
+                        }
+
+                        level++;
+                    } else {
+                        if (termData.counterpart >= 0) {
+                            i = termData.counterpart;
+                        } else {
+                            level--;
+                        }
+                    }
                 }
             }
 
@@ -441,13 +452,24 @@
                 after = 0;
             }
 
+            let level = 0;
             for (let i = after + 1; i < this.usedTerms.length; i++) {
                 let termData = this.usedTerms[i];
-                if (
-                    termData.label === this.grouping_operators.close.label
-                    && typeof termData.counterpart === 'undefined'
-                ) {
-                    return i;
+
+                if (termData.type === 'grouping_operator') {
+                    if (termData.label === this.grouping_operators.close.label) {
+                        if (level === 0) {
+                            return typeof termData.counterpart === 'undefined' ? i : null;
+                        }
+
+                        level--;
+                    } else {
+                        if (termData.counterpart >= 0) {
+                            i = termData.counterpart;
+                        } else {
+                            level++;
+                        }
+                    }
                 }
             }
 
