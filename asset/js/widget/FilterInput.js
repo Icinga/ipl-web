@@ -345,21 +345,25 @@
             }
         }
 
-        reIndexTerms(from, howMuch = 1) {
+        reIndexTerms(from, howMuch = 1, forward = false) {
             let fromLabel = this.termContainer.querySelector(`[data-index="${ from }"]`);
 
-            super.reIndexTerms(from, howMuch);
+            super.reIndexTerms(from, howMuch, forward);
 
+            let _this = this;
             this.termContainer.querySelectorAll('[data-counterpart]').forEach(label => {
-                if (label.dataset.counterpart > from) {
-                    label.dataset.counterpart -= howMuch;
+                let counterpartIndex = Number(label.dataset.counterpart);
+                if ((forward && counterpartIndex >= from) || (! forward && counterpartIndex > from)) {
+                    counterpartIndex += forward ? howMuch : -howMuch;
 
                     let termIndex = Number(label.dataset.index);
-                    if (termIndex >= from && label !== fromLabel) {
-                        termIndex += howMuch;
+                    if (termIndex >= from && (forward || label !== fromLabel)) {
+                        // Make sure to use the previous index to access usedTerms, it's not adjusted yet
+                        termIndex += forward ? -howMuch : howMuch;
                     }
 
-                    this.usedTerms[termIndex].counterpart -= howMuch;
+                    label.dataset.counterpart = `${ counterpartIndex }`;
+                    _this.usedTerms[termIndex].counterpart = `${ counterpartIndex }`;
                 }
             });
         }
