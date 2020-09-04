@@ -97,6 +97,10 @@
         }
 
         hideSuggestions() {
+            if (this.nextSuggestion !== null || this.activeSuggestion !== null) {
+                return;
+            }
+
             this.termSuggestions.style.display = 'none';
             this.termSuggestions.innerHTML = '';
 
