@@ -117,9 +117,9 @@
 
             if (termData.type === 'grouping_operator' && typeof termData.counterpart === 'undefined') {
                 let counterpart;
-                if (termData.label === this.grouping_operators.open.label) {
+                if (this.isGroupOpen(termData)) {
                     counterpart = this.nextPendingGroupClose(termIndex);
-                } else { // if (termData.label === this.grouping_operators.close.label) {
+                } else {
                     counterpart = this.lastPendingGroupOpen(termIndex);
                 }
 
@@ -182,7 +182,7 @@
 
                     break;
                 case 'grouping_operator':
-                    if (label.dataset.label === this.grouping_operators.open.label) {
+                    if (this.isGroupOpen(label.dataset)) {
                         newGroup = this.renderChain();
                     } else {
                         if (this.currentGroup.dataset.groupType === 'condition') {
@@ -287,7 +287,7 @@
                     // It's been the last term
                     switch (label.dataset.type) {
                         case 'grouping_operator':
-                            if (label.dataset.search === this.grouping_operators.close.search) {
+                            if (this.isGroupClose(label.dataset)) {
                                 // TODO: This should be done on demand, get rid of currentGroup please..
                                 let groupOpenAt = this.lastPendingGroupOpen(Number(label.dataset.index));
                                 if (groupOpenAt) {
@@ -419,11 +419,7 @@
                 case 'logical_operator':
                     return 'column';
                 case 'grouping_operator':
-                    if (termData.label === this.grouping_operators.open.label) {
-                        return 'column';
-                    } else { // if (termData.label === this.grouping_operators.close.label) {
-                        return 'logical_operator';
-                    }
+                    return this.isGroupOpen(termData) ? 'column' : 'logical_operator';
             }
         }
 
@@ -437,7 +433,7 @@
                 let termData = this.usedTerms[i];
 
                 if (termData.type === 'grouping_operator') {
-                    if (termData.label === this.grouping_operators.open.label) {
+                    if (this.isGroupOpen(termData)) {
                         if (level === 0) {
                             return typeof termData.counterpart === 'undefined' ? i : null;
                         }
@@ -466,7 +462,7 @@
                 let termData = this.usedTerms[i];
 
                 if (termData.type === 'grouping_operator') {
-                    if (termData.label === this.grouping_operators.close.label) {
+                    if (this.isGroupClose(termData)) {
                         if (level === 0) {
                             return typeof termData.counterpart === 'undefined' ? i : null;
                         }
@@ -483,6 +479,14 @@
             }
 
             return null;
+        }
+
+        isGroupOpen(termData) {
+            return termData.type === 'grouping_operator' && termData.search === this.grouping_operators.open.search;
+        }
+
+        isGroupClose(termData) {
+            return termData.type === 'grouping_operator' && termData.search === this.grouping_operators.close.search;
         }
 
         getOperator(value, termType = null) {
@@ -515,7 +519,7 @@
                 switch (true) {
                     case ! this.hasTerms():
                     case this.lastTerm().type === 'logical_operator':
-                    case this.lastTerm().label === this.grouping_operators.open.label:
+                    case this.isGroupOpen(this.lastTerm()):
                         operators.push(this.grouping_operators.open);
                 }
 
@@ -559,7 +563,7 @@
                     break;
                 case 'grouping_operator':
                     let termData = this.usedTerms[termIndex];
-                    if (termData.search === this.grouping_operators.open.search) {
+                    if (this.isGroupOpen(termData)) {
                         operators.push(this.grouping_operators.open);
                     } else if (this.lastPendingGroupOpen(termIndex + 1)) {
                         operators.push(this.grouping_operators.close);
@@ -611,7 +615,7 @@
                     let termData = this.usedTerms[termIndex];
                     if (termData.counterpart >= 0) {
                         let counterpart = this.usedTerms[termData.counterpart];
-                        if (counterpart.search === this.grouping_operators.open.search) {
+                        if (this.isGroupOpen(counterpart)) {
                             operators.push(this.grouping_operators.close);
                         } else {
                             operators.push(this.grouping_operators.open);
@@ -672,8 +676,8 @@
                     if (termIndex === 0 || termIndex === this.usedTerms.length - 1) {
                         isRequired = false;
                     } else {
-                        isRequired = this.usedTerms[termIndex - 1].label !== this.grouping_operators.open.label
-                            && this.usedTerms[termIndex + 1].label !== this.grouping_operators.close.label
+                        isRequired = ! this.isGroupOpen(this.usedTerms[termIndex - 1])
+                            && ! this.isGroupClose(this.usedTerms[termIndex + 1])
                             && this.usedTerms[termIndex - 1].type !== 'logical_operator'
                             && this.usedTerms[termIndex + 1].type !== 'logical_operator';
                     }
