@@ -136,7 +136,7 @@
 
         registerTerm(termData, termIndex = null) {
             if (termIndex !== null) {
-                this.usedTerms[termIndex] = termData;
+                this.usedTerms.splice(termIndex, 0, termData);
                 return termIndex;
             } else {
                 return this.usedTerms.push(termData) - 1;
