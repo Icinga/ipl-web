@@ -123,10 +123,9 @@
 
         registerTerms() {
             this.termContainer.querySelectorAll('[data-index]').forEach((label) => {
-                let termData = {
-                    'search': label.dataset.search,
-                    'label' : label.dataset.label
-                };
+                let termData = { ...label.dataset };
+                delete termData.index;
+
                 if (label.className) {
                     termData['class'] = label.className;
                 }
