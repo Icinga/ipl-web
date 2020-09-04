@@ -673,7 +673,9 @@
                         isRequired = false;
                     } else {
                         isRequired = this.usedTerms[termIndex - 1].label !== this.grouping_operators.open.label
-                            && this.usedTerms[termIndex + 1].label !== this.grouping_operators.close.label;
+                            && this.usedTerms[termIndex + 1].label !== this.grouping_operators.close.label
+                            && this.usedTerms[termIndex - 1].type !== 'logical_operator'
+                            && this.usedTerms[termIndex + 1].type !== 'logical_operator';
                     }
                 } else if (type === 'grouping_operator') {
                     if (typeof this.usedTerms[termIndex].counterpart === 'undefined') {
