@@ -310,10 +310,17 @@
             labels.forEach(label => this.removeRenderedTerm(label));
         }
 
-        reIndexTerms(from, howMuch = 1) {
-            for (let i = ++from; i < this.usedTerms.length; i++) {
-                let label = this.termContainer.querySelector(`[data-index="${ i }"]`);
-                label.dataset.index -= howMuch;
+        reIndexTerms(from, howMuch = 1, forward = false) {
+            if (forward) {
+                for (let i = this.usedTerms.length - 1; i >= from; i--) {
+                    let label = this.termContainer.querySelector(`[data-index="${ i }"]`);
+                    label.dataset.index = `${ i + howMuch }`;
+                }
+            } else {
+                for (let i = ++from; i < this.usedTerms.length; i++) {
+                    let label = this.termContainer.querySelector(`[data-index="${ i }"]`);
+                    label.dataset.index = `${ i - howMuch }`;
+                }
             }
         }
 
