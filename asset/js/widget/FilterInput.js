@@ -485,9 +485,13 @@
             return null;
         }
 
-        getOperator(value) {
+        getOperator(value, termType = null) {
+            if (termType === null) {
+                termType = this.termType;
+            }
+
             let operators;
-            switch (this.termType) {
+            switch (termType) {
                 case 'operator':
                     operators = this.relational_operators;
                     break;
