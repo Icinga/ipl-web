@@ -149,6 +149,79 @@
             return termData;
         }
 
+        insertTerm(termData, termIndex) {
+            let label = super.insertTerm(termData, termIndex);
+
+            if (termIndex === this.usedTerms.length - 1) {
+                this.termType = this.nextTermType(termData);
+                this.togglePreview();
+            } else {
+                let next = this.termContainer.querySelector(`[data-index="${ termIndex + 1 }"]`);
+                this.checkValidity(next.firstChild, next.dataset.type, termIndex + 1);
+            }
+
+            return label;
+        }
+
+        insertRenderedTerm(label) {
+            if (label.dataset.counterpart >= 0) {
+                let otherLabel = this.termContainer.querySelector(`[data-index="${ label.dataset.counterpart }"]`);
+                if (otherLabel !== null) {
+                    otherLabel.dataset.counterpart = label.dataset.index;
+                    this.checkValidity(otherLabel.firstChild);
+                }
+            }
+
+            let previous = this.termContainer.querySelector(`[data-index="${ label.dataset.index - 1 }"]`);
+            switch (label.dataset.type) {
+                case 'column':
+                    let newCondition = this.renderCondition();
+                    newCondition.appendChild(label);
+
+                    previous.parentNode.insertBefore(newCondition, previous.nextSibling);
+                    break;
+                case 'operator':
+                case 'value':
+                    previous.parentNode.appendChild(label);
+                    break;
+                case 'logical_operator':
+                    if (previous.parentNode.dataset.groupType === 'condition') {
+                        previous.parentNode.parentNode.insertBefore(label, previous.parentNode.nextSibling);
+                    } else {
+                        previous.parentNode.insertBefore(label, previous.nextSibling);
+                    }
+
+                    break;
+                case 'grouping_operator':
+                    if (this.isGroupOpen(label.dataset)) {
+                        if (label.dataset.counterpart >= 0) {
+                            let counterpart = this.termContainer.querySelector(
+                                `[data-index="${ label.dataset.counterpart }"]`
+                            );
+                            counterpart.parentNode.insertBefore(label, counterpart.parentNode.firstChild.nextSibling);
+                        } else {
+                            let newGroup = this.renderChain();
+                            newGroup.appendChild(label);
+
+                            let sibling = previous.nextSibling;
+                            while (sibling !== null && sibling.dataset.type !== 'grouping_operator') {
+                                let nextSibling = sibling.nextSibling;
+                                newGroup.appendChild(sibling);
+                                sibling = nextSibling;
+                            }
+
+                            previous.parentNode.insertBefore(newGroup, previous.nextSibling);
+                        }
+                    } else {
+                        this.termContainer.querySelector(
+                            `[data-index="${ label.dataset.counterpart }"]`
+                        ).parentNode.appendChild(label);
+                    }
+            }
+
+            return label;
+        }
+
         addTerm(termData, termIndex = null) {
             super.addTerm(termData, termIndex);
 
@@ -701,6 +774,35 @@
                 }
             }
 
+            if (! message && termIndex > 0 && type !== 'logical_operator') {
+                let previousTerm = this.usedTerms[termIndex - 1];
+
+                let missingLogicalOp = true;
+                switch (type) {
+                    case 'column':
+                        missingLogicalOp = previousTerm.type !== 'logical_operator'
+                            && ! this.isGroupOpen(previousTerm);
+                        break;
+                    case 'operator':
+                        missingLogicalOp = previousTerm.type !== 'column';
+                        break;
+                    case 'value':
+                        missingLogicalOp = previousTerm.type !== 'operator';
+                        break;
+                    case 'grouping_operator':
+                        if (value === this.grouping_operators.open.label) {
+                            missingLogicalOp = previousTerm.type !== 'logical_operator'
+                                && ! this.isGroupOpen(previousTerm);
+                        } else {
+                            missingLogicalOp = false;
+                        }
+                }
+
+                if (missingLogicalOp) {
+                    message = this.input.dataset.missingLogOp;
+                }
+            }
+
             input.setCustomValidity(message);
             return input.checkValidity();
         }
@@ -867,9 +969,15 @@
                         this.togglePlaceholder();
                         event.preventDefault();
                     }
+
                     break;
                 default:
-                    if (isTerm) {
+                    let currentValue = this.readPartialTerm(input);
+                    if (isTerm && ! currentValue) {
+                        // Switching contexts requires input first
+                        break;
+                    }else if (input.selectionStart !== input.selectionEnd) {
+                        // In case the user selected a range of text, do nothing
                         break;
                     } else if (/[A-Z]/.test(event.key.charAt(0))) {
                         // Ignore control keys not resulting in new input data
@@ -878,33 +986,99 @@
                         break;
                     }
 
-                    let currentValue;
-                    let value = event.key;
-                    if (this.termType === 'operator') {
-                        currentValue = this.readPartialTerm(input);
-                        value = currentValue + value;
-                    }
-
-                    let operators = this.nextOperator(value);
-                    if (operators.partialMatches) {
-                        this.exchangeTerm();
-                        this.togglePlaceholder();
-                    } else if (operators.length === 1 && operators[0].label === value) {
-                        if (this.termType !== operators[0].type) {
-                            this.exchangeTerm();
+                    let termIndex = null;
+                    let termType = this.termType;
+                    if (isTerm) {
+                        if (input.selectionEnd === input.value.length) {
+                            // Cursor is at the end of the input
+                            termIndex = Number(input.parentNode.dataset.index);
+                            termType = input.parentNode.dataset.type;
+                        } else if (input.selectionStart === 0) {
+                            // Cursor is at the start of the input
+                            termIndex = Number(input.parentNode.dataset.index) - 1;
+                            termType = this.usedTerms[termIndex].type;
                         } else {
-                            this.clearPartialTerm(input);
+                            // In case the cursor is somewhere in between, do nothing
+                            break;
                         }
 
-                        this.addTerm({ ...operators[0] });
-                        this.togglePlaceholder();
-                        event.preventDefault();
-                    } else if (currentValue) {
-                        let partialOperator = this.getOperator(currentValue);
-                        if (partialOperator !== null) {
-                            // If no exact match is found, the user seems to want the partial operator.
-                            this.addTerm({ ...partialOperator });
-                            this.clearPartialTerm(input);
+                        if (termIndex < this.usedTerms.length - 1) {
+                            let nextTerm = this.usedTerms[termIndex + 1];
+                            if (nextTerm.type === 'operator' || nextTerm.type === 'value') {
+                                // In between parts of a condition there's no context switch possible at all
+                                break;
+                            }
+                        }
+                    } else if (input.selectionEnd !== input.value.length) {
+                        // Main input processing only happens at the end of the input
+                        break;
+                    }
+
+                    let operators;
+                    let value = event.key;
+                    if (! isTerm || termType === 'operator') {
+                        operators = this.validOperator(
+                            termType === 'operator' ? currentValue + value : value, termType, termIndex);
+                        if (! operators.exactMatch && ! operators.partialMatches) {
+                            operators = this.nextOperator(value, termType, termIndex);
+                        }
+                    } else {
+                        operators = this.nextOperator(value, termType, termIndex);
+                    }
+
+                    if (isTerm) {
+                        if (operators.exactMatch && operators[0].label !== value) {
+                            // The user completes a partial match
+                        } else if (operators.exactMatch && (
+                            termType !== 'operator' || operators[0].type !== 'operator'
+                        )) {
+                            $(this.insertTerm({ ...operators[0] }, termIndex + 1)).focus();
+                            event.preventDefault();
+                        } else if (operators.partialMatches && termType !== 'operator') {
+                            let termData = { ...operators[0] };
+                            termData.label = termData.search = value;
+                            $(this.insertTerm(termData, termIndex + 1)).focus();
+                            event.preventDefault();
+                        } else {
+                            // If no match is found, the user continues typing
+                            switch (termType) {
+                                case 'operator':
+                                    $(this.insertTerm(
+                                        { label: value, search: value, type: 'value' },
+                                        termIndex + 1
+                                    )).focus();
+                                    event.preventDefault();
+                                    break;
+                                case 'logical_operator':
+                                    $(this.insertTerm(
+                                        { label: value, search: value, type: 'column' },
+                                        termIndex + 1
+                                    )).focus();
+                                    event.preventDefault();
+                                    break;
+                            }
+                        }
+                    } else {
+                        if (operators.partialMatches) {
+                            this.exchangeTerm();
+                            this.togglePlaceholder();
+                        } else if (operators.exactMatch) {
+                            if (termType !== operators[0].type) {
+                                this.exchangeTerm();
+                            } else {
+                                this.clearPartialTerm(input);
+                            }
+
+                            this.addTerm({ ...operators[0] });
+                            this.togglePlaceholder();
+                            event.preventDefault();
+                        } else if (termType === 'operator') {
+                            let partialOperator = this.getOperator(currentValue);
+                            if (partialOperator !== null) {
+                                // If no match is found, the user seems to want the partial operator.
+                                this.addTerm({ ...partialOperator });
+                                this.clearPartialTerm(input);
+                            }
                         }
                     }
             }

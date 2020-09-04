@@ -199,6 +199,19 @@
             return true;
         }
 
+        insertTerm(termData, termIndex) {
+            this.reIndexTerms(termIndex, 1, true);
+            this.registerTerm(termData, termIndex);
+            this.termInput.value = this.usedTerms.map(e => e.search).join(this.separator).trim();
+            return this.insertRenderedTerm(this.renderTerm(termData, termIndex));
+        }
+
+        insertRenderedTerm(label) {
+            let next = this.termContainer.querySelector(`[data-index="${ label.dataset.index + 1 }"]`);
+            this.termContainer.insertBefore(label, next);
+            return label;
+        }
+
         addTerm(termData, termIndex = null) {
             if (termIndex === null) {
                 termIndex = this.registerTerm(termData);
