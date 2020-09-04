@@ -115,7 +115,7 @@
         registerTerm(termData, termIndex = null) {
             termIndex = super.registerTerm(termData, termIndex);
 
-            if (termData.type === 'grouping_operator') {
+            if (termData.type === 'grouping_operator' && typeof termData.counterpart === 'undefined') {
                 let counterpart;
                 if (termData.label === this.grouping_operators.open.label) {
                     counterpart = this.nextPendingGroupClose(termIndex);
