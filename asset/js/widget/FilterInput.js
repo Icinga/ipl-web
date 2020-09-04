@@ -113,11 +113,6 @@
         }
 
         registerTerm(termData, termIndex = null) {
-            if (termIndex !== null) {
-                let label = this.termContainer.querySelector('[data-index="' + termIndex + '"]');
-                termData.type = label.dataset.type;
-            }
-
             termIndex = super.registerTerm(termData, termIndex);
 
             if (termData.type === 'grouping_operator') {
