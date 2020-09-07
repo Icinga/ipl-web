@@ -502,7 +502,7 @@
             }
 
             let level = 0;
-            for (let i = before - 1; i >= 0; i--) {
+            for (let i = before - 1; i >= 0 && i < this.usedTerms.length; i--) {
                 let termData = this.usedTerms[i];
 
                 if (termData.type === 'grouping_operator') {
