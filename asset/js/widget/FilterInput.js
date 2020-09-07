@@ -881,8 +881,35 @@
 
         onRemoveCondition(event) {
             let button = event.target.closest('button');
-            this.removeRange(Array.from(button.parentNode.querySelectorAll(':scope > [data-index]')));
-            // TODO: Remove unnecessary logical operators and chains
+            let labels = Array.from(button.parentNode.querySelectorAll(':scope > [data-index]'));
+
+            let previous = button.parentNode.previousSibling;
+            let next = button.parentNode.nextSibling;
+
+            while (previous !== null || next !== null) {
+                if (next !== null && next.dataset.type === 'logical_operator') {
+                    labels.push(next);
+                    next = next.nextSibling;
+                } else if (previous !== null && previous.dataset.type === 'logical_operator') {
+                    labels.unshift(previous);
+                    previous = previous.previousSibling;
+                }
+
+                if (
+                    previous && previous.dataset.type === 'grouping_operator'
+                    && next && next.dataset.type === 'grouping_operator'
+                ) {
+                    labels.unshift(previous);
+                    labels.push(next);
+                    previous = next.parentNode !== null ? next.parentNode.previousSibling : null;
+                    next = next.parentNode !== null ? next.parentNode.nextSibling : null;
+                } else {
+                    break
+                }
+            }
+
+            this.removeRange(labels);
+            this.togglePlaceholder();
         }
 
         onCompletion(event) {
