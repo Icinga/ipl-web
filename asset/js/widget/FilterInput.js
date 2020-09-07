@@ -496,10 +496,6 @@
         }
 
         lastPendingGroupOpen(before) {
-            if (before === null) {
-                before = this.usedTerms.length;
-            }
-
             let level = 0;
             for (let i = before - 1; i >= 0 && i < this.usedTerms.length; i--) {
                 let termData = this.usedTerms[i];
@@ -525,10 +521,6 @@
         }
 
         nextPendingGroupClose(after) {
-            if (after === null) {
-                after = 0;
-            }
-
             let level = 0;
             for (let i = after + 1; i < this.usedTerms.length; i++) {
                 let termData = this.usedTerms[i];
@@ -631,36 +623,35 @@
                     case this.isGroupOpen(this.lastTerm()):
                         operators.push(this.grouping_operators.open);
                 }
+            } else {
+                let nextIndex = termIndex === null ? this.usedTerms.length : termIndex + 1;
+                switch (termType) {
+                    case 'column':
+                        operators = operators.concat(this.relational_operators);
+                    case 'operator':
+                    case 'value':
+                        operators = operators.concat(this.logical_operators);
 
-                return operators;
-            }
+                        if (this.lastPendingGroupOpen(nextIndex) !== null) {
+                            operators.push(this.grouping_operators.close);
+                        }
 
-            switch (termType) {
-                case 'column':
-                    operators = operators.concat(this.relational_operators);
-                case 'operator':
-                case 'value':
-                    operators = operators.concat(this.logical_operators);
+                        break;
+                    case 'logical_operator':
+                        if (this.lastPendingGroupOpen(nextIndex) !== null) {
+                            operators.push(this.grouping_operators.close);
+                        }
 
-                    if (this.lastPendingGroupOpen(termIndex + 1) !== null) {
-                        operators.push(this.grouping_operators.close);
-                    }
-
-                    break;
-                case 'logical_operator':
-                    if (this.lastPendingGroupOpen(termIndex + 1) !== null) {
-                        operators.push(this.grouping_operators.close);
-                    }
-
-                    operators.push(this.grouping_operators.open);
-                    break;
-                case 'grouping_operator':
-                    let termData = this.usedTerms[termIndex];
-                    if (this.isGroupOpen(termData)) {
                         operators.push(this.grouping_operators.open);
-                    } else if (this.lastPendingGroupOpen(termIndex + 1)) {
-                        operators.push(this.grouping_operators.close);
-                    }
+                        break;
+                    case 'grouping_operator':
+                        let termData = this.usedTerms[termIndex];
+                        if (this.isGroupOpen(termData)) {
+                            operators.push(this.grouping_operators.open);
+                        } else if (this.lastPendingGroupOpen(nextIndex)) {
+                            operators.push(this.grouping_operators.close);
+                        }
+                }
             }
 
             return value ? this.matchOperators(operators, value) : operators;
