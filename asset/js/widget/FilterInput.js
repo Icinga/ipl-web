@@ -400,7 +400,7 @@
             while (labels.length) {
                 let label = labels.shift();
                 let parent = label.parentNode;
-                if (parent.dataset.groupType) {
+                if (parent.dataset.groupType && label === parent.firstChild) {
                     let counterpartIndex = Number(label.dataset.counterpart);
                     if (isNaN(counterpartIndex)) {
                         counterpartIndex = Number(
