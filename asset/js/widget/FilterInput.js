@@ -577,12 +577,49 @@
                     break;
             }
 
-            return operators.find((term) => term.label === value) || null;
+            value = value.toLowerCase();
+            return operators.find((term) => {
+                return value === term.label.toLowerCase() || value === term.search.toLowerCase();
+            }) || null;
+        }
+
+        matchOperators(operators, value) {
+            value = value.toLowerCase();
+
+            let exactMatch = false;
+            let partialMatch = false;
+            let filtered = operators.filter((op) => {
+                let label = op.label.toLowerCase();
+                let search = op.search.toLowerCase();
+
+                if (
+                    (value.length < label.length && value === label.slice(0, value.length))
+                    || (value.length < search.length && value === search.slice(0, value.length))
+                ) {
+                    partialMatch = true;
+                    return true;
+                }
+
+                if (value === label || value === search) {
+                    exactMatch = true;
+                    return true;
+                }
+
+                return false;
+            });
+
+            if (exactMatch || partialMatch) {
+                operators = filtered;
+            }
+
+            operators.exactMatch = exactMatch && ! partialMatch;
+            operators.partialMatches = partialMatch;
+
+            return operators;
         }
 
         nextOperator(value, termType = null, termIndex = null) {
-            let operators = [],
-                partialMatch = false;
+            let operators = [];
 
             if (termType === null) {
                 termType = this.termType;
@@ -601,23 +638,7 @@
 
             switch (termType) {
                 case 'column':
-                    if (value) {
-                        this.relational_operators.forEach((op) => {
-                            if (op.label.length >= value.length && value === op.label.slice(0, value.length)) {
-                                operators.push(op);
-                                if (! partialMatch) {
-                                    partialMatch = op.label.length > value.length;
-                                }
-                            }
-                        });
-                        if (partialMatch) {
-                            break;
-                        }
-                    }
-
-                    if (! operators.length) {
-                        operators = operators.concat(this.relational_operators);
-                    }
+                    operators = operators.concat(this.relational_operators);
                 case 'operator':
                 case 'value':
                     operators = operators.concat(this.logical_operators);
@@ -643,21 +664,11 @@
                     }
             }
 
-            if (! partialMatch && value) {
-                let exactMatch = operators.find(op => value === op.label);
-                if (exactMatch) {
-                    operators = [ exactMatch ];
-                    operators.exactMatch = true;
-                }
-            }
-
-            operators.partialMatches = partialMatch;
-            return operators;
+            return value ? this.matchOperators(operators, value) : operators;
         }
 
         validOperator(value, termType = null, termIndex = null) {
-            let operators = [],
-                partialMatch = false;
+            let operators = [];
 
             if (termType === null) {
                 termType = this.termType;
@@ -665,21 +676,7 @@
 
             switch (termType) {
                 case 'operator':
-                    if (value) {
-                        this.relational_operators.forEach((op) => {
-                            if (op.label.length >= value.length && value === op.label.slice(0, value.length)) {
-                                operators.push(op);
-                                if (! partialMatch) {
-                                    partialMatch = op.label.length > value.length;
-                                }
-                            }
-                        });
-                    }
-
-                    if (! partialMatch && ! operators.length) {
-                        operators = operators.concat(this.relational_operators);
-                    }
-
+                    operators = operators.concat(this.relational_operators);
                     break;
                 case 'logical_operator':
                     operators = operators.concat(this.logical_operators);
@@ -696,16 +693,7 @@
                     }
             }
 
-            if (! partialMatch && value) {
-                let exactMatch = operators.find(op => value === op.label);
-                if (exactMatch) {
-                    operators = [ exactMatch ];
-                    operators.exactMatch = true;
-                }
-            }
-
-            operators.partialMatches = partialMatch;
-            return operators;
+            return value ? this.matchOperators(operators, value) : operators;
         }
 
         checkValidity(input, type = null, termIndex = null) {
@@ -1027,7 +1015,7 @@
                     }
 
                     if (isTerm) {
-                        if (operators.exactMatch && operators[0].label !== value) {
+                        if (operators.exactMatch && operators[0].label.toLowerCase() !== value.toLowerCase()) {
                             // The user completes a partial match
                         } else if (operators.exactMatch && (
                             termType !== 'operator' || operators[0].type !== 'operator'
