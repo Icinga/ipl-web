@@ -438,7 +438,10 @@
                     counterpartIndex += forward ? howMuch : -howMuch;
 
                     let termIndex = Number(label.dataset.index);
-                    if (termIndex >= from && (forward || label !== fromLabel)) {
+                    if (
+                        (! forward && termIndex > from - howMuch && label !== fromLabel)
+                        || (forward && termIndex >= from)
+                    ) {
                         // Make sure to use the previous index to access usedTerms, it's not adjusted yet
                         termIndex += forward ? -howMuch : howMuch;
                     }

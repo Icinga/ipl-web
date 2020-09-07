@@ -310,7 +310,7 @@
 
             if (to < this.usedTerms.length - 1) {
                 // Only re-index if there's something left
-                this.reIndexTerms(from, deleteCount);
+                this.reIndexTerms(to, deleteCount);
             }
 
             this.usedTerms.splice(from, deleteCount);
