@@ -67,12 +67,7 @@ class Terms extends BaseHtmlElement
     {
         $group = new HtmlElement(
             'div',
-            ['class' => 'filter-chain', 'data-group-type' => 'chain'],
-            new HtmlElement(
-                'button',
-                ['type' => 'button', 'data-operator' => $chain->getOperatorSymbol()],
-                $chain->getOperatorName()
-            )
+            ['class' => 'filter-chain', 'data-group-type' => 'chain']
         );
 
         $opening = $this->assembleTerm('grouping_operator_open', 'grouping_operator', '(', '(', $group);

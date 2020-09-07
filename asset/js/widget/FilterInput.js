@@ -73,7 +73,6 @@
 
         bind() {
             $(this.termContainer).on('focusin', '[data-index]', this.onTermFocus, this);
-            $(this.termContainer).on('click', '[data-group-type="chain"] > button', this.onToggleChain, this);
             $(this.termContainer).on('click', '[data-group-type="condition"] > button', this.onRemoveCondition, this);
             return super.bind();
         }
@@ -198,7 +197,7 @@
                             let counterpart = this.termContainer.querySelector(
                                 `[data-index="${ label.dataset.counterpart }"]`
                             );
-                            counterpart.parentNode.insertBefore(label, counterpart.parentNode.firstChild.nextSibling);
+                            counterpart.parentNode.insertBefore(label, counterpart.parentNode.firstChild);
                         } else {
                             let newGroup = this.renderChain();
                             newGroup.appendChild(label);
@@ -854,12 +853,7 @@
         }
 
         renderChain() {
-            // TODO: Don't show the toggle instantly, only once there are multiple conditions ..and actually a logical operator
-            return $(
-                '<div class="filter-chain" data-group-type="chain">'
-                + '<button type="button" data-operator="&">AND</button>'
-                + '</div>'
-            ).render();
+            return $('<div class="filter-chain" data-group-type="chain"></div>').render();
         }
 
         renderTerm(termData, termIndex) {
@@ -889,29 +883,6 @@
             if (! this.checkValidity(event.target)) {
                 this.reportValidity(event.target);
             }
-        }
-
-        onToggleChain(event) {
-            let button = event.target.closest('button');
-
-            let operatorName, operatorData;
-            if (button.dataset.operator === this.logical_operators[0].label) {
-                operatorName = 'OR';
-                operatorData = this.logical_operators[1];
-            } else {
-                operatorName = 'AND';
-                operatorData = this.logical_operators[0];
-            }
-
-            button.innerText = operatorName;
-            button.dataset.operator = operatorData.label;
-            button.parentNode.querySelectorAll(':scope > [data-type="logical_operator"]').forEach(label => {
-                let termIndex = Number(label.dataset.index);
-                let termData = { ...operatorData };
-                this.usedTerms[termIndex] = termData;
-                button.parentNode.replaceChild(this.renderTerm(termData, termIndex), label);
-            });
-            this.termInput.value = this.usedTerms.map(e => e.search).join(this.separator).trim();
         }
 
         onRemoveCondition(event) {
