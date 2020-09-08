@@ -177,17 +177,26 @@
                     let newCondition = this.renderCondition();
                     newCondition.appendChild(label);
 
-                    previous.parentNode.insertBefore(newCondition, previous.nextSibling);
+                    if (previous) {
+                        previous.parentNode.insertBefore(newCondition, previous.nextSibling);
+                    } else {
+                        this.termContainer.insertBefore(newCondition, this.termContainer.firstChild);
+                    }
+
                     break;
                 case 'operator':
                 case 'value':
                     previous.parentNode.appendChild(label);
                     break;
                 case 'logical_operator':
-                    if (previous.parentNode.dataset.groupType === 'condition') {
-                        previous.parentNode.parentNode.insertBefore(label, previous.parentNode.nextSibling);
+                    if (previous) {
+                        if (previous.parentNode.dataset.groupType === 'condition') {
+                            previous.parentNode.parentNode.insertBefore(label, previous.parentNode.nextSibling);
+                        } else {
+                            previous.parentNode.insertBefore(label, previous.nextSibling);
+                        }
                     } else {
-                        previous.parentNode.insertBefore(label, previous.nextSibling);
+                        this.termContainer.insertBefore(label, this.termContainer.firstChild);
                     }
 
                     break;
@@ -202,14 +211,20 @@
                             let newGroup = this.renderChain();
                             newGroup.appendChild(label);
 
-                            let sibling = previous.nextSibling;
+                            let sibling = previous ? previous.nextSibling : this.termContainer.firstChild;
                             while (sibling !== null && sibling.dataset.type !== 'grouping_operator') {
                                 let nextSibling = sibling.nextSibling;
                                 newGroup.appendChild(sibling);
                                 sibling = nextSibling;
                             }
 
-                            previous.parentNode.insertBefore(newGroup, previous.nextSibling);
+                            if (previous) {
+                                previous.parentNode.insertBefore(newGroup, previous.nextSibling);
+                            } else {
+                                // newGroup should be now the only child then
+                                this.termContainer.appendChild(newGroup);
+                                this.currentGroup = newGroup;
+                            }
                         }
                     } else {
                         this.termContainer.querySelector(
@@ -626,6 +641,19 @@
                     case this.isGroupOpen(this.lastTerm()):
                         operators.push(this.grouping_operators.open);
                 }
+            } else if (termIndex === -1) {
+                // This is more of a `previousOperator` thing here
+                switch (termType) {
+                    case 'column':
+                        operators = operators.concat(this.logical_operators);
+                    case 'logical_operator':
+                        operators.push(this.grouping_operators.open);
+                        break;
+                    case 'grouping_operator':
+                        if (this.isGroupOpen(this.usedTerms[0])) {
+                            operators.push(this.grouping_operators.open);
+                        }
+                }
             } else {
                 let nextIndex = termIndex === null ? this.usedTerms.length : termIndex + 1;
                 switch (termType) {
@@ -975,14 +1003,22 @@
                             termType = input.parentNode.dataset.type;
                         } else if (input.selectionStart === 0) {
                             // Cursor is at the start of the input
-                            termIndex = Number(input.parentNode.dataset.index) - 1;
-                            termType = this.usedTerms[termIndex].type;
+                            termIndex = Number(input.parentNode.dataset.index);
+                            if (termIndex === 0) {
+                                // TODO: This is bad, if it causes problems, replace it
+                                //       with a proper `previousOperator` implementation
+                                termType = this.usedTerms[termIndex].type;
+                                termIndex -= 1;
+                            } else {
+                                termIndex -= 1;
+                                termType = this.usedTerms[termIndex].type;
+                            }
                         } else {
                             // In case the cursor is somewhere in between, do nothing
                             break;
                         }
 
-                        if (termIndex < this.usedTerms.length - 1) {
+                        if (termIndex > -1 && termIndex < this.usedTerms.length - 1) {
                             let nextTerm = this.usedTerms[termIndex + 1];
                             if (nextTerm.type === 'operator' || nextTerm.type === 'value') {
                                 // In between parts of a condition there's no context switch possible at all
