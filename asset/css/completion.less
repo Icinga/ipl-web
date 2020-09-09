@@ -10,7 +10,7 @@ form.completion {
   flex-wrap: nowrap;
   .rounded-corners();
 
-  input {
+  input, [type="button"] {
     .appearance(none);
     border: none;
     background: none;
@@ -92,20 +92,21 @@ form.completion {
       list-style-type: none;
     }
 
-    input {
+    [type="button"] {
       padding: .75em .5em;
       display: block;
       width: 100%;
       text-align: left;
+      max-width: none; // TODO: Overrides a rule in web 2's controls.less, which shouldn't be that broad..
     }
 
-    input:focus {
+    [type="button"]:focus {
       background: @icinga-blue;
       color: @text-color-inverted;
       outline: none;
     }
 
-    input:not(:focus):hover {
+    [type="button"]:not(:focus):hover {
       background: fade(@icinga-blue, 30%)
     }
   }
