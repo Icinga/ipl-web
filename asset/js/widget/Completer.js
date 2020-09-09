@@ -292,7 +292,7 @@
         }
 
         onSuggestionClick(event) {
-            let input = event.target;
+            let input = event.currentTarget;
 
             this.complete(this.completedInput, input.value, { ...input.dataset });
         }
