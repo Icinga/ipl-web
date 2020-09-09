@@ -38,8 +38,8 @@
             // User interactions
             $form.on('focusout', 'input[type="text"]', this.onFocusOut, this);
             $form.on('keydown', 'input[type="text"]', this.onKeyDown, this);
-            $form.on('click', termSuggestions + ' input[type="button"]', this.onSuggestionClick, this);
-            $form.on('keydown', termSuggestions + ' input[type="button"]', this.onSuggestionKeyDown, this);
+            $form.on('click', termSuggestions + ' [type="button"]', this.onSuggestionClick, this);
+            $form.on('keydown', termSuggestions + ' [type="button"]', this.onSuggestionKeyDown, this);
 
             if (this.instrumented) {
                 $form.on('complete', 'input[type="text"]', this.onComplete, this);
@@ -165,7 +165,7 @@
                             let suggestions = this.renderSuggestions(req.responseText);
 
                             if (continuous) {
-                                let options = suggestions.querySelectorAll('input');
+                                let options = suggestions.querySelectorAll('[type="button"]');
                                 if (options.length === 1 && options[0].value === this.completedValue) {
                                     this.complete(input, options[0].value, { ...options[0].dataset });
                                 } else {
@@ -214,8 +214,8 @@
         }
 
         moveToSuggestion(backwards = false) {
-            let focused = this.termSuggestions.querySelector('input:focus');
-            let inputs = Array.from(this.termSuggestions.querySelectorAll('input'));
+            let focused = this.termSuggestions.querySelector('[type="button"]:focus');
+            let inputs = Array.from(this.termSuggestions.querySelectorAll('[type="button"]'));
 
             let input;
             if (focused !== null) {
@@ -315,14 +315,14 @@
                     this.hideSuggestions();
                     break;
                 case 'ArrowUp':
-                    suggestions = this.termSuggestions.querySelectorAll('input');
+                    suggestions = this.termSuggestions.querySelectorAll('[type="button"]');
                     if (suggestions.length) {
                         event.preventDefault();
                         this.moveToSuggestion(true);
                     }
                     break;
                 case 'ArrowDown':
-                    suggestions = this.termSuggestions.querySelectorAll('input');
+                    suggestions = this.termSuggestions.querySelectorAll('[type="button"]');
                     if (suggestions.length) {
                         event.preventDefault();
                         this.moveToSuggestion();
@@ -334,7 +334,7 @@
                         break;
                     }
 
-                    let typedSuggestion = this.termSuggestions.querySelector(`input[value="${ event.key }"]`);
+                    let typedSuggestion = this.termSuggestions.querySelector(`[value="${ event.key }"]`);
                     if (typedSuggestion !== null) {
                         this.hideSuggestions();
                     }
