@@ -177,8 +177,7 @@
 
             if (this.lastCompletedTerm !== null) {
                 if (termData.label === this.lastCompletedTerm.label) {
-                    termData.search = this.lastCompletedTerm.search;
-                    termData.class = this.lastCompletedTerm.class;
+                    Object.assign(termData, this.lastCompletedTerm);
                 }
 
                 this.lastCompletedTerm = null;
