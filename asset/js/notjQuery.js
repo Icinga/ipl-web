@@ -47,9 +47,12 @@
                 });
             } else {
                 this.element.addEventListener(type, e => {
+                    Object.defineProperty(e, 'currentTarget', { value: e.currentTarget, writable: true });
+
                     let currentParent = e.currentTarget.parentNode;
                     for (let target = e.target; target && target !== currentParent; target = target.parentNode) {
                         if (target.matches(selector)) {
+                            e.currentTarget = target;
                             if (context === null) {
                                 handler.apply(target, [e]);
                             } else {
