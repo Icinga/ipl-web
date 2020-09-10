@@ -3,7 +3,9 @@
 namespace ipl\Web\Control\FilterEditor;
 
 use Countable;
+use Icinga\Data\Filter\FilterChain;
 use ipl\Html\BaseHtmlElement;
+use ipl\Html\FormElement\ButtonElement;
 use ipl\Html\FormElement\InputElement;
 use ipl\Html\HtmlElement;
 use ipl\Stdlib\Contract\Paginatable;
@@ -21,12 +23,22 @@ class Suggestions extends BaseHtmlElement
     /** @var Traversable */
     protected $data;
 
+    /** @var array */
+    protected $default;
+
     /** @var string */
     protected $type;
 
     public function setData($data)
     {
         $this->data = $data;
+
+        return $this;
+    }
+
+    public function setDefault($default)
+    {
+        $this->default = $default;
 
         return $this;
     }
@@ -38,8 +50,104 @@ class Suggestions extends BaseHtmlElement
         return $this;
     }
 
+    protected function filterToTerms(FilterChain $filter)
+    {
+        $logicalSep = [
+            'label'     => $filter->getOperatorSymbol(),
+            'search'    => $filter->getOperatorSymbol(),
+            'class'     => 'logical_operator',
+            'type'      => 'logical_operator'
+        ];
+
+        $terms = [];
+        foreach ($filter->filters() as $child) {
+            if ($child->isChain()) {
+                $terms[] = [
+                    'search'    => '(',
+                    'label'     => '(',
+                    'type'      => 'grouping_operator',
+                    'class'     => 'grouping_operator_open'
+                ];
+                $terms = array_merge($terms, $this->filterToTerms($child));
+                $terms[] = [
+                    'search'    => ')',
+                    'label'     => ')',
+                    'type'      => 'grouping_operator',
+                    'class'     => 'grouping_operator_close'
+                ];
+            } else {
+                $terms[] = [
+                    'search'    => $child->getColumn(),
+                    'label'     => $child->metaData['label'],
+                    'type'      => 'column'
+                ];
+                $terms[] = [
+                    'search'    => $child->getSign(),
+                    'label'     => $child->getSign(),
+                    'type'      => 'relational_operator'
+                ];
+                $terms[] = [
+                    'search'    => $child->getExpression(),
+                    'label'     => $child->getExpression(),
+                    'type'      => 'value'
+                ];
+            }
+
+            $terms[] = $logicalSep;
+        }
+
+        array_pop($terms);
+        return $terms;
+    }
+
+    protected function assembleDefault()
+    {
+        if ($this->default === null) {
+            return;
+        }
+
+        $attributes = [
+            'type'          => 'button',
+            'tabindex'      => -1,
+            'data-label'    => $this->default['search'],
+            'value'         => $this->default['search']
+        ];
+        if (isset($this->default['type'])) {
+            $attributes['data-type'] = $this->default['type'];
+        } elseif ($this->type !== null) {
+            $attributes['data-type'] = $this->type;
+        }
+
+        $button = new ButtonElement(null, $attributes);
+        $button->add([
+            sprintf('%s ', t('Search for')),
+            new HtmlElement('em', null, $this->default['search'])
+        ]);
+        if (isset($this->default['type']) && $this->default['type'] === 'terms') {
+            $terms = $this->filterToTerms($this->default['terms']);
+            $list = new HtmlElement('ul', ['class' => 'comma-separated']);
+            foreach ($terms as $data) {
+                if ($data['type'] === 'column') {
+                    $list->add(new HtmlElement('li', null, [
+                        new HtmlElement('em', null, $data['label'])
+                    ]));
+                }
+            }
+
+            $button->setAttribute('data-terms', json_encode($terms));
+            $button->add([
+                sprintf(' %s ', t('in:')),
+                $list
+            ]);
+        }
+
+        $this->add(new HtmlElement('li', ['class' => 'default'], $button));
+    }
+
     protected function assemble()
     {
+        $this->assembleDefault();
+
         if ($this->data instanceof Paginatable) {
             $this->data->limit(self::DEFAULT_LIMIT);
             $data = $this->data;
