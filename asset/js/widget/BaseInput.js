@@ -192,7 +192,14 @@
                 return false;
             }
 
-            this.addTerm(termData);
+            if (Array.isArray(termData)) {
+                for (let data of termData) {
+                    this.addTerm(data);
+                }
+            } else {
+                this.addTerm(termData);
+            }
+
             this.clearPartialTerm(this.input);
 
             return true;
