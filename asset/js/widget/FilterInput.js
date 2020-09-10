@@ -137,12 +137,16 @@
                 return false;
             }
 
-            if (! termData.type) {
-                termData.type = this.termType;
-            }
+            if (termData.type === 'terms') {
+                termData = JSON.parse(termData.terms);
+            } else {
+                if (! termData.type) {
+                    termData.type = this.termType;
+                }
 
-            if (termData.type === 'column' || termData.type === 'value') {
-                termData.search = this.escapeExpression(termData.search);
+                if (termData.type === 'column' || termData.type === 'value') {
+                    termData.search = this.escapeExpression(termData.search);
+                }
             }
 
             return termData;
