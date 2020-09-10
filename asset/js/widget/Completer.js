@@ -282,6 +282,10 @@
                     this.completedData.term = data.term;
                     this.requestCompletion(this.completedInput, this.completedData, true);
                     break;
+                case 'Escape':
+                    $(this.completedInput).focus();
+                    this.suggest(this.completedInput, this.completedValue);
+                    break;
                 case 'ArrowLeft':
                 case 'ArrowUp':
                     event.preventDefault();
