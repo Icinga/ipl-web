@@ -302,7 +302,7 @@
 
             switch (event.key) {
                 case 'Tab':
-                    suggestions = this.termSuggestions.querySelectorAll('input');
+                    suggestions = this.termSuggestions.querySelectorAll('[type="button"]');
                     if (suggestions.length === 1) {
                         event.preventDefault();
                         let input = event.target;
