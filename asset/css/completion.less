@@ -141,3 +141,19 @@ form.completion label {
     padding: 0 .5em;
   }
 }
+
+ul.comma-separated {
+  display: inline;
+  padding: 0;
+
+  list-style-type: none;
+
+  li {
+    display: inline;
+
+    &:not(:first-of-type):before {
+      display: inline;
+      content: ', ';
+    }
+  }
+}
