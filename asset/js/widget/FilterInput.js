@@ -9,50 +9,50 @@
     "use strict";
 
     class FilterInput extends BaseInput {
-        /**
-         * Supported grouping operators
-         *
-         * @type {{close: {}, open: {}}}
-         */
-        grouping_operators = {
-            open: { label: '(', search: '(', class: 'grouping_operator_open', type: 'grouping_operator' },
-            close: { label: ')', search: ')', class: 'grouping_operator_close', type: 'grouping_operator' }
-        };
-
-        /**
-         * Supported logical operators
-         *
-         * The first is also the default.
-         *
-         * @type {{}[]}
-         */
-        logical_operators = [
-            { label: '&', search: '&', class: 'logical_operator', type: 'logical_operator' },
-            { label: '|', search: '|', class: 'logical_operator', type: 'logical_operator' },
-        ];
-
-        /**
-         * Supported relational operators
-         *
-         * The first is also the default.
-         *
-         * @type {{}[]}
-         */
-        relational_operators = [
-            { label: '=', search: '=', class: 'operator', type: 'operator' },
-            { label: '!=', search: '!=', class: 'operator', type: 'operator' },
-            { label: '>', search: '>', class: 'operator', type: 'operator' },
-            { label: '<', search: '<', class: 'operator', type: 'operator' },
-            { label: '>=', search: '>=', class: 'operator', type: 'operator' },
-            { label: '<=', search: '<=', class: 'operator', type: 'operator' }
-        ];
-
         constructor(input) {
-            super(input)
+            super(input);
 
             this.termType = 'column';
             this.previewedTerm = null;
             this._currentGroup = null;
+
+            /**
+             * Supported grouping operators
+             *
+             * @type {{close: {}, open: {}}}
+             */
+            this.grouping_operators = {
+                open: { label: '(', search: '(', class: 'grouping_operator_open', type: 'grouping_operator' },
+                close: { label: ')', search: ')', class: 'grouping_operator_close', type: 'grouping_operator' }
+            };
+
+            /**
+             * Supported logical operators
+             *
+             * The first is also the default.
+             *
+             * @type {{}[]}
+             */
+            this.logical_operators = [
+                { label: '&', search: '&', class: 'logical_operator', type: 'logical_operator' },
+                { label: '|', search: '|', class: 'logical_operator', type: 'logical_operator' },
+            ];
+
+            /**
+             * Supported relational operators
+             *
+             * The first is also the default.
+             *
+             * @type {{}[]}
+             */
+            this.relational_operators = [
+                { label: '=', search: '=', class: 'operator', type: 'operator' },
+                { label: '!=', search: '!=', class: 'operator', type: 'operator' },
+                { label: '>', search: '>', class: 'operator', type: 'operator' },
+                { label: '<', search: '<', class: 'operator', type: 'operator' },
+                { label: '>=', search: '>=', class: 'operator', type: 'operator' },
+                { label: '<=', search: '<=', class: 'operator', type: 'operator' }
+            ];
         }
 
         set currentGroup(value) {
