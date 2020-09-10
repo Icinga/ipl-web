@@ -122,8 +122,12 @@
         }
 
         addWildcards(value) {
+            if (! value) {
+                return '*';
+            }
+
             if (value.slice(0, 1) !== '*' && value.slice(-1) !== '*') {
-                return value + '*';
+                return '*' + value + '*';
             }
 
             return value;
