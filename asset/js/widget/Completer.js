@@ -116,7 +116,8 @@
             }
 
             let value = data.term.label;
-            data.term.label = this.addWildcards(data.term.label);
+            data.term.search = value;
+            data.term.label = this.addWildcards(value);
 
             return [value, data];
         }
