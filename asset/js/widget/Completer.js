@@ -298,6 +298,17 @@
                     }
 
                     break;
+                case ' ':
+                case 'Enter':
+                    let defaultSuggestion = this.termSuggestions.querySelector('.default > [type="button"]');
+                    if (defaultSuggestion !== null) {
+                        event.preventDefault();
+                        let input = event.target;
+
+                        this.complete(input, defaultSuggestion.value, { ...defaultSuggestion.dataset });
+                    }
+
+                    break;
                 case 'Escape':
                     this.hideSuggestions();
                     break;
