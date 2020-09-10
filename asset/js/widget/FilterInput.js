@@ -13,7 +13,6 @@
             super(input);
 
             this.termType = 'column';
-            this.previewedTerm = null;
             this._currentGroup = null;
 
             /**
@@ -81,7 +80,6 @@
             super.reset();
 
             this.termType = 'column';
-            this.previewedTerm = null;
             this._currentGroup = null;
         }
 
@@ -107,7 +105,6 @@
 
             if (this.hasTerms()) {
                 this.termType = this.nextTermType(this.lastTerm());
-                this.togglePreview();
             }
         }
 
@@ -157,7 +154,6 @@
 
             if (termIndex === this.usedTerms.length - 1) {
                 this.termType = this.nextTermType(termData);
-                this.togglePreview();
             } else {
                 let next = this.termContainer.querySelector(`[data-index="${ termIndex + 1 }"]`);
                 this.checkValidity(next.firstChild, next.dataset.type, termIndex + 1);
@@ -252,7 +248,6 @@
             }
 
             this.termType = this.nextTermType(termData);
-            this.togglePreview();
         }
 
         addRenderedTerm(label) {
@@ -333,7 +328,6 @@
                 this.termType = 'column';
             }
 
-            this.togglePreview();
             return termData;
         }
 
@@ -358,8 +352,6 @@
             } else {
                 this.termType = 'column';
             }
-
-            this.togglePreview();
         }
 
         removeRenderedTerm(label) {
@@ -824,29 +816,6 @@
             setTimeout(() => element.reportValidity(), 0);
         }
 
-        togglePreview() {
-            switch (this.termType) {
-                case 'operator':
-                    this.previewedTerm = this.relational_operators[0];
-                    break;
-                case 'logical_operator':
-                    this.previewedTerm = this.logical_operators[0];
-                    break;
-                default:
-                    this.previewedTerm = null;
-            }
-
-            if (this.previewedTerm !== null) {
-                if (this.input.nextSibling !== null) {
-                    this.input.nextSibling.innerText = this.previewedTerm.label;
-                } else {
-                    this.input.after(this.renderPreview(this.previewedTerm.label));
-                }
-            } else if (this.input.nextSibling !== null) {
-                this.input.nextSibling.remove();
-            }
-        }
-
         renderSuggestions(suggestions) {
             let itemTemplate = $('<li><input type="button"></li>').render();
 
@@ -960,153 +929,128 @@
                 return;
             }
 
-            if (this.previewedTerm !== null) {
+            if (this.termType === 'operator' || this.termType === 'logical_operator') {
                 this.complete(this.input, { term: { label: '' } });
             }
         }
 
         onKeyDown(event) {
-            let input = event.target;
-            let isTerm = input.parentNode.dataset.index >= 0;
-
-            if (! isTerm && this.previewedTerm !== null && event.key === ' ' && ! this.readPartialTerm(input)) {
-                // Done early because pushing space in this case will already show suggestions.
-                // But in case of a previewed term, these should be for the next term type.
-                this.addTerm(this.previewedTerm);
-            }
-
             super.onKeyDown(event);
             if (event.defaultPrevented) {
                 return;
             }
 
-            switch (event.key) {
-                case 'Tab':
-                    if (! isTerm && this.previewedTerm !== null) {
-                        this.addTerm(this.previewedTerm);
-                        this.togglePlaceholder();
-                        event.preventDefault();
-                    }
+            let input = event.target;
+            let isTerm = input.parentNode.dataset.index >= 0;
 
-                    break;
-                default:
-                    let currentValue = this.readPartialTerm(input);
-                    if (isTerm && ! currentValue) {
-                        // Switching contexts requires input first
-                        break;
-                    } else if (input.selectionStart !== input.selectionEnd) {
-                        // In case the user selected a range of text, do nothing
-                        break;
-                    } else if (/[A-Z]/.test(event.key.charAt(0))) {
-                        // Ignore control keys not resulting in new input data
-                        // TODO: Remove this and move the entire block into `onInput`
-                        //       once Safari supports `InputEvent.data`
-                        break;
-                    }
+            let currentValue = this.readPartialTerm(input);
+            if (isTerm && ! currentValue) {
+                // Switching contexts requires input first
+                return;
+            } else if (input.selectionStart !== input.selectionEnd) {
+                // In case the user selected a range of text, do nothing
+                return;
+            } else if (/[A-Z]/.test(event.key.charAt(0))) {
+                // Ignore control keys not resulting in new input data
+                // TODO: Remove this and move the entire block into `onInput`
+                //       once Safari supports `InputEvent.data`
+                return;
+            }
 
-                    let termIndex = null;
-                    let termType = this.termType;
-                    if (isTerm) {
-                        if (input.selectionEnd === input.value.length) {
-                            // Cursor is at the end of the input
-                            termIndex = Number(input.parentNode.dataset.index);
-                            termType = input.parentNode.dataset.type;
-                        } else if (input.selectionStart === 0) {
-                            // Cursor is at the start of the input
-                            termIndex = Number(input.parentNode.dataset.index);
-                            if (termIndex === 0) {
-                                // TODO: This is bad, if it causes problems, replace it
-                                //       with a proper `previousOperator` implementation
-                                termType = this.usedTerms[termIndex].type;
-                                termIndex -= 1;
-                            } else {
-                                termIndex -= 1;
-                                termType = this.usedTerms[termIndex].type;
-                            }
-                        } else {
-                            // In case the cursor is somewhere in between, do nothing
+            let termIndex = null;
+            let termType = this.termType;
+            if (isTerm) {
+                if (input.selectionEnd === input.value.length) {
+                    // Cursor is at the end of the input
+                    termIndex = Number(input.parentNode.dataset.index);
+                    termType = input.parentNode.dataset.type;
+                } else if (input.selectionStart === 0) {
+                    // Cursor is at the start of the input
+                    termIndex = Number(input.parentNode.dataset.index);
+                    if (termIndex === 0) {
+                        // TODO: This is bad, if it causes problems, replace it
+                        //       with a proper `previousOperator` implementation
+                        termType = this.usedTerms[termIndex].type;
+                        termIndex -= 1;
+                    } else {
+                        termIndex -= 1;
+                        termType = this.usedTerms[termIndex].type;
+                    }
+                } else {
+                    // In case the cursor is somewhere in between, do nothing
+                    return;
+                }
+
+                if (termIndex > -1 && termIndex < this.usedTerms.length - 1) {
+                    let nextTerm = this.usedTerms[termIndex + 1];
+                    if (nextTerm.type === 'operator' || nextTerm.type === 'value') {
+                        // In between parts of a condition there's no context switch possible at all
+                        return;
+                    }
+                }
+            } else if (input.selectionEnd !== input.value.length) {
+                // Main input processing only happens at the end of the input
+                return;
+            }
+
+            let operators;
+            let value = event.key;
+            if (! isTerm || termType === 'operator') {
+                operators = this.validOperator(
+                    termType === 'operator' ? currentValue + value : value, termType, termIndex);
+                if (! operators.exactMatch && ! operators.partialMatches) {
+                    operators = this.nextOperator(value, termType, termIndex);
+                }
+            } else {
+                operators = this.nextOperator(value, termType, termIndex);
+            }
+
+            if (isTerm) {
+                if (operators.exactMatch && operators[0].label.toLowerCase() !== value.toLowerCase()) {
+                    // The user completes a partial match
+                } else if (operators.exactMatch && (termType !== 'operator' || operators[0].type !== 'operator')) {
+                    $(this.insertTerm({ ...operators[0] }, termIndex + 1)).focus();
+                    event.preventDefault();
+                } else if (operators.partialMatches && termType !== 'operator') {
+                    let termData = { ...operators[0] };
+                    termData.label = termData.search = value;
+                    $(this.insertTerm(termData, termIndex + 1)).focus();
+                    event.preventDefault();
+                } else {
+                    // If no match is found, the user continues typing
+                    switch (termType) {
+                        case 'operator':
+                            $(this.insertTerm({ label: value, search: value, type: 'value' }, termIndex + 1)).focus();
+                            event.preventDefault();
                             break;
-                        }
-
-                        if (termIndex > -1 && termIndex < this.usedTerms.length - 1) {
-                            let nextTerm = this.usedTerms[termIndex + 1];
-                            if (nextTerm.type === 'operator' || nextTerm.type === 'value') {
-                                // In between parts of a condition there's no context switch possible at all
-                                break;
-                            }
-                        }
-                    } else if (input.selectionEnd !== input.value.length) {
-                        // Main input processing only happens at the end of the input
-                        break;
+                        case 'logical_operator':
+                            $(this.insertTerm({ label: value, search: value, type: 'column' }, termIndex + 1)).focus();
+                            event.preventDefault();
+                            break;
                     }
-
-                    let operators;
-                    let value = event.key;
-                    if (! isTerm || termType === 'operator') {
-                        operators = this.validOperator(
-                            termType === 'operator' ? currentValue + value : value, termType, termIndex);
-                        if (! operators.exactMatch && ! operators.partialMatches) {
-                            operators = this.nextOperator(value, termType, termIndex);
-                        }
+                }
+            } else {
+                if (operators.partialMatches) {
+                    this.exchangeTerm();
+                    this.togglePlaceholder();
+                } else if (operators.exactMatch) {
+                    if (termType !== operators[0].type) {
+                        this.exchangeTerm();
                     } else {
-                        operators = this.nextOperator(value, termType, termIndex);
+                        this.clearPartialTerm(input);
                     }
 
-                    if (isTerm) {
-                        if (operators.exactMatch && operators[0].label.toLowerCase() !== value.toLowerCase()) {
-                            // The user completes a partial match
-                        } else if (operators.exactMatch && (
-                            termType !== 'operator' || operators[0].type !== 'operator'
-                        )) {
-                            $(this.insertTerm({ ...operators[0] }, termIndex + 1)).focus();
-                            event.preventDefault();
-                        } else if (operators.partialMatches && termType !== 'operator') {
-                            let termData = { ...operators[0] };
-                            termData.label = termData.search = value;
-                            $(this.insertTerm(termData, termIndex + 1)).focus();
-                            event.preventDefault();
-                        } else {
-                            // If no match is found, the user continues typing
-                            switch (termType) {
-                                case 'operator':
-                                    $(this.insertTerm(
-                                        { label: value, search: value, type: 'value' },
-                                        termIndex + 1
-                                    )).focus();
-                                    event.preventDefault();
-                                    break;
-                                case 'logical_operator':
-                                    $(this.insertTerm(
-                                        { label: value, search: value, type: 'column' },
-                                        termIndex + 1
-                                    )).focus();
-                                    event.preventDefault();
-                                    break;
-                            }
-                        }
-                    } else {
-                        if (operators.partialMatches) {
-                            this.exchangeTerm();
-                            this.togglePlaceholder();
-                        } else if (operators.exactMatch) {
-                            if (termType !== operators[0].type) {
-                                this.exchangeTerm();
-                            } else {
-                                this.clearPartialTerm(input);
-                            }
-
-                            this.addTerm({ ...operators[0] });
-                            this.togglePlaceholder();
-                            event.preventDefault();
-                        } else if (termType === 'operator') {
-                            let partialOperator = this.getOperator(currentValue);
-                            if (partialOperator !== null) {
-                                // If no match is found, the user seems to want the partial operator.
-                                this.addTerm({ ...partialOperator });
-                                this.clearPartialTerm(input);
-                            }
-                        }
+                    this.addTerm({ ...operators[0] });
+                    this.togglePlaceholder();
+                    event.preventDefault();
+                } else if (termType === 'operator') {
+                    let partialOperator = this.getOperator(currentValue);
+                    if (partialOperator !== null) {
+                        // If no match is found, the user seems to want the partial operator.
+                        this.addTerm({ ...partialOperator });
+                        this.clearPartialTerm(input);
                     }
+                }
             }
         }
 
@@ -1120,11 +1064,16 @@
 
             let isTerm = input.parentNode.dataset.index >= 0;
 
-            if (! isTerm && this.previewedTerm !== null) {
+            if (! isTerm && (this.termType === 'operator' || this.termType === 'logical_operator')) {
                 let value = this.readPartialTerm(input);
+
                 if (value && ! this.validOperator(value).partialMatches) {
-                    if (value !== this.previewedTerm.label) {
-                        this.addTerm(this.previewedTerm);
+                    let defaultTerm = this.termType === 'operator'
+                        ? { ...this.relational_operators[0] }
+                        : { ...this.logical_operators[0] };
+
+                    if (value !== defaultTerm.label) {
+                        this.addTerm(defaultTerm);
                         this.togglePlaceholder();
                     } else {
                         this.exchangeTerm();
