@@ -34,7 +34,7 @@
              * @type {{}[]}
              */
             this.logical_operators = [
-                { label: '&', search: '&', class: 'logical_operator', type: 'logical_operator' },
+                { label: '&', search: '&', class: 'logical_operator', type: 'logical_operator', default: true },
                 { label: '|', search: '|', class: 'logical_operator', type: 'logical_operator' },
             ];
 
@@ -46,7 +46,7 @@
              * @type {{}[]}
              */
             this.relational_operators = [
-                { label: '=', search: '=', class: 'operator', type: 'operator' },
+                { label: '=', search: '=', class: 'operator', type: 'operator', default: true },
                 { label: '!=', search: '!=', class: 'operator', type: 'operator' },
                 { label: '>', search: '>', class: 'operator', type: 'operator' },
                 { label: '<', search: '<', class: 'operator', type: 'operator' },
@@ -857,7 +857,13 @@
                 item.firstChild.value = term.label;
 
                 for (let name in term) {
-                    item.firstChild.dataset[name] = term[name];
+                    if (name === 'default') {
+                        if (term[name]) {
+                            item.classList.add('default');
+                        }
+                    } else {
+                        item.firstChild.dataset[name] = term[name];
+                    }
                 }
 
                 list.appendChild(item);
@@ -988,7 +994,7 @@
                     if (isTerm && ! currentValue) {
                         // Switching contexts requires input first
                         break;
-                    }else if (input.selectionStart !== input.selectionEnd) {
+                    } else if (input.selectionStart !== input.selectionEnd) {
                         // In case the user selected a range of text, do nothing
                         break;
                     } else if (/[A-Z]/.test(event.key.charAt(0))) {
