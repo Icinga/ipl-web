@@ -145,7 +145,7 @@
             }
         }
 
-        requestCompletion(input, data, continuous = false) {
+        requestCompletion(input, data) {
             this.abort();
 
             this.nextSuggestion = setTimeout(() => {
@@ -166,18 +166,7 @@
                 req.addEventListener('loadend', () => {
                     if (req.readyState > 0) {
                         if (req.responseText) {
-                            let suggestions = this.renderSuggestions(req.responseText);
-
-                            if (continuous) {
-                                let options = suggestions.querySelectorAll('[type="button"]');
-                                if (options.length === 1 && options[0].value === this.completedValue) {
-                                    this.complete(input, options[0].value, { ...options[0].dataset });
-                                } else {
-                                    this.showSuggestions(suggestions, input);
-                                }
-                            } else {
-                                this.showSuggestions(suggestions, input);
-                            }
+                            this.showSuggestions(this.renderSuggestions(req.responseText), input);
                         } else {
                             this.hideSuggestions();
                         }
@@ -270,18 +259,6 @@
 
         onSuggestionKeyDown(event) {
             switch (event.key) {
-                case 'Tab':
-                    event.preventDefault();
-                    let input = event.target;
-
-                    $(this.completedInput).focus();
-                    this.suggest(this.completedInput, input.value, { ...input.dataset });
-
-                    let [value, data] = this.prepareCompletionData(input);
-                    this.completedValue = value;
-                    this.completedData.term = data.term;
-                    this.requestCompletion(this.completedInput, this.completedData, true);
-                    break;
                 case 'Escape':
                     $(this.completedInput).focus();
                     this.suggest(this.completedInput, this.completedValue);
@@ -318,6 +295,7 @@
 
                         this.complete(input, suggestion.value, { ...suggestion.dataset });
                     }
+
                     break;
                 case 'Escape':
                     this.hideSuggestions();
@@ -328,6 +306,7 @@
                         event.preventDefault();
                         this.moveToSuggestion(true);
                     }
+
                     break;
                 case 'ArrowDown':
                     suggestions = this.termSuggestions.querySelectorAll('[type="button"]');
@@ -335,6 +314,7 @@
                         event.preventDefault();
                         this.moveToSuggestion();
                     }
+
                     break;
                 default:
                     if (/[A-Z]/.test(event.key.charAt(0)) || event.key === '"') {
