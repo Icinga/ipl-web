@@ -462,8 +462,8 @@
         }
 
         complete(input, data) {
-            let termIndex = input.parentNode.dataset.index;
-            if (termIndex) {
+            let termIndex = Number(input.parentNode.dataset.index);
+            if (termIndex >= 0) {
                 data.term.type = this.usedTerms[termIndex].type;
             } else {
                 termIndex = this.usedTerms.length;
@@ -1028,7 +1028,9 @@
                 }
 
                 if (newTerm !== null) {
-                    $(this.insertTerm(newTerm, termIndex + 1).firstChild).focus({ scripted: true });
+                    let label = this.insertTerm(newTerm, termIndex + 1);
+                    this.complete(label.firstChild, { term: newTerm });
+                    $(label.firstChild).focus({ scripted: true });
                     event.preventDefault();
                 }
             } else {
