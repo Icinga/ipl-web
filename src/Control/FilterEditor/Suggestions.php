@@ -20,6 +20,9 @@ class Suggestions extends BaseHtmlElement
 
     protected $tag = 'ul';
 
+    /** @var string */
+    protected $searchTerm;
+
     /** @var Traversable */
     protected $data;
 
@@ -28,6 +31,13 @@ class Suggestions extends BaseHtmlElement
 
     /** @var string */
     protected $type;
+
+    public function setSearchTerm($term)
+    {
+        $this->searchTerm = $term;
+
+        return $this;
+    }
 
     public function setData($data)
     {
@@ -141,13 +151,11 @@ class Suggestions extends BaseHtmlElement
             ]);
         }
 
-        $this->add(new HtmlElement('li', ['class' => 'default'], $button));
+        $this->prepend(new HtmlElement('li', ['class' => 'default'], $button));
     }
 
     protected function assemble()
     {
-        $this->assembleDefault();
-
         if ($this->data instanceof Paginatable) {
             $this->data->limit(self::DEFAULT_LIMIT);
             $data = $this->data;
@@ -187,6 +195,18 @@ class Suggestions extends BaseHtmlElement
 
         if ($this->hasMore($data, self::DEFAULT_LIMIT)) {
             $this->getAttributes()->add('class', 'has-more');
+        }
+
+        $showDefault = true;
+        if ($this->searchTerm && $this->count() === 1) {
+            // The default option is only shown if the user's input does not result in an exact match
+            $input = $this->getFirst('li')->getFirst('input');
+            $showDefault = $input->getValue() !== $this->searchTerm
+                && $input->getAttributes()->get('data-search')->getValue() !== $this->searchTerm;
+        }
+
+        if ($showDefault) {
+            $this->assembleDefault();
         }
     }
 
