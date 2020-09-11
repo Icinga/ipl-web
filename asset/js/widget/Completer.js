@@ -305,7 +305,6 @@
                     }
 
                     break;
-                case ' ':
                 case 'Enter':
                     let defaultSuggestion = this.termSuggestions.querySelector('.default > [type="button"]');
                     if (defaultSuggestion !== null) {
