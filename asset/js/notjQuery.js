@@ -47,6 +47,15 @@
                 });
             } else {
                 this.element.addEventListener(type, e => {
+                    if (type === 'focusin' && e.target.receivesCustomFocus) {
+                        // Ignore native focus event if a custom one follows
+                        if (e instanceof FocusEvent) {
+                            delete e.target.receivesCustomFocus;
+                            e.stopImmediatePropagation();
+                            return;
+                        }
+                    }
+
                     Object.defineProperty(e, 'currentTarget', { value: e.currentTarget, writable: true });
 
                     let currentParent = e.currentTarget.parentNode;
@@ -86,10 +95,25 @@
 
         /**
          * Focus the element
+         *
+         * Any other option than `preventScroll` is used as `event.detail`.
+         *
+         * @param {{}} options
          */
-        focus() {
+        focus(options = {}) {
+            let { preventScroll = false, ...data } = options;
+
+            const hasData = Object.keys(data).length > 0;
+            if (hasData) {
+                this.element.receivesCustomFocus = true;
+            }
+
             // Put separately on the event loop because focus() forces layout.
-            setTimeout(() => this.element.focus(), 0);
+            setTimeout(() => this.element.focus({ preventScroll: preventScroll }), 0);
+
+            if (hasData) {
+                this.trigger('focusin', data);
+            }
         }
 
         /**
