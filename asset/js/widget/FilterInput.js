@@ -71,7 +71,6 @@
         }
 
         bind() {
-            $(this.termContainer).on('focusin', '[data-index]', this.onTermFocus, this);
             $(this.termContainer).on('click', '[data-group-type="condition"] > button', this.onRemoveCondition, this);
             return super.bind();
         }
@@ -363,7 +362,6 @@
                 }
 
                 // If the parent is a group and the label is the only child, we can remove the entire group
-                label.firstChild.skipSaveOnBlur = true;
                 parent.remove();
             } else {
                 if (label.dataset.index >= this.usedTerms.length) {
@@ -478,9 +476,8 @@
                     return;
                 case 'operator':
                 case 'logical_operator':
-                    data.suggestions = this.renderSuggestions(
-                        this.validOperator(data.term.label, data.term.type, termIndex)
-                    );
+                    data.suggestions = this.renderSuggestions(this.validOperator(
+                        data.trigger === 'script' ? '': data.term.label, data.term.type, termIndex));
             }
 
             // Additional metadata
@@ -881,9 +878,14 @@
          */
 
         onTermFocus(event) {
-            if (! this.checkValidity(event.target)) {
-                this.reportValidity(event.target);
+            let input = event.target;
+            let termType = input.parentNode.dataset.type || this.termType;
+
+            if (! this.checkValidity(input, termType) && termType !== 'operator' && termType !== 'logical_operator') {
+                this.reportValidity(input);
             }
+
+            super.onTermFocus(event);
         }
 
         onRemoveCondition(event) {
@@ -1009,22 +1011,26 @@
                 if (operators.exactMatch && operators[0].label.toLowerCase() !== value.toLowerCase()) {
                     // The user completes a partial match
                 } else if (operators.exactMatch && (termType !== 'operator' || operators[0].type !== 'operator')) {
-                    $(this.insertTerm({ ...operators[0] }, termIndex + 1)).focus();
+                    $(this.insertTerm({ ...operators[0] }, termIndex + 1)).focus({ scripted: true });
                     event.preventDefault();
                 } else if (operators.partialMatches && termType !== 'operator') {
                     let termData = { ...operators[0] };
                     termData.label = termData.search = value;
-                    $(this.insertTerm(termData, termIndex + 1)).focus();
+                    $(this.insertTerm(termData, termIndex + 1)).focus({ scripted: true });
                     event.preventDefault();
                 } else {
                     // If no match is found, the user continues typing
                     switch (termType) {
                         case 'operator':
-                            $(this.insertTerm({ label: value, search: value, type: 'value' }, termIndex + 1)).focus();
+                            $(this.insertTerm(
+                                { label: value, search: value, type: 'value' }, termIndex + 1)
+                            ).focus({ scripted: true });
                             event.preventDefault();
                             break;
                         case 'logical_operator':
-                            $(this.insertTerm({ label: value, search: value, type: 'column' }, termIndex + 1)).focus();
+                            $(this.insertTerm(
+                                { label: value, search: value, type: 'column' }, termIndex + 1)
+                            ).focus({ scripted: true });
                             event.preventDefault();
                             break;
                     }

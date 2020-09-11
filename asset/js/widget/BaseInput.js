@@ -47,6 +47,7 @@
             $form.on('keydown', '[data-label]', this.onKeyDown, this);
             $form.on('keyup', '[data-label]', this.onKeyUp, this);
             $form.on('focusout', '[data-index]', this.onTermBlur, this);
+            $form.on('focusin', '[data-index]', this.onTermFocus, this);
 
             // Copy/Paste
             $(this.input).on('paste', this.onPaste, this);
@@ -614,6 +615,24 @@
             if (typeof input.skipSaveOnBlur === 'undefined' || ! input.skipSaveOnBlur) {
                 this.saveTerm(input);
             }
+        }
+
+        onTermFocus(event) {
+            if (event.detail.scripted) {
+                // Only request suggestions if the user manually focuses the term
+                return;
+            }
+
+            let input = event.target;
+            let termType = input.parentNode.dataset.type || this.termType;
+
+            let value = this.readPartialTerm(input);
+            if (! value && (termType === 'column' || termType === 'value')) {
+                // No automatic suggestions without input
+                return;
+            }
+
+            this.complete(input, { trigger: 'script', term: { label: value } });
         }
 
         onButtonClick(event) {
