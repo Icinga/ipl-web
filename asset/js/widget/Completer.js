@@ -146,7 +146,7 @@
             }
         }
 
-        requestCompletion(input, data) {
+        requestCompletion(input, data, trigger = 'user') {
             this.abort();
 
             this.nextSuggestion = setTimeout(() => {
@@ -167,7 +167,17 @@
                 req.addEventListener('loadend', () => {
                     if (req.readyState > 0) {
                         if (req.responseText) {
-                            this.showSuggestions(this.renderSuggestions(req.responseText), input);
+                            let suggestions = this.renderSuggestions(req.responseText);
+                            if (trigger === 'script') {
+                                // If the suggestions are to be displayed due to a scripted event,
+                                // show them only if there are multiple options available
+                                let options = suggestions.querySelectorAll('[type="button"]');
+                                if (options.length > 1) {
+                                    this.showSuggestions(suggestions, input);
+                                }
+                            } else {
+                                this.showSuggestions(suggestions, input);
+                            }
                         } else {
                             this.hideSuggestions();
                         }
@@ -196,7 +206,7 @@
         }
 
         complete(input, value, data) {
-            $(input).focus();
+            $(input).focus({ scripted: true });
 
             if (this.instrumented) {
                 $(input).trigger('completion', data);
@@ -261,7 +271,7 @@
         onSuggestionKeyDown(event) {
             switch (event.key) {
                 case 'Escape':
-                    $(this.completedInput).focus();
+                    $(this.completedInput).focus({ scripted: true });
                     this.suggest(this.completedInput, this.completedValue);
                     break;
                 case 'Tab':
@@ -359,8 +369,9 @@
 
         onComplete(event) {
             let input = event.target;
+            let { trigger = 'user' , ...detail } = event.detail;
 
-            let [value, data] = this.prepareCompletionData(input, event.detail);
+            let [value, data] = this.prepareCompletionData(input, detail);
             this.completedInput = input;
             this.completedValue = value;
             this.completedData = data;
@@ -368,7 +379,7 @@
             if (typeof data.suggestions !== 'undefined') {
                 this.showSuggestions(data.suggestions, input);
             } else {
-                this.requestCompletion(input, data);
+                this.requestCompletion(input, data, trigger);
             }
         }
     }
