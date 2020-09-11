@@ -201,8 +201,8 @@ class Suggestions extends BaseHtmlElement
         if ($this->searchTerm && $this->count() === 1) {
             // The default option is only shown if the user's input does not result in an exact match
             $input = $this->getFirst('li')->getFirst('input');
-            $showDefault = $input->getValue() !== $this->searchTerm
-                && $input->getAttributes()->get('data-search')->getValue() !== $this->searchTerm;
+            $showDefault = $input->getValue() != $this->searchTerm
+                && $input->getAttributes()->get('data-search')->getValue() != $this->searchTerm;
         }
 
         if ($showDefault) {
