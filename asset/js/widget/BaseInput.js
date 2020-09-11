@@ -613,7 +613,11 @@
             // If saveTerm would remove the input as well, the other removal will fail
             // without any chance to handle it. (Element.remove() blurs the input)
             if (typeof input.skipSaveOnBlur === 'undefined' || ! input.skipSaveOnBlur) {
-                this.saveTerm(input);
+                setTimeout(() => {
+                    if (this.completer === null || ! this.completer.isBeingCompleted(input)) {
+                        this.saveTerm(input);
+                    }
+                }, 0);
             }
         }
 
