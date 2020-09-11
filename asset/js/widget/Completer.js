@@ -246,6 +246,10 @@
             return input;
         }
 
+        isBeingCompleted(input) {
+            return input === this.completedInput && this.termSuggestions.contains(document.activeElement);
+        }
+
         /**
          * Event listeners
          */
