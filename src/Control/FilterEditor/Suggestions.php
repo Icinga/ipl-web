@@ -94,7 +94,7 @@ class Suggestions extends BaseHtmlElement
                 $terms[] = [
                     'search'    => $child->getSign(),
                     'label'     => $child->getSign(),
-                    'type'      => 'relational_operator'
+                    'type'      => 'operator'
                 ];
                 $terms[] = [
                     'search'    => $child->getExpression(),
