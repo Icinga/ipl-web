@@ -1008,32 +1008,28 @@
             }
 
             if (isTerm) {
+                let newTerm = null;
                 if (operators.exactMatch && operators[0].label.toLowerCase() !== value.toLowerCase()) {
                     // The user completes a partial match
                 } else if (operators.exactMatch && (termType !== 'operator' || operators[0].type !== 'operator')) {
-                    $(this.insertTerm({ ...operators[0] }, termIndex + 1)).focus({ scripted: true });
-                    event.preventDefault();
+                    newTerm = { ...operators[0] };
                 } else if (operators.partialMatches && termType !== 'operator') {
-                    let termData = { ...operators[0] };
-                    termData.label = termData.search = value;
-                    $(this.insertTerm(termData, termIndex + 1)).focus({ scripted: true });
-                    event.preventDefault();
+                    newTerm = { ...operators[0], label: value, search: value };
                 } else {
                     // If no match is found, the user continues typing
                     switch (termType) {
                         case 'operator':
-                            $(this.insertTerm(
-                                { label: value, search: value, type: 'value' }, termIndex + 1)
-                            ).focus({ scripted: true });
-                            event.preventDefault();
+                            newTerm = { label: value, search: value, type: 'value' };
                             break;
                         case 'logical_operator':
-                            $(this.insertTerm(
-                                { label: value, search: value, type: 'column' }, termIndex + 1)
-                            ).focus({ scripted: true });
-                            event.preventDefault();
+                            newTerm = { label: value, search: value, type: 'column' };
                             break;
                     }
+                }
+
+                if (newTerm !== null) {
+                    $(this.insertTerm(newTerm, termIndex + 1).firstChild).focus({ scripted: true });
+                    event.preventDefault();
                 }
             } else {
                 if (operators.partialMatches) {
