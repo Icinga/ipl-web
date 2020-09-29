@@ -28,24 +28,28 @@
             return this._termSuggestions;
         }
 
-        bind() {
-            let $form = $(this.input.form);
-            let termSuggestions = this.input.dataset.termSuggestions;
-
+        bind(to = null) {
             // Form submissions
-            $form.on('submit', this.onSubmit, this);
+            $(this.input.form).on('submit', this.onSubmit, this);
 
             // User interactions
-            $form.on('focusout', 'input[type="text"]', this.onFocusOut, this);
-            $form.on('keydown', 'input[type="text"]', this.onKeyDown, this);
-            $form.on('click', termSuggestions + ' [type="button"]', this.onSuggestionClick, this);
-            $form.on('keydown', termSuggestions + ' [type="button"]', this.onSuggestionKeyDown, this);
+            $(this.termSuggestions).on('click', '[type="button"]', this.onSuggestionClick, this);
+            $(this.termSuggestions).on('keydown', '[type="button"]', this.onSuggestionKeyDown, this);
 
             if (this.instrumented) {
-                $form.on('complete', 'input[type="text"]', this.onComplete, this);
+                if (to !== null) {
+                    $(to).on('focusout', 'input[type="text"]', this.onFocusOut, this);
+                    $(to).on('keydown', 'input[type="text"]', this.onKeyDown, this);
+                    $(to).on('complete', 'input[type="text"]', this.onComplete, this);
+                }
+
+                $(this.input).on('complete', this.onComplete, this);
             } else {
-                $form.on('input', 'input[type="text"]', this.onInput, this);
+                $(this.input).on('input', this.onInput, this);
             }
+
+            $(this.input).on('focusout', this.onFocusOut, this);
+            $(this.input).on('keydown', this.onKeyDown, this);
 
             return this;
         }
