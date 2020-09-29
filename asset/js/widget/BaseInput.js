@@ -36,18 +36,19 @@
         }
 
         bind() {
-            let $form = $(this.input.form);
-
             // Form submissions
-            $form.on('submit', this.onSubmit, this);
-            $form.on('click', 'button, input[type="submit"]', this.onButtonClick, this);
+            $(this.input.form).on('submit', this.onSubmit, this);
+            $(this.input.form).on('click', 'button, input[type="submit"]', this.onButtonClick, this);
 
             // User interactions
-            $form.on('input', '[data-label]', this.onInput, this);
-            $form.on('keydown', '[data-label]', this.onKeyDown, this);
-            $form.on('keyup', '[data-label]', this.onKeyUp, this);
-            $form.on('focusout', '[data-index]', this.onTermBlur, this);
-            $form.on('focusin', '[data-index]', this.onTermFocus, this);
+            $(this.input).on('input', this.onInput, this);
+            $(this.input).on('keydown', this.onKeyDown, this);
+            $(this.input).on('keyup', this.onKeyUp, this);
+            $(this.termContainer).on('input', '[data-label]', this.onInput, this);
+            $(this.termContainer).on('keydown', '[data-label]', this.onKeyDown, this);
+            $(this.termContainer).on('keyup', '[data-label]', this.onKeyUp, this);
+            $(this.termContainer).on('focusout', '[data-index]', this.onTermBlur, this);
+            $(this.termContainer).on('focusin', '[data-index]', this.onTermFocus, this);
 
             // Copy/Paste
             $(this.input).on('paste', this.onPaste, this);
@@ -58,11 +59,13 @@
             if (this.input.dataset.termCompletion) {
                 if (this.completer === null) {
                     this.completer = new Completer(this.input, true);
-                    this.completer.bind();
+                    this.completer.bind(this.termContainer);
                 }
 
-                $form.on('suggestion', '[data-label]', this.onSuggestion, this);
-                $form.on('completion', '[data-label]', this.onCompletion, this);
+                $(this.input).on('suggestion', this.onSuggestion, this);
+                $(this.input).on('completion', this.onCompletion, this);
+                $(this.termContainer).on('suggestion', '[data-label]', this.onSuggestion, this);
+                $(this.termContainer).on('completion', '[data-label]', this.onCompletion, this);
             }
 
             return this;
