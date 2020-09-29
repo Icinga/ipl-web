@@ -13,7 +13,6 @@
             super(input);
 
             this.termType = 'column';
-            this._currentGroup = null;
 
             /**
              * Supported grouping operators
@@ -54,22 +53,6 @@
             ];
         }
 
-        set currentGroup(value) {
-            if (value !== this.termContainer) {
-                this._currentGroup = value;
-            } else {
-                this._currentGroup = null;
-            }
-        }
-
-        get currentGroup() {
-            if (this._currentGroup !== null) {
-                return this._currentGroup;
-            }
-
-            return this.termContainer;
-        }
-
         bind() {
             $(this.termContainer).on('click', '[data-group-type="condition"] > button', this.onRemoveCondition, this);
             return super.bind();
@@ -79,18 +62,9 @@
             super.reset();
 
             this.termType = 'column';
-            this._currentGroup = null;
-        }
-
-        destroy() {
-            super.destroy();
-
-            this._currentGroup = null;
         }
 
         restoreTerms() {
-            this._currentGroup = null;
-
             if (super.restoreTerms()) {
                 this.reportValidity(this.input.form);
                 return true;
@@ -222,7 +196,6 @@
                             } else {
                                 // newGroup should be now the only child then
                                 this.termContainer.appendChild(newGroup);
-                                this.currentGroup = newGroup;
                             }
                         }
                     } else {
@@ -251,43 +224,21 @@
 
         addRenderedTerm(label) {
             let newGroup = null;
-            let leaveGroup = false;
-
             switch (label.dataset.type) {
                 case 'column':
                     newGroup = this.renderCondition();
                     break;
-                case 'value':
-                    leaveGroup = true;
-                    break;
-                case 'logical_operator':
-                    if (this.currentGroup.dataset.groupType === 'condition') {
-                        this.currentGroup = this.currentGroup.parentNode;
-                    }
-
-                    break;
                 case 'grouping_operator':
                     if (this.isGroupOpen(label.dataset)) {
                         newGroup = this.renderChain();
-                    } else {
-                        if (this.currentGroup.dataset.groupType === 'condition') {
-                            this.currentGroup = this.currentGroup.parentNode;
-                        }
-
-                        leaveGroup = true;
                     }
             }
 
             if (newGroup !== null) {
                 newGroup.appendChild(label);
                 this.currentGroup.appendChild(newGroup);
-                this.currentGroup = newGroup;
             } else {
                 this.currentGroup.appendChild(label);
-            }
-
-            if (leaveGroup) {
-                this.currentGroup = this.currentGroup.parentNode;
             }
         }
 
@@ -357,32 +308,9 @@
             let parent = label.parentNode;
             let children = parent.querySelectorAll(':scope > [data-index], :scope > [data-group-type]');
             if (parent.dataset.groupType && children.length === 1) {
-                if (this.currentGroup === parent) {
-                    this.currentGroup = parent.parentNode;
-                }
-
                 // If the parent is a group and the label is the only child, we can remove the entire group
                 parent.remove();
             } else {
-                if (label.dataset.index >= this.usedTerms.length) {
-                    // It's been the last term
-                    switch (label.dataset.type) {
-                        case 'grouping_operator':
-                            if (this.isGroupClose(label.dataset)) {
-                                // TODO: This should be done on demand, get rid of currentGroup please..
-                                let groupOpenAt = this.lastPendingGroupOpen(Number(label.dataset.index));
-                                if (groupOpenAt) {
-                                    let groupOpen = this.termContainer.querySelector(`[data-index="${ groupOpenAt }"]`);
-                                    this.currentGroup = groupOpen.parentNode;
-                                    break;
-                                }
-                            }
-                        case 'operator':
-                        case 'value':
-                            this.currentGroup = parent;
-                    }
-                }
-
                 super.removeRenderedTerm(label);
 
                 if (parent.dataset.groupType === 'chain') {
@@ -391,10 +319,6 @@
                     let hasNoGroupOperators = children[0].dataset.type !== 'grouping_operator'
                         && children[children.length - 1].dataset.type !== 'grouping_operator';
                     if (hasNoGroupOperators) {
-                        if (this.currentGroup === parent) {
-                            this.currentGroup = parent.parentNode;
-                        }
-
                         // Unwrap remaining terms, remove the resulting empty group
                         Array.from(children).forEach(child => parent.parentNode.insertBefore(child, parent));
                         parent.remove();
@@ -418,10 +342,6 @@
                     }
 
                     if (counterpartIndex <= to) {
-                        if (this.currentGroup === parent) {
-                            this.currentGroup = parent.parentNode;
-                        }
-
                         // If the parent's terms are all to be removed, we'll remove the
                         // entire parent to keep the DOM operations as efficient as possible
                         parent.remove();
@@ -504,6 +424,25 @@
                 case 'grouping_operator':
                     return this.isGroupOpen(termData) ? 'column' : 'logical_operator';
             }
+        }
+
+        get currentGroup() {
+            let label = Array.from(this.termContainer.querySelectorAll('[data-index]')).pop();
+            if (! label) {
+                return this.termContainer;
+            }
+
+            let termData = this.usedTerms[label.dataset.index];
+            switch (termData.type) {
+                case 'grouping_operator':
+                    if (this.isGroupOpen(termData)) {
+                        break;
+                    }
+                case 'value':
+                    return label.parentNode.parentNode;
+            }
+
+            return label.parentNode;
         }
 
         lastPendingGroupOpen(before) {
