@@ -23,9 +23,6 @@ class SearchBar extends Form
     /** @var string */
     protected $searchParameter;
 
-    /** @var array */
-    protected $searchColumns;
-
     /** @var Url */
     protected $suggestionUrl;
 
@@ -79,29 +76,6 @@ class SearchBar extends Form
     public function getSearchParameter()
     {
         return $this->searchParameter ?: 'q';
-    }
-
-    /**
-     * Set the search columns to use
-     *
-     * @param   array $columns
-     * @return  $this
-     */
-    public function setSearchColumns(array $columns)
-    {
-        $this->searchColumns = $columns;
-
-        return $this;
-    }
-
-    /**
-     * Get the search columns in use
-     *
-     * @return array
-     */
-    public function getSearchColumns()
-    {
-        return $this->searchColumns ?: [];
     }
 
     /**
@@ -226,13 +200,6 @@ class SearchBar extends Form
                         $probablyValidQueryString = substr($q, 0, $charAt);
                         $this->setFilter(Filter::fromQueryString($probablyValidQueryString));
                         return false;
-                    }
-
-                    if ($filter->isExpression() && $filter->getExpression() === true) {
-                        $filter = Filter::matchAny();
-                        foreach ($this->getSearchColumns() as $column) {
-                            $filter->addFilter(Filter::where($column, "*$q*"));
-                        }
                     }
 
                     $this->setFilter($filter);
