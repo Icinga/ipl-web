@@ -167,13 +167,14 @@ class SearchBar extends Form
             });
         }
 
-        $searchInput = new InputElement($this->getSearchParameter(), [
+        $filterInput = new InputElement($this->getSearchParameter(), [
             'type'                  => 'text',
             'placeholder'           => 'type something..',
-            'class'                 => 'search-input',
+            'class'                 => 'filter-input',
             'id'                    => $searchInputId,
             'autocomplete'          => 'off',
-            'data-term-completion'  => 'full',
+            'data-enrichment-type'  => 'filter',
+            'data-term-completion'  => true,
             'data-term-input'       => '#' . $termInputId,
             'data-term-container'   => '#' . $termContainerId,
             'data-term-suggestions' => '#' . $suggestionsId,
@@ -208,12 +209,12 @@ class SearchBar extends Form
             ]
         ]);
 
-        $this->registerElement($searchInput);
+        $this->registerElement($filterInput);
 
         $this->add([
             $termContainer,
             $termInput,
-            new HtmlElement('label', ['data-label' => ''], $searchInput),
+            new HtmlElement('label', ['data-label' => ''], $filterInput),
             new SubmitElement('submit', ['label' => $this->getSubmitLabel()]),
             new HtmlElement('div', [
                 'id'                => $suggestionsId,
