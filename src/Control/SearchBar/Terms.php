@@ -1,6 +1,6 @@
 <?php
 
-namespace ipl\Web\Control\FilterEditor;
+namespace ipl\Web\Control\SearchBar;
 
 use Icinga\Data\Filter\Filter;
 use Icinga\Data\Filter\FilterChain;

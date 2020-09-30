@@ -10,12 +10,12 @@ use ipl\Html\FormElement\InputElement;
 use ipl\Html\FormElement\SubmitElement;
 use ipl\Html\HtmlElement;
 use ipl\Validator\CallbackValidator;
-use ipl\Web\Control\FilterEditor\Terms;
+use ipl\Web\Control\SearchBar\Terms;
 use ipl\Web\Url;
 
-class FilterEditor extends Form
+class SearchBar extends Form
 {
-    protected $defaultAttributes = ['class' => 'completion', 'role' => 'search'];
+    protected $defaultAttributes = ['class' => 'search-bar', 'role' => 'search'];
 
     /** @var Filter */
     protected $filter;
