@@ -1,6 +1,6 @@
 <?php
 
-namespace ipl\Web\Control\FilterEditor;
+namespace ipl\Web\Control\SearchBar;
 
 use Countable;
 use Icinga\Data\Filter\FilterChain;
