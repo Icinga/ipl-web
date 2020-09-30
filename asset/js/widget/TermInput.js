@@ -10,7 +10,7 @@
 
     class TermInput extends BaseInput {
         constructor(input) {
-            super(input)
+            super(input);
 
             this.separator = ' ';
             this.ignoreSpaceUntil = null;

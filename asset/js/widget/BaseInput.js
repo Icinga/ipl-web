@@ -56,7 +56,7 @@
             $(this.input).on('cut', this.onCopyAndCut, this);
 
             // Should terms be completed?
-            if (this.input.dataset.termCompletion) {
+            if ('termCompletion' in this.input.dataset) {
                 if (this.completer === null) {
                     this.completer = new Completer(this.input, true);
                     this.completer.bind(this.termContainer);
