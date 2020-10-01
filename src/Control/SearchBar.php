@@ -176,11 +176,9 @@ class SearchBar extends Form
             'id'                    => $searchInputId,
             'autocomplete'          => 'off',
             'data-enrichment-type'  => 'filter',
-            'data-term-completion'  => true,
             'data-term-input'       => '#' . $termInputId,
             'data-term-container'   => '#' . $termContainerId,
             'data-term-suggestions' => '#' . $suggestionsId,
-            'data-suggest-url'      => $this->getSuggestionUrl(),
             'data-missing-log-op'   => t('Please add a logical operator on the left.'),
             'data-incomplete-group' => t('Please close or remove this group.'),
             'data-choose-template'  => t('Please type one of: %s', '..<comma separated list>'),
@@ -210,6 +208,9 @@ class SearchBar extends Form
                 })
             ]
         ]);
+        if (($suggestionUrl = $this->getSuggestionUrl()) !== null) {
+            $filterInput->setAttribute('data-suggest-url', $suggestionUrl);
+        }
 
         $this->registerElement($filterInput);
 
