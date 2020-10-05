@@ -17,6 +17,7 @@
   },
   "require": {
     "php": ">=5.6.0",
+    "ext-json": "*",
     "ipl/html": ">=0.3.0",
     "ipl/stdlib": "dev-filter-implementation as 0.8.0"
   }
