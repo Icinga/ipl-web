@@ -2,7 +2,10 @@
 
 namespace ipl\Web\Control\SearchBar;
 
+use ArrayIterator;
+use CallbackFilterIterator;
 use Countable;
+use Icinga\Data\Filter\Filter;
 use Icinga\Data\Filter\FilterChain;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\FormElement\ButtonElement;
@@ -12,9 +15,10 @@ use ipl\Stdlib\Contract\Paginatable;
 use IteratorIterator;
 use LimitIterator;
 use OuterIterator;
+use Psr\Http\Message\ServerRequestInterface;
 use Traversable;
 
-class Suggestions extends BaseHtmlElement
+abstract class Suggestions extends BaseHtmlElement
 {
     const DEFAULT_LIMIT = 50;
 
@@ -59,6 +63,32 @@ class Suggestions extends BaseHtmlElement
 
         return $this;
     }
+
+    /**
+     * Create a filter to provide as default for column suggestions
+     *
+     * @param string $searchTerm
+     *
+     * @return Filter
+     */
+    abstract protected function createQuickSearchFilter($searchTerm);
+
+    /**
+     * Fetch value suggestions for a particular column
+     *
+     * @param string $column
+     * @param string $searchTerm
+     *
+     * @return Traversable
+     */
+    abstract protected function fetchValueSuggestions($column, $searchTerm);
+
+    /**
+     * Fetch column suggestions
+     *
+     * @return Traversable
+     */
+    abstract protected function fetchColumnSuggestions();
 
     protected function filterToTerms(FilterChain $filter)
     {
@@ -156,7 +186,9 @@ class Suggestions extends BaseHtmlElement
 
     protected function assemble()
     {
-        if ($this->data instanceof Paginatable) {
+        if ($this->data === null) {
+            $data = [];
+        } elseif ($this->data instanceof Paginatable) {
             $this->data->limit(self::DEFAULT_LIMIT);
             $data = $this->data;
         } else {
@@ -210,6 +242,55 @@ class Suggestions extends BaseHtmlElement
         }
     }
 
+    /**
+     * Load suggestions as requested by the client
+     *
+     * @param ServerRequestInterface $request
+     *
+     * @return $this
+     */
+    public function forRequest(ServerRequestInterface $request)
+    {
+        if ($request->getMethod() !== 'POST') {
+            return $this;
+        }
+
+        $requestData = json_decode($request->getBody()->read(8192), true);
+        if (empty($requestData)) {
+            return $this;
+        }
+
+        $search = $requestData['term']['search'];
+        $label = $requestData['term']['label'];
+        $type = $requestData['term']['type'];
+
+        $this->setSearchTerm($search);
+        $this->setType($type);
+
+        switch ($type) {
+            case 'value':
+                $this->setData($this->fetchValueSuggestions($requestData['column'], $label));
+
+                if ($search) {
+                    $this->setDefault(['search' => $search]);
+                }
+
+                break;
+            case 'column':
+                $this->setData($this->filterColumnSuggestions($this->fetchColumnSuggestions(), $label));
+
+                if ($search) {
+                    $this->setDefault([
+                        'search'    => $label,
+                        'type'      => 'terms',
+                        'terms'     => $this->createQuickSearchFilter($label)
+                    ]);
+                }
+        }
+
+        return $this;
+    }
+
     protected function hasMore($data, $than)
     {
         if (is_array($data)) {
@@ -221,6 +302,38 @@ class Suggestions extends BaseHtmlElement
         }
 
         return false;
+    }
+
+    /**
+     * Filter the given suggestions by the client's input
+     *
+     * @param Traversable $data
+     * @param string $searchTerm
+     *
+     * @return Traversable
+     */
+    protected function filterColumnSuggestions($data, $searchTerm)
+    {
+        return new CallbackFilterIterator(
+            new ArrayIterator($data),
+            function ($value, $key) use ($searchTerm) {
+                return $this->matchSuggestion($key, $value, $searchTerm);
+            }
+        );
+    }
+
+    /**
+     * Get whether the given suggestion should be provided to the client
+     *
+     * @param string $path
+     * @param string $label
+     * @param string $searchTerm
+     *
+     * @return bool
+     */
+    protected function matchSuggestion($path, $label, $searchTerm)
+    {
+        return fnmatch($searchTerm, $label, FNM_CASEFOLD) || fnmatch($searchTerm, $path, FNM_CASEFOLD);
     }
 
     public function renderUnwrapped()
