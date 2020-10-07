@@ -2,9 +2,8 @@
 
 namespace ipl\Web\Control\SearchBar;
 
-use ArrayIterator;
-use CallbackFilterIterator;
 use Countable;
+use Generator;
 use Icinga\Data\Filter\Filter;
 use Icinga\Data\Filter\FilterChain;
 use ipl\Html\BaseHtmlElement;
@@ -86,9 +85,11 @@ abstract class Suggestions extends BaseHtmlElement
     /**
      * Fetch column suggestions
      *
+     * @param string $searchTerm
+     *
      * @return Traversable
      */
-    abstract protected function fetchColumnSuggestions();
+    abstract protected function fetchColumnSuggestions($searchTerm);
 
     protected function filterToTerms(FilterChain $filter)
     {
@@ -277,7 +278,7 @@ abstract class Suggestions extends BaseHtmlElement
 
                 break;
             case 'column':
-                $this->setData($this->filterColumnSuggestions($this->fetchColumnSuggestions(), $label));
+                $this->setData($this->filterColumnSuggestions($this->fetchColumnSuggestions($label), $label));
 
                 if ($search) {
                     $this->setDefault([
@@ -310,16 +311,15 @@ abstract class Suggestions extends BaseHtmlElement
      * @param Traversable $data
      * @param string $searchTerm
      *
-     * @return Traversable
+     * @return Generator
      */
     protected function filterColumnSuggestions($data, $searchTerm)
     {
-        return new CallbackFilterIterator(
-            new ArrayIterator($data),
-            function ($value, $key) use ($searchTerm) {
-                return $this->matchSuggestion($key, $value, $searchTerm);
+        foreach ($data as $key => $value) {
+            if ($this->matchSuggestion($key, $value, $searchTerm)) {
+                yield $key => $value;
             }
-        );
+        }
     }
 
     /**
