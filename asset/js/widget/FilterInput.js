@@ -113,10 +113,6 @@
                 if (! termData.type) {
                     termData.type = this.termType;
                 }
-
-                if (termData.type === 'column' || termData.type === 'value') {
-                    termData.search = this.escapeExpression(termData.search);
-                }
             }
 
             return termData;
@@ -803,13 +799,18 @@
             return label;
         }
 
-        escapeExpression(expr) {
-            return encodeURIComponent(expr).replace(
-                /[()]/g,
-                function(c) {
-                    return '%' + c.charCodeAt(0).toString(16);
-                }
-            );
+        escapeTerm(termData) {
+            termData = super.escapeTerm(termData);
+            if (termData.type === 'column' || termData.type === 'value') {
+                termData.search = termData.search.replace(
+                    /[()]/g,
+                    function(c) {
+                        return '%' + c.charCodeAt(0).toString(16);
+                    }
+                );
+            }
+
+            return termData;
         }
 
         /**
