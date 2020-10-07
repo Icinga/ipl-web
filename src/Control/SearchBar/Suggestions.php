@@ -20,6 +20,7 @@ use Traversable;
 abstract class Suggestions extends BaseHtmlElement
 {
     const DEFAULT_LIMIT = 50;
+    const SUGGESTION_TITLE_CLASS = 'suggestion-title';
 
     protected $tag = 'ul';
 
@@ -236,6 +237,11 @@ abstract class Suggestions extends BaseHtmlElement
             $input = $this->getFirst('li')->getFirst('input');
             $showDefault = $input->getValue() != $this->searchTerm
                 && $input->getAttributes()->get('data-search')->getValue() != $this->searchTerm;
+        }
+
+        if ($this->type === 'column' && ! $this->isEmpty() && ! $this->getFirst('li')->getAttributes()->has('class')) {
+            // The column title is only added if there are any suggestions and the first item is not a title already
+            $this->prepend(new HtmlElement('li', ['class' => static::SUGGESTION_TITLE_CLASS], t('Columns')));
         }
 
         if ($showDefault) {
