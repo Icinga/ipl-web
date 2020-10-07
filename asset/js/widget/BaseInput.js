@@ -212,7 +212,7 @@
         insertTerm(termData, termIndex) {
             this.reIndexTerms(termIndex, 1, true);
             this.registerTerm(termData, termIndex);
-            this.termInput.value = this.usedTerms.map(e => e.search).join(this.separator).trim();
+            this.termInput.value = this.termsToQueryString();
             return this.insertRenderedTerm(this.renderTerm(termData, termIndex));
         }
 
@@ -227,14 +227,7 @@
                 termIndex = this.registerTerm(termData);
             }
 
-            let existingTerms = this.termInput.value;
-            if (existingTerms) {
-                existingTerms += this.separator;
-            }
-
-            existingTerms += termData.search;
-            this.termInput.value = existingTerms;
-
+            this.termInput.value = this.termsToQueryString();
             this.addRenderedTerm(this.renderTerm(termData, termIndex));
         }
 
@@ -255,7 +248,7 @@
                 this.removeTerm(input.parentNode, updateDOM);
             } else if (this.usedTerms[termIndex].label !== termData.label) {
                 this.usedTerms[termIndex] = termData;
-                this.termInput.value = this.usedTerms.map(e => e.search).join(this.separator).trim();
+                this.termInput.value = this.termsToQueryString();
                 this.updateTermData(termData, input);
             }
         }
@@ -267,6 +260,10 @@
             if (!! termData.search || termData.search === '') {
                 label.dataset.search = termData.search;
             }
+        }
+
+        termsToQueryString() {
+            return this.usedTerms.map(e => this.escapeTerm(e).search).join(this.separator).trim();
         }
 
         lastTerm() {
@@ -296,7 +293,7 @@
             let [termData] = this.usedTerms.splice(termIndex, 1);
 
             // Update the hidden input
-            this.termInput.value = this.usedTerms.map(e => e.search).join(this.separator).trim();
+            this.termInput.value = this.termsToQueryString();
 
             // Avoid saving the term, it's removed after all
             label.firstChild.skipSaveOnBlur = true;
@@ -324,7 +321,7 @@
             }
 
             this.usedTerms.splice(from, deleteCount);
-            this.termInput.value = this.usedTerms.map(e => e.search).join(this.separator).trim();
+            this.termInput.value = this.termsToQueryString();
 
             this.removeRenderedRange(labels);
         }
@@ -402,6 +399,13 @@
             label.firstChild.value = termData.label;
 
             return label;
+        }
+
+        escapeTerm(termData) {
+            termData = { ...termData };
+            termData.search = encodeURIComponent(termData.search);
+
+            return termData;
         }
 
         moveFocusForward(from = null) {
