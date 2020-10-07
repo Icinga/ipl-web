@@ -76,7 +76,7 @@ form.search-bar {
     z-index: 1; // Required so that nothing else can overlap it (such as opaque elements)
     position: absolute;
     top: 100%;
-    min-width: 12em;
+    min-width: 5em;
     background: @text-color-inverted;
     border: 1px solid @gray-light;
     border-bottom-right-radius: .5em;
@@ -87,17 +87,49 @@ form.search-bar {
     }
 
     > ul {
-      padding: .5em 0;
       margin: 0;
+      padding: 0;
       list-style-type: none;
+
+      li.suggestion-title {
+        padding: 1.25em 0 0 .625em;
+      }
+
+      > li {
+        border-top: 1px solid @gray-lighter;
+      }
+      > li.suggestion-title + li {
+        border: none;
+      }
+      > li:not(.default) + li.suggestion-title {
+        border: none;
+      }
+    }
+
+    .default {
+      color: @text-color-light;
+      font-style: italic;
+
+      [type="button"] {
+        background-color: fade(@icinga-blue, 10%);
+      }
+    }
+
+    .suggestion-title {
+      color: @text-color-light;
+      font-size: 80%;
     }
 
     [type="button"] {
-      padding: .75em .5em;
+      padding: .5em 1em;
       display: block;
       width: 100%;
       text-align: left;
       max-width: none; // TODO: Overrides a rule in web 2's controls.less, which shouldn't be that broad..
+
+      &[data-class="operator"], &[data-class="logical_operator"] {
+        text-align: center;
+      }
     }
 
     [type="button"]:focus {
