@@ -799,6 +799,11 @@
         renderTerm(termData, termIndex) {
             let label = super.renderTerm(termData, termIndex);
             label.dataset.type = termData.type;
+
+            if (! termData.class) {
+                label.classList.add(termData.type);
+            }
+
             if (termData.counterpart >= 0) {
                 label.dataset.counterpart = termData.counterpart;
             }
