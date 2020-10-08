@@ -220,6 +220,8 @@
 
         addRenderedTerm(label) {
             let newGroup = null;
+            let leaveGroup = false;
+
             switch (label.dataset.type) {
                 case 'column':
                     newGroup = this.renderCondition();
@@ -227,12 +229,17 @@
                 case 'grouping_operator':
                     if (this.isGroupOpen(label.dataset)) {
                         newGroup = this.renderChain();
+                        break;
                     }
+                case 'logical_operator':
+                    leaveGroup = this.currentGroup.dataset.groupType === 'condition';
             }
 
             if (newGroup !== null) {
                 newGroup.appendChild(label);
                 this.currentGroup.appendChild(newGroup);
+            } else if (leaveGroup) {
+                this.currentGroup.parentNode.appendChild(label);
             } else {
                 this.currentGroup.appendChild(label);
             }
