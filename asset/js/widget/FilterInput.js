@@ -132,15 +132,16 @@
         }
 
         insertRenderedTerm(label) {
+            let termIndex = Number(label.dataset.index);
             if (label.dataset.counterpart >= 0) {
                 let otherLabel = this.termContainer.querySelector(`[data-index="${ label.dataset.counterpart }"]`);
                 if (otherLabel !== null) {
-                    otherLabel.dataset.counterpart = label.dataset.index;
+                    otherLabel.dataset.counterpart = termIndex;
                     this.checkValidity(otherLabel.firstChild);
                 }
             }
 
-            let previous = this.termContainer.querySelector(`[data-index="${ label.dataset.index - 1 }"]`);
+            let previous = this.termContainer.querySelector(`[data-index="${ termIndex - 1 }"]`);
             switch (label.dataset.type) {
                 case 'column':
                     let newCondition = this.renderCondition();
@@ -201,6 +202,10 @@
                     }
             }
 
+            if (termIndex === this.usedTerms.length - 1) {
+                this.identifyLastRenderedTerm();
+            }
+
             return label;
         }
 
@@ -243,6 +248,26 @@
             } else {
                 this.currentGroup.appendChild(label);
             }
+
+            this.identifyLastRenderedTerm();
+        }
+
+        identifyLastRenderedTerm() {
+            let lastTerm = Array.from(this.termContainer.querySelectorAll('[data-index]')).pop();
+            if (! lastTerm) {
+                return;
+            }
+
+            let lastLabel = this.termContainer.querySelector('.last-term');
+            if (lastLabel !== null) {
+                if (lastLabel === lastTerm) {
+                    return;
+                }
+
+                lastLabel.classList.remove('last-term');
+            }
+
+            lastTerm.classList.add('last-term');
         }
 
         saveTerm(input, updateDOM = true) {
@@ -327,6 +352,10 @@
                         parent.remove();
                     }
                 }
+            }
+
+            if (Number(label.dataset.index) >= this.usedTerms.length - 1) {
+                this.identifyLastRenderedTerm();
             }
         }
 
