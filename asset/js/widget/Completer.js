@@ -250,8 +250,12 @@
             return input;
         }
 
-        isBeingCompleted(input) {
-            return input === this.completedInput && this.termSuggestions.contains(document.activeElement);
+        isBeingCompleted(input, activeElement = null) {
+            if (activeElement === null) {
+                activeElement = document.activeElement;
+            }
+
+            return input === this.completedInput && this.termSuggestions.contains(activeElement);
         }
 
         /**

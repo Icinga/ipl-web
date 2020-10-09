@@ -55,7 +55,7 @@
       display: none;
     }
 
-    [data-index] input {
+    input {
       background-color: @gray;
       color: @text-color-inverted;
     }
@@ -72,7 +72,8 @@
   }
 
   [data-index] input:invalid {
-    background-color: @color-critical-handled;
+    background-color: @color-critical;
+    color: @text-color-inverted;
   }
 
   .column input {
@@ -96,6 +97,11 @@
     .rounded-corners(.4em);
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
+  }
+
+  .highlighted input {
+    background-color: @icinga-blue;
+    color: @text-color-on-icinga-blue;
   }
 
   // Suggestion styles
