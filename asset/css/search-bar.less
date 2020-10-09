@@ -1,99 +1,112 @@
-.filter {
-  width: 100%;
-}
+// Icinga DB Web | (c) 2020 Icinga GmbH | GPLv2
 
-form.search-bar {
-  background: @low-sat-blue;
-  .clearfix();
-  display: flex;
-  position: relative;
-  flex-wrap: nowrap;
+// Style
+.search-bar {
   .rounded-corners();
+  background: @low-sat-blue;
 
+  // Reset all input styles
   input, [type="button"] {
     .appearance(none);
     border: none;
     background: none;
   }
 
-  label input {
-    height: 1.75em;
-    margin-top: .25em;
-  }
-
-  .filter-input {
-    padding: 0 .5em;
-  }
-
-  > label {
-    flex: 1 1 auto;
-  }
-
+  // Submit button styles
   input[type=submit],
   button[type=submit],
   button:not([type]) {
-    float: right;
     background: @icinga-blue;
     color: @text-color-inverted;
     border-top-right-radius: .25em;
     border-bottom-right-radius: .25em;
   }
 
-  .terms {
-    padding-left: 2em;
-    background-image: url("../img/icons/search_icinga_blue.png");
-    background-repeat: no-repeat;
-    background-position: .5em center;
-
-    .filter-chain,
-    .filter-condition {
-      display: inline;
-    }
-
-    label {
-      width: auto;
-      position: relative;
-      margin-right: .125em;
-
-      input {
-        background-color: @gray;
-        .rounded-corners();
-        color: @text-color-inverted;
-        position: absolute;
-        top: .25em;
-        right: 0;
-        bottom: 0; left: 0;
-        text-align: center;
-
-        &:invalid {
-          background-color: @color-critical-handled;
-        }
-      }
+  // Left-most search dropdown style
+  button.search-options {
+    i.icon:before {
+      font-size: 1.2em;
+      margin-right: 0;
+      color: @icinga-blue;
     }
   }
 
+  // Scrollbar style
+  // @todo Not final
+  .filter-input-area {
+    &::-webkit-scrollbar {
+      display: none;
+      height: .5em;
+    }
+
+    &:hover::-webkit-scrollbar {
+      display: initial;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: linear-gradient(to right, transparent 0%, @icinga-blue 20%);
+    }
+  }
+
+  // Term styles
+  .filter-condition {
+    button {
+      // TODO: Add proper styles
+      display: none;
+    }
+
+    [data-index] input {
+      background-color: @gray;
+      color: @text-color-inverted;
+    }
+  }
+
+  .logical_operator,
+  .grouping_operator_open,
+  .grouping_operator_close {
+    input {
+      .rounded-corners();
+      background-color: fade(@gray, 50%);
+      color: @text-color-light;
+    }
+  }
+
+  [data-index] input:invalid {
+    background-color: @color-critical-handled;
+  }
+
+  .column input {
+    .rounded-corners(.4em);
+  }
+  .column:not(:last-of-type),
+  .column.last-term {
+    input {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+  }
+
+  .operator:last-of-type:not(.last-term) input {
+    .rounded-corners(.4em);
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+
+  .value input {
+    .rounded-corners(.4em);
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+
+  // Suggestion styles
   .suggestions {
-    z-index: 1; // Required so that nothing else can overlap it (such as opaque elements)
-    position: absolute;
-    top: 100%;
-    min-width: 5em;
     background: @text-color-inverted;
     border: 1px solid @gray-light;
     border-bottom-right-radius: .5em;
     border-bottom-left-radius:  .5em;
 
-    &:empty {
-      display: none;
-    }
-
     > ul {
-      margin: 0;
-      padding: 0;
       list-style-type: none;
-
-      li.suggestion-title {
-        padding: 1.25em 0 0 .625em;
-      }
 
       > li {
         border-top: 1px solid @gray-lighter;
@@ -120,18 +133,6 @@ form.search-bar {
       font-size: 80%;
     }
 
-    [type="button"] {
-      padding: .5em 1em;
-      display: block;
-      width: 100%;
-      text-align: left;
-      max-width: none; // TODO: Overrides a rule in web 2's controls.less, which shouldn't be that broad..
-
-      &[data-class="operator"], &[data-class="logical_operator"] {
-        text-align: center;
-      }
-    }
-
     [type="button"]:focus {
       background: @icinga-blue;
       color: @text-color-inverted;
@@ -142,50 +143,130 @@ form.search-bar {
       background: fade(@icinga-blue, 30%)
     }
   }
+
+  ul.comma-separated {
+    display: inline;
+    padding: 0;
+
+    list-style-type: none;
+
+    li {
+      display: inline;
+
+      &:not(:first-of-type):before {
+        display: inline;
+        content: ', ';
+      }
+    }
+  }
 }
 
-// Inspired by https://css-tricks.com/auto-growing-inputs-textareas/
-form.search-bar label {
-  display: inline-flex;
-  flex-direction: column;
-  flex-width: none;
-  position: relative;
+// Layout
+.search-bar {
+  display: flex;
+  position: relative; // Required for the suggestions
 
-  input {
-    flex: 1 1 auto;
-    width: 100%;
-    padding: 0;
-    margin: 0;
-    max-width: none;
+  .filter-input-area {
+    overflow: auto hidden;
+    overflow-x: overlay; // Not invalid, but proprietary feature by chrome/webkit
+    display: flex;
+    flex-grow: 1;
+    padding-top: .2em;
+    padding-left: .4em; // So that the outline of the very first input is not cut on the left
 
-    & + span {
-      position: absolute;
-      top: 100%
+    // Lets inputs grow based on their contents, Inspired by https://css-tricks.com/auto-growing-inputs-textareas/
+    label {
+      position: relative;
+      display: inline-flex;
+      flex-direction: column;
+
+      &::after,
+      input {
+        width: auto;
+        min-width: 1ch;
+        font: inherit;
+        padding: .1em .5em;
+        resize: none;
+      }
+
+      input {
+        width: 100%;
+        position: absolute;
+      }
+
+      &::after {
+        height: 0;
+        content: attr(data-label);
+        visibility: hidden;
+        white-space: pre-wrap;
+      }
+    }
+
+    > label {
+      flex-grow: 1;
+
+      &::after,
+      input {
+        max-width: none;
+        min-width: 8em;
+      }
     }
   }
 
-  // determines the width of the pill
-  &::after {
-    height: 0;
-    content: attr(data-label);
-    visibility: hidden;
-    white-space: pre-wrap;
-    padding: 0 .5em;
-  }
-}
-
-ul.comma-separated {
-  display: inline;
-  padding: 0;
-
-  list-style-type: none;
-
-  li {
+  .terms {
     display: inline;
+    flex-shrink: 0;
 
-    &:not(:first-of-type):before {
+    .filter-chain,
+    .filter-condition {
       display: inline;
-      content: ', ';
+    }
+
+    label {
+      margin-right: 2px; // Actually 1px, but inputs are 1px too wide (see below) and overlap the margin
+
+      input {
+        width: ~"calc(100% + 1px)"; // Plus a pixel because otherwise an input catches needlessly "scroll focus"
+      }
+
+      &.logical_operator,
+      &.grouping_operator_open,
+      &.grouping_operator_close {
+        margin-left: 1px; // adds up to 2px with the previous term
+        margin-right: 2px;
+      }
+    }
+  }
+
+  .suggestions {
+    z-index: 1; // Required so that nothing else can overlap it (such as opaque elements)
+    position: absolute;
+    top: 100%;
+    min-width: 5em;
+
+    &:empty {
+      display: none;
+    }
+
+    > ul {
+      margin: 0;
+      padding: 0;
+
+      li.suggestion-title {
+        padding: 1.25em 0 0 .625em;
+      }
+    }
+
+    [type="button"] {
+      padding: .5em 1em;
+      display: block;
+      width: 100%;
+      text-align: left;
+      max-width: none; // TODO: Overrides a rule in web 2's controls.less, which shouldn't be that broad..
+
+      &[data-class="operator"], &[data-class="logical_operator"] {
+        text-align: center;
+      }
     }
   }
 }
