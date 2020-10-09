@@ -12,6 +12,7 @@ use ipl\Html\HtmlElement;
 use ipl\Validator\CallbackValidator;
 use ipl\Web\Control\SearchBar\Terms;
 use ipl\Web\Url;
+use ipl\Web\Widget\Icon;
 
 class SearchBar extends Form
 {
@@ -215,9 +216,16 @@ class SearchBar extends Form
         $this->registerElement($filterInput);
 
         $this->add([
-            $termContainer,
+            new HtmlElement(
+                'button',
+                ['type' => 'button', 'class' => 'search-options'],
+                new Icon('search')
+            ),
+            new HtmlElement('div', ['class' => 'filter-input-area'], [
+                $termContainer,
+                new HtmlElement('label', ['data-label' => ''], $filterInput),
+            ]),
             $termInput,
-            new HtmlElement('label', ['data-label' => ''], $filterInput),
             new SubmitElement('submit', ['label' => $this->getSubmitLabel()]),
             new HtmlElement('div', [
                 'id'                => $suggestionsId,
