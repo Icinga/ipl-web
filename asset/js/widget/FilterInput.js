@@ -55,6 +55,8 @@
 
         bind() {
             $(this.termContainer).on('click', '[data-group-type="condition"] > button', this.onRemoveCondition, this);
+            $(this.termContainer).on('mouseover', '[data-index]', this.onTermHover, this);
+            $(this.termContainer).on('mouseout', '[data-index]', this.onTermLeave, this);
             return super.bind();
         }
 
@@ -854,9 +856,90 @@
             return termData;
         }
 
+        highlightTerm(label, highlightedBy = null) {
+            label.classList.add('highlighted');
+
+            let canBeHighlighted = (label) => ! ('highlightedBy' in label.dataset)
+                && label.firstChild !== document.activeElement
+                && (this.completer === null
+                    || ! this.completer.isBeingCompleted(label.firstChild)
+                );
+
+            if (highlightedBy !== null) {
+                if (canBeHighlighted(label)) {
+                    label.dataset.highlightedBy = highlightedBy;
+                }
+            } else {
+                highlightedBy = label.dataset.index;
+            }
+
+            switch (label.dataset.type) {
+                case 'column':
+                case 'operator':
+                case 'value':
+                    label.parentNode.querySelectorAll(':scope > [data-index]').forEach((otherLabel) => {
+                        if (otherLabel !== label && canBeHighlighted(otherLabel)) {
+                            otherLabel.classList.add('highlighted');
+                            otherLabel.dataset.highlightedBy = highlightedBy;
+                        }
+                    });
+                    break;
+                case 'logical_operator':
+                    let previousIndex = Number(label.dataset.index) - 1;
+                    if (previousIndex >= 0) {
+                        this.highlightTerm(
+                            this.termContainer.querySelector(`[data-index="${ previousIndex }"]`),
+                            highlightedBy
+                        );
+                    }
+
+                    let nextIndex = Number(label.dataset.index) + 1;
+                    if (nextIndex < this.usedTerms.length) {
+                        this.highlightTerm(
+                            this.termContainer.querySelector(`[data-index="${ nextIndex }"]`),
+                            highlightedBy
+                        );
+                    }
+
+                    break;
+                case 'grouping_operator':
+                    if (label.dataset.counterpart >= 0) {
+                        let otherLabel = this.termContainer.querySelector(
+                            `[data-index="${ label.dataset.counterpart }"]`
+                        );
+                        if (otherLabel !== null && canBeHighlighted(otherLabel)) {
+                            otherLabel.classList.add('highlighted');
+                            otherLabel.dataset.highlightedBy = highlightedBy;
+                        }
+                    }
+            }
+        }
+
+        deHighlightTerm(label) {
+            if (! ('highlightedBy' in label.dataset)) {
+                label.classList.remove('highlighted');
+            }
+
+            this.termContainer.querySelectorAll(`[data-highlighted-by="${ label.dataset.index }"]`).forEach(
+                (label) => {
+                    label.classList.remove('highlighted');
+                    delete label.dataset.highlightedBy;
+                }
+            );
+        }
+
         /**
          * Event listeners
          */
+
+        onTermBlur(event) {
+            let label = event.currentTarget;
+            if (this.completer === null || ! this.completer.isBeingCompleted(label.firstChild, event.relatedTarget)) {
+                this.deHighlightTerm(label);
+            }
+
+            super.onTermBlur(event);
+        }
 
         onTermFocus(event) {
             let input = event.target;
@@ -866,7 +949,21 @@
                 this.reportValidity(input);
             }
 
+            this.highlightTerm(input.parentNode);
             super.onTermFocus(event);
+        }
+
+        onTermHover(event) {
+            this.highlightTerm(event.currentTarget);
+        }
+
+        onTermLeave(event) {
+            let label = event.currentTarget;
+            if (label.firstChild !== document.activeElement
+                && (this.completer === null || ! this.completer.isBeingCompleted(label.firstChild))
+            ) {
+                this.deHighlightTerm(label);
+            }
         }
 
         onRemoveCondition(event) {
