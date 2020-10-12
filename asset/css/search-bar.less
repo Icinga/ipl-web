@@ -183,8 +183,6 @@
     // Lets inputs grow based on their contents, Inspired by https://css-tricks.com/auto-growing-inputs-textareas/
     label {
       position: relative;
-      display: inline-flex;
-      flex-direction: column;
 
       &::after,
       input {
@@ -196,7 +194,7 @@
       }
 
       input {
-        width: 100%;
+        width: ~"calc(100% + 1px)"; // Plus a pixel because otherwise an input catches needlessly "scroll focus"
         position: absolute;
       }
 
@@ -204,7 +202,7 @@
         height: 0;
         content: attr(data-label);
         visibility: hidden;
-        white-space: pre-wrap;
+        white-space: nowrap;
       }
     }
 
@@ -229,11 +227,7 @@
     }
 
     label {
-      margin-right: 2px; // Actually 1px, but inputs are 1px too wide (see below) and overlap the margin
-
-      input {
-        width: ~"calc(100% + 1px)"; // Plus a pixel because otherwise an input catches needlessly "scroll focus"
-      }
+      margin-right: 2px; // Actually 1px, but inputs are 1px too wide (see above) and overlap the margin
 
       &.logical_operator,
       &.grouping_operator_open,
