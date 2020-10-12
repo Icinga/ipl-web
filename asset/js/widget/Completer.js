@@ -94,7 +94,7 @@
             let suggestionWidth = this.termSuggestions.offsetWidth;
 
             if (inputPosX + suggestionWidth > formRect.right - formRect.left) {
-                this.termSuggestions.style.left = `${ inputPosX + input.offsetWidth - suggestionWidth }px`;
+                this.termSuggestions.style.left = `${ formRect.right - formRect.left - suggestionWidth }px`;
             } else {
                 this.termSuggestions.style.left = `${ inputPosX }px`;
             }
