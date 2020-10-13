@@ -843,8 +843,8 @@
         }
 
         escapeTerm(termData) {
-            termData = super.escapeTerm(termData);
             if (termData.type === 'column' || termData.type === 'value') {
+                termData = super.escapeTerm(termData);
                 termData.search = termData.search.replace(
                     /[()]/g,
                     function(c) {
