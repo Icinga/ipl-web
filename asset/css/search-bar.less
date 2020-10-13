@@ -177,8 +177,7 @@
     overflow-x: overlay; // Not invalid, but proprietary feature by chrome/webkit
     display: flex;
     flex-grow: 1;
-    padding-top: .2em;
-    padding-left: .4em; // So that the outline of the very first input is not cut on the left
+    padding: .4em 0 .6em .4em;
 
     // Lets inputs grow based on their contents, Inspired by https://css-tricks.com/auto-growing-inputs-textareas/
     label {
@@ -194,7 +193,7 @@
       }
 
       input {
-        width: ~"calc(100% + 1px)"; // Plus a pixel because otherwise an input catches needlessly "scroll focus"
+        width: 100%;
         position: absolute;
       }
 
@@ -203,6 +202,7 @@
         content: attr(data-label);
         visibility: hidden;
         white-space: nowrap;
+        padding: 0 7/12em;
       }
     }
 
@@ -227,7 +227,7 @@
     }
 
     label {
-      margin-right: 2px; // Actually 1px, but inputs are 1px too wide (see above) and overlap the margin
+      margin-right: 1px;
 
       &.logical_operator,
       &.grouping_operator_open,
