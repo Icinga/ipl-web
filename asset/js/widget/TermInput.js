@@ -89,9 +89,15 @@
                 return;
             }
 
-            if (event.key === this.separator && this.exchangeTerm()) {
+            if (event.key !== this.separator) {
+                return;
+            }
+
+            let addedTerms = this.exchangeTerm();
+            if (addedTerms.length) {
                 this.togglePlaceholder();
                 event.preventDefault();
+                this.autoSubmit(this.input, 'exchange', addedTerms);
             }
         }
 
