@@ -193,26 +193,28 @@
         exchangeTerm() {
             let termData = this.readFullTerm(this.input);
             if (! termData) {
-                return false;
+                return {};
             }
 
+            let addedTerms = {};
             if (Array.isArray(termData)) {
                 for (let data of termData) {
                     this.addTerm(data);
+                    addedTerms[this.usedTerms.length - 1] = data;
                 }
             } else {
                 this.addTerm(termData);
+                addedTerms[this.usedTerms.length - 1] = termData;
             }
 
             this.clearPartialTerm(this.input);
 
-            return true;
+            return addedTerms;
         }
 
         insertTerm(termData, termIndex) {
             this.reIndexTerms(termIndex, 1, true);
             this.registerTerm(termData, termIndex);
-            this.termInput.value = this.termsToQueryString();
             return this.insertRenderedTerm(this.renderTerm(termData, termIndex));
         }
 
@@ -227,7 +229,6 @@
                 termIndex = this.registerTerm(termData);
             }
 
-            this.termInput.value = this.termsToQueryString();
             this.addRenderedTerm(this.renderTerm(termData, termIndex));
         }
 
@@ -245,12 +246,15 @@
 
             // Only save if something has changed
             if (termData === false) {
-                this.removeTerm(input.parentNode, updateDOM);
+                return this.removeTerm(input.parentNode, updateDOM);
             } else if (this.usedTerms[termIndex].label !== termData.label) {
                 this.usedTerms[termIndex] = termData;
-                this.termInput.value = this.termsToQueryString();
                 this.updateTermData(termData, input);
+
+                return termData;
             }
+
+            return false;
         }
 
         updateTermData(termData, input) {
@@ -263,7 +267,18 @@
         }
 
         termsToQueryString() {
-            return this.usedTerms.map(e => this.encodeTerm(e).search).join(this.separator).trim();
+            let terms = this.usedTerms;
+            if (! this.input.form.checkValidity()) {
+                terms = [];
+                this.usedTerms.forEach((termData, termIndex) => {
+                    let input = this.termContainer.querySelector(`[data-index="${ termIndex }"] > input`);
+                    if (input === null || input.checkValidity()) {
+                        terms.push(termData);
+                    }
+                });
+            }
+
+            return terms.map(e => this.encodeTerm(e).search).join(this.separator).trim();
         }
 
         lastTerm() {
@@ -292,9 +307,6 @@
             // Cut the term's data
             let [termData] = this.usedTerms.splice(termIndex, 1);
 
-            // Update the hidden input
-            this.termInput.value = this.termsToQueryString();
-
             // Avoid saving the term, it's removed after all
             label.firstChild.skipSaveOnBlur = true;
 
@@ -320,10 +332,16 @@
                 this.reIndexTerms(to, deleteCount);
             }
 
-            this.usedTerms.splice(from, deleteCount);
-            this.termInput.value = this.termsToQueryString();
+            let removedData = this.usedTerms.splice(from, deleteCount);
 
             this.removeRenderedRange(labels);
+
+            let removedTerms = {};
+            for (let i = from; removedData.length; i++) {
+                removedTerms[i] = removedData.shift();
+            }
+
+            return removedTerms;
         }
 
         removeRenderedRange(labels) {
@@ -362,9 +380,11 @@
             if (this.hasTerms()) {
                 let labels = this.termContainer.querySelectorAll('.selected');
                 if (labels.length) {
-                    this.removeRange(Array.from(labels));
+                    return this.removeRange(Array.from(labels));
                 }
             }
+
+            return {};
         }
 
         togglePlaceholder() {
@@ -412,6 +432,20 @@
             termData.search = decodeURIComponent(termData.search);
 
             return termData;
+        }
+
+        shouldNotAutoSubmit() {
+            return 'noAutoSubmit' in this.input.dataset;
+        }
+
+        autoSubmit(input, changeType, changedTerms) {
+            if (this.shouldNotAutoSubmit()) {
+                return;
+            }
+
+            if (Object.keys(changedTerms).length) {
+                $(this.input.form).trigger('submit', { submittedBy: input });
+            }
         }
 
         moveFocusForward(from = null) {
@@ -465,11 +499,20 @@
          */
 
         onSubmit(event) {
-            // Register current input value, otherwise it's not submitted
-            this.exchangeTerm();
+            // Register current input value for manual submits, otherwise it's not included
+            if (! event.detail || ! ('submittedBy' in event.detail)) {
+                this.exchangeTerm();
+            }
 
             // Unset the input's name, to prevent its submission (It may actually have a name, as no-js fallback)
             this.input.name = '';
+
+            // Set the hidden input's value, it's what's sent
+            if (event.detail && 'terms' in event.detail) {
+                this.termInput.value = event.detail.terms;
+            } else {
+                this.termInput.value = this.termsToQueryString();
+            }
 
             // Enable the hidden input, otherwise it's not submitted
             this.termInput.disabled = false;
@@ -493,13 +536,15 @@
         onCompletion(event) {
             let input = event.target;
             let termData = event.detail;
-            let isTerm = input.parentNode.dataset.index >= 0;
+            let termIndex = Number(input.parentNode.dataset.index);
 
             this.lastCompletedTerm = termData;
             this.writePartialTerm(termData.label, input);
 
-            if (! isTerm) {
-                this.exchangeTerm();
+            if (termIndex >= 0) {
+                this.autoSubmit(input, 'save', { [termIndex]: this.saveTerm(input) });
+            } else {
+                this.autoSubmit(input, 'exchange', this.exchangeTerm());
                 this.togglePlaceholder();
             }
         }
@@ -513,15 +558,16 @@
             this.complete(input, { term: termData });
 
             if (! isTerm) {
-                this.clearSelectedTerms();
+                this.autoSubmit(this.input, 'remove', this.clearSelectedTerms());
                 this.togglePlaceholder();
             }
         }
 
         onKeyDown(event) {
             let input = event.target;
-            let termIndex = input.parentNode.dataset.index;
+            let termIndex = Number(input.parentNode.dataset.index);
 
+            let removedTerms;
             switch (event.key) {
                 case ' ':
                     if (! this.readPartialTerm(input)) {
@@ -530,20 +576,22 @@
                     }
                     break;
                 case 'Backspace':
-                    this.clearSelectedTerms();
+                    removedTerms = this.clearSelectedTerms();
 
-                    if (termIndex >= 0) {
-                        if (! input.value && this.removeTerm(input.parentNode) !== false) {
-                            let previous = this.moveFocusBackward(Number(termIndex));
+                    if (termIndex >= 0 && ! input.value) {
+                        let removedTerm = this.removeTerm(input.parentNode);
+                        if (removedTerm !== false) {
+                            input = this.moveFocusBackward(termIndex);
                             if (event.ctrlKey || event.metaKey) {
-                                this.clearPartialTerm(previous);
+                                this.clearPartialTerm(input);
                             } else {
-                                this.writePartialTerm(previous.value.slice(0, -1), previous);
+                                this.writePartialTerm(input.value.slice(0, -1), input);
                             }
 
+                            removedTerms[termIndex] = removedTerm;
                             event.preventDefault();
                         }
-                    } else {
+                    } else if (isNaN(termIndex)) {
                         if (! input.value && this.hasTerms()) {
                             let termData = this.popTerm();
                             if (! event.ctrlKey && ! event.metaKey) {
@@ -551,26 +599,34 @@
                                 // necessary since the browser default is not prevented
                                 this.writePartialTerm(termData.label, input);
                             }
+
+                            removedTerms[this.usedTerms.length] = termData;
                         }
                     }
 
                     this.togglePlaceholder();
+                    this.autoSubmit(input, 'remove', removedTerms);
                     break;
                 case 'Delete':
-                    this.clearSelectedTerms();
+                    removedTerms = this.clearSelectedTerms();
 
-                    if (termIndex >= 0 && ! input.value && this.removeTerm(input.parentNode) !== false) {
-                        let next = this.moveFocusForward(Number(termIndex) - 1);
-                        if (event.ctrlKey || event.metaKey) {
-                            this.clearPartialTerm(next);
-                        } else {
-                            this.writePartialTerm(next.value.slice(1), next);
+                    if (termIndex >= 0 && ! input.value) {
+                        let removedTerm = this.removeTerm(input.parentNode);
+                        if (removedTerm !== false) {
+                            input = this.moveFocusForward(termIndex - 1);
+                            if (event.ctrlKey || event.metaKey) {
+                                this.clearPartialTerm(input);
+                            } else {
+                                this.writePartialTerm(input.value.slice(1), input);
+                            }
+
+                            removedTerms[termIndex] = removedTerm;
+                            event.preventDefault();
                         }
-
-                        event.preventDefault();
                     }
 
                     this.togglePlaceholder();
+                    this.autoSubmit(input, 'remove', removedTerms);
                     break;
                 case 'Enter':
                     if (termIndex >= 0) {
@@ -609,7 +665,7 @@
                     }
                     break;
                 case 'Delete':
-                    this.clearSelectedTerms();
+                    this.autoSubmit(event.target, 'remove', this.clearSelectedTerms());
                     this.togglePlaceholder();
                     break;
                 case 'a':
@@ -628,7 +684,11 @@
             if (typeof input.skipSaveOnBlur === 'undefined' || ! input.skipSaveOnBlur) {
                 setTimeout(() => {
                     if (this.completer === null || ! this.completer.isBeingCompleted(input)) {
-                        this.saveTerm(input);
+                        let savedTerm = this.saveTerm(input);
+                        if (savedTerm !== false) {
+                            let termIndex = Number(input.parentNode.dataset.index);
+                            this.autoSubmit(input, 'save', { [termIndex]: savedTerm });
+                        }
                     }
                 }, 0);
             }
@@ -672,8 +732,10 @@
                 return;
             }
 
-            this.termInput.value = event.clipboardData.getData('text/plain');
-            $(this.input.form).trigger('submit');
+            $(this.input.form).trigger(
+                'submit',
+                { terms: event.clipboardData.getData('text/plain') }
+            );
 
             event.preventDefault();
         }
@@ -699,7 +761,7 @@
 
             if (event.type === 'cut') {
                 this.clearPartialTerm(this.input);
-                this.clearSelectedTerms();
+                this.autoSubmit(this.input, 'remove', this.clearSelectedTerms());
                 this.togglePlaceholder();
             }
         }

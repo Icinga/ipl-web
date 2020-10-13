@@ -312,7 +312,7 @@
         }
 
         removeRange(labels) {
-            super.removeRange(labels);
+            let removedTerms = super.removeRange(labels);
 
             if (this.hasTerms()) {
                 this.termType = this.nextTermType(this.lastTerm());
@@ -332,6 +332,8 @@
             } else {
                 this.termType = 'column';
             }
+
+            return removedTerms;
         }
 
         removeRenderedTerm(label) {
@@ -842,6 +844,62 @@
             return label;
         }
 
+        autoSubmit(input, changeType, changedTerms) {
+            if (this.shouldNotAutoSubmit()) {
+                return;
+            }
+
+            let changedIndices = Object.keys(changedTerms).sort((a, b) => a - b);
+            if (! changedIndices.length) {
+                return;
+            }
+
+            switch (changeType) {
+                case 'exchange':
+                    let lastTermAt = changedIndices.pop();
+                    if (changedTerms[lastTermAt].type === 'value'
+                        || this.isGroupClose(changedTerms[lastTermAt])
+                    ) {
+                        break;
+                    }
+
+                    return;
+                case 'save':
+                    let updateAt = changedIndices[0];
+                    if (typeof this.usedTerms[updateAt] !== 'undefined'
+                        && this.usedTerms[updateAt] === changedTerms[updateAt]
+                    ) {
+                        let valueAt = updateAt;
+                        switch (changedTerms[updateAt].type) {
+                            case 'column':
+                                valueAt++;
+                            case 'operator':
+                                valueAt++;
+                        }
+
+                        if (valueAt === updateAt
+                            || (this.usedTerms.length > valueAt && this.usedTerms[valueAt].type === 'value')
+                        ) {
+                            break;
+                        }
+
+                        return;
+                    }
+                case 'remove':
+                    let firstTermAt = changedIndices.shift();
+                    if (changedTerms[firstTermAt].type === 'column'
+                        || this.isGroupOpen(changedTerms[firstTermAt])
+                        || (changedTerms[firstTermAt].type === 'logical_operator' && changedIndices.length)
+                    ) {
+                        break;
+                    }
+
+                    return;
+            }
+
+            super.autoSubmit(input, changeType, changedTerms);
+        }
+
         encodeTerm(termData) {
             if (termData.type === 'column' || termData.type === 'value') {
                 termData = super.encodeTerm(termData);
@@ -995,7 +1053,7 @@
                 }
             }
 
-            this.removeRange(labels);
+            this.autoSubmit(this.input, 'remove', this.removeRange(labels));
             this.togglePlaceholder();
         }
 
@@ -1117,7 +1175,7 @@
                     this.togglePlaceholder();
                 } else if (operators.exactMatch) {
                     if (termType !== operators[0].type) {
-                        this.exchangeTerm();
+                        this.autoSubmit(input, 'exchange', this.exchangeTerm());
                     } else {
                         this.clearPartialTerm(input);
                     }
