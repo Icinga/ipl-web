@@ -213,6 +213,9 @@ class SearchBar extends Form
 
         $this->registerElement($filterInput);
 
+        $submitButton = new SubmitElement('submit', ['label' => $this->getSubmitLabel()]);
+        $this->registerElement($submitButton);
+
         $this->add([
             new HtmlElement(
                 'button',
@@ -224,7 +227,7 @@ class SearchBar extends Form
                 new HtmlElement('label', ['data-label' => ''], $filterInput),
             ]),
             $termInput,
-            new SubmitElement('submit', ['label' => $this->getSubmitLabel()]),
+            $submitButton,
             new HtmlElement('div', [
                 'id'                => $suggestionsId,
                 'class'             => 'suggestions',
