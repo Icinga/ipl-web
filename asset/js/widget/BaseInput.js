@@ -134,7 +134,7 @@
                     termData['class'] = label.className;
                 }
 
-                this.registerTerm(termData, label.dataset.index);
+                this.registerTerm(this.decodeTerm(termData), label.dataset.index);
             });
         }
 
@@ -263,7 +263,7 @@
         }
 
         termsToQueryString() {
-            return this.usedTerms.map(e => this.escapeTerm(e).search).join(this.separator).trim();
+            return this.usedTerms.map(e => this.encodeTerm(e).search).join(this.separator).trim();
         }
 
         lastTerm() {
@@ -401,9 +401,15 @@
             return label;
         }
 
-        escapeTerm(termData) {
+        encodeTerm(termData) {
             termData = { ...termData };
             termData.search = encodeURIComponent(termData.search);
+
+            return termData;
+        }
+
+        decodeTerm(termData) {
+            termData.search = decodeURIComponent(termData.search);
 
             return termData;
         }

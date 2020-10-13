@@ -842,9 +842,9 @@
             return label;
         }
 
-        escapeTerm(termData) {
+        encodeTerm(termData) {
             if (termData.type === 'column' || termData.type === 'value') {
-                termData = super.escapeTerm(termData);
+                termData = super.encodeTerm(termData);
                 termData.search = termData.search.replace(
                     /[()]/g,
                     function(c) {
