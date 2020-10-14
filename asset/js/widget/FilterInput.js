@@ -855,6 +855,7 @@
             }
 
             switch (changeType) {
+                case 'add':
                 case 'exchange':
                     let lastTermAt = changedIndices.pop();
                     if (changedTerms[lastTermAt].type === 'value'
@@ -1181,6 +1182,7 @@
                     }
 
                     this.addTerm({ ...operators[0] });
+                    this.autoSubmit(input, 'add', { [this.usedTerms.length - 1]: operators[0] });
                     this.togglePlaceholder();
                     event.preventDefault();
                 } else if (termType === 'operator') {
