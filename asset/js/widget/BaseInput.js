@@ -270,12 +270,15 @@
             let terms = this.usedTerms;
             if (! this.input.form.checkValidity()) {
                 terms = [];
-                this.usedTerms.forEach((termData, termIndex) => {
-                    let input = this.termContainer.querySelector(`[data-index="${ termIndex }"] > input`);
+                for (let i = 0; i < this.usedTerms.length; i++) {
+                    const input = this.termContainer.querySelector(`[data-index="${ i }"] > input`);
                     if (input === null || input.checkValidity()) {
-                        terms.push(termData);
+                        terms.push(this.usedTerms[i]);
+                    } else if (input) {
+                        // Ignore all terms after an invalid one
+                        break;
                     }
-                });
+                }
             }
 
             return terms.map(e => this.encodeTerm(e).search).join(this.separator).trim();
