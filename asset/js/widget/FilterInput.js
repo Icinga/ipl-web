@@ -873,7 +873,7 @@
                         let valueAt = updateAt;
                         switch (changedTerms[updateAt].type) {
                             case 'column':
-                                valueAt++;
+                                return;
                             case 'operator':
                                 valueAt++;
                         }
