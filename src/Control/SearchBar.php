@@ -2,15 +2,16 @@
 
 namespace ipl\Web\Control;
 
-use Icinga\Data\Filter\Filter;
-use Icinga\Data\Filter\FilterParseException;
 use ipl\Html\Form;
 use ipl\Html\FormElement\HiddenElement;
 use ipl\Html\FormElement\InputElement;
 use ipl\Html\FormElement\SubmitElement;
 use ipl\Html\HtmlElement;
+use ipl\Stdlib\Filter;
 use ipl\Validator\CallbackValidator;
 use ipl\Web\Control\SearchBar\Terms;
+use ipl\Web\Filter\ParseException;
+use ipl\Web\Filter\QueryString;
 use ipl\Web\Url;
 use ipl\Web\Widget\Icon;
 
@@ -18,7 +19,7 @@ class SearchBar extends Form
 {
     protected $defaultAttributes = ['class' => 'search-bar', 'role' => 'search'];
 
-    /** @var Filter */
+    /** @var Filter\Rule */
     protected $filter;
 
     /** @var string */
@@ -36,10 +37,10 @@ class SearchBar extends Form
     /**
      * Set the filter to use
      *
-     * @param   Filter $filter
+     * @param   Filter\Rule $filter
      * @return  $this
      */
-    public function setFilter(Filter $filter)
+    public function setFilter(Filter\Rule $filter)
     {
         $this->filter = $filter;
 
@@ -49,7 +50,7 @@ class SearchBar extends Form
     /**
      * Get the filter in use
      *
-     * @return Filter
+     * @return Filter\Rule
      */
     public function getFilter()
     {
@@ -166,7 +167,7 @@ class SearchBar extends Form
                 return $this->getFilter();
             });
             $termInput->getAttributes()->registerAttributeCallback('value', function () {
-                return $this->getFilter()->toQueryString();
+                return QueryString::render($this->getFilter());
             });
         }
 
@@ -187,8 +188,8 @@ class SearchBar extends Form
             'validators'            => [
                 new CallbackValidator(function ($q, CallbackValidator $validator) {
                     try {
-                        $filter = Filter::fromQueryString($q);
-                    } catch (FilterParseException $e) {
+                        $filter = QueryString::parse($q);
+                    } catch (ParseException $e) {
                         $charAt = $e->getCharPos() - 1;
                         $char = $e->getChar();
 
@@ -200,7 +201,7 @@ class SearchBar extends Form
                             ]);
 
                         $probablyValidQueryString = substr($q, 0, $charAt);
-                        $this->setFilter(Filter::fromQueryString($probablyValidQueryString));
+                        $this->setFilter(QueryString::parse($probablyValidQueryString));
                         return false;
                     }
 
