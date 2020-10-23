@@ -4,13 +4,13 @@ namespace ipl\Web\Control\SearchBar;
 
 use Countable;
 use Generator;
-use Icinga\Data\Filter\Filter;
-use Icinga\Data\Filter\FilterChain;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\FormElement\ButtonElement;
 use ipl\Html\FormElement\InputElement;
 use ipl\Html\HtmlElement;
 use ipl\Stdlib\Contract\Paginatable;
+use ipl\Stdlib\Filter;
+use ipl\Web\Filter\QueryString;
 use IteratorIterator;
 use LimitIterator;
 use OuterIterator;
@@ -69,7 +69,7 @@ abstract class Suggestions extends BaseHtmlElement
      *
      * @param string $searchTerm
      *
-     * @return Filter
+     * @return Filter\Rule
      */
     abstract protected function createQuickSearchFilter($searchTerm);
 
@@ -92,18 +92,18 @@ abstract class Suggestions extends BaseHtmlElement
      */
     abstract protected function fetchColumnSuggestions($searchTerm);
 
-    protected function filterToTerms(FilterChain $filter)
+    protected function filterToTerms(Filter\Chain $filter)
     {
         $logicalSep = [
-            'label'     => $filter->getOperatorSymbol(),
-            'search'    => $filter->getOperatorSymbol(),
+            'label'     => QueryString::getRuleSymbol($filter),
+            'search'    => QueryString::getRuleSymbol($filter),
             'class'     => 'logical_operator',
             'type'      => 'logical_operator'
         ];
 
         $terms = [];
-        foreach ($filter->filters() as $child) {
-            if ($child->isChain()) {
+        foreach ($filter as $child) {
+            if ($child instanceof Filter\Chain) {
                 $terms[] = [
                     'search'    => '(',
                     'label'     => '(',
@@ -118,19 +118,21 @@ abstract class Suggestions extends BaseHtmlElement
                     'class'     => 'grouping_operator_close'
                 ];
             } else {
+                /** @var Filter\Condition $child */
+
                 $terms[] = [
                     'search'    => $child->getColumn(),
-                    'label'     => $child->metaData['label'],
+                    'label'     => $child->columnLabel,
                     'type'      => 'column'
                 ];
                 $terms[] = [
-                    'search'    => $child->getSign(),
-                    'label'     => $child->getSign(),
+                    'search'    => QueryString::getRuleSymbol($child),
+                    'label'     => QueryString::getRuleSymbol($child),
                     'type'      => 'operator'
                 ];
                 $terms[] = [
-                    'search'    => $child->getExpression(),
-                    'label'     => $child->getExpression(),
+                    'search'    => $child->getValue(),
+                    'label'     => $child->getValue(),
                     'type'      => 'value'
                 ];
             }

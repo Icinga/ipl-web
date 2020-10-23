@@ -2,11 +2,10 @@
 
 namespace ipl\Web\Control\SearchBar;
 
-use Icinga\Data\Filter\Filter;
-use Icinga\Data\Filter\FilterChain;
-use Icinga\Data\Filter\FilterExpression;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
+use ipl\Stdlib\Filter;
+use ipl\Web\Filter\QueryString;
 use ipl\Web\Widget\Icon;
 
 class Terms extends BaseHtmlElement
@@ -15,7 +14,7 @@ class Terms extends BaseHtmlElement
 
     protected $defaultAttributes = ['class' => 'terms'];
 
-    /** @var callable|Filter */
+    /** @var callable|Filter\Rule */
     protected $filter;
 
     private $currentIndex = 0;
@@ -34,36 +33,40 @@ class Terms extends BaseHtmlElement
             $filter = $filter();
         }
 
-        if ($filter === null || $filter->isEmpty()) {
+        if ($filter === null) {
             return;
         }
 
-        if ($filter->isChain()) {
-            /** @var FilterChain $filter */
+        if ($filter instanceof Filter\Chain) {
+            if ($filter->isEmpty()) {
+                return;
+            }
+
             $this->assembleConditions($filter, $this);
         } else {
-            /** @var FilterExpression $filter */
+            /** @var Filter\Condition $filter */
             $this->assembleCondition($filter, $this);
         }
     }
 
-    protected function assembleConditions(FilterChain $filters, BaseHtmlElement $where)
+    protected function assembleConditions(Filter\Chain $filters, BaseHtmlElement $where)
     {
-        foreach ($filters->filters() as $i => $filter) {
+        foreach ($filters as $i => $filter) {
             if ($i > 0) {
-                $logicalOperator = $filters->getOperatorSymbol();
+                $logicalOperator = QueryString::getRuleSymbol($filters);
                 $this->assembleTerm('logical_operator', 'logical_operator', $logicalOperator, $logicalOperator, $where);
             }
 
-            if ($filter->isChain()) {
+            if ($filter instanceof Filter\Chain) {
                 $this->assembleChain($filter, $where);
             } else {
+                /** @var Filter\Condition $filter */
                 $this->assembleCondition($filter, $where);
             }
         }
     }
 
-    protected function assembleChain(FilterChain $chain, BaseHtmlElement $where)
+    protected function assembleChain(Filter\Chain $chain, BaseHtmlElement $where)
     {
         $group = new HtmlElement(
             'div',
@@ -84,16 +87,15 @@ class Terms extends BaseHtmlElement
         $where->add($group);
     }
 
-    protected function assembleCondition(FilterExpression $filter, BaseHtmlElement $where)
+    protected function assembleCondition(Filter\Condition $filter, BaseHtmlElement $where)
     {
         $column = $filter->getColumn();
-        $operator = $filter->getSign();
-        $value = $filter->getExpression();
+        $operator = QueryString::getRuleSymbol($filter);
+        $value = $filter->getValue();
 
         $columnLabel = $column;
-        if (isset($filter->metaData['label'])) {
-            // TODO: Change once filters have native meta data
-            $columnLabel = $filter->metaData['label'];
+        if (isset($filter->columnLabel)) {
+            $columnLabel = $filter->columnLabel;
         }
 
         $group = new HtmlElement(
@@ -104,7 +106,7 @@ class Terms extends BaseHtmlElement
 
         $this->assembleTerm('column', 'column', rawurlencode($column), $columnLabel, $group);
 
-        if (! $filter->isBooleanTrue()) {
+        if ($value !== true) {
             $this->assembleTerm('operator', 'operator', $operator, $operator, $group);
 
             if (! empty($value) || ctype_digit($value)) {
