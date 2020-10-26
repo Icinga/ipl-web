@@ -78,10 +78,11 @@ abstract class Suggestions extends BaseHtmlElement
      *
      * @param string $column
      * @param string $searchTerm
+     * @param Filter\Chain $searchFilter
      *
      * @return Traversable
      */
-    abstract protected function fetchValueSuggestions($column, $searchTerm);
+    abstract protected function fetchValueSuggestions($column, $searchTerm, Filter\Chain $searchFilter);
 
     /**
      * Fetch column suggestions
@@ -278,7 +279,15 @@ abstract class Suggestions extends BaseHtmlElement
 
         switch ($type) {
             case 'value':
-                $this->setData($this->fetchValueSuggestions($requestData['column'], $label));
+                $searchFilter = QueryString::parse(isset($requestData['searchFilter'])
+                    ? $requestData['searchFilter']
+                    : ''
+                );
+                if ($searchFilter instanceof Filter\Condition) {
+                    $searchFilter = Filter::all($searchFilter);
+                }
+
+                $this->setData($this->fetchValueSuggestions($requestData['column'], $label, $searchFilter));
 
                 if ($search) {
                     $this->setDefault(['search' => $search]);
