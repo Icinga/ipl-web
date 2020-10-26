@@ -449,6 +449,15 @@
             switch (data.term.type) {
                 case 'grouping_operator':
                     return;
+                case 'value':
+                    let terms = [ ...this.usedTerms ];
+                    terms.splice(termIndex, 1, {
+                        type: 'value',
+                        search: this.completer.addWildcards(data.term.label)
+                    });
+
+                    data.searchFilter = this.termsToQueryString(terms);
+                    break;
                 case 'operator':
                 case 'logical_operator':
                     data.suggestions = this.renderSuggestions(this.validOperator(
