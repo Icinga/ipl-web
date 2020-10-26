@@ -280,6 +280,25 @@
             return super.saveTerm(input, updateDOM);
         }
 
+        termsToQueryString(terms) {
+            if (! this.input.form.checkValidity()) {
+                let filtered = [];
+                for (let i = 0; i < terms.length; i++) {
+                    const input = this.termContainer.querySelector(`[data-index="${ i }"] > input`);
+                    if (input === null || this.isGroupOpen(terms[i]) || input.checkValidity()) {
+                        filtered.push(terms[i]);
+                    } else if (input) {
+                        // Ignore all terms after an invalid one
+                        break;
+                    }
+                }
+
+                terms = filtered;
+            }
+
+            return super.termsToQueryString(terms);
+        }
+
         removeTerm(label, updateDOM = true) {
             let termIndex = Number(label.dataset.index);
             if (termIndex < this.usedTerms.length - 1) {

@@ -266,21 +266,7 @@
             }
         }
 
-        termsToQueryString() {
-            let terms = this.usedTerms;
-            if (! this.input.form.checkValidity()) {
-                terms = [];
-                for (let i = 0; i < this.usedTerms.length; i++) {
-                    const input = this.termContainer.querySelector(`[data-index="${ i }"] > input`);
-                    if (input === null || input.checkValidity()) {
-                        terms.push(this.usedTerms[i]);
-                    } else if (input) {
-                        // Ignore all terms after an invalid one
-                        break;
-                    }
-                }
-            }
-
+        termsToQueryString(terms) {
             return terms.map(e => this.encodeTerm(e).search).join(this.separator).trim();
         }
 
@@ -514,7 +500,7 @@
             if (event.detail && 'terms' in event.detail) {
                 this.termInput.value = event.detail.terms;
             } else {
-                this.termInput.value = this.termsToQueryString();
+                this.termInput.value = this.termsToQueryString(this.usedTerms);
             }
 
             // Enable the hidden input, otherwise it's not submitted
