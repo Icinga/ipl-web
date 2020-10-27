@@ -623,14 +623,14 @@
             return operators;
         }
 
-        nextOperator(value, termType = null, termIndex = null) {
+        nextOperator(value, currentValue, termType = null, termIndex = null) {
             let operators = [];
 
             if (termType === null) {
                 termType = this.termType;
             }
 
-            if (termIndex === null && termType === 'column' && ! this.readPartialTerm(this.input)) {
+            if (termIndex === null && termType === 'column' && ! currentValue) {
                 switch (true) {
                     case ! this.hasTerms():
                     case this.lastTerm().type === 'logical_operator':
@@ -655,6 +655,10 @@
                 switch (termType) {
                     case 'column':
                         operators = operators.concat(this.relational_operators);
+
+                        if (! currentValue || (termIndex !== null && termIndex < this.usedTerms.length)) {
+                            operators.push(this.grouping_operators.open);
+                        }
                     case 'operator':
                     case 'value':
                         operators = operators.concat(this.logical_operators);
@@ -669,7 +673,10 @@
                             operators.push(this.grouping_operators.close);
                         }
 
-                        operators.push(this.grouping_operators.open);
+                        if (termIndex !== null && termIndex < this.usedTerms.length) {
+                            operators.push(this.grouping_operators.open);
+                        }
+
                         break;
                     case 'grouping_operator':
                         let termData = this.usedTerms[termIndex];
@@ -1166,10 +1173,10 @@
                 operators = this.validOperator(
                     termType === 'operator' ? currentValue + value : value, termType, termIndex);
                 if (! operators.exactMatch && ! operators.partialMatches) {
-                    operators = this.nextOperator(value, termType, termIndex);
+                    operators = this.nextOperator(value, currentValue, termType, termIndex);
                 }
             } else {
-                operators = this.nextOperator(value, termType, termIndex);
+                operators = this.nextOperator(value, currentValue, termType, termIndex);
             }
 
             if (isTerm) {
