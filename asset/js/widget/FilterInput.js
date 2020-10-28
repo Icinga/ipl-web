@@ -15,6 +15,13 @@
             this.termType = 'column';
 
             /**
+             * The negation operator
+             *
+             * @type {{}}
+             */
+            this.negationOperator = { label: '!', search: '!', class: 'logical_operator', type: 'negation_operator' };
+
+            /**
              * Supported grouping operators
              *
              * @type {{close: {}, open: {}}}
@@ -167,6 +174,14 @@
                         } else {
                             previous.parentNode.insertBefore(label, previous.nextSibling);
                         }
+                    } else {
+                        this.termContainer.insertBefore(label, this.termContainer.firstChild);
+                    }
+
+                    break;
+                case 'negation_operator':
+                    if (previous) {
+                        previous.parentNode.insertBefore(label, previous.nextSibling);
                     } else {
                         this.termContainer.insertBefore(label, this.termContainer.firstChild);
                     }
@@ -448,6 +463,7 @@
             // Special cases
             switch (data.term.type) {
                 case 'grouping_operator':
+                case 'negation_operator':
                     return;
                 case 'value':
                     let terms = [ ...this.usedTerms ];
@@ -484,6 +500,7 @@
                 case 'value':
                     return 'logical_operator';
                 case 'logical_operator':
+                case 'negation_operator':
                     return 'column';
                 case 'grouping_operator':
                     return this.isGroupOpen(termData) ? 'column' : 'logical_operator';
@@ -636,6 +653,7 @@
                     case this.lastTerm().type === 'logical_operator':
                     case this.isGroupOpen(this.lastTerm()):
                         operators.push(this.grouping_operators.open);
+                        operators.push(this.negationOperator);
                 }
             } else if (termIndex === -1) {
                 // This is more of a `previousOperator` thing here
@@ -644,10 +662,16 @@
                         operators = operators.concat(this.logical_operators);
                     case 'logical_operator':
                         operators.push(this.grouping_operators.open);
+                        operators.push(this.negationOperator);
+                        break;
+                    case 'negation_operator':
+                        operators = operators.concat(this.logical_operators);
+                        operators.push(this.grouping_operators.open);
                         break;
                     case 'grouping_operator':
                         if (this.isGroupOpen(this.usedTerms[0])) {
                             operators.push(this.grouping_operators.open);
+                            operators.push(this.negationOperator);
                         }
                 }
             } else {
@@ -658,6 +682,7 @@
 
                         if (! currentValue || (termIndex !== null && termIndex < this.usedTerms.length)) {
                             operators.push(this.grouping_operators.open);
+                            operators.push(this.negationOperator);
                         }
                     case 'operator':
                     case 'value':
@@ -675,13 +700,19 @@
 
                         if (termIndex !== null && termIndex < this.usedTerms.length) {
                             operators.push(this.grouping_operators.open);
+                            operators.push(this.negationOperator);
                         }
+
+                        break;
+                    case 'negation_operator':
+                        operators.push(this.grouping_operators.open);
 
                         break;
                     case 'grouping_operator':
                         let termData = this.usedTerms[termIndex];
                         if (this.isGroupOpen(termData)) {
                             operators.push(this.grouping_operators.open);
+                            operators.push(this.negationOperator);
                         } else if (this.lastPendingGroupOpen(nextIndex)) {
                             operators.push(this.grouping_operators.close);
                         }
@@ -704,6 +735,9 @@
                     break;
                 case 'logical_operator':
                     operators = operators.concat(this.logical_operators);
+                    break;
+                case 'negation_operator':
+                    operators.push(this.negationOperator);
                     break;
                 case 'grouping_operator':
                     let termData = this.usedTerms[termIndex];
@@ -740,6 +774,7 @@
             switch (type) {
                 case 'operator':
                 case 'logical_operator':
+                case 'negation_operator':
                 case 'grouping_operator':
                     options = this.validOperator(value, type, termIndex);
             }
@@ -752,7 +787,7 @@
                 }
             } else {
                 let isRequired = ! options.exactMatch;
-                if (options.partialMatches && options.length > 1) {
+                if ((options.partialMatches && options.length > 1) || (type === 'negation_operator' && ! value)) {
                     isRequired = false;
                 } else if (type === 'operator' && ! value) {
                     let nextTermAt = termIndex + 1;
@@ -792,7 +827,7 @@
                 let missingLogicalOp = true;
                 switch (type) {
                     case 'column':
-                        missingLogicalOp = previousTerm.type !== 'logical_operator'
+                        missingLogicalOp = ! ['logical_operator', 'negation_operator'].includes(previousTerm.type)
                             && ! this.isGroupOpen(previousTerm);
                         break;
                     case 'operator':
@@ -801,9 +836,13 @@
                     case 'value':
                         missingLogicalOp = previousTerm.type !== 'operator';
                         break;
+                    case 'negation_operator':
+                        missingLogicalOp = previousTerm.type !== 'logical_operator'
+                            && ! this.isGroupOpen(previousTerm);
+                        break;
                     case 'grouping_operator':
                         if (value === this.grouping_operators.open.label) {
-                            missingLogicalOp = previousTerm.type !== 'logical_operator'
+                            missingLogicalOp = ! ['logical_operator', 'negation_operator'].includes(previousTerm.type)
                                 && ! this.isGroupOpen(previousTerm);
                         } else {
                             missingLogicalOp = false;
@@ -925,6 +964,7 @@
                     let firstTermAt = changedIndices.shift();
                     if (changedTerms[firstTermAt].type === 'column'
                         || this.isGroupOpen(changedTerms[firstTermAt])
+                        || changedTerms[firstTermAt].type === 'negation_operator'
                         || (changedTerms[firstTermAt].type === 'logical_operator' && changedIndices.length)
                     ) {
                         break;
@@ -967,6 +1007,7 @@
                 highlightedBy = label.dataset.index;
             }
 
+            let negationAt, previousIndex, nextIndex;
             switch (label.dataset.type) {
                 case 'column':
                 case 'operator':
@@ -977,9 +1018,23 @@
                             otherLabel.dataset.highlightedBy = highlightedBy;
                         }
                     });
+
+                    negationAt = Number(label.dataset.index) - (
+                        label.dataset.type === 'column'
+                            ? 1 : label.dataset.type === 'operator'
+                                ? 2 : 3
+                    );
+                    if (negationAt >= 0 && this.usedTerms[negationAt].type === 'negation_operator') {
+                        let negationLabel = this.termContainer.querySelector(`[data-index="${ negationAt }"]`);
+                        if (negationLabel !== null && canBeHighlighted(negationLabel)) {
+                            negationLabel.classList.add('highlighted');
+                            negationLabel.dataset.highlightedBy = highlightedBy;
+                        }
+                    }
+
                     break;
                 case 'logical_operator':
-                    let previousIndex = Number(label.dataset.index) - 1;
+                    previousIndex = Number(label.dataset.index) - 1;
                     if (previousIndex >= 0) {
                         this.highlightTerm(
                             this.termContainer.querySelector(`[data-index="${ previousIndex }"]`),
@@ -987,7 +1042,17 @@
                         );
                     }
 
-                    let nextIndex = Number(label.dataset.index) + 1;
+                    nextIndex = Number(label.dataset.index) + 1;
+                    if (nextIndex < this.usedTerms.length) {
+                        this.highlightTerm(
+                            this.termContainer.querySelector(`[data-index="${ nextIndex }"]`),
+                            highlightedBy
+                        );
+                    }
+
+                    break;
+                case 'negation_operator':
+                    nextIndex = Number(label.dataset.index) + 1;
                     if (nextIndex < this.usedTerms.length) {
                         this.highlightTerm(
                             this.termContainer.querySelector(`[data-index="${ nextIndex }"]`),
@@ -997,13 +1062,32 @@
 
                     break;
                 case 'grouping_operator':
+                    negationAt = null;
+                    if (this.isGroupOpen(label.dataset)) {
+                        negationAt = Number(label.dataset.index) - 1;
+                    }
+
                     if (label.dataset.counterpart >= 0) {
                         let otherLabel = this.termContainer.querySelector(
                             `[data-index="${ label.dataset.counterpart }"]`
                         );
-                        if (otherLabel !== null && canBeHighlighted(otherLabel)) {
-                            otherLabel.classList.add('highlighted');
-                            otherLabel.dataset.highlightedBy = highlightedBy;
+                        if (otherLabel !== null) {
+                            if (negationAt === null) {
+                                negationAt = Number(otherLabel.dataset.index) - 1;
+                            }
+
+                            if (canBeHighlighted(otherLabel)) {
+                                otherLabel.classList.add('highlighted');
+                                otherLabel.dataset.highlightedBy = highlightedBy;
+                            }
+                        }
+                    }
+
+                    if (negationAt >= 0 && this.usedTerms[negationAt].type === 'negation_operator') {
+                        let negationLabel = this.termContainer.querySelector(`[data-index="${ negationAt }"]`);
+                        if (negationLabel !== null && canBeHighlighted(negationLabel)) {
+                            negationLabel.classList.add('highlighted');
+                            negationLabel.dataset.highlightedBy = highlightedBy;
                         }
                     }
             }
@@ -1068,6 +1152,11 @@
             let next = button.parentNode.nextSibling;
 
             while (previous !== null || next !== null) {
+                if (previous !== null && previous.dataset.type === 'negation_operator') {
+                    labels.unshift(previous);
+                    previous = previous.previousSibling;
+                }
+
                 if (next !== null && next.dataset.type === 'logical_operator') {
                     labels.push(next);
                     next = next.nextSibling;
@@ -1194,6 +1283,7 @@
                             newTerm = { label: value, search: value, type: 'value' };
                             break;
                         case 'logical_operator':
+                        case 'negation_operator':
                             newTerm = { label: value, search: value, type: 'column' };
                             break;
                     }

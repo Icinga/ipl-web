@@ -42,7 +42,11 @@ class Terms extends BaseHtmlElement
                 return;
             }
 
-            $this->assembleConditions($filter, $this);
+            if ($filter instanceof Filter\None) {
+                $this->assembleChain($filter, $this, $filter->count() > 1);
+            } else {
+                $this->assembleConditions($filter, $this);
+            }
         } else {
             /** @var Filter\Condition $filter */
             $this->assembleCondition($filter, $this);
@@ -58,7 +62,7 @@ class Terms extends BaseHtmlElement
             }
 
             if ($filter instanceof Filter\Chain) {
-                $this->assembleChain($filter, $where);
+                $this->assembleChain($filter, $where, $filter->count() > 1);
             } else {
                 /** @var Filter\Condition $filter */
                 $this->assembleCondition($filter, $where);
@@ -66,25 +70,39 @@ class Terms extends BaseHtmlElement
         }
     }
 
-    protected function assembleChain(Filter\Chain $chain, BaseHtmlElement $where)
+    protected function assembleChain(Filter\Chain $chain, BaseHtmlElement $where, $wrap = false)
     {
-        $group = new HtmlElement(
-            'div',
-            ['class' => 'filter-chain', 'data-group-type' => 'chain']
-        );
+        if ($wrap) {
+            $group = new HtmlElement(
+                'div',
+                ['class' => 'filter-chain', 'data-group-type' => 'chain']
+            );
+        } else {
+            $group = $where;
+        }
 
-        $opening = $this->assembleTerm('grouping_operator_open', 'grouping_operator', '(', '(', $group);
+        if ($chain instanceof Filter\None) {
+            $this->assembleTerm('logical_operator', 'negation_operator', '!', '!', $where);
+        }
+
+        if ($wrap) {
+            $opening = $this->assembleTerm('grouping_operator_open', 'grouping_operator', '(', '(', $group);
+        }
+
         $this->assembleConditions($chain, $group);
-        $closing = $this->assembleTerm('grouping_operator_close', 'grouping_operator', ')', ')', $group);
 
-        $opening->addAttributes([
-            'data-counterpart' => $closing->getAttributes()->get('data-index')->getValue()
-        ]);
-        $closing->addAttributes([
-            'data-counterpart' => $opening->getAttributes()->get('data-index')->getValue()
-        ]);
+        if ($wrap) {
+            $closing = $this->assembleTerm('grouping_operator_close', 'grouping_operator', ')', ')', $group);
 
-        $where->add($group);
+            $opening->addAttributes([
+                'data-counterpart' => $closing->getAttributes()->get('data-index')->getValue()
+            ]);
+            $closing->addAttributes([
+                'data-counterpart' => $opening->getAttributes()->get('data-index')->getValue()
+            ]);
+
+            $where->add($group);
+        }
     }
 
     protected function assembleCondition(Filter\Condition $filter, BaseHtmlElement $where)
