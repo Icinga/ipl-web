@@ -174,10 +174,13 @@
                             let suggestions = this.renderSuggestions(req.responseText);
                             if (trigger === 'script') {
                                 // If the suggestions are to be displayed due to a scripted event,
-                                // show them only if there are multiple options available
-                                let options = suggestions.querySelectorAll('[type="button"]');
-                                if (options.length > 1) {
-                                    this.showSuggestions(suggestions, input);
+                                // show them only if the completed input is still focused..
+                                if (document.activeElement === input) {
+                                    let options = suggestions.querySelectorAll('[type="button"]');
+                                    // ..and only if there are multiple options available
+                                    if (options.length > 1) {
+                                        this.showSuggestions(suggestions, input);
+                                    }
                                 }
                             } else {
                                 this.showSuggestions(suggestions, input);
