@@ -1049,7 +1049,7 @@
                     break;
                 case 'logical_operator':
                     previousIndex = Number(label.dataset.index) - 1;
-                    if (previousIndex >= 0) {
+                    if (previousIndex >= 0 && this.usedTerms[previousIndex].type !== 'logical_operator') {
                         this.highlightTerm(
                             this.termContainer.querySelector(`[data-index="${ previousIndex }"]`),
                             highlightedBy
@@ -1057,7 +1057,7 @@
                     }
 
                     nextIndex = Number(label.dataset.index) + 1;
-                    if (nextIndex < this.usedTerms.length) {
+                    if (nextIndex < this.usedTerms.length && this.usedTerms[nextIndex].type !== 'logical_operator') {
                         this.highlightTerm(
                             this.termContainer.querySelector(`[data-index="${ nextIndex }"]`),
                             highlightedBy
