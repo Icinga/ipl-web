@@ -62,6 +62,7 @@
 
         bind() {
             $(this.termContainer).on('click', '[data-group-type="condition"] > button', this.onRemoveCondition, this);
+            $(this.termContainer).on('click', '[data-index]', this.onTermClick, this);
             $(this.termContainer).on('mouseover', '[data-index]', this.onTermHover, this);
             $(this.termContainer).on('mouseout', '[data-index]', this.onTermLeave, this);
             return super.bind();
@@ -1143,7 +1144,23 @@
             }
 
             this.highlightTerm(input.parentNode);
+
+            let value = this.readPartialTerm(input);
+            if (! value && (termType === 'column' || termType === 'value')) {
+                // No automatic suggestions without input
+                return;
+            }
+
             super.onTermFocus(event);
+        }
+
+        onTermClick(event) {
+            let input = event.target;
+            let termType = input.parentNode.dataset.type;
+
+            if (['logical_operator', 'operator'].includes(termType)) {
+                this.complete(input, { trigger: 'script', term: { label: this.readPartialTerm(input) } });
+            }
         }
 
         onTermHover(event) {

@@ -690,14 +690,7 @@
             }
 
             let input = event.target;
-            let termType = input.parentNode.dataset.type || this.termType;
-
             let value = this.readPartialTerm(input);
-            if (! value && (termType === 'column' || termType === 'value')) {
-                // No automatic suggestions without input
-                return;
-            }
-
             this.complete(input, { trigger: 'script', term: { label: value } });
         }
 
