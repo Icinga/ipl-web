@@ -928,12 +928,25 @@
                 return;
             }
 
+            let lastTermAt;
             switch (changeType) {
                 case 'add':
                 case 'exchange':
-                    let lastTermAt = changedIndices.pop();
+                    lastTermAt = changedIndices.pop();
                     if (changedTerms[lastTermAt].type === 'value'
                         || this.isGroupClose(changedTerms[lastTermAt])
+                    ) {
+                        break;
+                    }
+
+                    return;
+                case 'insert':
+                    lastTermAt = changedIndices.pop();
+                    if ((changedTerms[lastTermAt].type === 'value' && changedIndices.length)
+                        || this.isGroupClose(changedTerms[lastTermAt])
+                        || (changedTerms[lastTermAt].type === 'negation_operator'
+                            && lastTermAt < this.usedTerms.length - 1
+                        )
                     ) {
                         break;
                     }
@@ -1116,7 +1129,9 @@
                 this.deHighlightTerm(label);
             }
 
-            super.onTermBlur(event);
+            if (['column', 'value'].includes(label.dataset.type) || ! this.readPartialTerm(label.firstChild)) {
+                super.onTermBlur(event);
+            }
         }
 
         onTermFocus(event) {
@@ -1291,6 +1306,7 @@
 
                 if (newTerm !== null) {
                     let label = this.insertTerm(newTerm, termIndex + 1);
+                    this.autoSubmit(label.firstChild, 'insert', { [termIndex + 1]: newTerm });
                     this.complete(label.firstChild, { term: newTerm });
                     $(label.firstChild).focus({ scripted: true });
                     event.preventDefault();
@@ -1323,14 +1339,17 @@
 
         onInput(event) {
             let input = event.target;
-            let isTerm = input.parentNode.dataset.index >= 0;
+            let termIndex = Number(input.parentNode.dataset.index);
 
-            if (isTerm) {
+            if (termIndex >= 0) {
+                let value = this.readPartialTerm(input);
                 if (! this.checkValidity(input)) {
                     this.reportValidity(input);
                     // Let inputs also grow upon invalid input
-                    this.updateTermData({ label: this.readPartialTerm(input) }, input);
+                    this.updateTermData({ label: value }, input);
                     return;
+                } else if (value && ! ['column', 'value'].includes(input.parentNode.dataset.type)) {
+                    this.autoSubmit(input, 'save', { [termIndex]: this.saveTerm(input) });
                 }
             } else if (this.termType === 'operator' || this.termType === 'logical_operator') {
                 let value = this.readPartialTerm(input);
