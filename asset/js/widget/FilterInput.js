@@ -1323,15 +1323,16 @@
 
         onInput(event) {
             let input = event.target;
-
-            if (! this.checkValidity(input)) {
-                this.reportValidity(input);
-                return;
-            }
-
             let isTerm = input.parentNode.dataset.index >= 0;
 
-            if (! isTerm && (this.termType === 'operator' || this.termType === 'logical_operator')) {
+            if (isTerm) {
+                if (! this.checkValidity(input)) {
+                    this.reportValidity(input);
+                    // Let inputs also grow upon invalid input
+                    this.updateTermData({ label: this.readPartialTerm(input) }, input);
+                    return;
+                }
+            } else if (this.termType === 'operator' || this.termType === 'logical_operator') {
                 let value = this.readPartialTerm(input);
 
                 if (value && ! this.validOperator(value).partialMatches) {
