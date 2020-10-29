@@ -71,6 +71,15 @@
     }
   }
 
+  .operator,
+  .logical_operator,
+  .grouping_operator_open,
+  .grouping_operator_close {
+    input {
+      text-align: center;
+    }
+  }
+
   [data-index] input:invalid {
     background-color: @color-critical;
     color: @text-color-inverted;
@@ -187,11 +196,12 @@
     // Lets inputs grow based on their contents, Inspired by https://css-tricks.com/auto-growing-inputs-textareas/
     label {
       position: relative;
+      display: inline-block;
+      min-width: 2em;
 
       &::after,
       input {
         width: auto;
-        min-width: 1ch;
         font: inherit;
         padding: .15em .5em;
         resize: none;
