@@ -653,19 +653,23 @@
                     this.deselectTerms();
                     break;
                 case 'Home':
-                    if (event.shiftKey) {
-                        this.selectTerms();
+                    if (this.input.selectionStart === 0 && this.input.selectionEnd === 0) {
+                        if (event.shiftKey) {
+                            this.selectTerms();
+                        } else {
+                            this.deselectTerms();
+                        }
                     }
+
                     break;
                 case 'Delete':
                     this.autoSubmit(event.target, 'remove', this.clearSelectedTerms());
                     this.togglePlaceholder();
                     break;
                 case 'a':
-                    if (event.ctrlKey || event.metaKey) {
+                    if ((event.ctrlKey || event.metaKey) && ! this.readPartialTerm(this.input)) {
                         this.selectTerms();
                     }
-                    break;
             }
         }
 
@@ -692,6 +696,8 @@
                 // Only request suggestions if the user manually focuses the term
                 return;
             }
+
+            this.deselectTerms();
 
             let input = event.target;
             let value = this.readPartialTerm(input);
