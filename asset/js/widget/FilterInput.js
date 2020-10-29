@@ -466,6 +466,9 @@
                 case 'grouping_operator':
                 case 'negation_operator':
                     return;
+                case 'column':
+                    data.showQuickSearch = termIndex === this.usedTerms.length;
+                    break;
                 case 'value':
                     let terms = [ ...this.usedTerms ];
                     terms.splice(termIndex - 2, 3, { type: 'column', search: '' },
