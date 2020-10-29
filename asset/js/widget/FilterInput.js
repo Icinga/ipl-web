@@ -468,10 +468,8 @@
                     return;
                 case 'value':
                     let terms = [ ...this.usedTerms ];
-                    terms.splice(termIndex, 1, {
-                        type: 'value',
-                        search: this.completer.addWildcards(data.term.label)
-                    });
+                    terms.splice(termIndex - 2, 3, { type: 'column', search: '' },
+                        { type: 'operator', search: '' }, { type: 'value', search: '' });
 
                     data.searchFilter = this.termsToQueryString(terms);
                     break;
