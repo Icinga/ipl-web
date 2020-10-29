@@ -477,8 +477,14 @@
                     break;
                 case 'operator':
                 case 'logical_operator':
-                    data.suggestions = this.renderSuggestions(this.validOperator(
-                        data.trigger === 'script' ? '': data.term.label, data.term.type, termIndex));
+                    let suggestions = this.validOperator(
+                        data.trigger === 'script' ? '': data.term.label, data.term.type, termIndex);
+                    if (suggestions.exactMatch) {
+                        // User typed a suggestion manually, don't show the same suggestion again
+                        return;
+                    }
+
+                    data.suggestions = this.renderSuggestions(suggestions);
             }
 
             // Additional metadata
