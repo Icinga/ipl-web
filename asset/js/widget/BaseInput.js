@@ -191,6 +191,10 @@
         }
 
         exchangeTerm() {
+            if (this.completer !== null) {
+                this.completer.reset();
+            }
+
             let termData = this.readFullTerm(this.input);
             if (! termData) {
                 return {};
