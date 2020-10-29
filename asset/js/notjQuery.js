@@ -86,7 +86,7 @@
         trigger(type, detail = null) {
             setTimeout(() => {
                 this.element.dispatchEvent(new CustomEvent(type, {
-                    cancelable: false,
+                    cancelable: true, // TODO: this should depend on whether it's a native or custom event
                     bubbles: true,
                     detail: detail
                 }));
