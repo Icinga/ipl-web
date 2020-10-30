@@ -7,10 +7,14 @@ use Icinga\Web\Controller;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlDocument;
 use ipl\Html\ValidHtml;
+use ipl\Web\Control\PaginationControl;
+use ipl\Web\Control\SearchBar;
 use ipl\Web\Layout\Content;
 use ipl\Web\Layout\Controls;
 use ipl\Web\Layout\Footer;
+use ipl\Web\Url;
 use ipl\Web\Widget\Tabs;
+use LogicException;
 
 class CompatController extends Controller
 {
@@ -57,6 +61,7 @@ class CompatController extends Controller
         $this->footer = new Footer();
         $this->footer->setAttribute('id', $this->getRequest()->protectId('footer'));
         $this->tabs = new Tabs();
+        $this->tabs->setAttribute('id', $this->getRequest()->protectId('tabs'));
         $this->parts = [];
 
         $this->controls->setTabs($this->tabs);
@@ -199,6 +204,66 @@ class CompatController extends Controller
         $this->_helper->layout()->autorefreshInterval = $interval;
 
         return $this;
+    }
+
+    /**
+     * Send a multipart update instead of a standard response
+     *
+     * As part of a multipart update, the tabs, content and footer as well as selected controls are
+     * transmitted in a way the client can render them exclusively instead of a full column reload.
+     *
+     * By default the only control included in the response is the pagination control, if added.
+     *
+     * @param BaseHtmlElement ...$additionalControls Additional controls to include
+     *
+     * @throws LogicException In case an additional control has not been added
+     */
+    public function sendMultipartUpdate(BaseHtmlElement ...$additionalControls)
+    {
+        $pagination = null;
+        $redirectUrl = null;
+        foreach ($this->controls->getContent() as $control) {
+            if ($control instanceof PaginationControl) {
+                $pagination = $control;
+            } elseif ($control instanceof SearchBar) {
+                $redirectUrl = $control->getRedirectUrl(); /** @var Url $redirectUrl */
+            }
+        }
+
+        if ($this->tabs->count() > 0) {
+            if ($redirectUrl !== null) {
+                $this->tabs->setRefreshUrl($redirectUrl);
+                $this->tabs->getActiveTab()->setUrl($redirectUrl);
+            }
+
+            $this->addPart($this->tabs);
+        }
+
+        if ($pagination !== null) {
+            if ($redirectUrl !== null) {
+                $pagination->setUrl(clone $redirectUrl);
+            }
+
+            $this->addPart($pagination);
+        }
+
+        foreach ($additionalControls as $i => $control) {
+            if (! in_array($control, $this->controls->getContent(), true)) {
+                throw new LogicException("Additional control #$i has not been added");
+            }
+
+            $this->addPart($control);
+        }
+
+        if (! $this->content->isEmpty()) {
+            $this->addPart($this->content);
+        }
+
+        if (! $this->footer->isEmpty()) {
+            $this->addPart($this->footer);
+        }
+
+        $this->getResponse()->setHeader('X-Icinga-Location-Query', $redirectUrl->getParams()->toString());
     }
 
     public function postDispatch()
