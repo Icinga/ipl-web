@@ -171,7 +171,7 @@ class SearchBar extends Form
 
         $filterInput = new InputElement($this->getSearchParameter(), [
             'type'                  => 'text',
-            'placeholder'           => 'type something..',
+            'placeholder'           => 'Type to search. Use * as wildcard.',
             'class'                 => 'filter-input',
             'id'                    => $searchInputId,
             'autocomplete'          => 'off',
