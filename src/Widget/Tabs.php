@@ -7,18 +7,35 @@ use Icinga\Web\Widget\Tabextension\DashboardAction;
 use Icinga\Web\Widget\Tabextension\MenuAction;
 use Icinga\Web\Widget\Tabextension\OutputFormat;
 use InvalidArgumentException;
-use ipl\Html\ValidHtml;
+use ipl\Html\BaseHtmlElement;
+use ipl\Html\HtmlString;
+use ipl\Web\Url;
 
 /**
  * @TODO(el): Don't depend on Icinga Web's Tabs
  */
-class Tabs extends \Icinga\Web\Widget\Tabs implements ValidHtml
+class Tabs extends BaseHtmlElement
 {
+    protected $tag = 'ul';
+
+    protected $defaultAttributes = ['class' => 'tabs primary-nav nav'];
+
+    /** @var \Icinga\Web\Widget\Tabs */
+    protected $tabs;
+
     /** @var bool Whether data exports are enabled */
     protected $dataExportsEnabled = false;
 
     /** @var bool Whether the legacy extensions should be shown by default */
     protected $legacyExtensionsEnabled = true;
+
+    /** @var Url */
+    protected $refreshUrl;
+
+    public function __construct()
+    {
+        $this->tabs = new \Icinga\Web\Widget\Tabs();
+    }
 
     /**
      * Don't show legacy extensions by default
@@ -37,6 +54,44 @@ class Tabs extends \Icinga\Web\Widget\Tabs implements ValidHtml
     }
 
     /**
+     * Set the url for the refresh button
+     *
+     * @param Url $url
+     *
+     * @return $this
+     */
+    public function setRefreshUrl(Url $url)
+    {
+        $this->refreshUrl = $url;
+
+        return $this;
+    }
+
+    protected function assemble()
+    {
+        if ($this->legacyExtensionsEnabled) {
+            $this->tabs->extend(new OutputFormat(
+                $this->dataExportsEnabled
+                    ? []
+                    : [OutputFormat::TYPE_CSV, OutputFormat::TYPE_JSON]
+            ))
+                ->extend(new DashboardAction())
+                ->extend(new MenuAction());
+        }
+
+        $tabHtml = substr($this->tabs->render(), 34, -5);
+        if ($this->refreshUrl !== null) {
+            $tabHtml = preg_replace(
+                '/(?<=class="refresh-container-control spinner" href=")([^"]*)/',
+                $this->refreshUrl->getAbsoluteUrl(),
+                $tabHtml
+            );
+        }
+
+        parent::add(HtmlString::create($tabHtml));
+    }
+
+    /**
      * Activate the tab with the given name
      *
      * @param string $name
@@ -48,12 +103,22 @@ class Tabs extends \Icinga\Web\Widget\Tabs implements ValidHtml
     public function activate($name)
     {
         try {
-            parent::activate($name);
+            $this->tabs->activate($name);
         } catch (Exception $e) {
             throw new InvalidArgumentException($e->getMessage());
         }
 
         return $this;
+    }
+
+    /**
+     * Get active tab
+     *
+     * @return \Icinga\Web\Widget\Tab
+     */
+    public function getActiveTab()
+    {
+        return $this->tabs->get($this->tabs->getActiveName());
     }
 
     /**
@@ -66,29 +131,33 @@ class Tabs extends \Icinga\Web\Widget\Tabs implements ValidHtml
      *
      * @throws InvalidArgumentException
      */
-    public function add($name, $tab)
+    public function add($name, $tab = null)
     {
+        if ($tab === null) {
+            throw new InvalidArgumentException('Argument $tab is required');
+        }
+
         try {
-            parent::add($name, $tab);
+            $this->tabs->add($name, $tab);
         } catch (Exception $e) {
             throw new InvalidArgumentException($e->getMessage());
+        }
+
+        if (isset($tab['active']) && $tab['active']) {
+            // Otherwise Tabs::getActiveName() returns null
+            $this->tabs->activate($name);
         }
 
         return $this;
     }
 
-    public function render()
+    /**
+     * Count tabs
+     *
+     * @return int
+     */
+    public function count()
     {
-        if ($this->legacyExtensionsEnabled) {
-            $this->extend(new OutputFormat(
-                $this->dataExportsEnabled
-                    ? []
-                    : [OutputFormat::TYPE_CSV, OutputFormat::TYPE_JSON]
-            ))
-                ->extend(new DashboardAction())
-                ->extend(new MenuAction());
-        }
-
-        return parent::render();
+        return $this->tabs->count();
     }
 }
