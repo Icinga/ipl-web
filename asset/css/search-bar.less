@@ -154,7 +154,8 @@
 
   .selected input {
     background-color: @disabled-gray;
-    text-decoration: line-through;
+    color: @gray-light;
+    font-style: italic;
   }
 
   // Suggestion styles
@@ -232,6 +233,10 @@
     flex-grow: 1;
     padding: .3em 0 .6em .4em;
 
+    label input {
+      line-height: 1.5;
+    }
+
     // Lets inputs grow based on their contents, Inspired by https://css-tricks.com/auto-growing-inputs-textareas/
     label {
       position: relative;
@@ -241,7 +246,6 @@
       &::after,
       input {
         width: auto;
-        font: inherit;
         padding: .15em .5em;
         resize: none;
       }
