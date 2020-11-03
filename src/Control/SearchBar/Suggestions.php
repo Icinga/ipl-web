@@ -299,11 +299,14 @@ abstract class Suggestions extends BaseHtmlElement
                 $this->setData($this->filterColumnSuggestions($this->fetchColumnSuggestions($label), $label));
 
                 if ($search && $requestData['showQuickSearch']) {
-                    $this->setDefault([
-                        'search'    => $label,
-                        'type'      => 'terms',
-                        'terms'     => $this->createQuickSearchFilter($label)
-                    ]);
+                    $quickFilter = $this->createQuickSearchFilter($label);
+                    if (! $quickFilter instanceof Filter\Chain || ! $quickFilter->isEmpty()) {
+                        $this->setDefault([
+                            'search'    => $label,
+                            'type'      => 'terms',
+                            'terms'     => $quickFilter
+                        ]);
+                    }
                 }
         }
 
