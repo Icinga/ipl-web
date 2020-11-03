@@ -152,6 +152,18 @@ class Tabs extends BaseHtmlElement
     }
 
     /**
+     * Get a tab
+     *
+     * @param string $name
+     *
+     * @return \Icinga\Web\Widget\Tab|null
+     */
+    public function get($name)
+    {
+        return $this->tabs->get($name);
+    }
+
+    /**
      * Count tabs
      *
      * @return int
