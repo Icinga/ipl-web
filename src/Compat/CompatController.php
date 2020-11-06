@@ -241,6 +241,19 @@ class CompatController extends Controller
             $this->addPart(HtmlString::create(json_encode($changes)), 'Behavior:InputEnrichment');
         }
 
+        foreach ($additionalControls as $i => $control) {
+            if (! in_array($control, $this->controls->getContent(), true)) {
+                throw new LogicException("Additional control #$i has not been added");
+            }
+
+            $this->addPart($control);
+        }
+
+        if ($searchBar !== null && $this->content->isEmpty() && ! $searchBar->isValid()) {
+            // No content and an invalid search bar? That's it then, further updates are not required
+            return;
+        }
+
         if ($this->tabs->count() > 0) {
             if ($redirectUrl !== null) {
                 $this->tabs->setRefreshUrl($redirectUrl);
@@ -258,14 +271,6 @@ class CompatController extends Controller
             $this->addPart($pagination);
         }
 
-        foreach ($additionalControls as $i => $control) {
-            if (! in_array($control, $this->controls->getContent(), true)) {
-                throw new LogicException("Additional control #$i has not been added");
-            }
-
-            $this->addPart($control);
-        }
-
         if (! $this->content->isEmpty()) {
             $this->addPart($this->content);
         }
@@ -274,7 +279,9 @@ class CompatController extends Controller
             $this->addPart($this->footer);
         }
 
-        $this->getResponse()->setHeader('X-Icinga-Location-Query', $redirectUrl->getParams()->toString());
+        if ($redirectUrl !== null) {
+            $this->getResponse()->setHeader('X-Icinga-Location-Query', $redirectUrl->getParams()->toString());
+        }
     }
 
     public function postDispatch()
