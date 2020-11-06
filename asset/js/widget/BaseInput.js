@@ -526,11 +526,6 @@
          */
 
         onSubmit(event) {
-            // Register current input value for manual submits, otherwise it's not included
-            if (! event.detail || ! ('submittedBy' in event.detail)) {
-                this.exchangeTerm();
-            }
-
             // Unset the input's name, to prevent its submission (It may actually have a name, as no-js fallback)
             this.input.name = '';
 
@@ -739,6 +734,9 @@
         }
 
         onButtonClick(event) {
+            // Register current input value, otherwise it's not included
+            this.exchangeTerm();
+
             if (this.hasTerms()) {
                 this.input.required = false;
 
