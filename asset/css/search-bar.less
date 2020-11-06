@@ -193,6 +193,15 @@
       font-size: 80%;
     }
 
+    .failure-message {
+      font-weight: bold;
+
+      em {
+        font-weight: normal;
+        color: @text-color-light;
+      }
+    }
+
     [type="button"]:focus {
       background: @icinga-blue;
       color: @text-color-inverted;
@@ -339,6 +348,14 @@
 
       li.suggestion-title {
         padding: 1.25em 0 0 .625em;
+      }
+
+      li.failure-message {
+        padding: .5em 1em;
+
+        em {
+          margin-right: .5em;
+        }
       }
     }
 

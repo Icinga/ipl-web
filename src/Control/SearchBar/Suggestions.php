@@ -36,6 +36,9 @@ abstract class Suggestions extends BaseHtmlElement
     /** @var string */
     protected $type;
 
+    /** @var string */
+    protected $failureMessage;
+
     public function setSearchTerm($term)
     {
         $this->searchTerm = $term;
@@ -60,6 +63,13 @@ abstract class Suggestions extends BaseHtmlElement
     public function setType($type)
     {
         $this->type = $type;
+
+        return $this;
+    }
+
+    public function setFailureMessage($message)
+    {
+        $this->failureMessage = $message;
 
         return $this;
     }
@@ -191,6 +201,14 @@ abstract class Suggestions extends BaseHtmlElement
 
     protected function assemble()
     {
+        if ($this->failureMessage !== null) {
+            $this->add(new HtmlElement('li', ['class' => 'failure-message'], [
+                new HtmlElement('em', null, t('Can\'t search:')),
+                $this->failureMessage
+            ]));
+            return;
+        }
+
         if ($this->data === null) {
             $data = [];
         } elseif ($this->data instanceof Paginatable) {
@@ -287,7 +305,11 @@ abstract class Suggestions extends BaseHtmlElement
                     $searchFilter = Filter::all($searchFilter);
                 }
 
-                $this->setData($this->fetchValueSuggestions($requestData['column'], $label, $searchFilter));
+                try {
+                    $this->setData($this->fetchValueSuggestions($requestData['column'], $label, $searchFilter));
+                } catch (SearchException $e) {
+                    $this->setFailureMessage($e->getMessage());
+                }
 
                 if ($search) {
                     $this->setDefault(['search' => $search]);
