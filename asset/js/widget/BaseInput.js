@@ -157,6 +157,25 @@
             }
         }
 
+        updateTerms(changedTerms) {
+            for (const termIndex of Object.keys(changedTerms)) {
+                let label = this.termContainer.querySelector(`[data-index="${ termIndex }"]`);
+                if (! label) {
+                    continue;
+                }
+
+                let input = label.firstChild;
+                let termData = changedTerms[termIndex];
+
+                if (termData.label) {
+                    this.writePartialTerm(termData.label, input);
+                }
+
+                this.updateTermData(termData, input);
+                this.usedTerms[termIndex] = termData;
+            }
+        }
+
         clearPartialTerm(input) {
             if (this.completer !== null) {
                 this.completer.reset();

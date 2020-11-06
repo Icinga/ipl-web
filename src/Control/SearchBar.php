@@ -17,6 +17,9 @@ use ipl\Web\Widget\Icon;
 
 class SearchBar extends Form
 {
+    /** @var string Emitted in case of an auto submit */
+    const ON_CHANGE = 'on_change';
+
     protected $defaultAttributes = ['class' => 'search-bar', 'role' => 'search'];
 
     /** @var Filter\Rule */
@@ -33,6 +36,9 @@ class SearchBar extends Form
 
     /** @var callable */
     protected $protector;
+
+    /** @var array */
+    protected $changes;
 
     /**
      * Set the filter to use
@@ -140,6 +146,16 @@ class SearchBar extends Form
         return $this;
     }
 
+    /**
+     * Get changes to be applied on the client
+     *
+     * @return array
+     */
+    public function getChanges()
+    {
+        return $this->changes;
+    }
+
     private function protectId($id)
     {
         if (is_callable($this->protector)) {
@@ -147,6 +163,15 @@ class SearchBar extends Form
         }
 
         return $id;
+    }
+
+    public function isValidEvent($event)
+    {
+        if ($event !== self::ON_CHANGE) {
+            return parent::isValidEvent($event);
+        }
+
+        return true;
     }
 
     protected function assemble()
@@ -171,7 +196,42 @@ class SearchBar extends Form
         }
 
         $dataInput = new HiddenElement('data', [
-            'id'            => $dataInputId
+            'id'            => $dataInputId,
+            'validators'    => [
+                new CallbackValidator(function ($data, CallbackValidator $_) use ($termContainer, $searchInputId) {
+                    $data = json_decode($data, true);
+                    if (empty($data)) {
+                        return true;
+                    }
+
+                    $validatedData = $data;
+                    // TODO: I'd like to not pass a ref here, but the Events trait does not support event return values
+                    $this->emit(self::ON_CHANGE, [&$validatedData]);
+
+                    $changes = [];
+                    foreach (isset($validatedData['terms']) ? $validatedData['terms'] : [] as $termIndex => $termData) {
+                        if ($termData !== $data['terms'][$termIndex]) {
+                            if (isset($termData['invalidMsg']) && ! isset($termData['pattern'])) {
+                                $termData['pattern'] = sprintf(
+                                    '^\s*(?!%s\b).*\s*$',
+                                    $data['terms'][$termIndex]['label']
+                                );
+                            }
+
+                            $changes[$termIndex] = $termData;
+                        }
+                    }
+
+                    if (! empty($changes)) {
+                        $this->changes = ['#' . $searchInputId, $changes];
+                        $termContainer->applyChanges($changes);
+                        // TODO: Not every change must be invalid, change this once there are Event objects
+                        return false;
+                    }
+
+                    return true;
+                })
+            ]
         ]);
         $this->registerElement($dataInput);
 
@@ -210,6 +270,7 @@ class SearchBar extends Form
                         return false;
                     }
 
+                    $this->getElement($this->getSearchParameter())->setValue('');
                     $this->setFilter($filter);
                     return true;
                 })

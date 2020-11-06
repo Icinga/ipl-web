@@ -17,11 +17,32 @@ class Terms extends BaseHtmlElement
     /** @var callable|Filter\Rule */
     protected $filter;
 
+    /** @var array */
+    protected $changes;
+
+    /** @var int */
+    private $changeIndexCorrection = 0;
+
+    /** @var int */
     private $currentIndex = 0;
 
     public function setFilter($filter)
     {
         $this->filter = $filter;
+
+        return $this;
+    }
+
+    /**
+     * Apply term changes
+     *
+     * @param array $changes
+     *
+     * @return $this
+     */
+    public function applyChanges(array $changes)
+    {
+        $this->changes = $changes;
 
         return $this;
     }
@@ -137,16 +158,40 @@ class Terms extends BaseHtmlElement
 
     protected function assembleTerm($class, $type, $search, $label, BaseHtmlElement $where)
     {
+        $data = [
+            'class'     => $class,
+            'type'      => $type,
+            'search'    => $search,
+            'label'     => $label
+        ];
+        if (isset($this->changes[$this->currentIndex - $this->changeIndexCorrection])) {
+            $change = $this->changes[$this->currentIndex - $this->changeIndexCorrection];
+            if ($change['type'] !== $type) {
+                // This can happen because the user didn't insert parentheses but the parser did
+                $this->changeIndexCorrection++;
+            } else {
+                $data = array_merge($data, $change);
+            }
+        }
+
         $term = new HtmlElement('label', [
-            'class'         => $class,
+            'class'         => $data['class'],
             'data-index'    => $this->currentIndex++,
-            'data-type'     => $type,
-            'data-search'   => $search,
-            'data-label'    => $label
+            'data-type'     => $data['type'],
+            'data-search'   => $data['search'],
+            'data-label'    => $data['label']
         ], new HtmlElement('input', [
             'type'  => 'text',
-            'value' => $label
+            'value' => $data['label']
         ]));
+
+        if (isset($data['pattern'])) {
+            $term->getFirst('input')->setAttribute('pattern', $data['pattern']);
+
+            if (isset($data['invalidMsg'])) {
+                $term->getFirst('input')->setAttribute('data-invalid-msg', $data['invalidMsg']);
+            }
+        }
 
         $where->add($term);
 
