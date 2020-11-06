@@ -941,9 +941,19 @@
                 case 'add':
                 case 'exchange':
                     lastTermAt = changedIndices.pop();
-                    if (changedTerms[lastTermAt].type === 'value'
-                        || this.isGroupClose(changedTerms[lastTermAt])
-                    ) {
+                    if (changedTerms[lastTermAt].type === 'value') {
+                        if (! changedIndices.length) {
+                            changedTerms = {
+                                ...{
+                                    [lastTermAt - 2]: this.usedTerms[lastTermAt - 2],
+                                    [lastTermAt - 1]: this.usedTerms[lastTermAt - 1]
+                                },
+                                ...changedTerms
+                            };
+                        }
+
+                        break;
+                    } else if (this.isGroupClose(changedTerms[lastTermAt])) {
                         break;
                     }
 
@@ -973,9 +983,19 @@
                                 valueAt++;
                         }
 
-                        if (valueAt === updateAt
-                            || (this.usedTerms.length > valueAt && this.usedTerms[valueAt].type === 'value')
-                        ) {
+                        if (valueAt === updateAt) {
+                            if (changedIndices.length === 1) {
+                                changedTerms = {
+                                    ...{
+                                        [valueAt - 2]: this.usedTerms[valueAt - 2],
+                                        [valueAt - 1]: this.usedTerms[valueAt - 1]
+                                    },
+                                    ...changedTerms
+                                };
+                            }
+
+                            break;
+                        } else if (this.usedTerms.length > valueAt && this.usedTerms[valueAt].type === 'value') {
                             break;
                         }
 
