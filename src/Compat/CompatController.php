@@ -6,6 +6,7 @@ use InvalidArgumentException;
 use Icinga\Web\Controller;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlDocument;
+use ipl\Html\HtmlString;
 use ipl\Html\ValidHtml;
 use ipl\Web\Control\PaginationControl;
 use ipl\Web\Control\SearchBar;
@@ -139,18 +140,22 @@ class CompatController extends Controller
      * If an id is passed the element is used as-is as the part's content.
      * Otherwise (no id given) the element's content is used instead.
      *
-     * @param BaseHtmlElement $element
-     * @param string          $id       If not given, this is taken from $element
+     * @param ValidHtml $element
+     * @param string    $id      If not given, this is taken from $element
      *
      * @throws InvalidArgumentException If no id is given and the element also does not have one
      *
      * @return $this
      */
-    protected function addPart(BaseHtmlElement $element, $id = null)
+    protected function addPart(ValidHtml $element, $id = null)
     {
         $part = new Multipart();
 
         if ($id === null) {
+            if (! $element instanceof BaseHtmlElement) {
+                throw new InvalidArgumentException('If no id is given, $element must be a BaseHtmlElement');
+            }
+
             $id = $element->getAttributes()->get('id')->getValue();
             if (! $id) {
                 throw new InvalidArgumentException('Element has no id');
