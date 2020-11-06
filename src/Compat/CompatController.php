@@ -225,14 +225,20 @@ class CompatController extends Controller
      */
     public function sendMultipartUpdate(BaseHtmlElement ...$additionalControls)
     {
+        $searchBar = null;
         $pagination = null;
         $redirectUrl = null;
         foreach ($this->controls->getContent() as $control) {
             if ($control instanceof PaginationControl) {
                 $pagination = $control;
             } elseif ($control instanceof SearchBar) {
+                $searchBar = $control;
                 $redirectUrl = $control->getRedirectUrl(); /** @var Url $redirectUrl */
             }
+        }
+
+        if ($searchBar !== null && ($changes = $searchBar->getChanges()) !== null) {
+            $this->addPart(HtmlString::create(json_encode($changes)), 'Behavior:InputEnrichment');
         }
 
         if ($this->tabs->count() > 0) {
