@@ -111,6 +111,24 @@
             return termIndex;
         }
 
+        updateTermData(termData, input) {
+            super.updateTermData(termData, input);
+
+            if (termData.pattern) {
+                input.pattern = termData.pattern;
+                delete termData.pattern;
+
+                if (termData.invalidMsg) {
+                    input.dataset.invalidMsg = termData.invalidMsg;
+                    delete termData.invalidMsg;
+                }
+
+                if (! this.checkValidity(input)) {
+                    this.reportValidity(input);
+                }
+            }
+        }
+
         readFullTerm(input, termIndex = null) {
             let termData = super.readFullTerm(input, termIndex);
             if (termData === false) {
@@ -765,6 +783,18 @@
         checkValidity(input, type = null, termIndex = null) {
             if (type === null) {
                 type = input.parentNode.dataset.type;
+            }
+
+            if (input.pattern && ! input.checkValidity()) {
+                if (! input.value.match(input.pattern)) {
+                    if (input.dataset.invalidMsg) {
+                        input.setCustomValidity(input.dataset.invalidMsg);
+                    }
+
+                    return false;
+                }
+
+                input.setCustomValidity('');
             }
 
             if (! type || type === 'value') {
