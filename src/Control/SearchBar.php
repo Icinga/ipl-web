@@ -153,6 +153,7 @@ class SearchBar extends Form
     {
         $termContainerId = $this->protectId('terms');
         $termInputId = $this->protectId('term-input');
+        $dataInputId = $this->protectId('data-input');
         $searchInputId = $this->protectId('search-input');
         $suggestionsId = $this->protectId('suggestions');
 
@@ -169,6 +170,11 @@ class SearchBar extends Form
             });
         }
 
+        $dataInput = new HiddenElement('data', [
+            'id'            => $dataInputId
+        ]);
+        $this->registerElement($dataInput);
+
         $filterInput = new InputElement($this->getSearchParameter(), [
             'type'                  => 'text',
             'placeholder'           => 'Type to search. Use * as wildcard.',
@@ -176,6 +182,7 @@ class SearchBar extends Form
             'id'                    => $searchInputId,
             'autocomplete'          => 'off',
             'data-enrichment-type'  => 'filter',
+            'data-data-input'       => '#' . $dataInputId,
             'data-term-input'       => '#' . $termInputId,
             'data-term-container'   => '#' . $termContainerId,
             'data-term-suggestions' => '#' . $suggestionsId,
@@ -227,6 +234,7 @@ class SearchBar extends Form
                 $termContainer,
                 new HtmlElement('label', ['data-label' => ''], $filterInput),
             ]),
+            $dataInput,
             $termInput,
             $submitButton,
             new HtmlElement('div', [

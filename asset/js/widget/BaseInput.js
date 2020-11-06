@@ -15,8 +15,17 @@
             this.usedTerms = [];
             this.completer = null;
             this.lastCompletedTerm = null;
+            this._dataInput = null;
             this._termInput = null;
             this._termContainer = null;
+        }
+
+        get dataInput() {
+            if (this._dataInput === null) {
+                this._dataInput = document.querySelector(this.input.dataset.dataInput);
+            }
+
+            return this._dataInput;
         }
 
         get termInput() {
@@ -38,7 +47,8 @@
         bind() {
             // Form submissions
             $(this.input.form).on('submit', this.onSubmit, this);
-            $(this.input.form).on('click', 'button, input[type="submit"]', this.onButtonClick, this);
+            $(this.input.form).on(
+                'click', 'button:not([type]), button[type="submit"], input[type="submit"]', this.onButtonClick, this);
 
             // User interactions
             $(this.input).on('input', this.onInput, this);
@@ -436,6 +446,11 @@
                 return;
             }
 
+            this.dataInput.value = JSON.stringify({
+                type: changeType,
+                terms: changedTerms
+            });
+
             if (Object.keys(changedTerms).length) {
                 $(this.input.form).trigger('submit', { submittedBy: input });
             }
@@ -705,17 +720,13 @@
         }
 
         onButtonClick(event) {
-            if (! this.input.dataset.manageRequired) {
-                return;
-            }
+            if (this.hasTerms()) {
+                this.input.required = false;
 
-            let button = event.currentTarget;
-            if (button.type === 'submit' || (button.tagName === 'button' && ! button.type)) {
-                if (this.hasTerms()) {
-                    this.input.required = false;
-                } else if (! this.input.required) {
-                    this.input.required = true;
-                }
+                // This is not part of `onSubmit()` because otherwise it would override what `autoSubmit()` does
+                this.dataInput.value = JSON.stringify({ type: 'submit', terms: this.usedTerms });
+            } else if (this.input.dataset.manageRequired) {
+                this.input.required = true;
             }
         }
 
