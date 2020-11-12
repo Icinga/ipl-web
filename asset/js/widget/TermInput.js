@@ -1,10 +1,4 @@
-(function (TermInput) {
-
-    "use strict";
-
-    window["TermInput"] = TermInput;
-
-})((function (BaseInput) {
+define(["BaseInput"], function (BaseInput) {
 
     "use strict";
 
@@ -131,4 +125,4 @@
     }
 
     return TermInput;
-})(BaseInput));
+});
