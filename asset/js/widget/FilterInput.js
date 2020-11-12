@@ -1,10 +1,4 @@
-(function (FilterInput) {
-
-    "use strict";
-
-    window["FilterInput"] = FilterInput;
-
-})((function (BaseInput, $) {
+define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
 
     "use strict";
 
@@ -1448,4 +1442,4 @@
     }
 
     return FilterInput;
-})(BaseInput, notjQuery));
+});

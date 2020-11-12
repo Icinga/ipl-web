@@ -1,10 +1,4 @@
-(function (Completer) {
-
-    "use strict";
-
-    window["Completer"] = Completer;
-
-})((function ($) {
+define(["../notjQuery"], function ($) {
 
     "use strict";
 
@@ -400,4 +394,4 @@
     }
 
     return Completer;
-})(notjQuery));
+});

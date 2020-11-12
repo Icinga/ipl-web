@@ -1,10 +1,4 @@
-(function (notjQuery) {
-
-    "use strict";
-
-    window["notjQuery"] = notjQuery;
-
-})((function () {
+define(function () {
 
     "use strict";
 
@@ -145,4 +139,4 @@
     factory.prototype = Object.create(notjQuery.prototype);
 
     return factory;
-})());
+});

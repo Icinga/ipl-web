@@ -1,10 +1,4 @@
-(function (BaseInput) {
-
-    "use strict";
-
-    window["BaseInput"] = BaseInput;
-
-})((function ($) {
+define(["../notjQuery", "Completer"], function ($, Completer) {
 
     "use strict";
 
@@ -788,4 +782,4 @@
     }
 
     return BaseInput;
-})(notjQuery));
+});
