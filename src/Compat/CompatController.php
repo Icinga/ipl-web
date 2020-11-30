@@ -147,17 +147,14 @@ class CompatController extends Controller
         return $this;
     }
 
-    public function setAutorefreshInterval($interval)
+    public function setAutorefreshInterval($interval, $bypassUserPreferences = false)
     {
         $interval = (int) $interval;
         if ($interval < 0) {
             throw new InvalidArgumentException('Negative autorefresh intervals are not supported');
         }
 
-        $this->autorefreshInterval = $interval;
-        $this->_helper->layout()->autorefreshInterval = $interval;
-
-        return $this;
+        return parent::setAutorefreshInterval($interval, $bypassUserPreferences);
     }
 
     public function postDispatch()
