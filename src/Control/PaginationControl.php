@@ -62,6 +62,20 @@ class PaginationControl extends BaseHtmlElement
     }
 
     /**
+     * Set the URL to base off paging URLs
+     *
+     * @param Url $url
+     *
+     * @return $this
+     */
+    public function setUrl(Url $url)
+    {
+        $this->url = $url;
+
+        return $this;
+    }
+
+    /**
      * Get the default page size
      *
      * @return int
