@@ -135,16 +135,16 @@ class Renderer
                 $this->string .= '=';
                 break;
             case $condition instanceof Filter\GreaterThan:
-                $this->string .= '>';
+                $this->string .= rawurlencode('>');
                 break;
             case $condition instanceof Filter\LessThan:
-                $this->string .= '<';
+                $this->string .= rawurlencode('<');
                 break;
             case $condition instanceof Filter\GreaterThanOrEqual:
-                $this->string .= '>=';
+                $this->string .= rawurlencode('>=');
                 break;
             case $condition instanceof Filter\LessThanOrEqual:
-                $this->string .= '<=';
+                $this->string .= rawurlencode('<=');
                 break;
         }
 

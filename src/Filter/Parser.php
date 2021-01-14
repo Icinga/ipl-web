@@ -270,7 +270,7 @@ class Parser
         }
 
         foreach (['<', '>'] as $operator) {
-            if (($pos = strpos($column, $operator) !== false)) {
+            if (($pos = strpos($column, $operator)) !== false) {
                 if ($this->nextChar() === '=') {
                     break;
                 }

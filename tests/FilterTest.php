@@ -166,6 +166,37 @@ class FilterTest extends TestCase
         );
     }
 
+    public function testParserDecodesEncodedOperators()
+    {
+        $expectedOperator = QueryString::render(Filter::greaterThan('foo', 'bar'));
+        $this->assertEquals(
+            $expectedOperator,
+            QueryString::render(QueryString::parse($expectedOperator)),
+            "Filter\Parser doesn't decode operators correctly"
+        );
+
+        $expectedOperator = QueryString::render(Filter::greaterThanOrEqual('foo', 'bar'));
+        $this->assertEquals(
+            $expectedOperator,
+            QueryString::render(QueryString::parse($expectedOperator)),
+            "Filter\Parser doesn't decode operators correctly"
+        );
+
+        $expectedOperator = QueryString::render(Filter::lessThan('date', '-3 days'));
+        $this->assertEquals(
+            $expectedOperator,
+            QueryString::render(QueryString::parse($expectedOperator)),
+            "Filter\Parser doesn't decode operators correctly"
+        );
+
+        $expectedOperator = QueryString::render(Filter::lessThanOrEqual('date', '-3 days'));
+        $this->assertEquals(
+            $expectedOperator,
+            QueryString::render(QueryString::parse($expectedOperator)),
+            "Filter\Parser doesn't decode operators correctly"
+        );
+    }
+
     public function testParserIdentifiesSingleChains()
     {
         $expectedAll = QueryString::render(Filter::all(
@@ -325,6 +356,11 @@ class FilterTest extends TestCase
             Filter::equal('(föö)', 'bar'),
             Filter::equal('foo', ['(bär)', '(föö)']),
             Filter::equal('foo', '=()&|><!'),
+            /* testParserDecodesEncodedOperators */
+            Filter::greaterThan('foo', 'bar'),
+            Filter::greaterThanOrEqual('foo', 'bar'),
+            Filter::lessThan('date', '-3 days'),
+            Filter::lessThanOrEqual('date', '-3 days'),
             /* testParserIdentifiesSingleChains */
             Filter::all(
                 Filter::equal('foo', 'bar'),
