@@ -88,7 +88,7 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
             this.bind();
 
             if (this.completer !== null) {
-                this.completer.refresh(input);
+                this.completer.refresh(input, this.termContainer);
             }
 
             if (! this.restoreTerms()) {

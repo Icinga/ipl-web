@@ -48,7 +48,7 @@ define(["../notjQuery"], function ($) {
             return this;
         }
 
-        refresh(input) {
+        refresh(input, bindTo = null) {
             if (input === this.input) {
                 // If the DOM node is still the same, nothing has changed
                 return;
@@ -58,7 +58,7 @@ define(["../notjQuery"], function ($) {
             this.abort();
 
             this.input = input;
-            this.bind();
+            this.bind(bindTo);
         }
 
         reset() {
