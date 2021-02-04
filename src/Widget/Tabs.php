@@ -143,7 +143,7 @@ class Tabs extends BaseHtmlElement
             throw new InvalidArgumentException($e->getMessage());
         }
 
-        if (isset($tab['active']) && $tab['active']) {
+        if (is_array($tab) && isset($tab['active']) && $tab['active']) {
             // Otherwise Tabs::getActiveName() returns null
             $this->tabs->activate($name);
         }
