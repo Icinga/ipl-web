@@ -3,6 +3,7 @@
 namespace ipl\Web\Compat;
 
 use ipl\Html\Form;
+use ipl\Web\FormDecorator\IcingaFormDecorator;
 
 class CompatForm extends Form
 {
@@ -14,7 +15,7 @@ class CompatForm extends Form
             return true;
         }
 
-        $this->setDefaultElementDecorator(new CompatDecorator());
+        $this->setDefaultElementDecorator(new IcingaFormDecorator());
 
         return true;
     }
