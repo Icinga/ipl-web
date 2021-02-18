@@ -140,7 +140,7 @@ class Terms extends BaseHtmlElement
         $group = new HtmlElement(
             'div',
             ['class' => 'filter-condition', 'data-group-type' => 'condition'],
-            new HtmlElement('button', ['type' => 'button'], new Icon('cancel'))
+            new HtmlElement('button', ['type' => 'button'], new Icon('trash'))
         );
 
         $this->assembleTerm('column', 'column', rawurlencode($column), $columnLabel, $group);

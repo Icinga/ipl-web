@@ -926,7 +926,7 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
         renderCondition() {
             return $(
                 '<div class="filter-condition" data-group-type="condition">'
-                + '<button type="button"><i class="icon-cancel"></i></button>'
+                + '<button type="button"><i class="icon fa fa-trash"></i></button>'
                 + '</div>'
             ).render();
         }
