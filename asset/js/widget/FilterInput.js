@@ -1215,7 +1215,18 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
         }
 
         onTermHover(event) {
-            this.highlightTerm(event.currentTarget);
+            let label = event.currentTarget;
+
+            if (['column', 'operator', 'value'].includes(label.dataset.type)) {
+                // This adds a class to delay the remove button. If it's shown instantly upon hover
+                // it's too easy to accidentally click it instead of the desired grouping operator.
+                label.parentNode.classList.add('_hover_delay');
+                setTimeout(function () {
+                    label.parentNode.classList.remove('_hover_delay');
+                }, 500);
+            }
+
+            this.highlightTerm(label);
         }
 
         onTermLeave(event) {
