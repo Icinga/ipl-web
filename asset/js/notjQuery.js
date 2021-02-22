@@ -113,16 +113,16 @@ define(function () {
         /**
          * Render the element string as DOM Element
          *
-         * @todo Make this a static factory method, so that $.render(html) works
+         * @param {string} html
          * @return {Element}
          */
-        render() {
-            if (typeof this.element !== 'string') {
-                throw new Error("Can\'t render `" + this.element + "`");
+        static render(html) {
+            if (typeof html !== 'string') {
+                throw new Error("Can\'t render `" + html + "`");
             }
 
             let template = document.createElement('template');
-            template.innerHTML = this.element;
+            template.innerHTML = html;
             return template.content.firstChild;
         }
     }
@@ -136,7 +136,17 @@ define(function () {
     let factory = function (element) {
         return new notjQuery(element);
     }
-    factory.prototype = Object.create(notjQuery.prototype);
+
+    // Define the static methods on the factory
+    for (let name of Object.getOwnPropertyNames(notjQuery)) {
+        if (['length', 'prototype', 'name'].includes(name)) {
+            continue;
+        }
+
+        Object.defineProperty(factory, name, {
+            value: notjQuery[name]
+        });
+    }
 
     return factory;
 });

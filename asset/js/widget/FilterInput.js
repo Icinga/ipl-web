@@ -895,7 +895,7 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
         }
 
         renderSuggestions(suggestions) {
-            let itemTemplate = $('<li><input type="button"></li>').render();
+            let itemTemplate = $.render('<li><input type="button"></li>');
 
             let list = document.createElement('ul');
 
@@ -920,19 +920,19 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
         }
 
         renderPreview(content) {
-            return $('<span>' + content + '</span>').render();
+            return $.render('<span>' + content + '</span>');
         }
 
         renderCondition() {
-            return $(
+            return $.render(
                 '<div class="filter-condition" data-group-type="condition">'
                 + '<button type="button"><i class="icon fa fa-trash"></i></button>'
                 + '</div>'
-            ).render();
+            );
         }
 
         renderChain() {
-            return $('<div class="filter-chain" data-group-type="chain"></div>').render();
+            return $.render('<div class="filter-chain" data-group-type="chain"></div>');
         }
 
         renderTerm(termData, termIndex) {

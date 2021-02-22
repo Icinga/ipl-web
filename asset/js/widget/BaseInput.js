@@ -422,7 +422,7 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
         }
 
         renderTerm(termData, termIndex) {
-            let label = $('<label><input type="text"></label>').render();
+            let label = $.render('<label><input type="text"></label>');
 
             if (termData.class) {
                 label.classList.add(termData.class);
