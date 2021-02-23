@@ -22,6 +22,11 @@
     border-bottom-right-radius: .25em;
   }
 
+  // Hide the submit button, it must exist, but shouldn't be shown to the user
+  input[type=submit][value="hidden"] {
+    display: none;
+  }
+
   // Left-most search dropdown style
   button.search-options {
     i.icon:before {
@@ -240,7 +245,7 @@
     overflow-x: overlay; // Not invalid, but proprietary feature by chrome/webkit
     display: flex;
     flex-grow: 1;
-    padding: .3em 0 .6em .4em;
+    padding: .3em .3em .6em .4em;
 
     label input {
       line-height: 1.5;

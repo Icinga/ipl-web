@@ -284,7 +284,7 @@ class SearchBar extends Form
 
         $this->registerElement($filterInput);
 
-        $submitButton = new SubmitElement('submit', ['label' => $this->getSubmitLabel()]);
+        $submitButton = new SubmitElement('submit', ['label' => $this->getSubmitLabel() ?: 'hidden']);
         $this->registerElement($submitButton);
 
         $this->add([
