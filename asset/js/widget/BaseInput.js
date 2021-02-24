@@ -5,6 +5,7 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
     class BaseInput {
         constructor(input) {
             this.input = input;
+            this.disabled = false;
             this.separator = '';
             this.usedTerms = [];
             this.completer = null;
@@ -114,6 +115,24 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
                 this.completer.destroy();
                 this.completer = null;
             }
+        }
+
+        disable() {
+            this.disabled = true;
+            this.input.disabled = true;
+            this.input.form.classList.add('disabled');
+            this.termContainer.querySelectorAll('[data-index]').forEach(el => el.firstChild.disabled = true);
+
+            if (this.completer !== null) {
+                this.completer.reset();
+            }
+        }
+
+        enable() {
+            this.input.disabled = false;
+            this.input.form.classList.remove('disabled');
+            this.termContainer.querySelectorAll('[data-index]').forEach(el => el.firstChild.disabled = false);
+            this.disabled = false;
         }
 
         restoreTerms() {

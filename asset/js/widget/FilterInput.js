@@ -1206,6 +1206,10 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
         }
 
         onTermClick(event) {
+            if (this.disabled) {
+                return;
+            }
+
             let input = event.target;
             let termType = input.parentNode.dataset.type;
 
@@ -1215,6 +1219,10 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
         }
 
         onTermHover(event) {
+            if (this.disabled) {
+                return;
+            }
+
             let label = event.currentTarget;
 
             if (['column', 'operator', 'value'].includes(label.dataset.type)) {
@@ -1230,6 +1238,10 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
         }
 
         onTermLeave(event) {
+            if (this.disabled) {
+                return;
+            }
+
             let label = event.currentTarget;
             if (label.firstChild !== document.activeElement
                 && (this.completer === null || ! this.completer.isBeingCompleted(label.firstChild))
