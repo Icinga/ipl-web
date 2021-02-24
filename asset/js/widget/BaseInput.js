@@ -286,6 +286,10 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
             return this.usedTerms.length > 0;
         }
 
+        getQueryString() {
+            return this.termsToQueryString(this.usedTerms);
+        }
+
         saveTerm(input, updateDOM = true) {
             let termIndex = input.parentNode.dataset.index;
             let termData = this.readFullTerm(input, termIndex);
