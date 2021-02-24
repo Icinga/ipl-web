@@ -27,12 +27,30 @@
     display: none;
   }
 
-  // Left-most search dropdown style
-  button.search-options {
+  // Utility buttons
+  button.search-options,
+  button.search-editor-opener {
     i.icon:before {
       font-size: 1.2em;
       margin-right: 0;
       color: @icinga-blue;
+    }
+  }
+
+  button.search-options:disabled {
+    i.icon:before {
+      color: @gray-light;
+    }
+  }
+
+  button.search-editor-opener.active {
+    .rounded-corners();
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    background-color: @icinga-blue;
+
+    i.icon:before {
+      color: white;
     }
   }
 
@@ -127,6 +145,10 @@
   [data-index] input:invalid {
     background-color: @color-critical;
     color: @text-color-inverted;
+  }
+
+  [data-index] input:disabled {
+    background-color: @gray-light;
   }
 
   .column input {
@@ -334,6 +356,12 @@
         margin-left: 1px; // adds up to 2px with the previous term
         margin-right: 2px;
       }
+    }
+  }
+
+  &.disabled {
+    .terms .filter-condition:hover button {
+      display: none;
     }
   }
 

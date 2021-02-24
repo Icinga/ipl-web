@@ -6,6 +6,7 @@ use ipl\Html\Form;
 use ipl\Html\FormElement\HiddenElement;
 use ipl\Html\FormElement\InputElement;
 use ipl\Html\FormElement\SubmitElement;
+use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Stdlib\Filter;
 use ipl\Validator\CallbackValidator;
@@ -20,7 +21,14 @@ class SearchBar extends Form
     /** @var string Emitted in case of an auto submit */
     const ON_CHANGE = 'on_change';
 
-    protected $defaultAttributes = ['class' => 'search-bar', 'role' => 'search'];
+    protected $defaultAttributes = [
+        'data-enrichment-type'  => 'search-bar',
+        'class'                 => 'search-bar',
+        'role'                  => 'search'
+    ];
+
+    /** @var Url */
+    protected $editorUrl;
 
     /** @var Filter\Rule */
     protected $filter;
@@ -39,6 +47,30 @@ class SearchBar extends Form
 
     /** @var array */
     protected $changes;
+
+    /**
+     * Set the url from which to load the editor
+     *
+     * @param Url $url
+     *
+     * @return $this
+     */
+    public function setEditorUrl(Url $url)
+    {
+        $this->editorUrl = $url;
+
+        return $this;
+    }
+
+    /**
+     * Get the url from which to load the editor
+     *
+     * @return Url
+     */
+    public function getEditorUrl()
+    {
+        return $this->editorUrl;
+    }
 
     /**
      * Set the filter to use
@@ -287,6 +319,27 @@ class SearchBar extends Form
         $submitButton = new SubmitElement('submit', ['label' => $this->getSubmitLabel() ?: 'hidden']);
         $this->registerElement($submitButton);
 
+        $editorOpener = null;
+        $editorContainer = null;
+        if (($editorUrl = $this->getEditorUrl()) !== null) {
+            $editorId = $this->protectId('search-editor');
+            $this->setAttribute('data-search-editor', '#' . $editorId);
+            $editorContainer = new HtmlElement('div', [
+                'id'                => $editorId,
+                'class'             => 'search-editor',
+                'data-base-target'  => $editorId
+            ]);
+            $editorOpener = new HtmlElement(
+                'button',
+                [
+                    'type'                      => 'button',
+                    'class'                     => 'search-editor-opener',
+                    'data-search-editor-url'    => $editorUrl
+                ],
+                new Icon('cog')
+            );
+        }
+
         $this->add([
             new HtmlElement(
                 'button',
@@ -300,11 +353,18 @@ class SearchBar extends Form
             $dataInput,
             $termInput,
             $submitButton,
+            $editorOpener,
             new HtmlElement('div', [
                 'id'                => $suggestionsId,
                 'class'             => 'suggestions',
                 'data-base-target'  => $suggestionsId
             ])
         ]);
+
+        // Render the editor container outside of this form. It will contain a form as well later on
+        // loaded by XHR and HTML prohibits nested forms. It's style-wise also better...
+        $doc = new HtmlDocument();
+        $this->setWrapper($doc);
+        $doc->add([$this, $editorContainer]);
     }
 }
