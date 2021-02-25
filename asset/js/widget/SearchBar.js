@@ -74,6 +74,7 @@ define(["../notjQuery"], function ($) {
                 // TODO: Just ignore? i.e. require the user to submit the form?
                 this.editorContainer.innerHTML = '';
                 opener.classList.remove('active');
+                $(this.form).trigger('editor-close');
                 this.enable();
                 return;
             }
@@ -107,6 +108,7 @@ define(["../notjQuery"], function ($) {
                 if (req.readyState > 0) {
                     opener.classList.add('active');
                     this.editorContainer.appendChild($.render(req.responseText));
+                    $(this.form).trigger('editor-open');
                 }
             });
 
