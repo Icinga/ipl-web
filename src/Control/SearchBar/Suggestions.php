@@ -320,7 +320,7 @@ abstract class Suggestions extends BaseHtmlElement
             case 'column':
                 $this->setData($this->filterColumnSuggestions($this->fetchColumnSuggestions($label), $label));
 
-                if ($search && $requestData['showQuickSearch']) {
+                if ($search && isset($requestData['showQuickSearch']) && $requestData['showQuickSearch']) {
                     $quickFilter = $this->createQuickSearchFilter($label);
                     if (! $quickFilter instanceof Filter\Chain || ! $quickFilter->isEmpty()) {
                         $this->setDefault([
