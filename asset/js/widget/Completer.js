@@ -213,6 +213,13 @@ define(["../notjQuery"], function ($) {
                 $(input).trigger('completion', data);
             } else {
                 input.value = value;
+
+                for (let name in data) {
+                    let dataElement = input.form[input.name + '-' + name];
+                    if (typeof dataElement !== 'undefined') {
+                        dataElement.value = data[name];
+                    }
+                }
             }
 
             this.hideSuggestions();
