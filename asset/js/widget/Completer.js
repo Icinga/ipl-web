@@ -117,6 +117,27 @@ define(["../notjQuery"], function ($) {
             data.term.search = value;
             data.term.label = this.addWildcards(value);
 
+            if (input.parentElement instanceof HTMLFieldSetElement) {
+                for (let element of input.parentElement.elements) {
+                    if (element !== input
+                        && element.name !== input.name + '-search'
+                        && (element.name.substr(-7) === '-search'
+                            || typeof input.form[element.name + '-search'] === 'undefined')
+                    ) {
+                        // Make sure we'll use a key that the server can understand..
+                        let dataName = element.name;
+                        if (dataName.substr(-7) === '-search') {
+                            dataName = dataName.substr(0, dataName.length - 7);
+                        }
+                        if (dataName.substr(0, input.parentElement.name.length) === input.parentElement.name) {
+                            dataName = dataName.substr(input.parentElement.name.length);
+                        }
+
+                        data[dataName] = element.value;
+                    }
+                }
+            }
+
             return [value, data];
         }
 
@@ -375,6 +396,14 @@ define(["../notjQuery"], function ($) {
 
         onInput(event) {
             let input = event.target;
+
+            // Set the input's value as search value. This ensures that if the user doesn't
+            // choose a suggestion, an up2date contextual value will be transmitted with
+            // completion requests and the server can properly identify a new value upon submit
+            input.dataset.search = input.value;
+            if (typeof input.form[input.name + '-search'] !== 'undefined') {
+                input.form[input.name + '-search'].value = input.value;
+            }
 
             let [value, data] = this.prepareCompletionData(input);
             this.completedInput = input;
