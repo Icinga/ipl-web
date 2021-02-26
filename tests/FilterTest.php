@@ -4,6 +4,7 @@ namespace ipl\Tests\Web;
 
 use ipl\Stdlib\Filter;
 use ipl\Web\Filter\QueryString;
+use ipl\Web\Filter\Renderer;
 
 /**
  * @todo Error handling tests
@@ -526,6 +527,74 @@ class FilterTest extends TestCase
             'foo=bar|(bar=foo&(foo=bar|bar=foo))',
             QueryString::render(QueryString::parse('foo=bar|(bar=foo&(foo=bar|bar=foo)&(')),
             ""
+        );
+    }
+
+    /* Strict mode tests */
+
+    public function testRendererDrawsRedundantCharsInStrictMode()
+    {
+        $rootChainOnlyWithASingleCondition = Filter::all(
+            Filter::equal('foo', 'bar')
+        );
+        $this->assertEquals(
+            '(foo=bar)',
+            (new Renderer($rootChainOnlyWithASingleCondition))->setStrict()->render(),
+            "Filter\Renderer doesn't draw parentheses for the root chain"
+        );
+
+        $rootChainOnlyWithMultipleConditions = Filter::all(
+            Filter::equal('foo', 'bar'),
+            Filter::equal('bar', 'foo')
+        );
+        $this->assertEquals(
+            '(foo=bar&bar=foo)',
+            (new Renderer($rootChainOnlyWithMultipleConditions))->setStrict()->render(),
+            "Filter\Renderer doesn't draw parentheses for the root chain"
+        );
+
+        $nestedAllWithOneCondition = Filter::all(
+            Filter::equal('foo', 'bar'),
+            Filter::all(
+                Filter::equal('bar', 'foo')
+            )
+        );
+        $this->assertEquals(
+            '(foo=bar&(bar=foo))',
+            (new Renderer($nestedAllWithOneCondition))->setStrict()->render(),
+            "Filter\Renderer doesn't draw parentheses for nested chains with a single condition"
+        );
+
+        $nestedAnyWithOneCondition = Filter::all(
+            Filter::equal('foo', 'bar'),
+            Filter::any(
+                Filter::equal('bar', 'foo')
+            )
+        );
+        $this->assertEquals(
+            '(foo=bar&(bar=foo|))',
+            (new Renderer($nestedAnyWithOneCondition))->setStrict()->render(),
+            "Filter\Renderer doesn't draw group operator for nested OR chains with a single condition"
+        );
+
+        $nestedEmptyAll = Filter::all(
+            Filter::equal('foo', 'bar'),
+            Filter::all()
+        );
+        $this->assertEquals(
+            '(foo=bar&())',
+            (new Renderer($nestedEmptyAll))->setStrict()->render(),
+            "Filter\Renderer doesn't draw parentheses for empty nested chains"
+        );
+
+        $nestedEmptyAny = Filter::all(
+            Filter::equal('foo', 'bar'),
+            Filter::any()
+        );
+        $this->assertEquals(
+            '(foo=bar&(|))',
+            (new Renderer($nestedEmptyAny))->setStrict()->render(),
+            "Filter\Renderer doesn't draw group operator for empty nested OR chains"
         );
     }
 }

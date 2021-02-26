@@ -12,6 +12,9 @@ class Renderer
     /** @var string */
     protected $string;
 
+    /** @var bool Whether strict mode is enabled */
+    protected $strict = false;
+
     /**
      * Create a new filter Renderer
      *
@@ -20,6 +23,20 @@ class Renderer
     public function __construct(Filter\Rule $filter)
     {
         $this->filter = $filter;
+    }
+
+    /**
+     * Set whether strict mode is enabled
+     *
+     * @param bool $strict
+     *
+     * @return $this
+     */
+    public function setStrict($strict = true)
+    {
+        $this->strict = (bool) $strict;
+
+        return $this;
     }
 
     /**
@@ -37,7 +54,7 @@ class Renderer
         $filter = $this->filter;
 
         if ($filter instanceof Filter\Chain) {
-            $this->renderChain($filter);
+            $this->renderChain($filter, $this->strict);
         } else {
             /** @var Filter\Condition $filter */
             $this->renderCondition($filter);
@@ -56,7 +73,7 @@ class Renderer
      */
     protected function renderChain(Filter\Chain $chain, $wrap = false)
     {
-        if ($chain->isEmpty()) {
+        if (! $this->strict && $chain->isEmpty()) {
             return;
         }
 
@@ -90,7 +107,7 @@ class Renderer
 
         foreach ($chain as $rule) {
             if ($rule instanceof Filter\Chain) {
-                $this->renderChain($rule, $rule->count() > 1);
+                $this->renderChain($rule, $this->strict || $rule->count() > 1);
             } else {
                 /** @var Filter\Condition $rule */
                 $this->renderCondition($rule);
@@ -99,8 +116,14 @@ class Renderer
             $this->string .= $chainOperator;
         }
 
-        // Remove redundant chain operator added last
-        $this->string = substr($this->string, 0, -1);
+        if (! $chain->isEmpty() && (! $this->strict || ! ($chain instanceof Filter\Any && $chain->count() === 1))) {
+            // Remove redundant chain operator added last
+            $this->string = substr($this->string, 0, -1);
+        } elseif ($chain->isEmpty() && $chain instanceof Filter\Any) {
+            // If the chain is empty and strict mode is on, we need a
+            // chain operator to designate it's an OR, not an AND
+            $this->string .= $chainOperator;
+        }
 
         if ($wrap) {
             $this->string .= ')';
