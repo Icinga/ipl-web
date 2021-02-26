@@ -338,6 +338,19 @@ define(["../notjQuery"], function ($) {
             let suggestions;
 
             switch (event.key) {
+                case ' ':
+                    let input = event.target;
+
+                    if (! input.value) {
+                        let [value, data] = this.prepareCompletionData(input);
+                        this.completedInput = input;
+                        this.completedValue = value;
+                        this.completedData = data;
+                        this.requestCompletion(input, data);
+                        event.preventDefault();
+                    }
+
+                    break;
                 case 'Tab':
                     suggestions = this.termSuggestions.querySelectorAll('[type="button"]');
                     if (suggestions.length === 1) {
