@@ -29,10 +29,26 @@ class Parser
      *
      * @param string $queryString The string to parse
      */
-    public function __construct($queryString)
+    public function __construct($queryString = null)
     {
-        $this->string = $queryString;
+        if ($queryString !== null) {
+            $this->setQueryString($queryString);
+        }
+    }
+
+    /**
+     * Set the query string to parse
+     *
+     * @param string $queryString
+     *
+     * @return $this
+     */
+    public function setQueryString($queryString)
+    {
+        $this->string = (string) $queryString;
         $this->length = strlen($queryString);
+
+        return $this;
     }
 
     /**
