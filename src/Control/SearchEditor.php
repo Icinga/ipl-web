@@ -1,0 +1,404 @@
+<?php
+
+namespace ipl\Web\Control;
+
+use ipl\Html\Form;
+use ipl\Html\HtmlElement;
+use ipl\Stdlib\Filter;
+use ipl\Web\Filter\Parser;
+use ipl\Web\Filter\QueryString;
+use ipl\Web\Filter\Renderer;
+use ipl\Web\Url;
+
+class SearchEditor extends Form
+{
+    /** @var string The column name used for empty conditions */
+    const FAKE_COLUMN = '_fake_';
+
+    /** @var string */
+    protected $queryString;
+
+    /** @var Url */
+    protected $suggestionUrl;
+
+    /** @var Parser */
+    protected $parser;
+
+    /** @var Filter\Rule */
+    protected $filter;
+
+    /**
+     * Set the filter query string to populate the form with
+     *
+     * Use {@see SearchEditor::getParser()} to subscribe to parser events.
+     *
+     * @param string $query
+     *
+     * @return $this
+     */
+    public function setQueryString($query)
+    {
+        $this->queryString = $query;
+
+        return $this;
+    }
+
+    /**
+     * Set the suggestion url
+     *
+     * @param Url $url
+     *
+     * @return $this
+     */
+    public function setSuggestionUrl(Url $url)
+    {
+        $this->suggestionUrl = $url;
+
+        return $this;
+    }
+
+    /**
+     * Get the query string parser being used
+     *
+     * @return Parser
+     */
+    public function getParser()
+    {
+        if ($this->parser === null) {
+            $this->parser = (new Parser())
+                ->setStrict()
+                ->on(Parser::ON_CONDITION, function ($condition) {
+                    // Cleanup fake column names from conditions
+                    if ($condition->getColumn() === static::FAKE_COLUMN) {
+                        $condition->setColumn('');
+                    }
+                });
+        }
+
+        return $this->parser;
+    }
+
+    /**
+     * Get the current filter
+     *
+     * @return Filter\Rule
+     */
+    public function getFilter()
+    {
+        if ($this->filter === null) {
+            $this->filter = $this->getParser()
+                ->setQueryString($this->queryString)
+                ->parse();
+        }
+
+        return $this->filter;
+    }
+
+    public function populate($values)
+    {
+        // applyChanges() is basically this form's own populate implementation, hence
+        // why it changes $values and needs to run before actually populating the form
+        $filter = (new Parser(isset($values['filter']) ? $values['filter'] : $this->queryString))
+            ->setStrict()
+            ->parse();
+        $filter = $this->applyChanges($filter, $values);
+
+        parent::populate($values);
+
+        $filter = $this->applyStructuralChange($filter);
+        $this->queryString = (new Renderer($filter))->setStrict()->render();
+
+        return $this;
+    }
+
+    protected function applyChanges(Filter\Rule $rule, array &$values, array $path = [0])
+    {
+        $identifier = join('-', $path);
+
+        if ($rule instanceof Filter\Condition) {
+            $newColumn = $this->popKey($values, $identifier . '-column-search', $this->popKey(
+                $values,
+                $identifier . '-column'
+            ));
+            if ($newColumn !== null && $rule->getColumn() !== $newColumn) {
+                $rule->setColumn($newColumn);
+                // TODO: Clear meta data?
+            }
+
+            $newValue = $this->popKey($values, $identifier . '-value');
+            if ($newValue !== null && $rule->getValue() !== $newValue) {
+                $rule->setValue($newValue);
+            }
+
+            $newOperator = $this->popKey($values, $identifier . '-operator');
+            if ($newOperator !== null && QueryString::getRuleSymbol($rule) !== $newOperator) {
+                switch ($newOperator) {
+                    case '=':
+                        return Filter::equal($rule->getColumn(), $rule->getValue());
+                    case '!=':
+                        return Filter::unequal($rule->getColumn(), $rule->getValue());
+                    case '>':
+                        return Filter::greaterThan($rule->getColumn(), $rule->getValue());
+                    case '>=':
+                        return Filter::greaterThanOrEqual($rule->getColumn(), $rule->getValue());
+                    case '<':
+                        return Filter::lessThan($rule->getColumn(), $rule->getValue());
+                    case '<=':
+                        return Filter::lessThanOrEqual($rule->getColumn(), $rule->getValue());
+                }
+            }
+        } else {
+            /** @var Filter\Chain $rule */
+            $newGroupOperator = $this->popKey($values, $identifier);
+            $oldGroupOperator = $rule instanceof Filter\None ? '!' : QueryString::getRuleSymbol($rule);
+            if ($newGroupOperator !== null && $oldGroupOperator !== $newGroupOperator) {
+                switch ($newGroupOperator) {
+                    case '&':
+                        $rule = Filter::all(...$rule);
+                        break;
+                    case '|':
+                        $rule = Filter::any(...$rule);
+                        break;
+                    case '!':
+                        $rule = Filter::none(...$rule);
+                        break;
+                }
+            }
+
+            $i = 0;
+            foreach ($rule as $child) {
+                $childPath = $path;
+                $childPath[] = $i++;
+                $newChild = $this->applyChanges($child, $values, $childPath);
+                if ($child !== $newChild) {
+                    $rule->replace($child, $newChild);
+                }
+            }
+        }
+
+        return $rule;
+    }
+
+    protected function applyStructuralChange(Filter\Rule $rule)
+    {
+        $structuralChange = $this->getPopulatedValue('structural-change');
+        if ($structuralChange === null) {
+            return $rule;
+        }
+
+        list($type, $where) = explode(':', $structuralChange);
+        $targetPath = explode('-', $where);
+
+        $parent = null;
+        $target = null;
+        $children = [$rule];
+        foreach ($targetPath as $targetPos) {
+            if ($target !== null) {
+                $parent = $target;
+                $children = $parent instanceof Filter\Chain
+                    ? iterator_to_array($parent)
+                    : [];
+            }
+
+            if (! isset($children[$targetPos])) {
+                return $rule;
+            }
+
+            $target = $children[$targetPos];
+        }
+
+        $emptyEqual = Filter::equal(static::FAKE_COLUMN, '');
+        switch ($type) {
+            case 'condition-before':
+                if ($parent !== null) {
+                    $parent->insertBefore($emptyEqual, $target);
+                } else {
+                    $rule = Filter::all($emptyEqual, $target);
+                }
+
+                break;
+            case 'condition-after':
+                if ($parent !== null) {
+                    $parent->insertAfter($emptyEqual, $target);
+                } else {
+                    $rule = Filter::all($target, $emptyEqual);
+                }
+
+                break;
+            case 'chain-before':
+                if ($parent !== null) {
+                    $parent->insertBefore(Filter::all($emptyEqual), $target);
+                } else {
+                    $rule = Filter::all(Filter::all($emptyEqual), $target);
+                }
+
+                break;
+            case 'chain-after':
+                if ($parent !== null) {
+                    $parent->insertAfter(Filter::all($emptyEqual), $target);
+                } else {
+                    $rule = Filter::all($target, $emptyEqual);
+                }
+
+                break;
+            case 'drop-rule':
+                if ($parent !== null) {
+                    $parent->remove($target);
+                } else {
+                    $rule = $emptyEqual;
+                }
+        }
+
+        return $rule;
+    }
+
+    protected function createTree(Filter\Rule $rule, array $path = [0])
+    {
+        $identifier = join('-', $path);
+
+        if ($rule instanceof Filter\Condition) {
+            $item = [$this->createCondition($rule, $identifier), $this->createButtons($rule, $identifier)];
+
+            if (count($path) === 1) {
+                $item = new HtmlElement('ol', null, new HtmlElement('li', null, $item));
+            }
+        } else {
+            /** @var Filter\Chain $rule */
+            $item = new HtmlElement('ul');
+
+            $groupOperatorInput = $this->createElement('select', $identifier, [
+                'options'   => [
+                    '&' => 'ALL',
+                    '|' => 'ANY',
+                    '!' => 'NONE'
+                ],
+                'value' => $rule instanceof Filter\None ? '!' : QueryString::getRuleSymbol($rule)
+            ]);
+            $this->registerElement($groupOperatorInput);
+            $item->add(new HtmlElement('li', null, [
+                $groupOperatorInput,
+                $this->createButtons($rule, $identifier)
+            ]));
+
+            $children = new HtmlElement('ol');
+            $item->add(new HtmlElement('li', null, $children));
+
+            $i = 0;
+            foreach ($rule as $child) {
+                $childPath = $path;
+                $childPath[] = $i++;
+                $children->add(new HtmlElement('li', null, $this->createTree($child, $childPath)));
+            }
+        }
+
+        return $item;
+    }
+
+    protected function createButtons(Filter\Rule $for, $identifier)
+    {
+        return new HtmlElement('div', null, [
+            $this->createElement('submitButton', 'structural-change', [
+                'value' => 'condition-before:' . $identifier,
+                'label' => t('Prepend Condition')
+            ]),
+            $this->createElement('submitButton', 'structural-change', [
+                'value' => 'condition-after:' . $identifier,
+                'label' => t('Append Condition')
+            ]),
+            $this->createElement('submitButton', 'structural-change', [
+                'value' => 'chain-before:' . $identifier,
+                'label' => t('Prepend Chain')
+            ]),
+            $this->createElement('submitButton', 'structural-change', [
+                'value' => 'chain-after:' . $identifier,
+                'label' => t('Append Chain')
+            ]),
+            $this->createElement('submitButton', 'structural-change', [
+                'value' => 'drop-rule:' . $identifier,
+                'label' => $for instanceof Filter\Condition
+                    ? t('Delete Condition')
+                    : t('Delete Chain')
+            ])
+        ]);
+    }
+
+    protected function createCondition(Filter\Condition $condition, $identifier)
+    {
+        $columnInput = $this->createElement('text', $identifier . '-column', [
+            'value' => isset($condition->columnLabel) ? $condition->columnLabel : $condition->getColumn(),
+            'data-type' => 'column',
+            'data-enrichment-type' => 'completion',
+            'data-term-suggestions' => '#suggestions-' . $identifier,
+            'data-suggest-url' => $this->suggestionUrl
+        ]);
+        $columnSearchInput = $this->createElement('hidden', $identifier . '-column-search', [
+            'value' => $condition->getColumn() ?: static::FAKE_COLUMN
+        ]);
+
+        $operatorInput = $this->createElement('select', $identifier . '-operator', [
+            'options'   => [
+                '='     => '=',
+                '!='    => '!=',
+                '>'     => '>',
+                '<'     => '<',
+                '>='    => '>=',
+                '<='    => '<='
+            ],
+            'value'     => QueryString::getRuleSymbol($condition)
+        ]);
+
+        $valueInput = $this->createElement('text', $identifier . '-value', [
+            'value' => $condition->getValue(),
+            'data-type' => 'value',
+            'data-enrichment-type' => 'completion',
+            'data-term-suggestions' => '#suggestions-' . $identifier,
+            'data-suggest-url' => $this->suggestionUrl
+        ]);
+
+        $suggestions = new HtmlElement('div', ['id' => 'suggestions-' . $identifier]);
+
+        $this->registerElement($columnInput);
+        $this->registerElement($columnSearchInput);
+        $this->registerElement($operatorInput);
+        $this->registerElement($valueInput);
+
+        return new HtmlElement('fieldset', ['name' => $identifier . '-'], [
+            $columnInput,
+            $columnSearchInput,
+            $operatorInput,
+            $valueInput,
+            $suggestions
+        ]);
+    }
+
+    protected function assemble()
+    {
+        $filterInput = $this->createElement('hidden', 'filter');
+        $filterInput->getAttributes()->registerAttributeCallback(
+            'value',
+            function () {
+                return $this->queryString;
+            },
+            [$this, 'setQueryString']
+        );
+        $this->addElement($filterInput);
+
+        $this->add($this->createTree($this->getFilter()));
+
+        $this->addElement('submit', 'btn_submit', [
+            'label' => t('Apply')
+        ]);
+    }
+
+    private function popKey(array &$from, $key, $default = null)
+    {
+        if (isset($from[$key])) {
+            $value = $from[$key];
+            unset($from[$key]);
+
+            return $value;
+        }
+
+        return $default;
+    }
+}
