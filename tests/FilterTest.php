@@ -3,6 +3,7 @@
 namespace ipl\Tests\Web;
 
 use ipl\Stdlib\Filter;
+use ipl\Web\Filter\Parser;
 use ipl\Web\Filter\QueryString;
 use ipl\Web\Filter\Renderer;
 
@@ -595,6 +596,43 @@ class FilterTest extends TestCase
             '(foo=bar&(|))',
             (new Renderer($nestedEmptyAny))->setStrict()->render(),
             "Filter\Renderer doesn't draw group operator for empty nested OR chains"
+        );
+    }
+
+    /**
+     * @depends testRendererDrawsRedundantCharsInStrictMode
+     */
+    public function testParserRespectsRedundantCharsInStrictMode()
+    {
+        $this->assertEquals(
+            '(foo=bar)',
+            (new Renderer((new Parser('(foo=bar)'))->setStrict()->parse()))->setStrict()->render(),
+            "Filter\Parser doesn't respect parentheses for the root chain"
+        );
+        $this->assertEquals(
+            '(foo=bar&bar=foo)',
+            (new Renderer((new Parser('(foo=bar&bar=foo)'))->setStrict()->parse()))->setStrict()->render(),
+            "Filter\Parser doesn't respect parentheses for the root chain"
+        );
+        $this->assertEquals(
+            '(foo=bar&(bar=foo))',
+            (new Renderer((new Parser('(foo=bar&(bar=foo))'))->setStrict()->parse()))->setStrict()->render(),
+            "Filter\Parser doesn't respect parentheses for nested chains with a single condition"
+        );
+        $this->assertEquals(
+            '(foo=bar&(bar=foo|))',
+            (new Renderer((new Parser('(foo=bar&(bar=foo|))'))->setStrict()->parse()))->setStrict()->render(),
+            "Filter\Parser doesn't respect group operator for nested OR chains with a single condition"
+        );
+        $this->assertEquals(
+            '(foo=bar&())',
+            (new Renderer((new Parser('(foo=bar&())'))->setStrict()->parse()))->setStrict()->render(),
+            "Filter\Parser doesn't respect parentheses for empty nested chains"
+        );
+        $this->assertEquals(
+            '(foo=bar&(|))',
+            (new Renderer((new Parser('(foo=bar&(|))'))->setStrict()->parse()))->setStrict()->render(),
+            "Filter\Parser doesn't respect group operator for empty nested OR chains"
         );
     }
 }
