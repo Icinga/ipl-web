@@ -5,5 +5,5 @@
 !.git*
 
 # Exclude files from composer install
-vendor/
+/vendor/
 composer.lock
