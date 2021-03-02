@@ -353,7 +353,6 @@ class SearchBar extends Form
             $dataInput,
             $termInput,
             $submitButton,
-            $editorOpener,
             new HtmlElement('div', [
                 'id'                => $suggestionsId,
                 'class'             => 'suggestions',
@@ -365,6 +364,6 @@ class SearchBar extends Form
         // loaded by XHR and HTML prohibits nested forms. It's style-wise also better...
         $doc = new HtmlDocument();
         $this->setWrapper($doc);
-        $doc->add([$this, $editorContainer]);
+        $doc->add([$this, $editorOpener, $editorContainer]);
     }
 }

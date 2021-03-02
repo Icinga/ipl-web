@@ -1,11 +1,38 @@
 // Icinga DB Web | (c) 2021 Icinga GmbH | GPLv2
 
 // Style
+
+.search-editor-opener {
+  background: none;
+  border: none;
+
+  i.icon:before {
+    font-size: 1.2em;
+    margin-right: 0;
+    color: @icinga-blue;
+  }
+
+  &:hover, &:focus, &.active {
+    .rounded-corners();
+    background-color: @icinga-blue;
+
+    i.icon:before {
+      color: white;
+    }
+  }
+}
+
 .search-editor {
 
 }
 
 // Layout
+
+.search-editor-opener {
+  margin-left: .5em;
+  padding: 0 .5em;
+}
+
 .search-editor {
   &:empty {
     display: none;

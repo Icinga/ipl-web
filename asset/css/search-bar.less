@@ -1,5 +1,3 @@
-// Icinga DB Web | (c) 2020 Icinga GmbH | GPLv2
-
 // Style
 .search-bar {
   .rounded-corners();
@@ -27,30 +25,18 @@
     display: none;
   }
 
-  // Utility buttons
-  button.search-options,
-  button.search-editor-opener {
+  // Left-most search dropdown style
+  button.search-options {
     i.icon:before {
       font-size: 1.2em;
       margin-right: 0;
       color: @icinga-blue;
     }
-  }
 
-  button.search-options:disabled {
-    i.icon:before {
-      color: @gray-light;
-    }
-  }
-
-  button.search-editor-opener.active {
-    .rounded-corners();
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-    background-color: @icinga-blue;
-
-    i.icon:before {
-      color: white;
+    &:disabled {
+      i.icon:before {
+        color: @gray-light;
+      }
     }
   }
 

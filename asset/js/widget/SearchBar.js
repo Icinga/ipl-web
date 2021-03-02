@@ -11,7 +11,7 @@ define(["../notjQuery", "../vendor/Sortable"], function ($, Sortable) {
         }
 
         bind() {
-            $(this.form).on('click', '[data-search-editor-url]', this.onOpenerClick, this);
+            $(this.form.parentNode).on('click', '[data-search-editor-url]', this.onOpenerClick, this);
             $(this.editorContainer).on('end', 'ol.sortable', this.onRuleDropped, this);
 
             if (typeof icinga !== 'undefined') {
