@@ -349,17 +349,17 @@ class SearchEditor extends Form
             ]),
             $this->createElement('submitButton', 'structural-change', [
                 'value' => 'chain-before:' . $identifier,
-                'label' => t('Prepend Chain')
+                'label' => t('Prepend Group')
             ]),
             $this->createElement('submitButton', 'structural-change', [
                 'value' => 'chain-after:' . $identifier,
-                'label' => t('Append Chain')
+                'label' => t('Append Group')
             ]),
             $this->createElement('submitButton', 'structural-change', [
                 'value' => 'drop-rule:' . $identifier,
                 'label' => $for instanceof Filter\Condition
                     ? t('Delete Condition')
-                    : t('Delete Chain')
+                    : t('Delete Group')
             ])
         ]);
     }
