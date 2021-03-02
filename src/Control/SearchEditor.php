@@ -9,6 +9,7 @@ use ipl\Web\Filter\Parser;
 use ipl\Web\Filter\QueryString;
 use ipl\Web\Filter\Renderer;
 use ipl\Web\Url;
+use ipl\Web\Widget\Icon;
 
 class SearchEditor extends Form
 {
@@ -182,33 +183,59 @@ class SearchEditor extends Form
     protected function applyStructuralChange(Filter\Rule $rule)
     {
         $structuralChange = $this->getPopulatedValue('structural-change');
-        if ($structuralChange === null) {
+        if (empty($structuralChange)) {
             return $rule;
+        } elseif (is_array($structuralChange)) {
+            ksort($structuralChange);
         }
 
-        list($type, $where) = explode(':', $structuralChange);
+        list($type, $where) = explode(':', is_array($structuralChange)
+            ? array_shift($structuralChange)
+            : $structuralChange);
         $targetPath = explode('-', $where);
 
-        $parent = null;
-        $target = null;
-        $children = [$rule];
-        foreach ($targetPath as $targetPos) {
-            if ($target !== null) {
-                $parent = $target;
-                $children = $parent instanceof Filter\Chain
-                    ? iterator_to_array($parent)
-                    : [];
+        $targetFinder = function ($path) use ($rule) {
+            $parent = null;
+            $target = null;
+            $children = [$rule];
+            foreach ($path as $targetPos) {
+                if ($target !== null) {
+                    $parent = $target;
+                    $children = $parent instanceof Filter\Chain
+                        ? iterator_to_array($parent)
+                        : [];
+                }
+
+                if (! isset($children[$targetPos])) {
+                    return $rule;
+                }
+
+                $target = $children[$targetPos];
             }
 
-            if (! isset($children[$targetPos])) {
-                return $rule;
-            }
+            return [$parent, $target];
+        };
 
-            $target = $children[$targetPos];
-        }
+        list($parent, $target) = $targetFinder($targetPath);
 
         $emptyEqual = Filter::equal(static::FAKE_COLUMN, '');
         switch ($type) {
+            case 'move-rule':
+                if (! is_array($structuralChange) || empty($structuralChange)) {
+                    return $rule;
+                }
+
+                list($placement, $moveToPath) = explode(':', array_shift($structuralChange));
+                list($moveToParent, $moveToTarget) = $targetFinder(explode('-', $moveToPath));
+
+                $parent->remove($target);
+                if ($placement === 'before') {
+                    $moveToParent->insertBefore($target, $moveToTarget);
+                } else {
+                    $moveToParent->insertAfter($target, $moveToTarget);
+                }
+
+                break;
             case 'condition-before':
                 if ($parent !== null) {
                     $parent->insertBefore($emptyEqual, $target);
@@ -260,7 +287,15 @@ class SearchEditor extends Form
             $item = [$this->createCondition($rule, $identifier), $this->createButtons($rule, $identifier)];
 
             if (count($path) === 1) {
-                $item = new HtmlElement('ol', null, new HtmlElement('li', null, $item));
+                $item = new HtmlElement('ol', null, new HtmlElement(
+                    'li',
+                    ['id' => $identifier],
+                    $item
+                ));
+            } else {
+                array_splice($item, 1, 0, [
+                    new HtmlElement('span', ['class' => 'drag-initiator'], new Icon('bars'))
+                ]);
             }
         } else {
             /** @var Filter\Chain $rule */
@@ -275,19 +310,26 @@ class SearchEditor extends Form
                 'value' => $rule instanceof Filter\None ? '!' : QueryString::getRuleSymbol($rule)
             ]);
             $this->registerElement($groupOperatorInput);
-            $item->add(new HtmlElement('li', null, [
+            $item->add(new HtmlElement('li', ['id' => $identifier], [
                 $groupOperatorInput,
+                count($path) > 1
+                    ? new HtmlElement('span', ['class' => 'drag-initiator'], new Icon('bars'))
+                    : null,
                 $this->createButtons($rule, $identifier)
             ]));
 
-            $children = new HtmlElement('ol');
+            $children = new HtmlElement('ol', ['class' => 'sortable']);
             $item->add(new HtmlElement('li', null, $children));
 
             $i = 0;
             foreach ($rule as $child) {
                 $childPath = $path;
                 $childPath[] = $i++;
-                $children->add(new HtmlElement('li', null, $this->createTree($child, $childPath)));
+                $children->add(new HtmlElement(
+                    'li',
+                    ['id' => join('-', $childPath)],
+                    $this->createTree($child, $childPath)
+                ));
             }
         }
 

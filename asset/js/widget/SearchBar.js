@@ -1,4 +1,4 @@
-define(["../notjQuery"], function ($) {
+define(["../notjQuery", "../vendor/Sortable"], function ($, Sortable) {
 
     "use strict";
 
@@ -7,10 +7,20 @@ define(["../notjQuery"], function ($) {
             this.form = form;
             this.filterInput = null;
             this._editorContainer = null;
+            this._eventListener = null;
         }
 
         bind() {
             $(this.form).on('click', '[data-search-editor-url]', this.onOpenerClick, this);
+            $(this.editorContainer).on('end', 'ol.sortable', this.onRuleDropped, this);
+
+            if (typeof icinga !== 'undefined') {
+                // TODO: This *might* not be necessary anymore once the editor
+                //       is loaded into a modal (and has its own enrichment)
+                this._eventListener = new Icinga.EventListener(icinga);
+                this._eventListener.on('rendered', this.form.dataset.searchEditor, this.onEditorRendered, this);
+                this._eventListener.bind(document);
+            }
 
             return this;
         }
@@ -31,6 +41,7 @@ define(["../notjQuery"], function ($) {
             this.form = null;
             this.filterInput = null;
             this._editorContainer = null;
+            this._eventListener = null;
         }
 
         disable() {
@@ -113,6 +124,51 @@ define(["../notjQuery"], function ($) {
             });
 
             req.send();
+        }
+
+        onEditorRendered(event) {
+            let renderTarget = event.target;
+
+            renderTarget.querySelectorAll('.sortable').forEach(sortable => {
+                let options = {
+                    scroll: this.editorContainer,
+                    group: 'rules',
+                    direction: 'vertical',
+                    // TODO: Play with these if drag'n'drop doesn't behave well
+                    //invertSwap: true,
+                    //swapThreshold: 0.65,
+                    handle: '.drag-initiator'
+                };
+
+                Sortable.create(sortable, options);
+            });
+        }
+
+        onRuleDropped(event) {
+            if (event.to === event.from && event.newIndex === event.oldIndex) {
+                // The user dropped the rule at its previous position
+                return;
+            }
+
+            let placement = 'before';
+            let neighbour = event.to.querySelector(':scope > :nth-child(' + (event.newIndex + 2) + ')');
+            if (! neighbour) {
+                // User dropped the rule at the end of a group
+                placement = 'after';
+                neighbour = event.to.querySelector(':scope > :nth-child(' + event.newIndex + ')')
+            }
+
+            let form = event.to.closest('form');
+            // It's a submit element, the very first one, otherwise Icinga Web 2 sends another "structural-change"
+            form.insertBefore(
+                $.render('<input type="submit" name="structural-change[0]" value="move-rule:' + event.item.id + '">'),
+                form.firstChild
+            );
+            form.appendChild($.render(
+                '<input type="hidden" name="structural-change[1]" value="' + placement + ':' + neighbour.id + '">'
+            ));
+
+            $(form).trigger('submit');
         }
     }
 
