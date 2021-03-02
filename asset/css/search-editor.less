@@ -1,5 +1,3 @@
-// Icinga DB Web | (c) 2021 Icinga GmbH | GPLv2
-
 // Style
 
 .search-editor-opener {
@@ -31,6 +29,10 @@
 .search-editor-opener {
   margin-left: .5em;
   padding: 0 .5em;
+
+  & + a.modal-opener {
+    display: none;
+  }
 }
 
 .search-editor {

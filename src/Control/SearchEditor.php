@@ -16,6 +16,11 @@ class SearchEditor extends Form
     /** @var string The column name used for empty conditions */
     const FAKE_COLUMN = '_fake_';
 
+    protected $defaultAttributes = [
+        'data-enrichment-type'  => 'search-editor',
+        'class'                 => 'search-editor'
+    ];
+
     /** @var string */
     protected $queryString;
 
@@ -318,7 +323,7 @@ class SearchEditor extends Form
                 $this->createButtons($rule, $identifier)
             ]));
 
-            $children = new HtmlElement('ol', ['class' => 'sortable']);
+            $children = new HtmlElement('ol');
             $item->add(new HtmlElement('li', null, $children));
 
             $i = 0;

@@ -320,20 +320,13 @@ class SearchBar extends Form
         $this->registerElement($submitButton);
 
         $editorOpener = null;
-        $editorContainer = null;
         if (($editorUrl = $this->getEditorUrl()) !== null) {
-            $editorId = $this->protectId('search-editor');
-            $this->setAttribute('data-search-editor', '#' . $editorId);
-            $editorContainer = new HtmlElement('div', [
-                'id'                => $editorId,
-                'class'             => 'search-editor',
-                'data-base-target'  => $editorId
-            ]);
             $editorOpener = new HtmlElement(
                 'button',
                 [
                     'type'                      => 'button',
                     'class'                     => 'search-editor-opener',
+                    'title'                     => t('Adjust Filter'),
                     'data-search-editor-url'    => $editorUrl
                 ],
                 new Icon('cog')
@@ -364,6 +357,6 @@ class SearchBar extends Form
         // loaded by XHR and HTML prohibits nested forms. It's style-wise also better...
         $doc = new HtmlDocument();
         $this->setWrapper($doc);
-        $doc->add([$this, $editorOpener, $editorContainer]);
+        $doc->add([$this, $editorOpener]);
     }
 }
