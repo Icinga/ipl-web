@@ -58,12 +58,15 @@ define(["../notjQuery", "../vendor/Sortable"], function ($, Sortable) {
 
             // It's a submit element, the very first one, otherwise Icinga Web 2 sends another "structural-change"
             this.form.insertBefore(
+                $.render(
+                    '<input type="hidden" name="structural-change[1]" value="' + placement + ':' + neighbour.id + '">'
+                ),
+                this.form.firstChild
+            );
+            this.form.insertBefore(
                 $.render('<input type="submit" name="structural-change[0]" value="move-rule:' + event.item.id + '">'),
                 this.form.firstChild
             );
-            this.form.appendChild($.render(
-                '<input type="hidden" name="structural-change[1]" value="' + placement + ':' + neighbour.id + '">'
-            ));
 
             $(this.form).trigger('submit');
         }

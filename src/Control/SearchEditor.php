@@ -441,6 +441,11 @@ class SearchEditor extends Form
         $this->addElement('submit', 'btn_submit', [
             'label' => t('Apply')
         ]);
+
+        // Add submit button also as first element to make Web 2 submit
+        // the form instead of using a structural change to submit if
+        // the user just presses Enter.
+        $this->prepend($this->getElement('btn_submit'));
     }
 
     private function popKey(array &$from, $key, $default = null)
