@@ -299,7 +299,7 @@ class SearchEditor extends Form
                 ));
             } else {
                 array_splice($item, 1, 0, [
-                    new HtmlElement('span', ['class' => 'drag-initiator'], new Icon('bars'))
+                    new Icon('bars', ['class' => 'drag-initiator'])
                 ]);
             }
         } else {
@@ -318,7 +318,7 @@ class SearchEditor extends Form
             $item->add(new HtmlElement('li', ['id' => $identifier], [
                 $groupOperatorInput,
                 count($path) > 1
-                    ? new HtmlElement('span', ['class' => 'drag-initiator'], new Icon('bars'))
+                    ? new Icon('bars', ['class' => 'drag-initiator'])
                     : null,
                 $this->createButtons($rule, $identifier)
             ]));
@@ -343,29 +343,32 @@ class SearchEditor extends Form
 
     protected function createButtons(Filter\Rule $for, $identifier)
     {
-        return new HtmlElement('div', null, [
-            $this->createElement('submitButton', 'structural-change', [
-                'value' => 'condition-before:' . $identifier,
-                'label' => t('Prepend Condition')
+        return new HtmlElement('div', ['class' => 'buttons'], [
+            new HtmlElement('ul', null, [
+                new HtmlElement('li', null, $this->createElement('submitButton', 'structural-change', [
+                    'value' => 'condition-before:' . $identifier,
+                    'label' => t('Prepend Condition')
+                ])),
+                new HtmlElement('li', null, $this->createElement('submitButton', 'structural-change', [
+                    'value' => 'condition-after:' . $identifier,
+                    'label' => t('Append Condition')
+                ])),
+                new HtmlElement('li', null, $this->createElement('submitButton', 'structural-change', [
+                    'value' => 'chain-before:' . $identifier,
+                    'label' => t('Prepend Group')
+                ])),
+                new HtmlElement('li', null, $this->createElement('submitButton', 'structural-change', [
+                    'value' => 'chain-after:' . $identifier,
+                    'label' => t('Append Group')
+                ])),
+                new HtmlElement('li', null, $this->createElement('submitButton', 'structural-change', [
+                    'value' => 'drop-rule:' . $identifier,
+                    'label' => $for instanceof Filter\Condition
+                        ? t('Delete Condition')
+                        : t('Delete Group')
+                ]))
             ]),
-            $this->createElement('submitButton', 'structural-change', [
-                'value' => 'condition-after:' . $identifier,
-                'label' => t('Append Condition')
-            ]),
-            $this->createElement('submitButton', 'structural-change', [
-                'value' => 'chain-before:' . $identifier,
-                'label' => t('Prepend Group')
-            ]),
-            $this->createElement('submitButton', 'structural-change', [
-                'value' => 'chain-after:' . $identifier,
-                'label' => t('Append Group')
-            ]),
-            $this->createElement('submitButton', 'structural-change', [
-                'value' => 'drop-rule:' . $identifier,
-                'label' => $for instanceof Filter\Condition
-                    ? t('Delete Condition')
-                    : t('Delete Group')
-            ])
+            new Icon('ellipsis-h')
         ]);
     }
 
@@ -373,9 +376,10 @@ class SearchEditor extends Form
     {
         $columnInput = $this->createElement('text', $identifier . '-column', [
             'value' => isset($condition->columnLabel) ? $condition->columnLabel : $condition->getColumn(),
+            'autocomplete' => 'off',
             'data-type' => 'column',
             'data-enrichment-type' => 'completion',
-            'data-term-suggestions' => '#suggestions-' . $identifier,
+            'data-term-suggestions' => '#search-editor-suggestions',
             'data-suggest-url' => $this->suggestionUrl
         ]);
         $columnSearchInput = $this->createElement('hidden', $identifier . '-column-search', [
@@ -396,13 +400,12 @@ class SearchEditor extends Form
 
         $valueInput = $this->createElement('text', $identifier . '-value', [
             'value' => $condition->getValue(),
+            'autocomplete' => 'off',
             'data-type' => 'value',
             'data-enrichment-type' => 'completion',
-            'data-term-suggestions' => '#suggestions-' . $identifier,
+            'data-term-suggestions' => '#search-editor-suggestions',
             'data-suggest-url' => $this->suggestionUrl
         ]);
-
-        $suggestions = new HtmlElement('div', ['id' => 'suggestions-' . $identifier]);
 
         $this->registerElement($columnInput);
         $this->registerElement($columnSearchInput);
@@ -413,8 +416,7 @@ class SearchEditor extends Form
             $columnInput,
             $columnSearchInput,
             $operatorInput,
-            $valueInput,
-            $suggestions
+            $valueInput
         ]);
     }
 
@@ -431,6 +433,10 @@ class SearchEditor extends Form
         $this->addElement($filterInput);
 
         $this->add($this->createTree($this->getFilter()));
+        $this->add(new HtmlElement('div', [
+            'id'    => 'search-editor-suggestions',
+            'class' => 'search-suggestions'
+        ]));
 
         $this->addElement('submit', 'btn_submit', [
             'label' => t('Apply')

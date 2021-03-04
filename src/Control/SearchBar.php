@@ -348,7 +348,7 @@ class SearchBar extends Form
             $submitButton,
             new HtmlElement('div', [
                 'id'                => $suggestionsId,
-                'class'             => 'suggestions',
+                'class'             => 'search-suggestions',
                 'data-base-target'  => $suggestionsId
             ])
         ]);
