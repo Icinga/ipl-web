@@ -99,6 +99,10 @@ define(["../notjQuery"], function ($) {
             }
         }
 
+        hasSuggestions() {
+            return this.termSuggestions.childNodes.length > 0;
+        }
+
         hideSuggestions() {
             if (this.nextSuggestion !== null || this.activeSuggestion !== null) {
                 return;
@@ -381,7 +385,11 @@ define(["../notjQuery"], function ($) {
 
                     break;
                 case 'Escape':
-                    this.hideSuggestions();
+                    if (this.hasSuggestions()) {
+                        this.hideSuggestions()
+                        event.preventDefault();
+                    }
+
                     break;
                 case 'ArrowUp':
                     suggestions = this.termSuggestions.querySelectorAll('[type="button"]');
