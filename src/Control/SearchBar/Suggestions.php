@@ -10,6 +10,7 @@ use ipl\Html\FormElement\InputElement;
 use ipl\Html\HtmlElement;
 use ipl\Stdlib\Contract\Paginatable;
 use ipl\Stdlib\Filter;
+use ipl\Web\Control\SearchEditor;
 use ipl\Web\Filter\QueryString;
 use IteratorIterator;
 use LimitIterator;
@@ -297,6 +298,11 @@ abstract class Suggestions extends BaseHtmlElement
 
         switch ($type) {
             case 'value':
+                if (! $requestData['column'] || $requestData['column'] === SearchEditor::FAKE_COLUMN) {
+                    $this->setFailureMessage(t('Missing column name'));
+                    break;
+                }
+
                 $searchFilter = QueryString::parse(
                     isset($requestData['searchFilter'])
                         ? $requestData['searchFilter']
