@@ -83,12 +83,17 @@ define(["../notjQuery"], function ($) {
             this.termSuggestions.appendChild(suggestions);
             this.termSuggestions.style.display = '';
 
-            let formRect = input.form.getBoundingClientRect();
-            let inputPosX = input.getBoundingClientRect().left - formRect.left;
+            let containingBlock = this.termSuggestions.offsetParent || document.body;
+            let containingBlockRect = containingBlock.getBoundingClientRect();
+            let inputRect = input.getBoundingClientRect();
+            let inputPosX = inputRect.left - containingBlockRect.left;
+            let inputPosY = inputRect.bottom - containingBlockRect.top;
             let suggestionWidth = this.termSuggestions.offsetWidth;
 
-            if (inputPosX + suggestionWidth > formRect.right - formRect.left) {
-                this.termSuggestions.style.left = `${ formRect.right - formRect.left - suggestionWidth }px`;
+            this.termSuggestions.style.top = `${ inputPosY }px`;
+            if (inputPosX + suggestionWidth > containingBlockRect.right - containingBlockRect.left) {
+                this.termSuggestions.style.left =
+                    `${ containingBlockRect.right - containingBlockRect.left - suggestionWidth }px`;
             } else {
                 this.termSuggestions.style.left = `${ inputPosX }px`;
             }
