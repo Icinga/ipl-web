@@ -142,7 +142,9 @@ define(["../notjQuery"], function ($) {
                             dataName = dataName.substr(input.parentElement.name.length);
                         }
 
-                        data[dataName] = element.value;
+                        if (! dataName in data || element.value) {
+                            data[dataName] = element.value;
+                        }
                     }
                 }
             }
@@ -247,6 +249,10 @@ define(["../notjQuery"], function ($) {
                 for (let name in data) {
                     let dataElement = input.form[input.name + '-' + name];
                     if (typeof dataElement !== 'undefined') {
+                        if (dataElement instanceof RadioNodeList) {
+                            dataElement = dataElement[dataElement.length - 1];
+                        }
+
                         dataElement.value = data[name];
                     }
                 }
@@ -428,7 +434,12 @@ define(["../notjQuery"], function ($) {
             // completion requests and the server can properly identify a new value upon submit
             input.dataset.search = input.value;
             if (typeof input.form[input.name + '-search'] !== 'undefined') {
-                input.form[input.name + '-search'].value = input.value;
+                let dataElement = input.form[input.name + '-search'];
+                if (dataElement instanceof RadioNodeList) {
+                    dataElement = dataElement[dataElement.length - 1];
+                }
+
+                dataElement.value = input.value;
             }
 
             let [value, data] = this.prepareCompletionData(input);
