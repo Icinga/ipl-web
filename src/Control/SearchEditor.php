@@ -127,7 +127,7 @@ class SearchEditor extends Form
                 $identifier . '-column'
             ));
             if ($newColumn !== null && $rule->getColumn() !== $newColumn) {
-                $rule->setColumn($newColumn);
+                $rule->setColumn($newColumn ?: static::FAKE_COLUMN);
                 // TODO: Clear meta data?
             }
 
@@ -382,8 +382,11 @@ class SearchEditor extends Form
             'data-term-suggestions' => '#search-editor-suggestions',
             'data-suggest-url' => $this->suggestionUrl
         ]);
+        $columnFakeInput = $this->createElement('hidden', $identifier . '-column-search', [
+            'value' => static::FAKE_COLUMN
+        ]);
         $columnSearchInput = $this->createElement('hidden', $identifier . '-column-search', [
-            'value' => $condition->getColumn() ?: static::FAKE_COLUMN
+            'value' => $condition->getColumn()
         ]);
 
         $operatorInput = $this->createElement('select', $identifier . '-operator', [
@@ -414,6 +417,7 @@ class SearchEditor extends Form
 
         return new HtmlElement('fieldset', ['name' => $identifier . '-'], [
             $columnInput,
+            $columnFakeInput,
             $columnSearchInput,
             $operatorInput,
             $valueInput
