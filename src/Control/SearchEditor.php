@@ -239,7 +239,9 @@ class SearchEditor extends Form
                 list($moveToParent, $moveToTarget) = $targetFinder(explode('-', $moveToPath));
 
                 $parent->remove($target);
-                if ($placement === 'before') {
+                if ($placement === 'to') {
+                    $moveToTarget->add($target);
+                } elseif ($placement === 'before') {
                     $moveToParent->insertBefore($target, $moveToTarget);
                 } else {
                     $moveToParent->insertAfter($target, $moveToTarget);

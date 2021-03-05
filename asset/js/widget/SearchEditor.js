@@ -54,6 +54,11 @@ define(["../notjQuery", "../vendor/Sortable"], function ($, Sortable) {
                 // User dropped the rule at the end of a group
                 placement = 'after';
                 neighbour = event.to.querySelector(':scope > :nth-child(' + event.newIndex + ')')
+                if (! neighbour) {
+                    // User dropped the rule into an empty group
+                    placement = 'to';
+                    neighbour = event.to.closest('[id]');
+                }
             }
 
             // It's a submit element, the very first one, otherwise Icinga Web 2 sends another "structural-change"
