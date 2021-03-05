@@ -161,8 +161,10 @@
 
   ol {
     padding-left: 1em;
+    padding-bottom: @item-spacing;
 
-    > li {
+    > li:first-child,
+    > :not(.filter-chain) + li {
       margin-top: @item-spacing;
     }
   }
@@ -251,7 +253,7 @@
   input[type="submit"] {
     float: right;
     width: 6em;
-    margin-top: 2em;
+    margin-top: 2em - @item-spacing;
   }
 
   input[type="submit"]:not(:last-of-type) {

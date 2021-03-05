@@ -323,7 +323,12 @@ class SearchEditor extends Form
                 $childPath[] = $i++;
                 $children->add(new HtmlElement(
                     'li',
-                    ['id' => join('-', $childPath)],
+                    [
+                        'id'    => join('-', $childPath),
+                        'class' => $child instanceof Filter\Condition
+                            ? 'filter-condition'
+                            : 'filter-chain'
+                    ],
                     $this->createTree($child, $childPath)
                 ));
             }

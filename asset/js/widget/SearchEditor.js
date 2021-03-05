@@ -15,9 +15,7 @@ define(["../notjQuery", "../vendor/Sortable"], function ($, Sortable) {
                     scroll: true,
                     group: 'rules',
                     direction: 'vertical',
-                    // TODO: Play with these if drag'n'drop doesn't behave well
-                    //invertSwap: true,
-                    //swapThreshold: 0.65,
+                    invertSwap: true,
                     handle: '.drag-initiator'
                 };
 
