@@ -41,6 +41,9 @@ class SearchEditor extends Form
     /** @var Filter\Rule */
     protected $filter;
 
+    /** @var bool */
+    protected $cleared = false;
+
     /**
      * Set the filter query string to populate the form with
      *
@@ -113,10 +116,30 @@ class SearchEditor extends Form
         parent::populate($values);
 
         $this->filter = $this->applyStructuralChange($filter);
-        if ($this->filter instanceof Filter\Condition || ! $this->filter->isEmpty()) {
+        if ($this->filter !== null && ($this->filter instanceof Filter\Condition || ! $this->filter->isEmpty())) {
             $this->queryString = (new Renderer($this->filter))->setStrict()->render();
         } else {
             $this->queryString = '';
+        }
+
+        return $this;
+    }
+
+    public function hasBeenSubmitted()
+    {
+        if (parent::hasBeenSubmitted()) {
+            return true;
+        }
+
+        return $this->cleared;
+    }
+
+    public function validate()
+    {
+        if ($this->cleared) {
+            $this->isValid = true;
+        } else {
+            parent::validate();
         }
 
         return $this;
@@ -277,6 +300,11 @@ class SearchEditor extends Form
                 } else {
                     $rule = $emptyEqual;
                 }
+
+                break;
+            case 'clear':
+                $this->cleared = true;
+                $rule = null;
         }
 
         return $rule;
@@ -508,6 +536,15 @@ class SearchEditor extends Form
             'id'    => 'search-editor-suggestions',
             'class' => 'search-suggestions'
         ]));
+
+        if ($this->queryString) {
+            $this->add($this->createElement('submitButton', 'structural-change', [
+                'value'             => 'clear:0',
+                'class'             => 'cancel-button',
+                'label'             => t('Clear Filter'),
+                'formnovalidate'    => true
+            ]));
+        }
 
         $this->addElement('submit', 'btn_submit', [
             'label' => t('Apply')
