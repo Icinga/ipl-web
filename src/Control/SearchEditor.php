@@ -71,14 +71,7 @@ class SearchEditor extends Form
     public function getParser()
     {
         if ($this->parser === null) {
-            $this->parser = (new Parser())
-                ->setStrict()
-                ->on(Parser::ON_CONDITION, function ($condition) {
-                    // Cleanup fake column names from conditions
-                    if ($condition->getColumn() === static::FAKE_COLUMN) {
-                        $condition->setColumn('');
-                    }
-                });
+            $this->parser = new Parser();
         }
 
         return $this->parser;
@@ -111,8 +104,8 @@ class SearchEditor extends Form
 
         parent::populate($values);
 
-        $filter = $this->applyStructuralChange($filter);
-        $this->queryString = (new Renderer($filter))->setStrict()->render();
+        $this->filter = $this->applyStructuralChange($filter);
+        $this->queryString = (new Renderer($this->filter))->setStrict()->render();
 
         return $this;
     }
@@ -122,10 +115,14 @@ class SearchEditor extends Form
         $identifier = join('-', $path);
 
         if ($rule instanceof Filter\Condition) {
-            $newColumn = $this->popKey($values, $identifier . '-column-search', $this->popKey(
-                $values,
-                $identifier . '-column'
-            ));
+            $newColumn = $this->popKey($values, $identifier . '-column-search');
+            if ($newColumn === null) {
+                $newColumn = $this->popKey($values, $identifier . '-column');
+            } else {
+                // Make sure we don't forget to present the column labels again
+                $rule->columnLabel = $this->popKey($values, $identifier . '-column');
+            }
+
             if ($newColumn !== null && $rule->getColumn() !== $newColumn) {
                 $rule->setColumn($newColumn ?: static::FAKE_COLUMN);
                 // TODO: Clear meta data?
@@ -375,7 +372,11 @@ class SearchEditor extends Form
     protected function createCondition(Filter\Condition $condition, $identifier)
     {
         $columnInput = $this->createElement('text', $identifier . '-column', [
-            'value' => isset($condition->columnLabel) ? $condition->columnLabel : $condition->getColumn(),
+            'value' => isset($condition->columnLabel)
+                ? $condition->columnLabel
+                : ($condition->getColumn() !== static::FAKE_COLUMN
+                    ? $condition->getColumn()
+                    : null),
             'autocomplete' => 'off',
             'data-type' => 'column',
             'data-enrichment-type' => 'completion',
