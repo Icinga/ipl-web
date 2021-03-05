@@ -113,7 +113,11 @@ class SearchEditor extends Form
         parent::populate($values);
 
         $this->filter = $this->applyStructuralChange($filter);
-        $this->queryString = (new Renderer($this->filter))->setStrict()->render();
+        if ($this->filter instanceof Filter\Condition || ! $this->filter->isEmpty()) {
+            $this->queryString = (new Renderer($this->filter))->setStrict()->render();
+        } else {
+            $this->queryString = '';
+        }
 
         return $this;
     }
@@ -420,7 +424,9 @@ class SearchEditor extends Form
             'value' => static::FAKE_COLUMN
         ]);
         $columnSearchInput = $this->createElement('hidden', $identifier . '-column-search', [
-            'value' => $condition->getColumn(),
+            'value' => $condition->getColumn() !== static::FAKE_COLUMN
+                ? $condition->getColumn()
+                : null,
             'validators' => ['Callback' => function ($value) use ($condition, $columnInput, &$columnSearchInput) {
                 if (! $this->hasBeenSubmitted()) {
                     return true;
@@ -483,13 +489,18 @@ class SearchEditor extends Form
         $filterInput->getAttributes()->registerAttributeCallback(
             'value',
             function () {
-                return $this->queryString;
+                return $this->queryString ?: static::FAKE_COLUMN;
             },
             [$this, 'setQueryString']
         );
         $this->addElement($filterInput);
 
-        $this->add($this->createTree($this->getFilter()));
+        $filter = $this->getFilter();
+        if ($filter instanceof Filter\Chain && $filter->isEmpty()) {
+            $filter = Filter::equal('', '');
+        }
+
+        $this->add($this->createTree($filter));
         $this->add(new HtmlElement('div', [
             'id'    => 'search-editor-suggestions',
             'class' => 'search-suggestions'
