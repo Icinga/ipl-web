@@ -321,6 +321,13 @@ define(["../notjQuery"], function ($) {
         }
 
         onSuggestionKeyDown(event) {
+            if (this.completedInput === null) {
+                // If there are multiple instances of Completer bound to the same suggestion container
+                // all of them try to handle the event. Though, only one of them is responsible and
+                // that's the one which has a completed input set.
+                return;
+            }
+
             switch (event.key) {
                 case 'Escape':
                     $(this.completedInput).focus({ scripted: true });
@@ -344,6 +351,13 @@ define(["../notjQuery"], function ($) {
         }
 
         onSuggestionClick(event) {
+            if (this.completedInput === null) {
+                // If there are multiple instances of Completer bound to the same suggestion container
+                // all of them try to handle the event. Though, only one of them is responsible and
+                // that's the one which has a completed input set.
+                return;
+            }
+
             let input = event.currentTarget;
 
             this.complete(this.completedInput, input.value, { ...input.dataset });
@@ -354,6 +368,10 @@ define(["../notjQuery"], function ($) {
 
             switch (event.key) {
                 case ' ':
+                    if (this.instrumented) {
+                        break;
+                    }
+
                     let input = event.target;
 
                     if (! input.value) {
