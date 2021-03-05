@@ -3,8 +3,11 @@
 namespace ipl\Web\Control;
 
 use ipl\Html\Form;
+use ipl\Html\FormDecorator\CallbackDecorator;
 use ipl\Html\HtmlElement;
+use ipl\Stdlib\Events;
 use ipl\Stdlib\Filter;
+use ipl\Web\Control\SearchBar\SearchException;
 use ipl\Web\Filter\Parser;
 use ipl\Web\Filter\QueryString;
 use ipl\Web\Filter\Renderer;
@@ -13,6 +16,11 @@ use ipl\Web\Widget\Icon;
 
 class SearchEditor extends Form
 {
+    use Events;
+
+    /** @var string Emitted for every validated column */
+    const ON_VALIDATE_COLUMN = 'validate-column';
+
     /** @var string The column name used for empty conditions */
     const FAKE_COLUMN = '_fake_';
 
@@ -343,26 +351,31 @@ class SearchEditor extends Form
         return new HtmlElement('div', ['class' => 'buttons'], [
             new HtmlElement('ul', null, [
                 new HtmlElement('li', null, $this->createElement('submitButton', 'structural-change', [
-                    'value' => 'condition-before:' . $identifier,
-                    'label' => t('Prepend Condition')
+                    'value'             => 'condition-before:' . $identifier,
+                    'label'             => t('Prepend Condition'),
+                    'formnovalidate'    => true
                 ])),
                 new HtmlElement('li', null, $this->createElement('submitButton', 'structural-change', [
-                    'value' => 'condition-after:' . $identifier,
-                    'label' => t('Append Condition')
+                    'value'             => 'condition-after:' . $identifier,
+                    'label'             => t('Append Condition'),
+                    'formnovalidate'    => true
                 ])),
                 new HtmlElement('li', null, $this->createElement('submitButton', 'structural-change', [
-                    'value' => 'chain-before:' . $identifier,
-                    'label' => t('Prepend Group')
+                    'value'             => 'chain-before:' . $identifier,
+                    'label'             => t('Prepend Group'),
+                    'formnovalidate'    => true
                 ])),
                 new HtmlElement('li', null, $this->createElement('submitButton', 'structural-change', [
-                    'value' => 'chain-after:' . $identifier,
-                    'label' => t('Append Group')
+                    'value'             => 'chain-after:' . $identifier,
+                    'label'             => t('Append Group'),
+                    'formnovalidate'    => true
                 ])),
                 new HtmlElement('li', null, $this->createElement('submitButton', 'structural-change', [
-                    'value' => 'drop-rule:' . $identifier,
-                    'label' => $for instanceof Filter\Condition
+                    'value'             => 'drop-rule:' . $identifier,
+                    'label'             => $for instanceof Filter\Condition
                         ? t('Delete Condition')
-                        : t('Delete Group')
+                        : t('Delete Group'),
+                    'formnovalidate'    => true
                 ]))
             ]),
             new Icon('ellipsis-h')
@@ -377,17 +390,62 @@ class SearchEditor extends Form
                 : ($condition->getColumn() !== static::FAKE_COLUMN
                     ? $condition->getColumn()
                     : null),
+            'required' => true,
             'autocomplete' => 'off',
             'data-type' => 'column',
             'data-enrichment-type' => 'completion',
             'data-term-suggestions' => '#search-editor-suggestions',
             'data-suggest-url' => $this->suggestionUrl
         ]);
+        (new CallbackDecorator(function ($element) {
+            $errors = new HtmlElement('ul', ['class' => 'search-errors']);
+
+            foreach ($element->getMessages() as $message) {
+                $errors->add(new HtmlElement('li', null, $message));
+            }
+
+            if (! $errors->isEmpty()) {
+                if (trim($element->getValue())) {
+                    $element->getAttributes()->add(
+                        'pattern',
+                        sprintf(
+                            '^\s*(?!%s\b).*\s*$',
+                            $element->getValue()
+                        )
+                    );
+                }
+
+                $element->prependWrapper(new HtmlElement('div', ['class' => 'search-error'], [
+                    $element,
+                    $errors
+                ]));
+            }
+        }))->decorate($columnInput);
+
         $columnFakeInput = $this->createElement('hidden', $identifier . '-column-search', [
             'value' => static::FAKE_COLUMN
         ]);
         $columnSearchInput = $this->createElement('hidden', $identifier . '-column-search', [
-            'value' => $condition->getColumn()
+            'value' => $condition->getColumn(),
+            'validators' => ['Callback' => function ($value) use ($condition, $columnInput, &$columnSearchInput) {
+                if (! $this->hasBeenSubmitted()) {
+                    return true;
+                }
+
+                try {
+                    $this->emit(static::ON_VALIDATE_COLUMN, [$condition]);
+                } catch (SearchException $e) {
+                    $columnInput->addMessage($e->getMessage());
+                    return false;
+                }
+
+                $columnSearchInput->setValue($condition->getColumn());
+                $columnInput->setValue(isset($condition->columnLabel)
+                    ? $condition->columnLabel
+                    : $condition->getColumn());
+
+                return true;
+            }]
         ]);
 
         $operatorInput = $this->createElement('select', $identifier . '-operator', [

@@ -51,6 +51,17 @@
     text-overflow: ellipsis;
   }
 
+  .search-error {
+    input:invalid {
+      background: @color-critical;
+    }
+
+    .search-errors {
+      color: @color-critical;
+      font-weight: bold;
+    }
+  }
+
   li > select {
     background: @gray-light;
   }
@@ -181,6 +192,10 @@
 
   input, button, select {
     height: 28/12em; // Target Pixels @ default font size / default font size
+  }
+
+  .search-errors {
+    margin-left: .5em;
   }
 
   i.icon:before {
