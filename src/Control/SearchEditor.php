@@ -246,35 +246,19 @@ class SearchEditor extends Form
                 }
 
                 break;
-            case 'condition-before':
-                if ($parent !== null) {
-                    $parent->insertBefore($emptyEqual, $target);
-                } else {
-                    $rule = Filter::all($emptyEqual, $target);
-                }
+            case 'add-condition':
+                $target->add($emptyEqual);
 
                 break;
-            case 'condition-after':
-                if ($parent !== null) {
-                    $parent->insertAfter($emptyEqual, $target);
-                } else {
-                    $rule = Filter::all($target, $emptyEqual);
-                }
+            case 'add-group':
+                $target->add(Filter::all($emptyEqual));
 
                 break;
-            case 'chain-before':
+            case 'wrap-rule':
                 if ($parent !== null) {
-                    $parent->insertBefore(Filter::all($emptyEqual), $target);
+                    $parent->replace($target, Filter::all($target));
                 } else {
-                    $rule = Filter::all(Filter::all($emptyEqual), $target);
-                }
-
-                break;
-            case 'chain-after':
-                if ($parent !== null) {
-                    $parent->insertAfter(Filter::all($emptyEqual), $target);
-                } else {
-                    $rule = Filter::all($target, $emptyEqual);
+                    $rule = Filter::all($target);
                 }
 
                 break;
@@ -348,36 +332,39 @@ class SearchEditor extends Form
 
     protected function createButtons(Filter\Rule $for, $identifier)
     {
+        $buttons = [];
+
+        if ($for instanceof Filter\Chain) {
+            $buttons[] = $this->createElement('submitButton', 'structural-change', [
+                'value'             => 'add-condition:' . $identifier,
+                'label'             => t('Add Condition', 'to a group of filter conditions'),
+                'formnovalidate'    => true
+            ]);
+            $buttons[] = $this->createElement('submitButton', 'structural-change', [
+                'value'             => 'add-group:' . $identifier,
+                'label'             => t('Add Group', 'of filter conditions'),
+                'formnovalidate'    => true
+            ]);
+        }
+
+        $buttons[] = $this->createElement('submitButton', 'structural-change', [
+            'value'             => 'wrap-rule:' . $identifier,
+            'label'             => t('Wrap in Group', 'a filter rule'),
+            'formnovalidate'    => true
+        ]);
+        $buttons[] = $this->createElement('submitButton', 'structural-change', [
+            'value'             => 'drop-rule:' . $identifier,
+            'label'             => t('Delete', 'a filter rule'),
+            'formnovalidate'    => true
+        ]);
+
+        $ul = new HtmlElement('ul');
+        foreach ($buttons as $button) {
+            $ul->add(new HtmlElement('li', null, $button));
+        }
+
         return new HtmlElement('div', ['class' => 'buttons'], [
-            new HtmlElement('ul', null, [
-                new HtmlElement('li', null, $this->createElement('submitButton', 'structural-change', [
-                    'value'             => 'condition-before:' . $identifier,
-                    'label'             => t('Prepend Condition'),
-                    'formnovalidate'    => true
-                ])),
-                new HtmlElement('li', null, $this->createElement('submitButton', 'structural-change', [
-                    'value'             => 'condition-after:' . $identifier,
-                    'label'             => t('Append Condition'),
-                    'formnovalidate'    => true
-                ])),
-                new HtmlElement('li', null, $this->createElement('submitButton', 'structural-change', [
-                    'value'             => 'chain-before:' . $identifier,
-                    'label'             => t('Prepend Group'),
-                    'formnovalidate'    => true
-                ])),
-                new HtmlElement('li', null, $this->createElement('submitButton', 'structural-change', [
-                    'value'             => 'chain-after:' . $identifier,
-                    'label'             => t('Append Group'),
-                    'formnovalidate'    => true
-                ])),
-                new HtmlElement('li', null, $this->createElement('submitButton', 'structural-change', [
-                    'value'             => 'drop-rule:' . $identifier,
-                    'label'             => $for instanceof Filter\Condition
-                        ? t('Delete Condition')
-                        : t('Delete Group'),
-                    'formnovalidate'    => true
-                ]))
-            ]),
+            $ul,
             new Icon('ellipsis-h')
         ]);
     }
