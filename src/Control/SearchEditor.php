@@ -221,7 +221,7 @@ class SearchEditor extends Form
                 }
 
                 if (! isset($children[$targetPos])) {
-                    return $rule;
+                    return [null, null];
                 }
 
                 $target = $children[$targetPos];
@@ -231,6 +231,9 @@ class SearchEditor extends Form
         };
 
         list($parent, $target) = $targetFinder($targetPath);
+        if ($target === null) {
+            return $rule;
+        }
 
         $emptyEqual = Filter::equal(static::FAKE_COLUMN, '');
         switch ($type) {
