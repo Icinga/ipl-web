@@ -13,10 +13,13 @@ use ipl\Web\Widget\Icon;
  */
 class SortControl extends CompatForm
 {
+    /** @var string Default sort param */
+    const DEFAULT_SORT_PARAM = 'sort';
+
     protected $defaultAttributes = ['class' => 'icinga-form inline sort-control'];
 
     /** @var string Name of the URL parameter which stores the sort column */
-    protected $sortParam = 'sort';
+    protected $sortParam = self::DEFAULT_SORT_PARAM;
 
     /** @var Url Request URL */
     protected $url;
