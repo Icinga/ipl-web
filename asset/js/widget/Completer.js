@@ -83,15 +83,24 @@ define(["../notjQuery"], function ($) {
             this.termSuggestions.appendChild(suggestions);
             this.termSuggestions.style.display = '';
 
-            let formRect = input.form.getBoundingClientRect();
-            let inputPosX = input.getBoundingClientRect().left - formRect.left;
+            let containingBlock = this.termSuggestions.offsetParent || document.body;
+            let containingBlockRect = containingBlock.getBoundingClientRect();
+            let inputRect = input.getBoundingClientRect();
+            let inputPosX = inputRect.left - containingBlockRect.left;
+            let inputPosY = inputRect.bottom - containingBlockRect.top;
             let suggestionWidth = this.termSuggestions.offsetWidth;
 
-            if (inputPosX + suggestionWidth > formRect.right - formRect.left) {
-                this.termSuggestions.style.left = `${ formRect.right - formRect.left - suggestionWidth }px`;
+            this.termSuggestions.style.top = `${ inputPosY }px`;
+            if (inputPosX + suggestionWidth > containingBlockRect.right - containingBlockRect.left) {
+                this.termSuggestions.style.left =
+                    `${ containingBlockRect.right - containingBlockRect.left - suggestionWidth }px`;
             } else {
                 this.termSuggestions.style.left = `${ inputPosX }px`;
             }
+        }
+
+        hasSuggestions() {
+            return this.termSuggestions.childNodes.length > 0;
         }
 
         hideSuggestions() {
@@ -116,6 +125,29 @@ define(["../notjQuery"], function ($) {
             let value = data.term.label;
             data.term.search = value;
             data.term.label = this.addWildcards(value);
+
+            if (input.parentElement instanceof HTMLFieldSetElement) {
+                for (let element of input.parentElement.elements) {
+                    if (element !== input
+                        && element.name !== input.name + '-search'
+                        && (element.name.substr(-7) === '-search'
+                            || typeof input.form[element.name + '-search'] === 'undefined')
+                    ) {
+                        // Make sure we'll use a key that the server can understand..
+                        let dataName = element.name;
+                        if (dataName.substr(-7) === '-search') {
+                            dataName = dataName.substr(0, dataName.length - 7);
+                        }
+                        if (dataName.substr(0, input.parentElement.name.length) === input.parentElement.name) {
+                            dataName = dataName.substr(input.parentElement.name.length);
+                        }
+
+                        if (! dataName in data || element.value) {
+                            data[dataName] = element.value;
+                        }
+                    }
+                }
+            }
 
             return [value, data];
         }
@@ -213,6 +245,17 @@ define(["../notjQuery"], function ($) {
                 $(input).trigger('completion', data);
             } else {
                 input.value = value;
+
+                for (let name in data) {
+                    let dataElement = input.form[input.name + '-' + name];
+                    if (typeof dataElement !== 'undefined') {
+                        if (dataElement instanceof RadioNodeList) {
+                            dataElement = dataElement[dataElement.length - 1];
+                        }
+
+                        dataElement.value = data[name];
+                    }
+                }
             }
 
             this.hideSuggestions();
@@ -278,6 +321,13 @@ define(["../notjQuery"], function ($) {
         }
 
         onSuggestionKeyDown(event) {
+            if (this.completedInput === null) {
+                // If there are multiple instances of Completer bound to the same suggestion container
+                // all of them try to handle the event. Though, only one of them is responsible and
+                // that's the one which has a completed input set.
+                return;
+            }
+
             switch (event.key) {
                 case 'Escape':
                     $(this.completedInput).focus({ scripted: true });
@@ -301,6 +351,13 @@ define(["../notjQuery"], function ($) {
         }
 
         onSuggestionClick(event) {
+            if (this.completedInput === null) {
+                // If there are multiple instances of Completer bound to the same suggestion container
+                // all of them try to handle the event. Though, only one of them is responsible and
+                // that's the one which has a completed input set.
+                return;
+            }
+
             let input = event.currentTarget;
 
             this.complete(this.completedInput, input.value, { ...input.dataset });
@@ -310,6 +367,23 @@ define(["../notjQuery"], function ($) {
             let suggestions;
 
             switch (event.key) {
+                case ' ':
+                    if (this.instrumented) {
+                        break;
+                    }
+
+                    let input = event.target;
+
+                    if (! input.value) {
+                        let [value, data] = this.prepareCompletionData(input);
+                        this.completedInput = input;
+                        this.completedValue = value;
+                        this.completedData = data;
+                        this.requestCompletion(input, data);
+                        event.preventDefault();
+                    }
+
+                    break;
                 case 'Tab':
                     suggestions = this.termSuggestions.querySelectorAll('[type="button"]');
                     if (suggestions.length === 1) {
@@ -335,7 +409,11 @@ define(["../notjQuery"], function ($) {
 
                     break;
                 case 'Escape':
-                    this.hideSuggestions();
+                    if (this.hasSuggestions()) {
+                        this.hideSuggestions()
+                        event.preventDefault();
+                    }
+
                     break;
                 case 'ArrowUp':
                     suggestions = this.termSuggestions.querySelectorAll('[type="button"]');
@@ -368,6 +446,19 @@ define(["../notjQuery"], function ($) {
 
         onInput(event) {
             let input = event.target;
+
+            // Set the input's value as search value. This ensures that if the user doesn't
+            // choose a suggestion, an up2date contextual value will be transmitted with
+            // completion requests and the server can properly identify a new value upon submit
+            input.dataset.search = input.value;
+            if (typeof input.form[input.name + '-search'] !== 'undefined') {
+                let dataElement = input.form[input.name + '-search'];
+                if (dataElement instanceof RadioNodeList) {
+                    dataElement = dataElement[dataElement.length - 1];
+                }
+
+                dataElement.value = input.value;
+            }
 
             let [value, data] = this.prepareCompletionData(input);
             this.completedInput = input;

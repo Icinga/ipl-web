@@ -1,5 +1,3 @@
-// Icinga DB Web | (c) 2020 Icinga GmbH | GPLv2
-
 // Style
 .search-bar {
   .rounded-corners();
@@ -22,12 +20,23 @@
     border-bottom-right-radius: .25em;
   }
 
+  // Hide the submit button, it must exist, but shouldn't be shown to the user
+  input[type=submit][value="hidden"] {
+    display: none;
+  }
+
   // Left-most search dropdown style
   button.search-options {
     i.icon:before {
       font-size: 1.2em;
       margin-right: 0;
       color: @icinga-blue;
+    }
+
+    &:disabled {
+      i.icon:before {
+        color: @gray-light;
+      }
     }
   }
 
@@ -124,6 +133,10 @@
     color: @text-color-inverted;
   }
 
+  [data-index] input:disabled {
+    background-color: @gray-light;
+  }
+
   .column input {
     .rounded-corners(.4em);
   }
@@ -158,61 +171,6 @@
     font-style: italic;
   }
 
-  // Suggestion styles
-  .suggestions {
-    background: @text-color-inverted;
-    border: 1px solid @gray-light;
-    border-bottom-right-radius: .5em;
-    border-bottom-left-radius:  .5em;
-
-    > ul {
-      list-style-type: none;
-
-      > li {
-        border-top: 1px solid @gray-lighter;
-      }
-      > li.suggestion-title + li {
-        border: none;
-      }
-      > li:not(.default) + li.suggestion-title {
-        border: none;
-      }
-    }
-
-    .default {
-      color: @text-color-light;
-      font-style: italic;
-
-      [type="button"] {
-        background-color: fade(@icinga-blue, 10%);
-      }
-    }
-
-    .suggestion-title {
-      color: @text-color-light;
-      font-size: 80%;
-    }
-
-    .failure-message {
-      font-weight: bold;
-
-      em {
-        font-weight: normal;
-        color: @text-color-light;
-      }
-    }
-
-    [type="button"]:focus {
-      background: @icinga-blue;
-      color: @text-color-inverted;
-      outline: none;
-    }
-
-    [type="button"]:not(:focus):hover {
-      background: fade(@icinga-blue, 30%)
-    }
-  }
-
   ul.comma-separated {
     display: inline;
     padding: 0;
@@ -240,7 +198,7 @@
     overflow-x: overlay; // Not invalid, but proprietary feature by chrome/webkit
     display: flex;
     flex-grow: 1;
-    padding: .3em 0 .6em .4em;
+    padding: .3em .3em .6em .4em;
 
     label input {
       line-height: 1.5;
@@ -332,42 +290,13 @@
     }
   }
 
-  .suggestions {
-    z-index: 2; // Required so that nothing else can overlap it (such as opaque elements and the impact overlay)
-    position: absolute;
-    top: 100%;
-    min-width: 5em;
-
-    &:empty {
+  &.disabled {
+    .terms .filter-condition:hover button {
       display: none;
     }
+  }
 
-    > ul {
-      margin: 0;
-      padding: 0;
-
-      li.suggestion-title {
-        padding: 1.25em 0 0 .625em;
-      }
-
-      li.failure-message {
-        padding: .5em 1em;
-
-        em {
-          margin-right: .5em;
-        }
-      }
-    }
-
-    [type="button"] {
-      padding: .5em 1em;
-      display: block;
-      width: 100%;
-      text-align: left;
-
-      &[data-class="operator"], &[data-class="logical_operator"] {
-        text-align: center;
-      }
-    }
+  .search-suggestions {
+    margin-top: .3em;
   }
 }

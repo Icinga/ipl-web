@@ -13,6 +13,9 @@ class LimitControl extends CompatForm
     /** @var int Default limit */
     const DEFAULT_LIMIT = 25;
 
+    /** @var string Default limit param */
+    const DEFAULT_LIMIT_PARAM = 'limit';
+
     /** @var int[] Selectable default limits */
     public static $limits = [
         '25'  => '25',
@@ -22,7 +25,7 @@ class LimitControl extends CompatForm
     ];
 
     /** @var string Name of the URL parameter which stores the limit */
-    protected $limitParam = 'limit';
+    protected $limitParam = self::DEFAULT_LIMIT_PARAM;
 
     /** @var Url */
     protected $url;

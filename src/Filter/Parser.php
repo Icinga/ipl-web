@@ -24,15 +24,48 @@ class Parser
     /** @var int */
     protected $length;
 
+    /** @var bool Whether strict mode is enabled */
+    protected $strict = false;
+
     /**
      * Create a new Parser
      *
      * @param string $queryString The string to parse
      */
-    public function __construct($queryString)
+    public function __construct($queryString = null)
     {
-        $this->string = $queryString;
+        if ($queryString !== null) {
+            $this->setQueryString($queryString);
+        }
+    }
+
+    /**
+     * Set the query string to parse
+     *
+     * @param string $queryString
+     *
+     * @return $this
+     */
+    public function setQueryString($queryString)
+    {
+        $this->string = (string) $queryString;
         $this->length = strlen($queryString);
+
+        return $this;
+    }
+
+    /**
+     * Set whether strict mode is enabled
+     *
+     * @param bool $strict
+     *
+     * @return $this
+     */
+    public function setStrict($strict = true)
+    {
+        $this->strict = (bool) $strict;
+
+        return $this;
     }
 
     /**
@@ -77,7 +110,7 @@ class Parser
                     continue;
                 }
 
-                if ($op === null && count($filters) > 0 && ($next === '&' || $next === '|')) {
+                if ($op === null && ($this->strict || count($filters) > 0) && ($next === '&' || $next === '|')) {
                     $op = $next;
                     continue;
                 }
@@ -103,7 +136,7 @@ class Parser
 
                 if ($next === '(') {
                     $rule = $this->readFilters($nestingLevel + 1, $isNone ? '!' : null);
-                    if (! $rule instanceof Filter\Chain || ! $rule->isEmpty()) {
+                    if ($this->strict || ! $rule instanceof Filter\Chain || ! $rule->isEmpty()) {
                         $filters[] = $rule;
                     }
 
@@ -240,12 +273,12 @@ class Parser
                 $chain = Filter::none(...$filters);
                 break;
             case null:
-                if (! empty($filters)) {
+                if ((! $this->strict || $nestingLevel === 0) && ! empty($filters)) {
                     // There is only one filter expression, no chain
                     return $filters[0];
                 }
 
-                $chain = Filter::all();
+                $chain = Filter::all(...$filters);
                 break;
             default:
                 $this->parseError($op);
