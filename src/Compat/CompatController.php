@@ -41,8 +41,6 @@ class CompatController extends Controller
     {
         parent::prepareInit();
 
-        unset($this->view->tabs);
-
         $this->params->shift('isIframe');
         $this->params->shift('showFullscreen');
         $this->params->shift('showCompact');
@@ -65,6 +63,7 @@ class CompatController extends Controller
         $this->tabs->setAttribute('id', $this->getRequest()->protectId('tabs'));
         $this->parts = [];
 
+        $this->view->tabs = $this->tabs;
         $this->controls->setTabs($this->tabs);
 
         ViewRenderer::inject();
@@ -276,14 +275,14 @@ class CompatController extends Controller
         if (empty($this->parts)) {
             if (! $this->content->isEmpty()) {
                 $this->document->prepend($this->content);
-            }
 
-            if (! $this->view->compact && ! $this->controls->isEmpty()) {
-                $this->document->prepend($this->controls);
-            }
+                if (! $this->view->compact && ! $this->controls->isEmpty()) {
+                    $this->document->prepend($this->controls);
+                }
 
-            if (! $this->footer->isEmpty()) {
-                $this->document->add($this->footer);
+                if (! $this->footer->isEmpty()) {
+                    $this->document->add($this->footer);
+                }
             }
         } else {
             $partSeparator = base64_encode(random_bytes(16));
