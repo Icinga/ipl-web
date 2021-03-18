@@ -375,11 +375,14 @@ define(["../notjQuery"], function ($) {
                     let input = event.target;
 
                     if (! input.value) {
-                        let [value, data] = this.prepareCompletionData(input);
-                        this.completedInput = input;
-                        this.completedValue = value;
-                        this.completedData = data;
-                        this.requestCompletion(input, data);
+                        if (! input.minLength) {
+                            let [value, data] = this.prepareCompletionData(input);
+                            this.completedInput = input;
+                            this.completedValue = value;
+                            this.completedData = data;
+                            this.requestCompletion(input, data);
+                        }
+
                         event.preventDefault();
                     }
 
@@ -446,6 +449,10 @@ define(["../notjQuery"], function ($) {
 
         onInput(event) {
             let input = event.target;
+
+            if (input.minLength && input.value.length < input.minLength) {
+                return;
+            }
 
             // Set the input's value as search value. This ensures that if the user doesn't
             // choose a suggestion, an up2date contextual value will be transmitted with
