@@ -155,7 +155,7 @@ class SearchEditor extends Form
                 $newColumn = $this->popKey($values, $identifier . '-column');
             } else {
                 // Make sure we don't forget to present the column labels again
-                $rule->columnLabel = $this->popKey($values, $identifier . '-column');
+                $rule->metaData()->set('columnLabel', $this->popKey($values, $identifier . '-column'));
             }
 
             if ($newColumn !== null && $rule->getColumn() !== $newColumn) {
@@ -414,11 +414,12 @@ class SearchEditor extends Form
     protected function createCondition(Filter\Condition $condition, $identifier)
     {
         $columnInput = $this->createElement('text', $identifier . '-column', [
-            'value' => isset($condition->columnLabel)
-                ? $condition->columnLabel
-                : ($condition->getColumn() !== static::FAKE_COLUMN
+            'value' => $condition->metaData()->get(
+                'columnLabel',
+                $condition->getColumn() !== static::FAKE_COLUMN
                     ? $condition->getColumn()
-                    : null),
+                    : null
+            ),
             'required' => true,
             'autocomplete' => 'off',
             'data-type' => 'column',
@@ -471,9 +472,7 @@ class SearchEditor extends Form
                 }
 
                 $columnSearchInput->setValue($condition->getColumn());
-                $columnInput->setValue(isset($condition->columnLabel)
-                    ? $condition->columnLabel
-                    : $condition->getColumn());
+                $columnInput->setValue($condition->metaData()->get('columnLabel', $condition->getColumn()));
 
                 return true;
             }]
