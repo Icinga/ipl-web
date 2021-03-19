@@ -131,11 +131,7 @@ class Terms extends BaseHtmlElement
         $column = $filter->getColumn();
         $operator = QueryString::getRuleSymbol($filter);
         $value = $filter->getValue();
-
-        $columnLabel = $column;
-        if (isset($filter->columnLabel)) {
-            $columnLabel = $filter->columnLabel;
-        }
+        $columnLabel = $filter->metaData()->get('columnLabel', $column);
 
         $group = new HtmlElement(
             'div',

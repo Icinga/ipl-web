@@ -134,7 +134,7 @@ abstract class Suggestions extends BaseHtmlElement
 
                 $terms[] = [
                     'search'    => $child->getColumn(),
-                    'label'     => $child->columnLabel,
+                    'label'     => $child->metaData()->get('columnLabel'),
                     'type'      => 'column'
                 ];
                 $terms[] = [
