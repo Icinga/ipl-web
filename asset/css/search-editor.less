@@ -31,8 +31,11 @@
 
   button, input[type="submit"] {
     .appearance(none);
-    border: none;
     background: none;
+
+    &:not(.cancel-button) {
+      border: none;
+    }
   }
 
   i.icon:before {
