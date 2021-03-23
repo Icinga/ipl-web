@@ -6,6 +6,7 @@ use Exception;
 use Icinga\Web\Widget\Tabextension\DashboardAction;
 use Icinga\Web\Widget\Tabextension\MenuAction;
 use Icinga\Web\Widget\Tabextension\OutputFormat;
+use Icinga\Web\Widget\Tabextension\Tabextension;
 use InvalidArgumentException;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlString;
@@ -171,5 +172,19 @@ class Tabs extends BaseHtmlElement
     public function count()
     {
         return $this->tabs->count();
+    }
+
+    /**
+     * Apply a Tabextension on $this->tabs object not on this class
+     *
+     * @param   Tabextension $extension
+     *
+     * @return  $this
+     */
+    public function extend(Tabextension $extension)
+    {
+        $this->tabs->extend($extension);
+
+        return $this;
     }
 }
