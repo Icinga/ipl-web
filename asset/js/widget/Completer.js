@@ -375,7 +375,7 @@ define(["../notjQuery"], function ($) {
                     let input = event.target;
 
                     if (! input.value) {
-                        if (! input.minLength) {
+                        if (input.minLength <= 0) {
                             let [value, data] = this.prepareCompletionData(input);
                             this.completedInput = input;
                             this.completedValue = value;
@@ -450,7 +450,7 @@ define(["../notjQuery"], function ($) {
         onInput(event) {
             let input = event.target;
 
-            if (input.minLength && input.value.length < input.minLength) {
+            if (input.minLength > 0 && input.value.length < input.minLength) {
                 return;
             }
 
