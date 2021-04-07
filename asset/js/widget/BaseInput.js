@@ -759,7 +759,7 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
 
                 // This is not part of `onSubmit()` because otherwise it would override what `autoSubmit()` does
                 this.dataInput.value = JSON.stringify({ type: 'submit', terms: this.usedTerms });
-            } else if (this.input.dataset.manageRequired) {
+            } else if (typeof this.input.dataset.manageRequired !== 'undefined') {
                 this.input.required = true;
             }
         }
