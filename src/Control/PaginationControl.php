@@ -18,12 +18,15 @@ use ipl\Web\Widget\Icon;
 class PaginationControl extends BaseHtmlElement
 {
     /** @var int Default maximum number of items which should be shown per page */
-    protected $defaultPageSize = 25;
+    const DEFAULT_PAGE_SIZE = 25;
+
+    /** @var int Maximum number of items which should be shown per page, defaults to {@link DEFAULT_PAGE_SIZE} */
+    protected $defaultPageSize;
 
     /** @var string Name of the URL parameter which stores the current page number */
     protected $pageParam = 'page';
 
-    /** @var string Name of the URL parameter which holds the page size. If given, overrides {@link $defaultPageSize} */
+    /** @var string Name of the URL parameter which holds the page size */
     protected $pageSizeParam = 'limit';
 
     /** @var string */
@@ -55,10 +58,6 @@ class PaginationControl extends BaseHtmlElement
     {
         $this->paginatable = $paginatable;
         $this->url = $url;
-
-        // Apply pagination
-        $paginatable->limit($this->getLimit());
-        $paginatable->offset($this->getOffset());
     }
 
     /**
@@ -82,7 +81,7 @@ class PaginationControl extends BaseHtmlElement
      */
     public function getDefaultPageSize()
     {
-        return $this->defaultPageSize;
+        return $this->defaultPageSize ?: static::DEFAULT_PAGE_SIZE;
     }
 
     /**
@@ -132,6 +131,7 @@ class PaginationControl extends BaseHtmlElement
     {
         return $this->pageSizeParam;
     }
+
     /**
      * Set the name of the URL parameter which stores the page size
      *
@@ -167,7 +167,7 @@ class PaginationControl extends BaseHtmlElement
      */
     public function getCurrentPageNumber()
     {
-        return (int) $this->url->getParam($this->pageParam, 1);
+        return (int) $this->url->getParam($this->getPageParam(), 1);
     }
 
     /**
@@ -177,7 +177,7 @@ class PaginationControl extends BaseHtmlElement
      */
     public function getPageSize()
     {
-        return (int) $this->url->getParam($this->pageSizeParam, $this->defaultPageSize);
+        return (int) $this->url->getParam($this->getPageSizeParam(), $this->getDefaultPageSize());
     }
 
     /**
@@ -247,6 +247,19 @@ class PaginationControl extends BaseHtmlElement
         }
 
         return $this->url->with($params);
+    }
+
+    /**
+     * Apply pagination
+     *
+     * @return $this
+     */
+    public function paginate()
+    {
+        $this->paginatable->limit($this->getLimit());
+        $this->paginatable->offset($this->getOffset());
+
+        return $this;
     }
 
     /**

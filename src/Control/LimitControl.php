@@ -24,6 +24,8 @@ class LimitControl extends CompatForm
         '500' => '500'
     ];
 
+    protected $defaultLimit;
+
     /** @var string Name of the URL parameter which stores the limit */
     protected $limitParam = self::DEFAULT_LIMIT_PARAM;
 
@@ -35,6 +37,26 @@ class LimitControl extends CompatForm
     public function __construct(Url $url)
     {
         $this->url = $url;
+    }
+
+    /**
+     * @return int
+     */
+    public function getDefaultLimit()
+    {
+        return $this->defaultLimit ?: static::DEFAULT_LIMIT;
+    }
+
+    /**
+     * @param int $defaultLimit
+     *
+     * @return $this
+     */
+    public function setDefaultLimit($defaultLimit)
+    {
+        $this->defaultLimit = (int) $defaultLimit;
+
+        return $this;
     }
 
     /**
@@ -68,7 +90,7 @@ class LimitControl extends CompatForm
      */
     public function getLimit()
     {
-        return $this->url->getParam($this->getLimitParam(), static::DEFAULT_LIMIT);
+        return $this->url->getParam($this->getLimitParam(), $this->getDefaultLimit());
     }
 
     protected function assemble()
