@@ -227,11 +227,7 @@ class CompatController extends Controller
             $this->addPart(HtmlString::create(json_encode($changes)), 'Behavior:InputEnrichment');
         }
 
-        foreach ($additionalControls as $i => $control) {
-            if (! in_array($control, $this->controls->getContent(), true)) {
-                throw new LogicException("Additional control #$i has not been added");
-            }
-
+        foreach ($additionalControls as $control) {
             $this->addPart($control);
         }
 
