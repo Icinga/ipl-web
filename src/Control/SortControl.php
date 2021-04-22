@@ -156,7 +156,7 @@ class SortControl extends CompatForm
         $sort = explode(',', $sort, 2);
         list($column, $direction) = Str::symmetricSplit(array_shift($sort), ' ', 2);
 
-        $toggle = ['asc' => 'sort-name-down', 'desc' => 'sort-name-up'];
+        $toggle = ['asc' => 'sort-alpha-down', 'desc' => 'sort-alpha-down-alt'];
         unset($toggle[strtolower($direction) ?: 'asc']);
         $toggleIcon = reset($toggle);
         $toggleDirection = key($toggle);
