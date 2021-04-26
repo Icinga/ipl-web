@@ -197,7 +197,7 @@
     overflow: auto hidden;
     overflow-x: overlay; // Not invalid, but proprietary feature by chrome/webkit
     display: flex;
-    flex-grow: 1;
+    width: 100%;
     padding: .3em .3em .6em .4em;
 
     label input {
@@ -232,7 +232,7 @@
     }
 
     > label {
-      flex-grow: 1;
+      flex: 1 0 auto;
 
       &::after,
       input {
