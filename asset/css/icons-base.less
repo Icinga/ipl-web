@@ -1,8 +1,12 @@
-i.icon:before {
-  display: inline-block;
-  min-width: 1em;
-  margin-right: .2em;
+i.icon {
+  vertical-align: middle; // Firefox will place icons weird otherwise
 
-  text-align: center;
-  text-decoration: inherit;
+  &:before {
+    display: inline-block;
+    min-width: 1em;
+    margin-right: .2em;
+
+    text-align: center;
+    text-decoration: inherit;
+  }
 }
