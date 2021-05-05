@@ -179,11 +179,28 @@ class Tabs extends BaseHtmlElement
      *
      * @param   Tabextension $extension
      *
+     * @deprecated Will probably not survive a native implementation. Don't use if you don't have to!
      * @return  $this
      */
     public function extend(Tabextension $extension)
     {
         $this->tabs->extend($extension);
+
+        return $this;
+    }
+
+    /**
+     * Add the given tab to the dropdown list
+     *
+     * @param string $name
+     * @param mixed $tab
+     *
+     * @deprecated Will probably not survive a native implementation. Don't use if you don't have to!
+     * @return $this
+     */
+    public function addAsDropdown($name, $tab)
+    {
+        $this->tabs->addAsDropdown($name, $tab);
 
         return $this;
     }
