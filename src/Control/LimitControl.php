@@ -27,6 +27,9 @@ class LimitControl extends CompatForm
     /** @var string Name of the URL parameter which stores the limit */
     protected $limitParam = self::DEFAULT_LIMIT_PARAM;
 
+    /** @var int */
+    protected $defaultLimit;
+
     /** @var Url */
     protected $url;
 
@@ -62,21 +65,49 @@ class LimitControl extends CompatForm
     }
 
     /**
+     * Get the default limit
+     *
+     * @return int
+     */
+    public function getDefaultLimit()
+    {
+        return $this->defaultLimit ?: static::DEFAULT_LIMIT;
+    }
+
+    /**
+     * Set the default limit
+     *
+     * @param int $limit
+     *
+     * @return $this
+     */
+    public function setDefaultLimit($limit)
+    {
+        $this->defaultLimit = $limit;
+
+        return $this;
+    }
+
+    /**
      * Get the limit
      *
      * @return int
      */
     public function getLimit()
     {
-        return $this->url->getParam($this->getLimitParam(), static::DEFAULT_LIMIT);
+        return $this->url->getParam($this->getLimitParam(), $this->getDefaultLimit());
     }
 
     protected function assemble()
     {
         $this->addAttributes(['class' => 'limit-control inline']);
 
-        $limit = $this->getLimit();
         $limits = static::$limits;
+        if ($this->defaultLimit && ! isset($limits[$this->defaultLimit])) {
+            $limits[$this->defaultLimit] = $this->defaultLimit;
+        }
+
+        $limit = $this->getLimit();
         if (! isset($limits[$limit])) {
             $limits[$limit] = $limit;
         }
