@@ -18,7 +18,7 @@ use ipl\Web\Widget\Icon;
 class PaginationControl extends BaseHtmlElement
 {
     /** @var int Default maximum number of items which should be shown per page */
-    protected $defaultPageSize = 25;
+    protected $defaultPageSize = LimitControl::DEFAULT_LIMIT;
 
     /** @var string Name of the URL parameter which stores the current page number */
     protected $pageParam = 'page';
@@ -94,7 +94,7 @@ class PaginationControl extends BaseHtmlElement
      */
     public function setDefaultPageSize($defaultPageSize)
     {
-        $this->defaultPageSize = (int) $defaultPageSize;
+        $this->defaultPageSize = $defaultPageSize;
 
         return $this;
     }
@@ -177,7 +177,7 @@ class PaginationControl extends BaseHtmlElement
      */
     public function getPageSize()
     {
-        return (int) $this->url->getParam($this->pageSizeParam, $this->defaultPageSize);
+        return (int) $this->url->getParam($this->pageSizeParam, $this->getDefaultPageSize());
     }
 
     /**
