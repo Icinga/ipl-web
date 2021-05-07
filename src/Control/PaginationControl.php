@@ -55,10 +55,6 @@ class PaginationControl extends BaseHtmlElement
     {
         $this->paginatable = $paginatable;
         $this->url = $url;
-
-        // Apply pagination
-        $paginatable->limit($this->getLimit());
-        $paginatable->offset($this->getOffset());
     }
 
     /**
@@ -227,6 +223,19 @@ class PaginationControl extends BaseHtmlElement
         $pageSize = $this->getPageSize();
 
         return $currentPageNumber <= 1 ? 0 : ($currentPageNumber - 1) * $pageSize;
+    }
+
+    /**
+     * Apply limit and offset on the paginatable
+     *
+     * @return $this
+     */
+    public function apply()
+    {
+        $this->paginatable->limit($this->getLimit());
+        $this->paginatable->offset($this->getOffset());
+
+        return $this;
     }
 
     /**
