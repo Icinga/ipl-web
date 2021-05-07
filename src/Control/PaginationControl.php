@@ -18,7 +18,7 @@ use ipl\Web\Widget\Icon;
 class PaginationControl extends BaseHtmlElement
 {
     /** @var int Default maximum number of items which should be shown per page */
-    protected $defaultPageSize = 25;
+    protected $defaultPageSize = LimitControl::DEFAULT_LIMIT;
 
     /** @var string Name of the URL parameter which stores the current page number */
     protected $pageParam = 'page';
@@ -55,10 +55,6 @@ class PaginationControl extends BaseHtmlElement
     {
         $this->paginatable = $paginatable;
         $this->url = $url;
-
-        // Apply pagination
-        $paginatable->limit($this->getLimit());
-        $paginatable->offset($this->getOffset());
     }
 
     /**
@@ -94,7 +90,7 @@ class PaginationControl extends BaseHtmlElement
      */
     public function setDefaultPageSize($defaultPageSize)
     {
-        $this->defaultPageSize = (int) $defaultPageSize;
+        $this->defaultPageSize = $defaultPageSize;
 
         return $this;
     }
@@ -177,7 +173,7 @@ class PaginationControl extends BaseHtmlElement
      */
     public function getPageSize()
     {
-        return (int) $this->url->getParam($this->pageSizeParam, $this->defaultPageSize);
+        return (int) $this->url->getParam($this->pageSizeParam, $this->getDefaultPageSize());
     }
 
     /**
@@ -227,6 +223,19 @@ class PaginationControl extends BaseHtmlElement
         $pageSize = $this->getPageSize();
 
         return $currentPageNumber <= 1 ? 0 : ($currentPageNumber - 1) * $pageSize;
+    }
+
+    /**
+     * Apply limit and offset on the paginatable
+     *
+     * @return $this
+     */
+    public function apply()
+    {
+        $this->paginatable->limit($this->getLimit());
+        $this->paginatable->offset($this->getOffset());
+
+        return $this;
     }
 
     /**
