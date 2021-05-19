@@ -198,10 +198,10 @@
     overflow-x: overlay; // Not invalid, but proprietary feature by chrome/webkit
     display: flex;
     width: 100%;
-    padding: .3em .3em .6em .4em;
+    padding: 2/12em;
 
     label input {
-      line-height: 1.5;
+      line-height: 20/12;
     }
 
     // Lets inputs grow based on their contents, Inspired by https://css-tricks.com/auto-growing-inputs-textareas/
@@ -209,11 +209,12 @@
       position: relative;
       display: inline-block;
       min-width: 2em;
+      line-height: 20/12;
 
       &::after,
       input {
         width: auto;
-        padding: .15em .5em;
+        padding: 0 .5em;
         resize: none;
       }
 
@@ -298,5 +299,11 @@
 
   .search-suggestions {
     margin-top: .3em;
+  }
+}
+
+.controls #host-meta-info {
+  &.collapsed {
+    margin-bottom: 0;
   }
 }
