@@ -1,5 +1,7 @@
 // Style
 .search-bar {
+  height: 2em;
+
   .rounded-corners();
   background: @low-sat-blue;
 
@@ -27,6 +29,8 @@
 
   // Left-most search dropdown style
   button.search-options {
+    line-height: 1em;
+
     i.icon:before {
       font-size: 1.2em;
       margin-right: 0;
@@ -43,6 +47,13 @@
   // Scrollbar style
   // @todo Not final
   .filter-input-area {
+
+    // Firefox
+    scrollbar-width: thin;
+    scrollbar-color: @gray-light transparent;
+
+    height: ~"calc(2em + 10px)";
+
     &::-webkit-scrollbar {
       display: none;
       height: .5em;
@@ -53,7 +64,8 @@
     }
 
     &::-webkit-scrollbar-thumb {
-      background: linear-gradient(to right, transparent 0%, @icinga-blue 20%);
+      border-radius: .25em;
+      background: @gray-light;
     }
   }
 
