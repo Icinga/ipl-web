@@ -1,7 +1,5 @@
 // Style
 .search-bar {
-  height: 2em;
-
   .rounded-corners();
   background: @low-sat-blue;
 
@@ -29,8 +27,6 @@
 
   // Left-most search dropdown style
   button.search-options {
-    line-height: 1em;
-
     i.icon:before {
       font-size: 1.2em;
       margin-right: 0;
@@ -45,7 +41,6 @@
   }
 
   // Scrollbar style
-  // @todo Not final
   .filter-input-area {
 
     // Firefox
@@ -202,26 +197,30 @@
 
 // Layout
 .search-bar {
+  height: 2em;
   display: flex;
   position: relative; // Required for the suggestions
+
+  button.search-options {
+    line-height: 1em;
+  }
+
+  input:focus {
+    outline-offset: -1px;
+  }
 
   .filter-input-area {
     overflow: auto hidden;
     overflow-x: overlay; // Not invalid, but proprietary feature by chrome/webkit
     display: flex;
     width: 100%;
-    padding: 2/12em;
-
-    label input {
-      line-height: 20/12;
-    }
+    padding: 2/12em; // 2 (px) desired / default font size (px)
 
     // Lets inputs grow based on their contents, Inspired by https://css-tricks.com/auto-growing-inputs-textareas/
     label {
       position: relative;
       display: inline-block;
       min-width: 2em;
-      line-height: 20/12;
 
       &::after,
       input {
@@ -233,6 +232,7 @@
       input {
         width: 100%;
         position: absolute;
+        line-height: 20/12; // 20 (px) desired / default font size (px)
       }
 
       &::after {
@@ -240,7 +240,7 @@
         content: attr(data-label);
         visibility: hidden;
         white-space: nowrap;
-        padding: 0 7/12em;
+        padding: 0 7/12em; // 7 (px) desired / default font size (px)
       }
     }
 
@@ -274,6 +274,7 @@
         padding: .15em .6em .15em .4em;
         position: absolute;
         left: ~"calc(-2em - 2px)"; // That's min-width + margin-right of an operator
+        top: -2px;
 
         i:before {
           margin-right: 0;
@@ -311,11 +312,5 @@
 
   .search-suggestions {
     margin-top: .3em;
-  }
-}
-
-.controls #host-meta-info {
-  &.collapsed {
-    margin-bottom: 0;
   }
 }
