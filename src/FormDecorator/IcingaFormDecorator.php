@@ -35,7 +35,7 @@ class IcingaFormDecorator extends DivDecorator
             $checkbox->setAttribute('id', base64_encode(random_bytes(8)));
         }
 
-        $checkbox->getAttributes()->add('class', 'sr-only');
+        $checkbox->getAttributes()->add('hidden', true);
 
         $classes = ['toggle-switch'];
         if ($checkbox->getAttributes()->get('disabled')->getValue()) {
