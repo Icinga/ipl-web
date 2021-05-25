@@ -10,6 +10,7 @@ use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Stdlib\Filter;
 use ipl\Validator\CallbackValidator;
+use ipl\Web\Common\FormUid;
 use ipl\Web\Control\SearchBar\Terms;
 use ipl\Web\Filter\ParseException;
 use ipl\Web\Filter\QueryString;
@@ -18,12 +19,15 @@ use ipl\Web\Widget\Icon;
 
 class SearchBar extends Form
 {
+    use FormUid;
+
     /** @var string Emitted in case of an auto submit */
     const ON_CHANGE = 'on_change';
 
     protected $defaultAttributes = [
         'data-enrichment-type'  => 'search-bar',
         'class'                 => 'search-bar',
+        'name'                  => 'search-bar',
         'role'                  => 'search'
     ];
 
@@ -346,6 +350,7 @@ class SearchBar extends Form
             $dataInput,
             $termInput,
             $submitButton,
+            $this->createUidElement(),
             new HtmlElement('div', [
                 'id'                => $suggestionsId,
                 'class'             => 'search-suggestions',
