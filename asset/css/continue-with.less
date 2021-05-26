@@ -5,12 +5,11 @@
     color: @disabled-gray;
   }
 
-  a:hover, a:focus, a.active {
+  a {
     .rounded-corners();
-    background-color: @icinga-blue;
 
-    i.icon:before {
-      color: @text-color-on-icinga-blue;
+    &:hover, &:focus, &.active {
+      background-color: @gray-lighter;
     }
   }
 }
@@ -27,7 +26,6 @@
   }
 
   i.icon:before {
-    font-size: 1.2em;
     margin-right: 0;
   }
 }
