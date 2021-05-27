@@ -16,7 +16,7 @@ trait CsrfCounterMeasure
      */
     protected function createCsrfCounterMeasure($uniqueId)
     {
-        $hashAlgo = in_array('sha3-256', hash_algos(), true) ? 'sha3-256' : 'sha-256';
+        $hashAlgo = in_array('sha3-256', hash_algos(), true) ? 'sha3-256' : 'sha256';
 
         $seed = random_bytes(16);
         $token = base64_encode($seed) . '|' . hash($hashAlgo, $uniqueId . $seed);
