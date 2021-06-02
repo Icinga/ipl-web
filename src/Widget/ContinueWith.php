@@ -37,6 +37,7 @@ class ContinueWith extends BaseHtmlElement
 
         if ($filter instanceof Filter\Chain && $filter->isEmpty()) {
             $this->add(new Icon('share'));
+            $this->addAttributes(['class' => 'disabled']);
         } else {
             $this->add(new ActionLink(
                 null,
