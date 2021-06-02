@@ -30,3 +30,46 @@
   }
 }
 
+// Style
+
+.control-button {
+  .appearance("none");
+  background: none;
+  border: none;
+  color: @icinga-blue;
+  .rounded-corners();
+
+
+  &:hover, &:focus, &.active {
+    background-color: @gray-lighter;
+  }
+
+  i.icon:before {
+    color: inherit;
+  }
+}
+
+// Layout
+
+.control-button {
+  padding: .25em .5em;
+
+  > i.icon {
+    display: inline-flex;
+    align-items: center;
+    height: 100%;
+  }
+
+  i.icon:before {
+    margin-right: 0;
+  }
+
+  &.disabled {
+    color: @gray-light;
+
+    &:hover {
+      background: none;
+    }
+  }
+}
+
