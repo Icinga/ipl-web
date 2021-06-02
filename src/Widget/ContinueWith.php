@@ -14,7 +14,7 @@ class ContinueWith extends BaseHtmlElement
 
     protected $tag = 'span';
 
-    protected $defaultAttributes = ['class' => 'continue-with'];
+    protected $defaultAttributes = ['class' => 'continue-with control-button'];
 
     /** @var Url */
     protected $url;
