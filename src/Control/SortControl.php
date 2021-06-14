@@ -195,6 +195,7 @@ class SortControl extends CompatForm
 
         $toggleButton = new ButtonElement($this->getSortParam(), [
             'class' => 'link-button spinner',
+            'title' => t('Change sort direction'),
             'type'  => 'submit',
             'value' => implode(',', array_merge(["{$column} {$toggleDirection}"], $sort))
         ]);
