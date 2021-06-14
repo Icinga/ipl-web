@@ -116,6 +116,7 @@ class LimitControl extends CompatForm
             'class'   => 'autosubmit',
             'label'   => '#',
             'options' => $limits,
+            'title'   => t('Change item count per page'),
             'value'   => $limit
         ]);
     }
