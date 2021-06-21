@@ -2,6 +2,7 @@
 
 namespace ipl\Web\Control;
 
+use ipl\Html\Attributes;
 use ipl\Html\Form;
 use ipl\Html\FormElement\HiddenElement;
 use ipl\Html\FormElement\InputElement;
@@ -327,41 +328,43 @@ class SearchBar extends Form
         if (($editorUrl = $this->getEditorUrl()) !== null) {
             $editorOpener = new HtmlElement(
                 'button',
-                [
+                Attributes::create([
                     'type'                      => 'button',
                     'class'                     => 'search-editor-opener',
                     'title'                     => t('Adjust Filter'),
                     'data-search-editor-url'    => $editorUrl
-                ],
+                ]),
                 new Icon('cog')
             );
         }
 
-        $this->add([
+        $this->addHtml(
             new HtmlElement(
                 'button',
-                ['type' => 'button', 'class' => 'search-options'],
+                Attributes::create(['type' => 'button', 'class' => 'search-options']),
                 new Icon('search')
             ),
-            new HtmlElement('div', ['class' => 'filter-input-area'], [
+            new HtmlElement(
+                'div',
+                Attributes::create(['class' => 'filter-input-area']),
                 $termContainer,
-                new HtmlElement('label', ['data-label' => ''], $filterInput),
-            ]),
+                new HtmlElement('label', Attributes::create(['data-label' => '']), $filterInput)
+            ),
             $dataInput,
             $termInput,
             $submitButton,
             $this->createUidElement(),
-            new HtmlElement('div', [
+            new HtmlElement('div', Attributes::create([
                 'id'                => $suggestionsId,
                 'class'             => 'search-suggestions',
                 'data-base-target'  => $suggestionsId
-            ])
-        ]);
+            ]))
+        );
 
         // Render the editor container outside of this form. It will contain a form as well later on
         // loaded by XHR and HTML prohibits nested forms. It's style-wise also better...
         $doc = new HtmlDocument();
         $this->setWrapper($doc);
-        $doc->add([$this, $editorOpener]);
+        $doc->addHtml($this, ...($editorOpener ? [$editorOpener] : []));
     }
 }

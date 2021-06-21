@@ -4,10 +4,12 @@ namespace ipl\Web\Control\SearchBar;
 
 use Countable;
 use Generator;
+use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\FormElement\ButtonElement;
 use ipl\Html\FormElement\InputElement;
 use ipl\Html\HtmlElement;
+use ipl\Html\Text;
 use ipl\Stdlib\Contract\Paginatable;
 use ipl\Stdlib\Filter;
 use ipl\Web\Control\SearchEditor;
@@ -175,38 +177,42 @@ abstract class Suggestions extends BaseHtmlElement
         }
 
         $button = new ButtonElement(null, $attributes);
-        $button->add([
-            sprintf('%s ', t('Search for')),
-            new HtmlElement('em', null, $this->default['search'])
-        ]);
+        $button->addHtml(
+            Text::create(sprintf('%s ', t('Search for'))),
+            new HtmlElement('em', null, Text::create($this->default['search']))
+        );
         if (isset($this->default['type']) && $this->default['type'] === 'terms') {
             $terms = $this->filterToTerms($this->default['terms']);
-            $list = new HtmlElement('ul', ['class' => 'comma-separated']);
+            $list = new HtmlElement('ul', Attributes::create(['class' => 'comma-separated']));
             foreach ($terms as $data) {
                 if ($data['type'] === 'column') {
-                    $list->add(new HtmlElement('li', null, [
-                        new HtmlElement('em', null, $data['label'])
-                    ]));
+                    $list->addHtml(new HtmlElement(
+                        'li',
+                        null,
+                        new HtmlElement('em', null, Text::create($data['label']))
+                    ));
                 }
             }
 
             $button->setAttribute('data-terms', json_encode($terms));
-            $button->add([
-                sprintf(' %s ', t('in:')),
+            $button->addHtml(
+                Text::create(sprintf(' %s ', t('in:'))),
                 $list
-            ]);
+            );
         }
 
-        $this->prepend(new HtmlElement('li', ['class' => 'default'], $button));
+        $this->prependHtml(new HtmlElement('li', Attributes::create(['class' => 'default']), $button));
     }
 
     protected function assemble()
     {
         if ($this->failureMessage !== null) {
-            $this->add(new HtmlElement('li', ['class' => 'failure-message'], [
-                new HtmlElement('em', null, t('Can\'t search:')),
-                $this->failureMessage
-            ]));
+            $this->addHtml(new HtmlElement(
+                'li',
+                Attributes::create(['class' => 'failure-message']),
+                new HtmlElement('em', null, Text::create(t('Can\'t search:'))),
+                Text::create($this->failureMessage)
+            ));
             return;
         }
 
@@ -246,7 +252,7 @@ abstract class Suggestions extends BaseHtmlElement
                 $attributes['data-label'] = $meta;
             }
 
-            $this->add(new HtmlElement('li', null, new InputElement(null, $attributes)));
+            $this->addHtml(new HtmlElement('li', null, new InputElement(null, $attributes)));
         }
 
         if ($this->hasMore($data, self::DEFAULT_LIMIT)) {
@@ -263,7 +269,11 @@ abstract class Suggestions extends BaseHtmlElement
 
         if ($this->type === 'column' && ! $this->isEmpty() && ! $this->getFirst('li')->getAttributes()->has('class')) {
             // The column title is only added if there are any suggestions and the first item is not a title already
-            $this->prepend(new HtmlElement('li', ['class' => static::SUGGESTION_TITLE_CLASS], t('Columns')));
+            $this->prependHtml(new HtmlElement(
+                'li',
+                Attributes::create(['class' => static::SUGGESTION_TITLE_CLASS]),
+                Text::create(t('Columns'))
+            ));
         }
 
         if ($showDefault) {
