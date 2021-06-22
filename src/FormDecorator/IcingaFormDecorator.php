@@ -2,10 +2,12 @@
 
 namespace ipl\Web\FormDecorator;
 
+use ipl\Html\Attributes;
 use ipl\Html\Contract\FormSubmitElement;
 use ipl\Html\FormDecorator\DivDecorator;
 use ipl\Html\FormElement\CheckboxElement;
 use ipl\Html\HtmlElement;
+use ipl\Html\Text;
 use ipl\Web\Widget\Icon;
 
 class IcingaFormDecorator extends DivDecorator
@@ -44,10 +46,10 @@ class IcingaFormDecorator extends DivDecorator
 
         return [
             $checkbox,
-            new HtmlElement('label', [
+            new HtmlElement('label', Attributes::create([
                 'class' => $classes,
                 'for'   => $checkbox->getAttributes()->get('id')->getValue()
-            ], new HtmlElement('span', ['class' => 'toggle-slider']))
+            ]), new HtmlElement('span', Attributes::create(['class' => 'toggle-slider'])))
         ];
     }
 
@@ -55,7 +57,7 @@ class IcingaFormDecorator extends DivDecorator
     {
         $label = parent::assembleLabel();
         if ($label !== null) {
-            $label->addWrapper(new HtmlElement('div', ['class' => 'control-label-group']));
+            $label->addWrapper(new HtmlElement('div', Attributes::create(['class' => 'control-label-group'])));
         }
 
         return $label;
@@ -75,10 +77,10 @@ class IcingaFormDecorator extends DivDecorator
                 $iconAttributes['aria-hidden'] = 'true';
 
                 $descriptionId = 'desc_' . $this->formElement->getAttributes()->get('id')->getValue();
-                $describedBy = new HtmlElement('span', [
+                $describedBy = new HtmlElement('span', Attributes::create([
                     'id'    => $descriptionId,
                     'class' => 'sr-only'
-                ], $description);
+                ]), Text::create($description));
 
                 $this->formElement->getAttributes()->set('aria-describedby', $descriptionId);
             }

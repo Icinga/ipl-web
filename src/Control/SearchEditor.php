@@ -2,9 +2,12 @@
 
 namespace ipl\Web\Control;
 
+use ipl\Html\Attributes;
 use ipl\Html\Form;
 use ipl\Html\FormDecorator\CallbackDecorator;
+use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
+use ipl\Html\Text;
 use ipl\Stdlib\Events;
 use ipl\Stdlib\Filter;
 use ipl\Web\Control\SearchBar\SearchException;
@@ -315,18 +318,20 @@ class SearchEditor extends Form
         $identifier = join('-', $path);
 
         if ($rule instanceof Filter\Condition) {
-            $item = [$this->createCondition($rule, $identifier), $this->createButtons($rule, $identifier)];
+            $parts = [$this->createCondition($rule, $identifier), $this->createButtons($rule, $identifier)];
 
             if (count($path) === 1) {
                 $item = new HtmlElement('ol', null, new HtmlElement(
                     'li',
-                    ['id' => $identifier],
-                    $item
+                    Attributes::create(['id' => $identifier]),
+                    ...$parts
                 ));
             } else {
-                array_splice($item, 1, 0, [
+                array_splice($parts, 1, 0, [
                     new Icon('bars', ['class' => 'drag-initiator'])
                 ]);
+
+                $item = (new HtmlDocument())->addHtml(...$parts);
             }
         } else {
             /** @var Filter\Chain $rule */
@@ -341,7 +346,7 @@ class SearchEditor extends Form
                 'value' => $rule instanceof Filter\None ? '!' : QueryString::getRuleSymbol($rule)
             ]);
             $this->registerElement($groupOperatorInput);
-            $item->add(new HtmlElement('li', ['id' => $identifier], [
+            $item->addHtml(HtmlElement::create('li', ['id' => $identifier], [
                 $groupOperatorInput,
                 count($path) > 1
                     ? new Icon('bars', ['class' => 'drag-initiator'])
@@ -350,20 +355,20 @@ class SearchEditor extends Form
             ]));
 
             $children = new HtmlElement('ol');
-            $item->add(new HtmlElement('li', null, $children));
+            $item->addHtml(new HtmlElement('li', null, $children));
 
             $i = 0;
             foreach ($rule as $child) {
                 $childPath = $path;
                 $childPath[] = $i++;
-                $children->add(new HtmlElement(
+                $children->addHtml(new HtmlElement(
                     'li',
-                    [
+                    Attributes::create([
                         'id'    => join('-', $childPath),
                         'class' => $child instanceof Filter\Condition
                             ? 'filter-condition'
                             : 'filter-chain'
-                    ],
+                    ]),
                     $this->createTree($child, $childPath)
                 ));
             }
@@ -402,13 +407,15 @@ class SearchEditor extends Form
 
         $ul = new HtmlElement('ul');
         foreach ($buttons as $button) {
-            $ul->add(new HtmlElement('li', null, $button));
+            $ul->addHtml(new HtmlElement('li', null, $button));
         }
 
-        return new HtmlElement('div', ['class' => 'buttons'], [
+        return new HtmlElement(
+            'div',
+            Attributes::create(['class' => 'buttons']),
             $ul,
             new Icon('ellipsis-h')
-        ]);
+        );
     }
 
     protected function createCondition(Filter\Condition $condition, $identifier)
@@ -428,10 +435,10 @@ class SearchEditor extends Form
             'data-suggest-url' => $this->suggestionUrl
         ]);
         (new CallbackDecorator(function ($element) {
-            $errors = new HtmlElement('ul', ['class' => 'search-errors']);
+            $errors = new HtmlElement('ul', Attributes::create(['class' => 'search-errors']));
 
             foreach ($element->getMessages() as $message) {
-                $errors->add(new HtmlElement('li', null, $message));
+                $errors->addHtml(new HtmlElement('li', null, Text::create($message)));
             }
 
             if (! $errors->isEmpty()) {
@@ -445,10 +452,12 @@ class SearchEditor extends Form
                     );
                 }
 
-                $element->prependWrapper(new HtmlElement('div', ['class' => 'search-error'], [
+                $element->prependWrapper(new HtmlElement(
+                    'div',
+                    Attributes::create(['class' => 'search-error']),
                     $element,
                     $errors
-                ]));
+                ));
             }
         }))->decorate($columnInput);
 
@@ -504,13 +513,15 @@ class SearchEditor extends Form
         $this->registerElement($operatorInput);
         $this->registerElement($valueInput);
 
-        return new HtmlElement('fieldset', ['name' => $identifier . '-'], [
+        return new HtmlElement(
+            'fieldset',
+            Attributes::create(['name' => $identifier . '-']),
             $columnInput,
             $columnFakeInput,
             $columnSearchInput,
             $operatorInput,
             $valueInput
-        ]);
+        );
     }
 
     protected function assemble()
@@ -530,14 +541,14 @@ class SearchEditor extends Form
             $filter = Filter::equal('', '');
         }
 
-        $this->add($this->createTree($filter));
-        $this->add(new HtmlElement('div', [
+        $this->addHtml($this->createTree($filter));
+        $this->addHtml(new HtmlElement('div', Attributes::create([
             'id'    => 'search-editor-suggestions',
             'class' => 'search-suggestions'
-        ]));
+        ])));
 
         if ($this->queryString) {
-            $this->add($this->createElement('submitButton', 'structural-change', [
+            $this->addHtml($this->createElement('submitButton', 'structural-change', [
                 'value'             => 'clear:0',
                 'class'             => 'cancel-button',
                 'label'             => t('Clear Filter'),

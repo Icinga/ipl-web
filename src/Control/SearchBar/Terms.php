@@ -2,6 +2,7 @@
 
 namespace ipl\Web\Control\SearchBar;
 
+use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
 use ipl\Stdlib\Filter;
@@ -96,7 +97,7 @@ class Terms extends BaseHtmlElement
         if ($wrap) {
             $group = new HtmlElement(
                 'div',
-                ['class' => 'filter-chain', 'data-group-type' => 'chain']
+                Attributes::create(['class' => 'filter-chain', 'data-group-type' => 'chain'])
             );
         } else {
             $group = $where;
@@ -122,7 +123,7 @@ class Terms extends BaseHtmlElement
                 'data-counterpart' => $opening->getAttributes()->get('data-index')->getValue()
             ]);
 
-            $where->add($group);
+            $where->addHtml($group);
         }
     }
 
@@ -135,8 +136,8 @@ class Terms extends BaseHtmlElement
 
         $group = new HtmlElement(
             'div',
-            ['class' => 'filter-condition', 'data-group-type' => 'condition'],
-            new HtmlElement('button', ['type' => 'button'], new Icon('trash'))
+            Attributes::create(['class' => 'filter-condition', 'data-group-type' => 'condition']),
+            new HtmlElement('button', Attributes::create(['type' => 'button']), new Icon('trash'))
         );
 
         $this->assembleTerm('column', 'column', rawurlencode($column), $columnLabel, $group);
@@ -149,7 +150,7 @@ class Terms extends BaseHtmlElement
             }
         }
 
-        $where->add($group);
+        $where->addHtml($group);
     }
 
     protected function assembleTerm($class, $type, $search, $label, BaseHtmlElement $where)
@@ -170,16 +171,16 @@ class Terms extends BaseHtmlElement
             }
         }
 
-        $term = new HtmlElement('label', [
+        $term = new HtmlElement('label', Attributes::create([
             'class'         => $data['class'],
             'data-index'    => $this->currentIndex++,
             'data-type'     => $data['type'],
             'data-search'   => $data['search'],
             'data-label'    => $data['label']
-        ], new HtmlElement('input', [
+        ]), new HtmlElement('input', Attributes::create([
             'type'  => 'text',
             'value' => $data['label']
-        ]));
+        ])));
 
         if (isset($data['pattern'])) {
             $term->getFirst('input')->setAttribute('pattern', $data['pattern']);
@@ -189,7 +190,7 @@ class Terms extends BaseHtmlElement
             }
         }
 
-        $where->add($term);
+        $where->addHtml($term);
 
         return $term;
     }
