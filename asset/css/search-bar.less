@@ -70,6 +70,7 @@
       border-radius: .4em 0 0 .4em;
       background-color: @color-critical;
       color: @text-color-inverted;
+      line-height: calc(16/12);
 
       &:after {
         content: "";
@@ -274,7 +275,7 @@
         padding: .15em .6em .15em .4em;
         position: absolute;
         left: ~"calc(-2em - 2px)"; // That's min-width + margin-right of an operator
-        top: -2px;
+
 
         i:before {
           margin-right: 0;
