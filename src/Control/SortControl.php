@@ -143,7 +143,7 @@ class SortControl extends CompatForm
      */
     public function getSort()
     {
-        $sort = $this->url->getParam($this->getSortParam(), $this->getDefault());
+        $sort = $this->getValue($this->getSortParam(), $this->getDefault());
 
         if (! empty($sort)) {
             $columns = $this->getColumns();
