@@ -100,7 +100,7 @@ class SortControl extends CompatForm
     /**
      * Set the default sort string
      *
-     * @param array|string $default
+     * @param string $default
      *
      * @return $this
      */
