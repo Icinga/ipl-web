@@ -330,7 +330,7 @@ class SearchBar extends Form
                 'button',
                 Attributes::create([
                     'type'                      => 'button',
-                    'class'                     => 'search-editor-opener',
+                    'class'                     => 'search-editor-opener control-button',
                     'title'                     => t('Adjust Filter'),
                     'data-search-editor-url'    => $editorUrl
                 ]),

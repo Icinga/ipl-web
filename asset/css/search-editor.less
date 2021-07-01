@@ -1,25 +1,5 @@
 // Style
 
-.search-editor-opener {
-  background: none;
-  border: none;
-
-  i.icon:before {
-    font-size: 1.2em;
-    margin-right: 0;
-    color: @icinga-blue;
-  }
-
-  &:hover, &:focus, &.active {
-    .rounded-corners();
-    background-color: @icinga-blue;
-
-    i.icon:before {
-      color: @text-color-on-icinga-blue;
-    }
-  }
-}
-
 .search-editor {
   ul, ol {
     list-style-type: none;
@@ -134,12 +114,8 @@
 
 // Layout
 
-.search-editor-opener {
-  padding: 0 .5em;
-
-  & + a.modal-opener {
-    display: none;
-  }
+.search-editor-opener + a.modal-opener {
+  display: none;
 }
 
 .search-editor {

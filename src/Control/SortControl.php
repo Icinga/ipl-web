@@ -194,7 +194,7 @@ class SortControl extends CompatForm
             ->add('class', 'icinga-controls');
 
         $toggleButton = new ButtonElement($this->getSortParam(), [
-            'class' => 'link-button spinner',
+            'class' => 'control-button spinner',
             'title' => t('Change sort direction'),
             'type'  => 'submit',
             'value' => implode(',', array_merge(["{$column} {$toggleDirection}"], $sort))
