@@ -20,6 +20,11 @@
     border-bottom-right-radius: .25em;
   }
 
+  // General input styles
+  input:focus {
+    outline-offset: -1px;
+  }
+
   // Hide the submit button, it must exist, but shouldn't be shown to the user
   input[type=submit][value="hidden"] {
     display: none;
@@ -42,12 +47,9 @@
 
   // Scrollbar style
   .filter-input-area {
-
     // Firefox
     scrollbar-width: thin;
     scrollbar-color: @gray-light transparent;
-
-    height: ~"calc(2em + 10px)";
 
     &::-webkit-scrollbar {
       display: none;
@@ -70,7 +72,6 @@
       border-radius: .4em 0 0 .4em;
       background-color: @color-critical;
       color: @text-color-inverted;
-      line-height: calc(16/12);
 
       &:after {
         content: "";
@@ -206,15 +207,12 @@
     line-height: 1em;
   }
 
-  input:focus {
-    outline-offset: -1px;
-  }
-
   .filter-input-area {
     overflow: auto hidden;
     overflow-x: overlay; // Not invalid, but proprietary feature by chrome/webkit
     display: flex;
     width: 100%;
+    height: ~"calc(2em + 10px)"; // Search bar height + approximate scrollbar height
     padding: 2/12em; // 2 (px) desired / default font size (px)
 
     // Lets inputs grow based on their contents, Inspired by https://css-tricks.com/auto-growing-inputs-textareas/
@@ -275,7 +273,7 @@
         padding: .15em .6em .15em .4em;
         position: absolute;
         left: ~"calc(-2em - 2px)"; // That's min-width + margin-right of an operator
-
+        line-height: 16/12; // 16 (px) desired / default font size (px)
 
         i:before {
           margin-right: 0;
