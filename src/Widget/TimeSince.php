@@ -16,7 +16,11 @@ class TimeSince extends BaseHtmlElement
 
     public function __construct($since)
     {
-        $this->since = (int) $since;
+        //NOTE: Since this value is retrieved as a floating number from the DB, there is a data loss if we
+        // simply convert it to an int. For timestamp values, decimal places are formatted with dot, so we can
+        // remove any commas ahead without any problem. Apart from that icingadb is also storing the value
+        // as an int so there can never be a timestamp value with decimal places. :)
+        $this->since = intval(preg_replace('/[^\d,]/', '', $since));
     }
 
     protected function assemble()
