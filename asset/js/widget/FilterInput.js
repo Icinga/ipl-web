@@ -226,9 +226,35 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
                             }
                         }
                     } else {
-                        this.termContainer.querySelector(
+                        let chain = this.termContainer.querySelector(
                             `[data-index="${ label.dataset.counterpart }"]`
-                        ).parentNode.appendChild(label);
+                        ).parentNode;
+                        if (previous.parentNode.dataset.groupType && previous.parentNode !== chain) {
+                            previous = previous.parentNode;
+                        }
+
+                        if (previous.parentNode !== chain) {
+                            // The op is being moved by the user again, after it was already moved
+                            let sibling = previous;
+                            let lastSibling = null;
+                            while (sibling !== null && sibling !== chain) {
+                                let previousSibling = sibling.previousSibling;
+                                chain.insertBefore(sibling, lastSibling);
+                                lastSibling = sibling;
+                                sibling = previousSibling;
+                            }
+                        }
+
+                        // There may be terms following in the same level which now should be a level above
+                        let sibling = previous.nextSibling;
+                        let refNode = chain.nextSibling;
+                        while (sibling !== null) {
+                            let nextSibling = sibling.nextSibling;
+                            chain.parentNode.insertBefore(sibling, refNode);
+                            sibling = nextSibling;
+                        }
+
+                        chain.appendChild(label);
                     }
             }
 
@@ -256,6 +282,7 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
         addRenderedTerm(label) {
             let newGroup = null;
             let leaveGroup = false;
+            let currentGroup = null;
 
             switch (label.dataset.type) {
                 case 'column':
@@ -264,19 +291,47 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
                 case 'grouping_operator':
                     if (this.isGroupOpen(label.dataset)) {
                         newGroup = this.renderChain();
-                        break;
+                    } else {
+                        let termIndex = Number(label.dataset.index);
+                        let previous = this.termContainer.querySelector(`[data-index="${ termIndex - 1 }"]`);
+
+                        currentGroup = this.termContainer.querySelector(
+                            `[data-index="${ label.dataset.counterpart }"]`
+                        ).parentNode;
+                        if (previous.parentNode.dataset.groupType && previous.parentNode !== currentGroup) {
+                            previous = previous.parentNode;
+                        }
+
+                        if (previous.parentNode !== currentGroup) {
+                            // The op is being moved by the user again, after it was already moved
+                            let sibling = previous;
+                            let lastSibling = null;
+                            while (sibling !== null && sibling !== currentGroup) {
+                                let previousSibling = sibling.previousSibling;
+                                currentGroup.insertBefore(sibling, lastSibling);
+                                lastSibling = sibling;
+                                sibling = previousSibling;
+                            }
+                        }
                     }
+
+                    break;
                 case 'logical_operator':
-                    leaveGroup = this.currentGroup.dataset.groupType === 'condition';
+                    currentGroup = this.currentGroup;
+                    leaveGroup = currentGroup.dataset.groupType === 'condition';
+            }
+
+            if (currentGroup === null) {
+                currentGroup = this.currentGroup;
             }
 
             if (newGroup !== null) {
                 newGroup.appendChild(label);
-                this.currentGroup.appendChild(newGroup);
+                currentGroup.appendChild(newGroup);
             } else if (leaveGroup) {
-                this.currentGroup.parentNode.appendChild(label);
+                currentGroup.parentNode.appendChild(label);
             } else {
-                this.currentGroup.appendChild(label);
+                currentGroup.appendChild(label);
             }
 
             this.identifyLastRenderedTerm();
@@ -733,8 +788,12 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
                         if (this.isGroupOpen(termData)) {
                             operators.push(this.grouping_operators.open);
                             operators.push(this.negationOperator);
-                        } else if (this.lastPendingGroupOpen(nextIndex)) {
-                            operators.push(this.grouping_operators.close);
+                        } else {
+                            operators = operators.concat(this.logical_operators);
+
+                            if (this.lastPendingGroupOpen(nextIndex)) {
+                                operators.push(this.grouping_operators.close);
+                            }
                         }
                 }
             }
