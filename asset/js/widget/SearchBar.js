@@ -39,8 +39,29 @@ define(["../notjQuery"], function ($) {
             let opener = event.currentTarget;
             let editorUrl = opener.dataset.searchEditorUrl;
             let filterQueryString = this.filterInput.getQueryString();
+            let layout = document.getElementById('layout');
 
             editorUrl += (editorUrl.indexOf('?') > -1 ? '&' : '?') + filterQueryString;
+
+            // Disable pointer events to block further function calls
+            opener.style.pointerEvents = 'none';
+
+            let observer = new MutationObserver((mutations) => {
+                for (let mutation of mutations) {
+                    if (mutation.type === 'childList') {
+                        mutation.removedNodes.forEach((node) => {
+                            // Remove the pointerEvent none style to make the button clickable again
+                            // after the modal has been removed
+                            if (node.id === 'modal') {
+                                opener.style.pointerEvents = '';
+                                observer.disconnect();
+                            }
+                        });
+                    }
+                }
+            });
+
+            observer.observe(layout, {childList: true});
 
             // The search editor should open in a modal. We simulate a click on an anchor
             // appropriately prepared so that Icinga Web 2 will handle it natively.
