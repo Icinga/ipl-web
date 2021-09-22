@@ -232,12 +232,16 @@ define(["../notjQuery"], function ($) {
                                 this.showSuggestions(suggestions, input);
                             }
                         } else {
-                            this.hideSuggestions();
+                            hide = true;
                         }
                     }
 
                     this.activeSuggestion = null;
                     this.nextSuggestion = null;
+
+                    if (hide) {
+                        this.hideSuggestions();
+                    }
                 });
 
                 req.send(JSON.stringify(data));
