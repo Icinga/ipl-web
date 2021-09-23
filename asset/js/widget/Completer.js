@@ -90,7 +90,11 @@ define(["../notjQuery"], function ($) {
             let inputPosY = inputRect.bottom - containingBlockRect.top;
             let suggestionWidth = this.termSuggestions.offsetWidth;
 
+            let maxAvailableHeight = document.body.clientHeight - containingBlockRect.bottom;
+            let localMarginTop = window.getComputedStyle(this.termSuggestions).marginTop;
+
             this.termSuggestions.style.top = `${ inputPosY }px`;
+            this.termSuggestions.style.maxHeight = `calc(${maxAvailableHeight}px - ${localMarginTop})`;
             if (inputPosX + suggestionWidth > containingBlockRect.right - containingBlockRect.left) {
                 this.termSuggestions.style.left =
                     `${ containingBlockRect.right - containingBlockRect.left - suggestionWidth }px`;
