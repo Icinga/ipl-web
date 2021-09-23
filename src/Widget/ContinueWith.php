@@ -2,7 +2,9 @@
 
 namespace ipl\Web\Widget;
 
+use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
+use ipl\Html\HtmlElement;
 use ipl\Stdlib\Filter;
 use ipl\Web\Common\BaseTarget;
 use ipl\Web\Filter\QueryString;
@@ -14,7 +16,7 @@ class ContinueWith extends BaseHtmlElement
 
     protected $tag = 'span';
 
-    protected $defaultAttributes = ['class' => 'continue-with control-button'];
+    protected $defaultAttributes = ['class' => 'continue-with'];
 
     /** @var Url */
     protected $url;
@@ -22,10 +24,27 @@ class ContinueWith extends BaseHtmlElement
     /** @var Filter\Rule|callable */
     protected $filter;
 
+    /** @var string */
+    protected $title;
+
     public function __construct(Url $url, $filter)
     {
         $this->url = $url;
         $this->filter = $filter;
+    }
+
+    /**
+     * Set title for the anchor
+     *
+     * @param string $title
+     *
+     * @return $this
+     */
+    public function setTitle($title)
+    {
+        $this->title = $title;
+
+        return $this;
     }
 
     public function assemble()
@@ -36,13 +55,17 @@ class ContinueWith extends BaseHtmlElement
         }
 
         if ($filter instanceof Filter\Chain && $filter->isEmpty()) {
-            $this->add(new Icon('share'));
-            $this->addAttributes(['class' => 'disabled']);
+            $this->addHtml(new HtmlElement(
+                'span',
+                Attributes::create(['class' => ['control-button', 'disabled']]),
+                new Icon('share')
+            ));
         } else {
-            $this->add(new ActionLink(
+            $this->addHtml(new ActionLink(
                 null,
                 $this->url->setQueryString(QueryString::render($filter)),
-                'share'
+                'share',
+                ['class' => 'control-button', 'title' => $this->title]
             ));
         }
     }
