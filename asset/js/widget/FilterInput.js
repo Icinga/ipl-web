@@ -1249,11 +1249,17 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
             let input = event.target;
             let termType = input.parentNode.dataset.type || this.termType;
 
-            if (! this.checkValidity(input, termType) && termType !== 'operator' && termType !== 'logical_operator') {
-                this.reportValidity(input);
-            }
+            if (input.parentNode.dataset.index >= 0) {
+                if (
+                    ! this.checkValidity(input, termType)
+                    && termType !== 'operator'
+                    && termType !== 'logical_operator'
+                ) {
+                    this.reportValidity(input);
+                }
 
-            this.highlightTerm(input.parentNode);
+                this.highlightTerm(input.parentNode);
+            }
 
             let value = this.readPartialTerm(input);
             if (! value && (termType === 'column' || termType === 'value')) {
