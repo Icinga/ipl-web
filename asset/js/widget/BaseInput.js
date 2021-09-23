@@ -52,7 +52,7 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
             $(this.termContainer).on('input', '[data-label]', this.onInput, this);
             $(this.termContainer).on('keydown', '[data-label]', this.onKeyDown, this);
             $(this.termContainer).on('keyup', '[data-label]', this.onKeyUp, this);
-            $(this.termContainer).on('focusout', '[data-index]', this.onTermBlur, this);
+            $(this.termContainer).on('focusout', '[data-index]', this.onTermFocusOut, this);
             $(this.termContainer).on('focusin', '[data-index]', this.onTermFocus, this);
 
             // Copy/Paste
@@ -719,7 +719,7 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
             }
         }
 
-        onTermBlur(event) {
+        onTermFocusOut(event) {
             let input = event.target;
             // skipSaveOnBlur is set if the input is about to be removed anyway.
             // If saveTerm would remove the input as well, the other removal will fail

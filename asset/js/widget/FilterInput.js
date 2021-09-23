@@ -1234,14 +1234,14 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
          * Event listeners
          */
 
-        onTermBlur(event) {
+        onTermFocusOut(event) {
             let label = event.currentTarget;
             if (this.completer === null || ! this.completer.isBeingCompleted(label.firstChild, event.relatedTarget)) {
                 this.deHighlightTerm(label);
             }
 
             if (['column', 'value'].includes(label.dataset.type) || ! this.readPartialTerm(label.firstChild)) {
-                super.onTermBlur(event);
+                super.onTermFocusOut(event);
             }
         }
 
