@@ -33,15 +33,23 @@
 // Style
 
 .control-button {
-  .appearance("none");
+  .appearance(none);
   background: none;
   border: none;
   color: @icinga-blue;
   .rounded-corners();
 
-
   &:hover, &:focus, &.active {
     background-color: @gray-lighter;
+    text-decoration: none;
+  }
+
+  &.disabled {
+    color: @gray-light;
+
+    &:hover {
+      background: none;
+    }
   }
 
   i.icon:before {
@@ -52,6 +60,7 @@
 // Layout
 
 .control-button {
+  display: inline-block;
   padding: .25em .5em;
 
   > i.icon {
@@ -62,14 +71,6 @@
 
   i.icon:before {
     margin-right: 0;
-  }
-
-  &.disabled {
-    color: @gray-light;
-
-    &:hover {
-      background: none;
-    }
   }
 }
 
