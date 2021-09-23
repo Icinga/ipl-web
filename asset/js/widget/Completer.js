@@ -416,9 +416,6 @@ define(["../notjQuery"], function ($) {
                         let suggestion = suggestions[0];
 
                         this.complete(input, suggestion.value, { ...suggestion.dataset });
-                    } else if (suggestions.length) {
-                        event.preventDefault();
-                        this.moveToSuggestion(event.shiftKey);
                     }
 
                     break;
