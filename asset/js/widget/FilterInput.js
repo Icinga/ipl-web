@@ -954,7 +954,7 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
         }
 
         renderSuggestions(suggestions) {
-            let itemTemplate = $.render('<li><input type="button"></li>');
+            let itemTemplate = $.render('<li><input type="button" tabindex="-1"></li>');
 
             let list = document.createElement('ul');
 
