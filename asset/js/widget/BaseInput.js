@@ -50,6 +50,7 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
             $(this.input).on('keydown', this.onKeyDown, this);
             $(this.input).on('keyup', this.onKeyUp, this);
             $(this.input).on('blur', this.onInputBlur, this);
+            $(this.input).on('focusin', this.onTermFocus, this);
             $(this.termContainer).on('input', '[data-label]', this.onInput, this);
             $(this.termContainer).on('keydown', '[data-label]', this.onKeyDown, this);
             $(this.termContainer).on('keyup', '[data-label]', this.onKeyUp, this);
