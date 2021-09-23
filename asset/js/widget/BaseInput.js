@@ -685,6 +685,10 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
                         this.moveFocusForward();
                     }
                     break;
+                case 'a':
+                    if ((event.ctrlKey || event.metaKey) && ! this.readPartialTerm(input)) {
+                        this.selectTerms();
+                    }
             }
         }
 
@@ -713,10 +717,6 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
                     this.autoSubmit(event.target, 'remove', this.clearSelectedTerms());
                     this.togglePlaceholder();
                     break;
-                case 'a':
-                    if ((event.ctrlKey || event.metaKey) && ! this.readPartialTerm(this.input)) {
-                        this.selectTerms();
-                    }
             }
         }
 
