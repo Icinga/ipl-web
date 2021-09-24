@@ -8,6 +8,7 @@ define(["../notjQuery"], function ($) {
             this.instrumented = instrumented;
             this.nextSuggestion = null;
             this.activeSuggestion = null;
+            this.suggestionKiller = null;
             this.completedInput = null;
             this.completedValue = null;
             this.completedData = null;
@@ -27,6 +28,7 @@ define(["../notjQuery"], function ($) {
             $(this.input.form).on('submit', this.onSubmit, this);
 
             // User interactions
+            $(this.termSuggestions).on('focusout', '[type="button"]', this.onFocusOut, this);
             $(this.termSuggestions).on('click', '[type="button"]', this.onSuggestionClick, this);
             $(this.termSuggestions).on('keydown', '[type="button"]', this.onSuggestionKeyDown, this);
 
@@ -110,6 +112,18 @@ define(["../notjQuery"], function ($) {
         hideSuggestions() {
             if (this.nextSuggestion !== null || this.activeSuggestion !== null) {
                 return;
+            }
+
+            if (this.suggestionKiller !== null) {
+                // onFocusOut initiates this timer in order to hide the suggestions if the user
+                // doesn't navigate them. Since it does this by checking after a short interval
+                // if the focus is inside the suggestions, the interval has to be long enough to
+                // have a chance to detect the focus. `focusout` runs before `blur` and `focus`,
+                // so this may lead to a race condition which is addressed by the timeout. Though,
+                // to not close the newly opened suggestions of the next input the timer has to
+                // be cancelled here since it's purpose is already fulfilled.
+                clearTimeout(this.suggestionKiller);
+                this.suggestionKiller = null;
             }
 
             this.termSuggestions.style.display = 'none';
@@ -312,23 +326,29 @@ define(["../notjQuery"], function ($) {
         }
 
         onFocusOut(event) {
-            let input = event.target;
-
-            if (input === this.completedInput) {
-                setTimeout(() => {
-                    if (! this.termSuggestions.contains(document.activeElement)) {
-                        // Hide the suggestions if the user doesn't navigate them
-                        this.hideSuggestions();
-                    }
-                }, 0);
-            }
-        }
-
-        onSuggestionKeyDown(event) {
             if (this.completedInput === null) {
                 // If there are multiple instances of Completer bound to the same suggestion container
                 // all of them try to handle the event. Though, only one of them is responsible and
                 // that's the one which has a completed input set.
+                return;
+            }
+
+            let input = event.target;
+            this.suggestionKiller = setTimeout(() => {
+                if (! this.termSuggestions.contains(document.activeElement)) {
+                    // Hide the suggestions if the user doesn't navigate them
+                    if (input !== this.completedInput) {
+                        // Restore input if a suggestion lost focus
+                        this.suggest(this.completedInput, this.completedValue);
+                    }
+
+                    this.hideSuggestions();
+                }
+            }, 250);
+        }
+
+        onSuggestionKeyDown(event) {
+            if (this.completedInput === null) {
                 return;
             }
 
@@ -356,9 +376,6 @@ define(["../notjQuery"], function ($) {
 
         onSuggestionClick(event) {
             if (this.completedInput === null) {
-                // If there are multiple instances of Completer bound to the same suggestion container
-                // all of them try to handle the event. Though, only one of them is responsible and
-                // that's the one which has a completed input set.
                 return;
             }
 
