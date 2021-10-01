@@ -12,6 +12,7 @@ class StateBall extends BaseHtmlElement
     const SIZE_TINY = 'xs';
     const SIZE_SMALL = 's';
     const SIZE_MEDIUM = 'm';
+    const SIZE_MEDIUM_LARGE = 'ml';
     const SIZE_BIG = 'l';
     const SIZE_LARGE = 'xl';
 
