@@ -329,7 +329,7 @@ abstract class Suggestions extends BaseHtmlElement
                 }
 
                 if ($search) {
-                    $this->setDefault(['search' => $search]);
+                    $this->setDefault(['search' => $label]);
                 }
 
                 break;

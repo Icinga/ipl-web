@@ -954,7 +954,7 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
         }
 
         renderSuggestions(suggestions) {
-            let itemTemplate = $.render('<li><input type="button"></li>');
+            let itemTemplate = $.render('<li><input type="button" tabindex="-1"></li>');
 
             let list = document.createElement('ul');
 
@@ -1249,11 +1249,17 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
             let input = event.target;
             let termType = input.parentNode.dataset.type || this.termType;
 
-            if (! this.checkValidity(input, termType) && termType !== 'operator' && termType !== 'logical_operator') {
-                this.reportValidity(input);
-            }
+            if (input.parentNode.dataset.index >= 0) {
+                if (
+                    ! this.checkValidity(input, termType)
+                    && termType !== 'operator'
+                    && termType !== 'logical_operator'
+                ) {
+                    this.reportValidity(input);
+                }
 
-            this.highlightTerm(input.parentNode);
+                this.highlightTerm(input.parentNode);
+            }
 
             let value = this.readPartialTerm(input);
             if (! value && (termType === 'column' || termType === 'value')) {
@@ -1520,6 +1526,24 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
             }
 
             super.onInput(event);
+        }
+
+        onPaste(event) {
+            if (! this.hasTerms()) {
+                super.onPaste(event);
+            } else {
+                let terms = event.clipboardData.getData('text/plain');
+                if (this.termType === 'logical_operator') {
+                    if (! this.validOperator(terms[0]).exactMatch) {
+                        this.registerTerm({ ...this.logical_operators[0] });
+                    }
+                } else if (this.termType !== 'column') {
+                    return;
+                }
+
+                this.submitTerms(this.termsToQueryString(this.usedTerms) + terms);
+                event.preventDefault();
+            }
         }
     }
 

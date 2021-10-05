@@ -33,6 +33,15 @@ define(function () {
 
             if (selector === null) {
                 this.element.addEventListener(type, e => {
+                    if (type === 'focusin' && e.target.receivesCustomFocus) {
+                        // Ignore native focus event if a custom one follows
+                        if (e instanceof FocusEvent) {
+                            delete e.target.receivesCustomFocus;
+                            e.stopImmediatePropagation();
+                            return;
+                        }
+                    }
+
                     if (context === null) {
                         handler.apply(e.currentTarget, [e]);
                     } else {
