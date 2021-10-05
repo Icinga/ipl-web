@@ -1527,6 +1527,24 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
 
             super.onInput(event);
         }
+
+        onPaste(event) {
+            if (! this.hasTerms()) {
+                super.onPaste(event);
+            } else {
+                let terms = event.clipboardData.getData('text/plain');
+                if (this.termType === 'logical_operator') {
+                    if (! this.validOperator(terms[0]).exactMatch) {
+                        this.registerTerm({ ...this.logical_operators[0] });
+                    }
+                } else if (this.termType !== 'column') {
+                    return;
+                }
+
+                this.submitTerms(this.termsToQueryString(this.usedTerms) + terms);
+                event.preventDefault();
+            }
+        }
     }
 
     return FilterInput;

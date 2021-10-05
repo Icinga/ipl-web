@@ -494,6 +494,13 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
             }
         }
 
+        submitTerms(terms) {
+            $(this.input.form).trigger(
+                'submit',
+                { terms: terms }
+            );
+        }
+
         moveFocusForward(from = null) {
             let toFocus;
 
@@ -775,10 +782,7 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
                 return;
             }
 
-            $(this.input.form).trigger(
-                'submit',
-                { terms: event.clipboardData.getData('text/plain') }
-            );
+            this.submitTerms(event.clipboardData.getData('text/plain'));
 
             event.preventDefault();
         }
