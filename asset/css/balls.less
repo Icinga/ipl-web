@@ -27,6 +27,21 @@
   }
 }
 
+.ball-size-ml {
+  height: 1em;
+  width: 1em;
+  line-height: 0;
+
+  i.icon {
+    line-height: 0.3;
+
+    &:before {
+      font-size: 0.8 - @ball-pad * 2;
+      line-height: 1 - @ball-pad * 2;
+    }
+  }
+}
+
 .ball-size-l {
   height: 1.5em;
   width: 1.5em;
