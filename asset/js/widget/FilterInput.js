@@ -1234,14 +1234,14 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
          * Event listeners
          */
 
-        onTermBlur(event) {
+        onTermFocusOut(event) {
             let label = event.currentTarget;
             if (this.completer === null || ! this.completer.isBeingCompleted(label.firstChild, event.relatedTarget)) {
                 this.deHighlightTerm(label);
             }
 
             if (['column', 'value'].includes(label.dataset.type) || ! this.readPartialTerm(label.firstChild)) {
-                super.onTermBlur(event);
+                super.onTermFocusOut(event);
             }
         }
 
@@ -1378,7 +1378,7 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
             } else if (input.selectionStart !== input.selectionEnd) {
                 // In case the user selected a range of text, do nothing
                 return;
-            } else if (/[A-Z]/.test(event.key.charAt(0))) {
+            } else if (/[A-Z]/.test(event.key.charAt(0)) || event.ctrlKey || event.metaKey) {
                 // Ignore control keys not resulting in new input data
                 // TODO: Remove this and move the entire block into `onInput`
                 //       once Safari supports `InputEvent.data`

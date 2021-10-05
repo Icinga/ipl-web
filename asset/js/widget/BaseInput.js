@@ -49,10 +49,11 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
             $(this.input).on('input', this.onInput, this);
             $(this.input).on('keydown', this.onKeyDown, this);
             $(this.input).on('keyup', this.onKeyUp, this);
+            $(this.input).on('blur', this.onInputBlur, this);
             $(this.termContainer).on('input', '[data-label]', this.onInput, this);
             $(this.termContainer).on('keydown', '[data-label]', this.onKeyDown, this);
             $(this.termContainer).on('keyup', '[data-label]', this.onKeyUp, this);
-            $(this.termContainer).on('focusout', '[data-index]', this.onTermBlur, this);
+            $(this.termContainer).on('focusout', '[data-index]', this.onTermFocusOut, this);
             $(this.termContainer).on('focusin', '[data-index]', this.onTermFocus, this);
 
             // Copy/Paste
@@ -684,6 +685,10 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
                         this.moveFocusForward();
                     }
                     break;
+                case 'a':
+                    if ((event.ctrlKey || event.metaKey) && ! this.readPartialTerm(input)) {
+                        this.selectTerms();
+                    }
             }
         }
 
@@ -712,14 +717,14 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
                     this.autoSubmit(event.target, 'remove', this.clearSelectedTerms());
                     this.togglePlaceholder();
                     break;
-                case 'a':
-                    if ((event.ctrlKey || event.metaKey) && ! this.readPartialTerm(this.input)) {
-                        this.selectTerms();
-                    }
             }
         }
 
-        onTermBlur(event) {
+        onInputBlur() {
+            this.deselectTerms();
+        }
+
+        onTermFocusOut(event) {
             let input = event.target;
             // skipSaveOnBlur is set if the input is about to be removed anyway.
             // If saveTerm would remove the input as well, the other removal will fail

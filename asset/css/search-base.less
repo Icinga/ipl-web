@@ -63,6 +63,7 @@
 .search-suggestions {
   z-index: 2; // Required so that nothing else can overlap it (such as opaque elements and the impact overlay)
   position: absolute;
+  overflow: auto;
   min-width: 5em;
 
   &:empty {
