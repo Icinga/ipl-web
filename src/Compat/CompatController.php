@@ -240,6 +240,17 @@ class CompatController extends Controller
             if ($redirectUrl !== null) {
                 $this->tabs->setRefreshUrl($redirectUrl);
                 $this->tabs->getActiveTab()->setUrl($redirectUrl);
+
+                // As long as we still depend on the legacy tab implementation
+                // there is no other way to influence what the tab extensions
+                // use as url. (https://github.com/Icinga/icingadb-web/issues/373)
+                $oldPathInfo = $this->getRequest()->getPathInfo();
+                $oldQuery = $_SERVER['QUERY_STRING'];
+                $this->getRequest()->setPathInfo('/' . $redirectUrl->getPath());
+                $_SERVER['QUERY_STRING'] = $redirectUrl->getParams()->toString();
+                $this->tabs->ensureAssembled();
+                $this->getRequest()->setPathInfo($oldPathInfo);
+                $_SERVER['QUERY_STRING'] = $oldQuery;
             }
 
             $this->addPart($this->tabs);
