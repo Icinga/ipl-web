@@ -1,7 +1,7 @@
 .card() {
   &.card {
     .rounded-corners(.5em);
-    border: 1px solid @gray-light;
+    border: 1px solid var(--gray-light, @gray-light);
 
     .card-header {
       display: flex;
@@ -9,7 +9,7 @@
       justify-content: space-between;
       padding: .5em;
 
-      border-bottom: 1px solid @gray-light;
+      border-bottom: 1px solid var(--gray-light, @gray-light);
 
       .meta span {
         font-size: 11/12em;

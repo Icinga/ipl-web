@@ -29,7 +29,7 @@
   }
 
   i.icon:before {
-    color: @gray-light;
+    color: var(--gray-light, @gray-light);
   }
 
   .drag-initiator {
@@ -38,8 +38,8 @@
 
   input[type="text"], select {
     border: none;
-    background: @gray;
-    color: @text-color-inverted;
+    background: var(--gray, @gray);
+    color: var(--text-color-inverted, @text-color-inverted);
     text-overflow: ellipsis;
   }
 
@@ -57,21 +57,21 @@
 
   .search-error {
     input:invalid {
-      background: @color-critical;
+      background: var(--color-critical, @color-critical);
     }
 
     .search-errors {
-      color: @color-critical;
+      color: var(--color-critical, @color-critical);
       font-weight: bold;
     }
   }
 
   li > select {
-    background: @gray-light;
+    background: var(--gray-light, @gray-light);
   }
 
   .sortable-ghost {
-    border: dashed .2em @gray;
+    border: dashed .2em var(--gray, @gray);
 
     fieldset {
       opacity: .5;
@@ -82,16 +82,16 @@
     ul {
       .rounded-corners();
       .box-shadow(0, 0, .5em);
-      border: 1px solid @gray-light;
-      background: @body-bg-color;
+      border: 1px solid var(--gray-light, @gray-light);
+      background: var(--body-bg-color, @body-bg-color);
 
       li:not(:first-child) {
-        border-top: 1px solid @gray-light;
+        border-top: 1px solid var(--gray-light, @gray-light);
       }
 
       button:hover {
-        background: @icinga-blue;
-        color: @text-color-on-icinga-blue;
+        background: var(--icinga-blue, @icinga-blue);
+        color: var(--text-color-on-icinga-blue, @text-color-on-icinga-blue);
       }
 
       // Add rounded corners to buttons as well, otherwise their
@@ -109,23 +109,23 @@
 
       &:before {
         // The left pointing arrow
-        border-bottom: 1px solid @gray-light;
-        border-left: 1px solid @gray-light;
-        background: @body-bg-color;
+        border-bottom: 1px solid var(--gray-light, @gray-light);
+        border-left: 1px solid var(--gray-light, @gray-light);
+        background: var(--body-bg-color, @body-bg-color);
       }
     }
 
     &:hover i.icon:before {
       .rounded-corners();
-      background: @gray-lighter;
-      color: @text-color-on-icinga-blue;
+      background: var(--icinga-blue, @icinga-blue);
+      color: var(--text-color-on-icinga-blue, @text-color-on-icinga-blue);
     }
   }
 
   input[type="submit"] {
     .rounded-corners();
-    background: @icinga-blue;
-    color: @text-color-on-icinga-blue;
+    background: var(--icinga-blue, @icinga-blue);
+    color: var(--text-color-on-icinga-blue, @text-color-on-icinga-blue);
 
     &:hover {
       background: darken(@icinga-blue, 10%);

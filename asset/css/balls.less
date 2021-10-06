@@ -77,41 +77,41 @@
   .ball();
 
   &.state-pending {
-    .ball-solid(@color-pending);
+    .ball-solid(var(--color-pending, @color-pending));
   }
 
   &.state-up:not(.ball-size-l):not(.ball-size-xl) {
-    .ball-solid(@color-up);
+    .ball-solid(var(--color-up, @color-up));
   }
 
   &.state-up.ball-size-l,
   &.state-up.ball-size-xl {
-    .ball-outline(@color-up);
+    .ball-outline(var(--color-up, @color-up));
   }
 
   &.state-down {
-    .ball-solid(@color-down);
+    .ball-solid(var(--color-down, @color-down));
   }
 
   &.state-ok:not(.ball-size-l):not(.ball-size-xl) {
-    .ball-solid(@color-ok);
+    .ball-solid(var(--color-ok, @color-ok));
   }
 
   &.state-ok.ball-size-l,
   &.state-ok.ball-size-xl {
-    .ball-outline(@color-ok);
+    .ball-outline(var(--color-ok, @color-ok));
   }
 
   &.state-warning {
-    .ball-solid(@color-warning);
+    .ball-solid(var(--color-warning, @color-warning));
   }
 
   &.state-critical {
-    .ball-solid(@color-critical);
+    .ball-solid(var(--color-critical, @color-critical));
   }
 
   &.state-unknown {
-    .ball-solid(@color-unknown);
+    .ball-solid(var(--color-unknown, @color-unknown));
   }
 
   &.handled {

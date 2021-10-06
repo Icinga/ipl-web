@@ -1,7 +1,7 @@
 // Style
 .search-suggestions {
-  background: @text-color-inverted;
-  border: 1px solid @gray-light;
+  background: var(--text-color-inverted, @text-color-inverted);
+  border: 1px solid var(--gray-light, @gray-light);
   border-bottom-right-radius: .5em;
   border-bottom-left-radius:  .5em;
 
@@ -9,7 +9,7 @@
     list-style-type: none;
 
     > li {
-      border-top: 1px solid @gray-lighter;
+      border-top: 1px solid var(--gray-lighter, @gray-lighter);
     }
     > li.suggestion-title + li {
       border: none;
@@ -20,7 +20,7 @@
   }
 
   .default {
-    color: @text-color-light;
+    color: var(--text-color-light, @text-color-light);
     font-style: italic;
 
     [type="button"] {
@@ -29,7 +29,7 @@
   }
 
   .suggestion-title {
-    color: @text-color-light;
+    color: var(--text-color-light, @text-color-light);
     font-size: 80%;
   }
 
@@ -38,7 +38,7 @@
 
     em {
       font-weight: normal;
-      color: @text-color-light;
+      color: var(--text-color-light, @text-color-light);
     }
   }
 
@@ -49,8 +49,8 @@
   }
 
   [type="button"]:focus {
-    background: @icinga-blue;
-    color: @text-color-inverted;
+    background: var(--icinga-blue, @icinga-blue);
+    color: var(--text-color-inverted, @text-color-inverted);
     outline: none;
   }
 
