@@ -277,6 +277,39 @@ class CompatController extends Controller
         }
     }
 
+    /**
+     * Instruct the client to side-load additional updates
+     *
+     * If an item in the given array is indexed by an integer, its value will be used by the client to refresh
+     * the parent of the element identified by it. If indexed by a string, the client will use this index to
+     * identify a container (by id) and will use the value (a URL) to load content into it.
+     *
+     * @param array $updates
+     *
+     * @return void
+     */
+    public function sendExtraUpdates(array $updates)
+    {
+        if (empty($updates)) {
+            return;
+        }
+
+        $extraUpdates = [];
+        foreach ($updates as $key => $value) {
+            if (is_int($key)) {
+                $extraUpdates[] = $value;
+            } else {
+                $extraUpdates[] = sprintf(
+                    '%s;%s',
+                    $key,
+                    $value instanceof Url ? $value->getAbsoluteUrl() : $value
+                );
+            }
+        }
+
+        $this->getResponse()->setHeader('X-Icinga-Extra-Updates', join(',', $extraUpdates));
+    }
+
     public function postDispatch()
     {
         if (empty($this->parts)) {
