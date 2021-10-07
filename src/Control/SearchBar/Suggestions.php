@@ -6,6 +6,7 @@ use Countable;
 use Generator;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
+use ipl\Html\FormattedString;
 use ipl\Html\FormElement\ButtonElement;
 use ipl\Html\FormElement\InputElement;
 use ipl\Html\HtmlElement;
@@ -177,10 +178,6 @@ abstract class Suggestions extends BaseHtmlElement
         }
 
         $button = new ButtonElement(null, $attributes);
-        $button->addHtml(
-            Text::create(sprintf('%s ', t('Search for'))),
-            new HtmlElement('em', null, Text::create($this->default['search']))
-        );
         if (isset($this->default['type']) && $this->default['type'] === 'terms') {
             $terms = $this->filterToTerms($this->default['terms']);
             $list = new HtmlElement('ul', Attributes::create(['class' => 'comma-separated']));
@@ -195,10 +192,16 @@ abstract class Suggestions extends BaseHtmlElement
             }
 
             $button->setAttribute('data-terms', json_encode($terms));
-            $button->addHtml(
-                Text::create(sprintf(' %s ', t('in:'))),
+            $button->addHtml(FormattedString::create(
+                t('Search for %s in: %s'),
+                new HtmlElement('em', null, Text::create($this->default['search'])),
                 $list
-            );
+            ));
+        } else {
+            $button->addHtml(FormattedString::create(
+                t('Search for %s'),
+                new HtmlElement('em', null, Text::create($this->default['search']))
+            ));
         }
 
         $this->prependHtml(new HtmlElement('li', Attributes::create(['class' => 'default']), $button));
