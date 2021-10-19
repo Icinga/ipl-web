@@ -120,8 +120,24 @@
 
   i {
     text-align: center;
+    display: block;
+
     &:before {
       margin-right: 0;
+    }
+  }
+
+  // Specific icon styles
+  &.ball-size-l i {
+    &.fa-sitemap:before {
+      font-size: 8px; // px to ignore browser min font-size
+    }
+  }
+
+  &.ball-size-xl i {
+    &.fa-sitemap:before {
+      font-size: .857em;
+      line-height: (2 - @ball-pad * 2) / .857;
     }
   }
 }
