@@ -781,7 +781,7 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
         }
 
         onPaste(event) {
-            if (this.hasTerms()) {
+            if (this.hasTerms() || this.input.value) {
                 return;
             }
 
