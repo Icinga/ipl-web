@@ -22,6 +22,9 @@ class Parser
     protected $pos;
 
     /** @var int */
+    protected $termIndex;
+
+    /** @var int */
     protected $length;
 
     /** @var bool Whether strict mode is enabled */
@@ -80,6 +83,7 @@ class Parser
         }
 
         $this->pos = 0;
+        $this->termIndex = 0;
 
         return $this->readFilters();
     }
@@ -107,11 +111,13 @@ class Parser
             if ($filter === false) {
                 if ($next === '!') {
                     $isNone = true;
+                    $this->termIndex++;
                     continue;
                 }
 
                 if ($op === null && ($this->strict || count($filters) > 0) && ($next === '&' || $next === '|')) {
                     $op = $next;
+                    $this->termIndex++;
                     continue;
                 }
 
@@ -126,6 +132,8 @@ class Parser
                             // The current chain was not initiated by a `(`,
                             // so this `)` does not belong to it, but still ends it
                             $this->pos--;
+                        } else {
+                            $this->termIndex++;
                         }
 
                         break;
@@ -135,6 +143,8 @@ class Parser
                 }
 
                 if ($next === '(') {
+                    $this->termIndex++;
+
                     $rule = $this->readFilters($nestingLevel + 1, $isNone ? '!' : null);
                     if ($this->strict || ! $rule instanceof Filter\Chain || ! $rule->isEmpty()) {
                         $filters[] = $rule;
@@ -145,10 +155,13 @@ class Parser
                 }
 
                 if ($next === $op) {
+                    $this->termIndex++;
                     continue;
                 }
 
                 if (in_array($next, ['&', '|'])) {
+                    $this->termIndex++;
+
                     // It's a different logical operator, continue parsing based on its precedence
                     if ($op === '&') {
                         if (! empty($filters)) {
@@ -212,6 +225,8 @@ class Parser
                             // The current chain was not initiated by a `(`,
                             // so this `)` does not belong to it, but still ends it
                             $this->pos--;
+                        } else {
+                            $this->termIndex++;
                         }
 
                         break;
@@ -221,10 +236,13 @@ class Parser
                 }
 
                 if ($next === $op) {
+                    $this->termIndex++;
                     continue;
                 }
 
                 if (in_array($next, ['&', '|'])) {
+                    $this->termIndex++;
+
                     // It's a different logical operator, continue parsing based on its precedence
                     if ($op === null || $op === '&') {
                         if ($op === '&') {
@@ -302,20 +320,34 @@ class Parser
             return false;
         }
 
+        $columnIndex = $this->termIndex++;
+
         foreach (['<', '>'] as $operator) {
             if (($pos = strpos($column, $operator)) !== false) {
                 if ($this->nextChar() === '=') {
                     break;
                 }
 
+                $operatorIndex = $this->termIndex++;
+
                 $value = substr($column, $pos + 1);
                 $column = substr($column, 0, $pos);
 
+                $valueIndex = null;
                 if (ctype_digit($value)) {
                     $value = (float) $value;
+                    $valueIndex = $this->termIndex++;
+                } elseif ($value) {
+                    $valueIndex = $this->termIndex++;
                 }
 
-                return $this->createCondition($column, $operator, $value);
+                $condition = $this->createCondition($column, $operator, $value);
+                $condition->metaData()
+                    ->set('columnIndex', $columnIndex)
+                    ->set('operatorIndex', $operatorIndex)
+                    ->set('valueIndex', $valueIndex);
+
+                return $condition;
             }
         }
 
@@ -326,8 +358,16 @@ class Parser
         }
 
         if ($operator === false) {
-            return Filter::equal($column, true);
+            $condition = Filter::equal($column, true);
+            $condition->metaData()
+                ->set('columnIndex', $columnIndex)
+                ->set('operatorIndex', null)
+                ->set('valueIndex', null);
+
+            return $condition;
         }
+
+        $operatorIndex = $this->termIndex++;
 
         $toFloat = false;
         if ($operator === '=') {
@@ -344,12 +384,22 @@ class Parser
             }
         }
 
+        $valueIndex = null;
         $value = $this->readValue();
         if ($toFloat && ctype_digit($value)) {
             $value = (float) $value;
+            $valueIndex = $this->termIndex++;
+        } elseif ($value) {
+            $valueIndex = $this->termIndex++;
         }
 
-        return $this->createCondition($column, $operator, $value);
+        $condition = $this->createCondition($column, $operator, $value);
+        $condition->metaData()
+            ->set('columnIndex', $columnIndex)
+            ->set('operatorIndex', $operatorIndex)
+            ->set('valueIndex', $valueIndex);
+
+        return $condition;
     }
 
     /**
