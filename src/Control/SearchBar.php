@@ -301,7 +301,8 @@ class SearchBar extends Form
                             ->setValue(substr($q, $charAt))
                             ->addAttributes([
                                 'title'     => sprintf(t('Unexpected %s at start of input'), $char),
-                                'pattern'   => sprintf('^(?!%s).*', $char === ')' ? '\)' : $char)
+                                'pattern'   => sprintf('^(?!%s).*', $char === ')' ? '\)' : $char),
+                                'data-has-syntax-error' => true
                             ]);
 
                         $probablyValidQueryString = substr($q, 0, $charAt);

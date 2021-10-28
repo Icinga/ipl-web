@@ -291,6 +291,24 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
             return this.usedTerms.length > 0;
         }
 
+        hasSyntaxError(input) {
+            if (typeof input === 'undefined') {
+                input = this.input;
+            }
+
+            return 'hasSyntaxError' in input.dataset;
+        }
+
+        clearSyntaxError(input) {
+            if (typeof input === 'undefined') {
+                input = this.input;
+            }
+
+            delete input.dataset.hasSyntaxError;
+            input.removeAttribute('pattern');
+            input.removeAttribute('title');
+        }
+
         getQueryString() {
             return this.termsToQueryString(this.usedTerms);
         }
@@ -562,7 +580,12 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
             if (event.detail && 'terms' in event.detail) {
                 this.termInput.value = event.detail.terms;
             } else {
-                this.termInput.value = this.termsToQueryString(this.usedTerms);
+                let renderedTerms = this.termsToQueryString(this.usedTerms);
+                if (this.hasSyntaxError()) {
+                    renderedTerms += this.input.value;
+                }
+
+                this.termInput.value = renderedTerms;
             }
 
             // Enable the hidden input, otherwise it's not submitted
@@ -606,7 +629,14 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
 
             let termData = { label: this.readPartialTerm(input) };
             this.updateTermData(termData, input);
-            this.complete(input, { term: termData });
+
+            if (! input.value && this.hasSyntaxError(input)) {
+                this.clearSyntaxError(input);
+            }
+
+            if (! this.hasSyntaxError(input)) {
+                this.complete(input, { term: termData });
+            }
 
             if (! isTerm) {
                 this.autoSubmit(this.input, 'remove', this.clearSelectedTerms());
@@ -617,6 +647,15 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
         onKeyDown(event) {
             let input = event.target;
             let termIndex = Number(input.parentNode.dataset.index);
+
+            if (this.hasSyntaxError(input) && ! (/[A-Z]/.test(event.key.charAt(0)) || event.ctrlKey || event.metaKey)) {
+                // Clear syntax error flag if the user types entirely new input after having selected the entire input
+                // (This way the input isn't empty but switches from input to input immediately, causing the clearing
+                // in onInput to not work)
+                if (input.selectionEnd - input.selectionStart === input.value.length) {
+                    this.clearSyntaxError(input);
+                }
+            }
 
             let removedTerms;
             switch (event.key) {
@@ -737,6 +776,10 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
 
         onTermFocusOut(event) {
             let input = event.target;
+            if (this.hasSyntaxError(input)) {
+                return;
+            }
+
             // skipSaveOnBlur is set if the input is about to be removed anyway.
             // If saveTerm would remove the input as well, the other removal will fail
             // without any chance to handle it. (Element.remove() blurs the input)
@@ -762,13 +805,17 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
             this.deselectTerms();
 
             let input = event.target;
-            let value = this.readPartialTerm(input);
-            this.complete(input, { trigger: 'script', term: { label: value } });
+            if (! this.hasSyntaxError(input)) {
+                let value = this.readPartialTerm(input);
+                this.complete(input, { trigger: 'script', term: { label: value } });
+            }
         }
 
         onButtonClick(event) {
-            // Register current input value, otherwise it's not included
-            this.exchangeTerm();
+            if (! this.hasSyntaxError()) {
+                // Register current input value, otherwise it's not included
+                this.exchangeTerm();
+            }
 
             if (this.hasTerms()) {
                 this.input.required = false;
