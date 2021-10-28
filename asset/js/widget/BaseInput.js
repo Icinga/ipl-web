@@ -173,6 +173,9 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
         }
 
         updateTerms(changedTerms) {
+            // Reset the data input, otherwise the value remains and is sent continuously with subsequent requests
+            this.dataInput.value = '';
+
             for (const termIndex of Object.keys(changedTerms)) {
                 let label = this.termContainer.querySelector(`[data-index="${ termIndex }"]`);
                 if (! label) {
