@@ -13,6 +13,9 @@ use ipl\Stdlib\Filter;
 use ipl\Validator\CallbackValidator;
 use ipl\Web\Common\FormUid;
 use ipl\Web\Control\SearchBar\Terms;
+use ipl\Web\Control\SearchBar\ValidatedColumn;
+use ipl\Web\Control\SearchBar\ValidatedOperator;
+use ipl\Web\Control\SearchBar\ValidatedValue;
 use ipl\Web\Filter\ParseException;
 use ipl\Web\Filter\QueryString;
 use ipl\Web\Url;
@@ -22,8 +25,17 @@ class SearchBar extends Form
 {
     use FormUid;
 
-    /** @var string Emitted in case of an auto submit */
-    const ON_CHANGE = 'on_change';
+    /** @var string Emitted in case the user added a new condition */
+    const ON_ADD = 'on_add';
+
+    /** @var string Emitted in case the user inserted a new condition */
+    const ON_INSERT = 'on_insert';
+
+    /** @var string Emitted in case the user changed an existing condition */
+    const ON_SAVE = 'on_save';
+
+    /** @var string Emitted in case the user removed a condition */
+    const ON_REMOVE = 'on_remove';
 
     protected $defaultAttributes = [
         'data-enrichment-type'  => 'search-bar',
@@ -204,12 +216,48 @@ class SearchBar extends Form
 
     public function isValidEvent($event)
     {
-        if ($event !== self::ON_CHANGE) {
-            return parent::isValidEvent($event);
+        switch ($event) {
+            case self::ON_ADD:
+            case self::ON_SAVE:
+            case self::ON_INSERT:
+            case self::ON_REMOVE:
+                return true;
+            default:
+                return parent::isValidEvent($event);
+        }
+    }
+
+    private function validateCondition($eventType, $indices, $termsData, &$changes)
+    {
+        // TODO: In case of the query string validation, all three are guaranteed to be set.
+        //       The Parser also provides defaults, why shouldn't we here?
+        $column = ValidatedColumn::fromTermData($termsData[0]);
+        $operator = isset($termsData[1])
+            ? ValidatedOperator::fromTermData($termsData[1])
+            : null;
+        $value = isset($termsData[2])
+            ? ValidatedValue::fromTermData($termsData[2])
+            : null;
+
+        $this->emit($eventType, [$column, $operator, $value]);
+
+        if ($eventType !== self::ON_REMOVE) {
+            if (! $column->isValid() || $column->hasBeenChanged()) {
+                $changes[$indices[0]] = array_merge($termsData[0], $column->toTermData());
+            }
+
+            if ($operator && ! $operator->isValid()) {
+                $changes[$indices[1]] = array_merge($termsData[1], $operator->toTermData());
+            }
+
+            if ($value && (! $value->isValid() || $value->hasBeenChanged())) {
+                $changes[$indices[2]] = array_merge($termsData[2], $value->toTermData());
+            }
         }
 
-        return true;
+        return $column->isValid() && (! $operator || $operator->isValid()) && (! $value || $value->isValid());
     }
+
 
     protected function assemble()
     {
@@ -243,32 +291,72 @@ class SearchBar extends Form
                         return true;
                     }
 
-                    $validatedData = $data;
-                    // TODO: I'd like to not pass a ref here, but the Events trait does not support event return values
-                    $this->emit(self::ON_CHANGE, [&$validatedData]);
+                    switch ($data['type']) {
+                        case 'add':
+                        case 'exchange':
+                            $type = self::ON_ADD;
+
+                            break;
+                        case 'insert':
+                            $type = self::ON_INSERT;
+
+                            break;
+                        case 'save':
+                            $type = self::ON_SAVE;
+
+                            break;
+                        case 'remove':
+                            $type = self::ON_REMOVE;
+
+                            break;
+                        default:
+                            return true;
+                    }
 
                     $changes = [];
-                    foreach (isset($validatedData['terms']) ? $validatedData['terms'] : [] as $termIndex => $termData) {
-                        if ($termData !== $data['terms'][$termIndex]) {
-                            if (isset($termData['invalidMsg']) && ! isset($termData['pattern'])) {
-                                $termData['pattern'] = sprintf(
-                                    '^\s*(?!%s\b).*\s*$',
-                                    $data['terms'][$termIndex]['label']
-                                );
-                            }
+                    $invalid = false;
+                    $indices = [null, null, null];
+                    $termsData = [null, null, null];
+                    foreach (isset($data['terms']) ? $data['terms'] : [] as $termIndex => $termData) {
+                        switch ($termData['type']) {
+                            case 'column':
+                                $indices[0] = $termIndex;
+                                $termsData[0] = $termData;
 
-                            $changes[$termIndex] = $termData;
+                                break;
+                            case 'operator':
+                                $indices[1] = $termIndex;
+                                $termsData[1] = $termData;
+
+                                break;
+                            case 'value':
+                                $indices[2] = $termIndex;
+                                $termsData[2] = $termData;
+
+                                break;
+                            default:
+                                if ($termsData[0] !== null) {
+                                    if (! $this->validateCondition($type, $indices, $termsData, $changes)) {
+                                        $invalid = true;
+                                    }
+                                }
+
+                                $indices = $termsData = [null, null, null];
+                        }
+                    }
+
+                    if ($termsData[0] !== null) {
+                        if (! $this->validateCondition($type, $indices, $termsData, $changes)) {
+                            $invalid = true;
                         }
                     }
 
                     if (! empty($changes)) {
                         $this->changes = ['#' . $searchInputId, $changes];
                         $termContainer->applyChanges($changes);
-                        // TODO: Not every change must be invalid, change this once there are Event objects
-                        return false;
                     }
 
-                    return true;
+                    return ! $invalid;
                 })
             ]
         ]);
@@ -291,8 +379,42 @@ class SearchBar extends Form
             'data-choose-column'    => t('Please enter a valid column.'),
             'validators'            => [
                 new CallbackValidator(function ($q, CallbackValidator $validator) {
+                    $invalid = false;
+
+                    $parser = QueryString::fromString($q);
+                    $parser->on(QueryString::ON_CONDITION, function (Filter\Condition $condition) use (&$invalid) {
+                        $columnIndex = $condition->metaData()->get('columnIndex');
+                        if (isset($this->changes[1][$columnIndex])) {
+                            $change = $this->changes[1][$columnIndex];
+                            $condition->setColumn($change['search']);
+                        } elseif (empty($this->changes)) {
+                            $column = ValidatedColumn::fromFilterCondition($condition);
+                            $operator = ValidatedOperator::fromFilterCondition($condition);
+                            $value = ValidatedValue::fromFilterCondition($condition);
+                            $this->emit(self::ON_ADD, [$column, $operator, $value]);
+
+                            $condition->setColumn($column->getSearchValue());
+                            $condition->setValue($value->getSearchValue());
+
+                            if (! $column->isValid()) {
+                                $invalid = true;
+                                $condition->metaData()->merge($column->toMetaData());
+                            }
+
+                            if (! $operator->isValid()) {
+                                $invalid = true;
+                                $condition->metaData()->merge($operator->toMetaData());
+                            }
+
+                            if (! $value->isValid()) {
+                                $invalid = true;
+                                $condition->metaData()->merge($value->toMetaData());
+                            }
+                        }
+                    });
+
                     try {
-                        $filter = QueryString::parse($q);
+                        $filter = $parser->parse();
                     } catch (ParseException $e) {
                         $charAt = $e->getCharPos() - 1;
                         $char = $e->getChar();
@@ -312,7 +434,8 @@ class SearchBar extends Form
 
                     $this->getElement($this->getSearchParameter())->setValue('');
                     $this->setFilter($filter);
-                    return true;
+
+                    return ! $invalid;
                 })
             ]
         ]);
