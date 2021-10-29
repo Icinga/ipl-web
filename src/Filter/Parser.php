@@ -134,6 +134,11 @@ class Parser
                             $this->pos--;
                         } else {
                             $this->termIndex++;
+                            $next = $this->nextChar();
+                            if ($next !== false && ! in_array($next, ['&', '|', ')'])) {
+                                $this->pos++;
+                                $this->parseError($next, 'Expected logical operator');
+                            }
                         }
 
                         break;
@@ -227,6 +232,11 @@ class Parser
                             $this->pos--;
                         } else {
                             $this->termIndex++;
+                            $next = $this->nextChar();
+                            if ($next !== false && ! in_array($next, ['&', '|', ')'])) {
+                                $this->pos++;
+                                $this->parseError($next, 'Expected logical operator');
+                            }
                         }
 
                         break;

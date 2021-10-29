@@ -3,10 +3,31 @@
 namespace ipl\Tests\Web;
 
 use ipl\Stdlib\Filter;
+use ipl\Web\Filter\ParseException;
 use ipl\Web\Filter\Parser;
 
 class ParserTest extends TestCase
 {
+    public function testMissingLogicalOperatorsAfterConditionsAreDetected()
+    {
+        $this->expectException(ParseException::class);
+        $this->expectExceptionMessage(
+            'Invalid filter "(a=b|c=d)e=f", unexpected e at pos 10: Expected logical operator'
+        );
+
+        (new Parser('(a=b|c=d)e=f'))->parse();
+    }
+
+    public function testMissingLogicalOperatorsAfterOperatorsAreDetected()
+    {
+        $this->expectException(ParseException::class);
+        $this->expectExceptionMessage(
+            'Invalid filter "(a=b|c=d|)e=f", unexpected e at pos 11: Expected logical operator'
+        );
+
+        (new Parser('(a=b|c=d|)e=f'))->parse();
+    }
+
     public function testSimpleIndexRecognition()
     {
         $filter = (new Parser('a=b&c=d|e=|g'))->parse();
