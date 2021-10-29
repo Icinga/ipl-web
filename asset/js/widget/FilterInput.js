@@ -1377,6 +1377,10 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
             let input = event.target;
             let isTerm = input.parentNode.dataset.index >= 0;
 
+            if (this.hasSyntaxError(input)) {
+                return;
+            }
+
             let currentValue = this.readPartialTerm(input);
             if (isTerm && ! currentValue) {
                 // Switching contexts requires input first
@@ -1497,7 +1501,9 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
             let input = event.target;
             let termIndex = Number(input.parentNode.dataset.index);
 
-            if (termIndex >= 0) {
+            if (this.hasSyntaxError(input)) {
+                // pass
+            } else if (termIndex >= 0) {
                 let value = this.readPartialTerm(input);
                 if (! this.checkValidity(input)) {
                     this.reportValidity(input);
@@ -1531,7 +1537,7 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
         onPaste(event) {
             if (! this.hasTerms()) {
                 super.onPaste(event);
-            } else {
+            } else if (! this.input.value) {
                 let terms = event.clipboardData.getData('text/plain');
                 if (this.termType === 'logical_operator') {
                     if (! this.validOperator(terms[0]).exactMatch) {

@@ -80,7 +80,12 @@ class Terms extends BaseHtmlElement
         foreach ($filters as $i => $filter) {
             if ($i > 0) {
                 $logicalOperator = QueryString::getRuleSymbol($filters);
-                $this->assembleTerm('logical_operator', 'logical_operator', $logicalOperator, $logicalOperator, $where);
+                $this->assembleTerm([
+                    'class'  => 'logical_operator',
+                    'type'   => 'logical_operator',
+                    'search' => $logicalOperator,
+                    'label'  => $logicalOperator
+                ], $where);
             }
 
             if ($filter instanceof Filter\Chain) {
@@ -104,17 +109,32 @@ class Terms extends BaseHtmlElement
         }
 
         if ($chain instanceof Filter\None) {
-            $this->assembleTerm('logical_operator', 'negation_operator', '!', '!', $where);
+            $this->assembleTerm([
+                'class'  => 'logical_operator',
+                'type'   => 'negation_operator',
+                'search' => '!',
+                'label'  => '!'
+            ], $where);
         }
 
         if ($wrap) {
-            $opening = $this->assembleTerm('grouping_operator_open', 'grouping_operator', '(', '(', $group);
+            $opening = $this->assembleTerm([
+                'class'  => 'grouping_operator_open',
+                'type'   => 'grouping_operator',
+                'search' => '(',
+                'label'  => '('
+            ], $group);
         }
 
         $this->assembleConditions($chain, $group);
 
         if ($wrap) {
-            $closing = $this->assembleTerm('grouping_operator_close', 'grouping_operator', ')', ')', $group);
+            $closing = $this->assembleTerm([
+                'class'  => 'grouping_operator_close',
+                'type'   => 'grouping_operator',
+                'search' => ')',
+                'label'  => ')'
+            ], $group);
 
             $opening->addAttributes([
                 'data-counterpart' => $closing->getAttributes()->get('data-index')->getValue()
@@ -140,30 +160,63 @@ class Terms extends BaseHtmlElement
             new HtmlElement('button', Attributes::create(['type' => 'button']), new Icon('trash'))
         );
 
-        $this->assembleTerm('column', 'column', rawurlencode($column), $columnLabel, $group);
+        $columnData = [
+            'class'  => 'column',
+            'type'   => 'column',
+            'search' => rawurlencode($column),
+            'label'  => $columnLabel
+        ];
+        if ($filter->metaData()->has('invalidColumnPattern')) {
+            $columnData['pattern'] = $filter->metaData()->get('invalidColumnPattern');
+            if ($filter->metaData()->has('invalidColumnMessage')) {
+                $columnData['invalidMsg'] = $filter->metaData()->get('invalidColumnMessage');
+            }
+        }
+
+        $this->assembleTerm($columnData, $group);
 
         if ($value !== true) {
-            $this->assembleTerm('operator', 'operator', $operator, $operator, $group);
+            $operatorData = [
+                'class'  => 'operator',
+                'type'   => 'operator',
+                'search' => $operator,
+                'label'  => $operator
+            ];
+            if ($filter->metaData()->has('invalidOperatorPattern')) {
+                $operatorData['pattern'] = $filter->metaData()->get('invalidOperatorPattern');
+                if ($filter->metaData()->has('invalidOperatorMessage')) {
+                    $operatorData['invalidMsg'] = $filter->metaData()->get('invalidOperatorMessage');
+                }
+            }
+
+            $this->assembleTerm($operatorData, $group);
 
             if (! empty($value) || ctype_digit($value)) {
-                $this->assembleTerm('value', 'value', rawurlencode($value), $value, $group);
+                $valueData = [
+                    'class'  => 'value',
+                    'type'   => 'value',
+                    'search' => rawurlencode($value),
+                    'label'  => $value
+                ];
+                if ($filter->metaData()->has('invalidValuePattern')) {
+                    $valueData['pattern'] = $filter->metaData()->get('invalidValuePattern');
+                    if ($filter->metaData()->has('invalidValueMessage')) {
+                        $valueData['invalidMsg'] = $filter->metaData()->get('invalidValueMessage');
+                    }
+                }
+
+                $this->assembleTerm($valueData, $group);
             }
         }
 
         $where->addHtml($group);
     }
 
-    protected function assembleTerm($class, $type, $search, $label, BaseHtmlElement $where)
+    protected function assembleTerm(array $data, BaseHtmlElement $where)
     {
-        $data = [
-            'class'     => $class,
-            'type'      => $type,
-            'search'    => $search,
-            'label'     => $label
-        ];
         if (isset($this->changes[$this->currentIndex - $this->changeIndexCorrection])) {
             $change = $this->changes[$this->currentIndex - $this->changeIndexCorrection];
-            if ($change['type'] !== $type) {
+            if ($change['type'] !== $data['type']) {
                 // This can happen because the user didn't insert parentheses but the parser did
                 $this->changeIndexCorrection++;
             } else {
