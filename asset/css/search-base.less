@@ -24,7 +24,7 @@
     font-style: italic;
 
     [type="button"] {
-      background-color: fade(@icinga-blue, 10%);
+      background-color: var(--suggestions-default-opt-bg, @suggestions-default-opt-bg);
     }
   }
 
@@ -55,7 +55,7 @@
   }
 
   [type="button"]:not(:focus):hover {
-    background: fade(@icinga-blue, 30%)
+    background: var(--suggestions-default-opt-bg-hover, @suggestions-default-opt-bg-hover);
   }
 }
 
