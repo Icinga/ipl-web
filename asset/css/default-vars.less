@@ -1,27 +1,84 @@
-@icinga-blue: #00C3ED;
-@low-sat-blue: #404d72;
-@icinga-blue-dark: #0081a6;
+/*
+  RECOMMENDATION:
+      Please do not use the base color variables directly,
+      define a new variable instead that assigns the value of this base variable.
+        Examples:
+         - @base-color: red;
+         - @my-new-var: @base-color;
+         - @my-second-new-var: @base-color;
 
-@gray: #c4c4c4;
-@gray-light: #5c5c5c;
-@gray-lighter: #4b4b4b;
-@disabled-gray: #9a9a9a;
+     Do not use the same variable for different use cases, but define a new variable for each use case.
 
-@body-bg-color: #282E39;
+  NOTICE::
+    Color vars identification:
+       - Vars with `-bg` suffix are background-color vars. Please use only for setting bg-color.
+       - Vars with `-color` suffix color vars. Please use only for setting color.
+*/
 
-@text-color:#fff;
-@text-color-light: fade(@text-color, 75%);
-@text-color-inverted: @body-bg-color;
-@text-color-on-icinga-blue: @body-bg-color;
+@default-bg: #282E39;
 
+@base-gray: #c4c4c4;
+@base-gray-light: #5c5c5c;
+@base-gray-lighter: #4b4b4b;
+@base-disabled: #9a9a9a;
 
-@color-ok: #44bb77;
-@color-up: @color-ok;
-@color-warning: #ffaa44;
-@color-critical: #ff5566;
-@color-down: @color-critical;
-@color-pending: #77aaff;
-@color-unknown: #aa44ff;
+@base-primary-color: #00C3ED;
+@base-primary-bg: #00C3ED;
 
-@suggestions-default-opt-bg: fade(@icinga-blue, 10%);
-@suggestions-default-opt-bg-hover: fade(@icinga-blue, 30%);
+@default-text-color: #fff;
+@default-text-color-light: fade(@default-text-color, 75%);
+@default-text-color-inverted: @default-bg;
+
+@state-ok: #44bb77;
+@state-up: @state-ok;
+@state-warning: #ffaa44;
+@state-critical: #ff5566;
+@state-down: @state-critical;
+@state-pending: #77aaff;
+@state-unknown: #aa44ff;
+
+@primary-button-color: @default-text-color-inverted;
+@primary-button-bg: @base-primary-bg;
+@primary-button-hover-bg: #0081a6;
+
+@search-term-bg: @base-gray;
+@search-term-color: @default-text-color-inverted;
+@search-term-selected-bg: @base-gray-light;
+@search-term-invalid-bg: @state-critical;
+@search-term-invalid-color: @default-text-color-inverted;
+@search-term-disabled-bg: @base-disabled;
+@search-term-selected-color: @base-gray-light;
+@search-term-highlighted-bg: @base-primary-bg;
+@search-term-highlighted-color: @default-text-color-inverted;
+
+@search-condition-remove-bg: @state-critical;
+@search-condition-remove-color: @default-text-color-inverted;
+
+@search-logical-operator-bg: @base-gray-light;
+@search-logical-operator-color: @default-text-color-light;
+
+@searchbar-bg: #404d72;
+@searchbar-scrollbar-bg: @base-gray-light;
+
+@search-editor-control-color: @base-gray-light;
+@search-editor-logical-op-bg: @base-gray-light;
+@search-editor-context-menu-border-color: @base-gray-light;
+@search-editor-context-menu-bg: @default-bg;
+@search-editor-drag-outline-color: @base-gray;
+
+@control-color: @base-primary-color;
+@control-hover-bg: @base-gray-lighter;
+@control-disabled-color: @base-gray-light;
+
+@suggestions-bg: @default-bg;
+@suggestions-color: @default-text-color-light;
+@suggestions-focus-bg: @base-primary-bg;
+@suggestions-focus-color: @default-text-color-inverted;
+@suggestions-default-opt-bg: fade(@base-primary-bg, 10%);
+@suggestions-default-opt-color: @default-text-color-light;
+@suggestions-hover-bg: fade(@base-primary-bg, 30%);
+@suggestions-border-color: @base-gray-light;
+@suggestions-separation-bg: @base-gray-lighter;
+@suggestions-failure-message-color: @default-text-color-light;
+
+@card-border-color: @base-gray-light;

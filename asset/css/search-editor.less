@@ -29,7 +29,7 @@
   }
 
   i.icon:before {
-    color: var(--gray-light, @gray-light);
+    color: var(--search-editor-control-color, @search-editor-control-color);
   }
 
   .drag-initiator {
@@ -38,8 +38,8 @@
 
   input[type="text"], select {
     border: none;
-    background: var(--gray, @gray);
-    color: var(--text-color-inverted, @text-color-inverted);
+    background: var(--search-term-bg, @search-term-bg);
+    color: var(--search-term-color, @search-term-color);
     text-overflow: ellipsis;
   }
 
@@ -57,21 +57,23 @@
 
   .search-error {
     input:invalid {
-      background: var(--color-critical, @color-critical);
+      background: var(--search-term-invalid-bg, @search-term-invalid-bg);
     }
 
     .search-errors {
-      color: var(--color-critical, @color-critical);
+      color: var(--search-term-invalid-color, @search-term-invalid-color);
       font-weight: bold;
     }
   }
 
-  li > select {
-    background: var(--gray-light, @gray-light);
+  li > select:not([multiple]) {
+    background-color: var(--search-logical-operator-bg, @search-logical-operator-bg);
+    color: var(--search-logical-operator-color, @search-logical-operator-color);
+    .rounded-corners();
   }
 
   .sortable-ghost {
-    border: dashed .2em var(--gray, @gray);
+    border: dashed .2em var(--search-editor-drag-outline-color, @search-editor-drag-outline-color);
 
     fieldset {
       opacity: .5;
@@ -82,16 +84,16 @@
     ul {
       .rounded-corners();
       .box-shadow(0, 0, .5em);
-      border: 1px solid var(--gray-light, @gray-light);
-      background: var(--body-bg-color, @body-bg-color);
+      border: 1px solid var(--search-editor-context-menu-border-color, @search-editor-context-menu-border-color);
+      background: var(--search-editor-context-menu-bg, @search-editor-context-menu-bg);
 
       li:not(:first-child) {
-        border-top: 1px solid var(--gray-light, @gray-light);
+        border-top: 1px solid var(--search-editor-context-menu-border-color, @search-editor-context-menu-border-color);
       }
 
       button:hover {
-        background: var(--icinga-blue, @icinga-blue);
-        color: var(--text-color-on-icinga-blue, @text-color-on-icinga-blue);
+        background: var(--primary-button-bg, @primary-button-bg);
+        color: var(--primary-button-color, @primary-button-color);
       }
 
       // Add rounded corners to buttons as well, otherwise their
@@ -109,26 +111,26 @@
 
       &:before {
         // The left pointing arrow
-        border-bottom: 1px solid var(--gray-light, @gray-light);
-        border-left: 1px solid var(--gray-light, @gray-light);
-        background: var(--body-bg-color, @body-bg-color);
+        border-bottom: 1px solid var(--search-editor-context-menu-border-color, @search-editor-context-menu-border-color);
+        border-left: 1px solid var(--search-editor-context-menu-border-color, @search-editor-context-menu-border-color);
+        background: var(--search-editor-context-menu-bg, @search-editor-context-menu-bg);
       }
     }
 
     &:hover i.icon:before {
       .rounded-corners();
-      background: var(--icinga-blue, @icinga-blue);
-      color: var(--text-color-on-icinga-blue, @text-color-on-icinga-blue);
+      background: var(--primary-button-bg, @primary-button-bg);
+      color: var(--primary-button-color, @primary-button-color);
     }
   }
 
   input[type="submit"] {
     .rounded-corners();
-    background: var(--icinga-blue, @icinga-blue);
-    color: var(--text-color-on-icinga-blue, @text-color-on-icinga-blue);
+    background: var(--primary-button-bg, @primary-button-bg);
+    color: var(--primary-button-color, @primary-button-color);
 
     &:hover {
-      background: var(--icinga-blue-dark, @icinga-blue-dark);
+      background: var(--primary-button-hover-bg, @primary-button-hover-bg);
     }
   }
 }
