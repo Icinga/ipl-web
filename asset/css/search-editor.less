@@ -20,16 +20,16 @@
 
   select:not([multiple]) {
     .appearance(none);
-    border-radius: 0;
     padding-right: 1.5625em;
     background-image: url('@{iplWebAssets}/img/select-icon-text-color.svg');
     background-repeat: no-repeat;
     background-position: right center;
     background-size: contain;
+    .rounded-corners(0);
   }
 
   i.icon:before {
-    color: @gray-light;
+    color: var(--search-editor-control-color, @search-editor-control-color);
   }
 
   .drag-initiator {
@@ -38,8 +38,8 @@
 
   input[type="text"], select {
     border: none;
-    background: @gray;
-    color: @text-color-inverted;
+    background: var(--search-term-bg, @search-term-bg);
+    color: var(--search-term-color, @search-term-color);
     text-overflow: ellipsis;
   }
 
@@ -57,21 +57,23 @@
 
   .search-error {
     input:invalid {
-      background: @color-critical;
+      background: var(--search-term-invalid-bg, @search-term-invalid-bg);
     }
 
     .search-errors {
-      color: @color-critical;
+      color: var(--search-term-invalid-color, @search-term-invalid-color);
       font-weight: bold;
     }
   }
 
-  li > select {
-    background: @gray-light;
+  li > select:not([multiple]) {
+    background-color: var(--search-logical-operator-bg, @search-logical-operator-bg);
+    color: var(--search-logical-operator-color, @search-logical-operator-color);
+    .rounded-corners();
   }
 
   .sortable-ghost {
-    border: dashed .2em @gray;
+    border: dashed .2em var(--search-editor-drag-outline-color, @search-editor-drag-outline-color);
 
     fieldset {
       opacity: .5;
@@ -82,16 +84,16 @@
     ul {
       .rounded-corners();
       .box-shadow(0, 0, .5em);
-      border: 1px solid @gray-light;
-      background: @body-bg-color;
+      border: 1px solid var(--search-editor-context-menu-border-color, @search-editor-context-menu-border-color);
+      background: var(--search-editor-context-menu-bg, @search-editor-context-menu-bg);
 
       li:not(:first-child) {
-        border-top: 1px solid @gray-light;
+        border-top: 1px solid var(--search-editor-context-menu-border-color, @search-editor-context-menu-border-color);
       }
 
       button:hover {
-        background: @icinga-blue;
-        color: @text-color-on-icinga-blue;
+        background: var(--primary-button-bg, @primary-button-bg);
+        color: var(--primary-button-color, @primary-button-color);
       }
 
       // Add rounded corners to buttons as well, otherwise their
@@ -109,26 +111,26 @@
 
       &:before {
         // The left pointing arrow
-        border-bottom: 1px solid @gray-light;
-        border-left: 1px solid @gray-light;
-        background: @body-bg-color;
+        border-bottom: 1px solid var(--search-editor-context-menu-border-color, @search-editor-context-menu-border-color);
+        border-left: 1px solid var(--search-editor-context-menu-border-color, @search-editor-context-menu-border-color);
+        background: var(--search-editor-context-menu-bg, @search-editor-context-menu-bg);
       }
     }
 
     &:hover i.icon:before {
       .rounded-corners();
-      background: @gray-lighter;
-      color: @text-color-on-icinga-blue;
+      background: var(--primary-button-bg, @primary-button-bg);
+      color: var(--primary-button-color, @primary-button-color);
     }
   }
 
   input[type="submit"] {
     .rounded-corners();
-    background: @icinga-blue;
-    color: @text-color-on-icinga-blue;
+    background: var(--primary-button-bg, @primary-button-bg);
+    color: var(--primary-button-color, @primary-button-color);
 
     &:hover {
-      background: darken(@icinga-blue, 10%);
+      background: var(--primary-button-hover-bg, @primary-button-hover-bg);
     }
   }
 }

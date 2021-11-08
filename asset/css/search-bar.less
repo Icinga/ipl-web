@@ -1,7 +1,7 @@
 // Style
 .search-bar {
   .rounded-corners(.25em);
-  background: @low-sat-blue;
+  background: var(--searchbar-bg, @searchbar-bg);
 
   // Reset all input styles
   input, [type="button"] {
@@ -14,8 +14,8 @@
   input[type=submit],
   button[type=submit],
   button:not([type]) {
-    background: @icinga-blue;
-    color: @text-color-inverted;
+    background: var(--primary-button-bg, @primary-button-bg);
+    color: var(--primary-button-color, @primary-button-color);
     border-top-right-radius: .25em;
     border-bottom-right-radius: .25em;
   }
@@ -35,12 +35,12 @@
     i.icon:before {
       font-size: 1.2em;
       margin-right: 0;
-      color: @icinga-blue;
+      color: var(--control-color, @control-color);
     }
 
     &:disabled {
       i.icon:before {
-        color: @gray-light;
+        color: var(--control-disabled-color, @control-disabled-color);
       }
     }
   }
@@ -49,7 +49,7 @@
   .filter-input-area {
     // Firefox
     scrollbar-width: thin;
-    scrollbar-color: @gray-light transparent;
+    scrollbar-color: var(--searchbar-scrollbar-bg, @searchbar-scrollbar-bg) transparent;
 
     &::-webkit-scrollbar {
       display: none;
@@ -62,7 +62,7 @@
 
     &::-webkit-scrollbar-thumb {
       border-radius: .25em;
-      background: @gray-light;
+      background: var(--searchbar-scrollbar-bg, @searchbar-scrollbar-bg);
     }
   }
 
@@ -70,8 +70,8 @@
   .filter-condition {
     button {
       border-radius: .4em 0 0 .4em;
-      background-color: @color-critical;
-      color: @text-color-inverted;
+      background-color: var(--search-condition-remove-bg, @search-condition-remove-bg);
+      color: var(--search-condition-remove-color, @search-condition-remove-color);
 
       &:after {
         content: "";
@@ -81,8 +81,8 @@
         right: 0;
         top: 0;
 
-        background-color: @low-sat-blue;
-        border: .2em solid @color-critical;
+        background-color: var(--searchbar-bg, @searchbar-bg);
+        border: .2em solid var(--search-condition-remove-bg, @search-condition-remove-bg);
         border-width: 0 0 0 .2em;
         border-top-left-radius: .4em;
         border-bottom-left-radius: .4em;
@@ -90,8 +90,8 @@
     }
 
     input {
-      background-color: @gray;
-      color: @text-color-inverted;
+      background-color: var(--search-term-bg, @search-term-bg);
+      color: var(--search-term-color, @search-term-color);
     }
   }
 
@@ -106,8 +106,8 @@
       left: 0;
       top: 0;
 
-      background-color: @low-sat-blue;
-      border: .2em solid @color-critical;
+      background-color: var(--searchbar-bg, @searchbar-bg);
+      border: .2em solid var(--search-condition-remove-bg, @search-condition-remove-bg);
       border-width: 0 .2em 0 0;
       border-top-right-radius: .4em;
       border-bottom-right-radius: .4em;
@@ -123,8 +123,8 @@
   .grouping_operator_close {
     input {
       .rounded-corners();
-      background-color: fade(@gray, 50%);
-      color: @text-color-light;
+      background-color: var(--search-logical-operator-bg, @search-logical-operator-bg);
+      color: var(--search-logical-operator-color, @search-logical-operator-color);
     }
   }
 
@@ -138,12 +138,12 @@
   }
 
   [data-index] input:invalid {
-    background-color: @color-critical;
-    color: @text-color-inverted;
+    background-color: var(--search-term-invalid-bg, @search-term-invalid-bg);
+    color: var(--search-term-invalid-color, @search-term-invalid-color);
   }
 
   [data-index] input:disabled {
-    background-color: @gray-light;
+    background-color: var(--search-term-disabled-bg, @search-term-disabled-bg);
   }
 
   .column input {
@@ -170,13 +170,13 @@
   }
 
   .highlighted input {
-    background-color: @icinga-blue;
-    color: @text-color-on-icinga-blue;
+    background-color: var(--search-term-highlighted-bg, @search-term-highlighted-bg);
+    color: var(--search-term-highlighted-color, @search-term-highlighted-color);
   }
 
   .selected input {
-    background-color: @disabled-gray;
-    color: @gray-light;
+    background-color: var(--search-term-selected-bg, @search-term-selected-bg);
+    color: var(--search-term-selected-color, @search-term-selected-color);
     font-style: italic;
   }
 

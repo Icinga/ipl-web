@@ -1,11 +1,11 @@
 .pagination-control {
   li > a {
-    color: @icinga-blue;
+    color: var(--control-color, @control-color);
     border-radius: .25em;
   }
 
   li > a:hover {
-    background: @gray-lighter;
+    background: var(--control-hover-bg, @control-hover-bg);
   }
 
   .previous-page,
@@ -36,16 +36,16 @@
   .appearance(none);
   background: none;
   border: none;
-  color: @icinga-blue;
+  color: var(--control-color, @control-color);
   .rounded-corners();
 
   &:hover, &:focus, &.active {
-    background-color: @gray-lighter;
+    background-color: var(--control-hover-bg, @control-hover-bg);
     text-decoration: none;
   }
 
   &.disabled {
-    color: @gray-light;
+    color: var(--control-disabled-color, @control-disabled-color);
 
     &:hover {
       background: none;
