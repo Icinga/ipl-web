@@ -333,12 +333,17 @@ define(["../notjQuery"], function ($) {
             }
 
             let input = event.target;
+            let completedInput = this.completedInput;
             this.suggestionKiller = setTimeout(() => {
-                if (! this.termSuggestions.contains(document.activeElement)) {
+                if (completedInput !== this.completedInput) {
+                    // Don't hide another input's suggestions
+                } else if (document.activeElement !== completedInput
+                    && ! this.termSuggestions.contains(document.activeElement)
+                ) {
                     // Hide the suggestions if the user doesn't navigate them
-                    if (input !== this.completedInput) {
+                    if (input !== completedInput) {
                         // Restore input if a suggestion lost focus
-                        this.suggest(this.completedInput, this.completedValue);
+                        this.suggest(completedInput, this.completedValue);
                     }
 
                     this.hideSuggestions();
