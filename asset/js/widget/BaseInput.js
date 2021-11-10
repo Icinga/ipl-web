@@ -805,7 +805,8 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
             this.deselectTerms();
 
             let input = event.target;
-            if (! this.hasSyntaxError(input)) {
+            if (! this.hasSyntaxError(input) && ! this.completer.isBeingCompleted(input, false)) {
+                // Only request suggestions if the input is valid and not already being completed
                 let value = this.readPartialTerm(input);
                 this.complete(input, { trigger: 'script', term: { label: value } });
             }

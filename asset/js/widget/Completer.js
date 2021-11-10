@@ -220,11 +220,7 @@ define(["../notjQuery"], function ($) {
                                 // If the suggestions are to be displayed due to a scripted event,
                                 // show them only if the completed input is still focused..
                                 if (document.activeElement === input) {
-                                    let options = suggestions.querySelectorAll('[type="button"]');
-                                    // ..and only if there are multiple options available
-                                    if (options.length > 1) {
-                                        this.showSuggestions(suggestions, input);
-                                    }
+                                    this.showSuggestions(suggestions, input);
                                 }
                             } else {
                                 this.showSuggestions(suggestions, input);
@@ -313,7 +309,10 @@ define(["../notjQuery"], function ($) {
                 activeElement = document.activeElement;
             }
 
-            return input === this.completedInput && this.termSuggestions.contains(activeElement);
+            return input === this.completedInput && (
+                (! activeElement && this.hasSuggestions())
+                    || (activeElement && this.termSuggestions.contains(activeElement))
+            );
         }
 
         /**
@@ -334,12 +333,17 @@ define(["../notjQuery"], function ($) {
             }
 
             let input = event.target;
+            let completedInput = this.completedInput;
             this.suggestionKiller = setTimeout(() => {
-                if (! this.termSuggestions.contains(document.activeElement)) {
+                if (completedInput !== this.completedInput) {
+                    // Don't hide another input's suggestions
+                } else if (document.activeElement !== completedInput
+                    && ! this.termSuggestions.contains(document.activeElement)
+                ) {
                     // Hide the suggestions if the user doesn't navigate them
-                    if (input !== this.completedInput) {
+                    if (input !== completedInput) {
                         // Restore input if a suggestion lost focus
-                        this.suggest(this.completedInput, this.completedValue);
+                        this.suggest(completedInput, this.completedValue);
                     }
 
                     this.hideSuggestions();
