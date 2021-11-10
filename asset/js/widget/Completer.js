@@ -220,11 +220,7 @@ define(["../notjQuery"], function ($) {
                                 // If the suggestions are to be displayed due to a scripted event,
                                 // show them only if the completed input is still focused..
                                 if (document.activeElement === input) {
-                                    let options = suggestions.querySelectorAll('[type="button"]');
-                                    // ..and only if there are multiple options available
-                                    if (options.length > 1) {
-                                        this.showSuggestions(suggestions, input);
-                                    }
+                                    this.showSuggestions(suggestions, input);
                                 }
                             } else {
                                 this.showSuggestions(suggestions, input);
