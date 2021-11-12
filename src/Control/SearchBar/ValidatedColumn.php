@@ -19,6 +19,14 @@ class ValidatedColumn extends ValidatedTerm
         return new static($condition->getColumn(), $condition->metaData()->get('columnLabel'));
     }
 
+    public function toTermData()
+    {
+        $termData = parent::toTermData();
+        $termData['type'] = 'column';
+
+        return $termData;
+    }
+
     public function toMetaData()
     {
         $data = new Data();
