@@ -175,8 +175,16 @@ class SearchEditor extends Form
             if ($newOperator !== null && QueryString::getRuleSymbol($rule) !== $newOperator) {
                 switch ($newOperator) {
                     case '=':
+                        if ($rule->getValue() === '*') {
+                            return Filter::hasValue($rule->getColumn(), $rule->getValue());
+                        }
+
                         return Filter::equal($rule->getColumn(), $rule->getValue());
                     case '!=':
+                        if ($rule->getValue() === '*') {
+                            return Filter::hasNotValue($rule->getColumn(), $rule->getValue());
+                        }
+
                         return Filter::unequal($rule->getColumn(), $rule->getValue());
                     case '>':
                         return Filter::greaterThan($rule->getColumn(), $rule->getValue());

@@ -516,8 +516,16 @@ class Parser
 
         switch ($operator) {
             case '=':
+                if ($value === '*') {
+                    return Filter::hasValue($column, $value);
+                }
+
                 return Filter::equal($column, $value);
             case '!=':
+                if ($value === '*') {
+                    return Filter::hasNotValue($column, $value);
+                }
+
                 return Filter::unequal($column, $value);
             case '>':
                 return Filter::greaterThan($column, $value);
