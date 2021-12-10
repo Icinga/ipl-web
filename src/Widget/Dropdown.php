@@ -46,12 +46,18 @@ class Dropdown extends BaseHtmlElement
      * @param mixed      $content
      * @param Url|string $url
      * @param string     $icon
+     * @param array      $attributes
      *
      * @return $this
      */
-    public function addLink($content, $url, $icon = null)
+    public function addLink($content, $url, $icon = null, array $attributes = null)
     {
-        $this->links[] = new ActionLink($content, $url, $icon, ['class' => 'dropdown-item']);
+        $link = new ActionLink($content, $url, $icon, ['class' => 'dropdown-item']);
+        if (! empty($attributes)) {
+            $link->addAttributes($attributes);
+        }
+
+        $this->links[] = $link;
 
         return $this;
     }
