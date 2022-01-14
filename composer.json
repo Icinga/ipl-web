@@ -16,7 +16,7 @@
     }
   },
   "require": {
-    "php": ">=7.0",
+    "php": ">=7.2",
     "ext-json": "*",
     "ipl/html": ">=0.4.0",
     "ipl/stdlib": ">=0.11.0",
