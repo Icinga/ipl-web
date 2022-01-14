@@ -191,7 +191,7 @@ class Terms extends BaseHtmlElement
 
             $this->assembleTerm($operatorData, $group);
 
-            if (! empty($value) || ctype_digit($value)) {
+            if (! empty($value) || ! is_string($value) || ctype_digit($value)) {
                 $valueData = [
                     'class'  => 'value',
                     'type'   => 'value',
