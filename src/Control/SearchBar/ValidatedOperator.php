@@ -46,6 +46,14 @@ class ValidatedOperator extends ValidatedTerm
         return new static($operator);
     }
 
+    public function toTermData()
+    {
+        $termData = parent::toTermData();
+        $termData['type'] = 'operator';
+
+        return $termData;
+    }
+
     public function toMetaData()
     {
         $data = new Data();

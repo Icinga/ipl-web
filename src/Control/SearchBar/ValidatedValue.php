@@ -19,6 +19,14 @@ class ValidatedValue extends ValidatedTerm
         return new static($condition->getValue());
     }
 
+    public function toTermData()
+    {
+        $termData = parent::toTermData();
+        $termData['type'] = 'value';
+
+        return $termData;
+    }
+
     public function toMetaData()
     {
         $data = new Data();

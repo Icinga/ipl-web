@@ -378,11 +378,17 @@ class SearchBar extends Form
             'data-choose-template'  => t('Please type one of: %s', '..<comma separated list>'),
             'data-choose-column'    => t('Please enter a valid column.'),
             'validators'            => [
-                new CallbackValidator(function ($q, CallbackValidator $validator) {
+                new CallbackValidator(function ($q, CallbackValidator $validator) use ($searchInputId) {
+                    $submitted = $this->hasBeenSubmitted();
                     $invalid = false;
+                    $changes = [];
 
                     $parser = QueryString::fromString($q);
-                    $parser->on(QueryString::ON_CONDITION, function (Filter\Condition $condition) use (&$invalid) {
+                    $parser->on(QueryString::ON_CONDITION, function (Filter\Condition $condition) use (
+                        &$invalid,
+                        &$changes,
+                        $submitted
+                    ) {
                         $columnIndex = $condition->metaData()->get('columnIndex');
                         if (isset($this->changes[1][$columnIndex])) {
                             $change = $this->changes[1][$columnIndex];
@@ -398,17 +404,32 @@ class SearchBar extends Form
 
                             if (! $column->isValid()) {
                                 $invalid = true;
-                                $condition->metaData()->merge($column->toMetaData());
+
+                                if ($submitted) {
+                                    $condition->metaData()->merge($column->toMetaData());
+                                } else {
+                                    $changes[$columnIndex] = $column->toTermData();
+                                }
                             }
 
                             if (! $operator->isValid()) {
                                 $invalid = true;
-                                $condition->metaData()->merge($operator->toMetaData());
+
+                                if ($submitted) {
+                                    $condition->metaData()->merge($operator->toMetaData());
+                                } else {
+                                    $changes[$condition->metaData()->get('operatorIndex')] = $operator->toTermData();
+                                }
                             }
 
                             if (! $value->isValid()) {
                                 $invalid = true;
-                                $condition->metaData()->merge($value->toMetaData());
+
+                                if ($submitted) {
+                                    $condition->metaData()->merge($value->toMetaData());
+                                } else {
+                                    $changes[$condition->metaData()->get('valueIndex')] = $value->toTermData();
+                                }
                             }
                         }
                     });
@@ -434,6 +455,10 @@ class SearchBar extends Form
 
                     $this->getElement($this->getSearchParameter())->setValue('');
                     $this->setFilter($filter);
+
+                    if (! empty($changes)) {
+                        $this->changes = ['#' . $searchInputId, $changes];
+                    }
 
                     return ! $invalid;
                 })

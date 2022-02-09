@@ -181,7 +181,7 @@ abstract class ValidatedTerm
     {
         return [
             'search'     => $this->getSearchValue(),
-            'label'      => $this->getLabel(),
+            'label'      => $this->getLabel() ?: $this->getSearchValue(),
             'invalidMsg' => $this->getMessage(),
             'pattern'    => $this->getPattern()
         ];
