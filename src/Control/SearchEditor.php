@@ -150,7 +150,7 @@ class SearchEditor extends Form
 
     protected function applyChanges(Filter\Rule $rule, array &$values, array $path = [0])
     {
-        $identifier = join('-', $path);
+        $identifier = 'rule-' . join('-', $path);
 
         if ($rule instanceof Filter\Condition) {
             $newColumn = $this->popKey($values, $identifier . '-column-search');
@@ -232,7 +232,7 @@ class SearchEditor extends Form
         list($type, $where) = explode(':', is_array($structuralChange)
             ? array_shift($structuralChange)
             : $structuralChange);
-        $targetPath = explode('-', $where);
+        $targetPath = explode('-', substr($where, 5));
 
         $targetFinder = function ($path) use ($rule) {
             $parent = null;
@@ -269,7 +269,7 @@ class SearchEditor extends Form
                 }
 
                 list($placement, $moveToPath) = explode(':', array_shift($structuralChange));
-                list($moveToParent, $moveToTarget) = $targetFinder(explode('-', $moveToPath));
+                list($moveToParent, $moveToTarget) = $targetFinder(explode('-', substr($moveToPath, 5)));
 
                 $parent->remove($target);
                 if ($placement === 'to') {
@@ -315,7 +315,7 @@ class SearchEditor extends Form
 
     protected function createTree(Filter\Rule $rule, array $path = [0])
     {
-        $identifier = join('-', $path);
+        $identifier = 'rule-' . join('-', $path);
 
         if ($rule instanceof Filter\Condition) {
             $parts = [$this->createCondition($rule, $identifier), $this->createButtons($rule, $identifier)];
@@ -364,7 +364,7 @@ class SearchEditor extends Form
                 $children->addHtml(new HtmlElement(
                     'li',
                     Attributes::create([
-                        'id'    => join('-', $childPath),
+                        'id'    => 'rule-' . join('-', $childPath),
                         'class' => $child instanceof Filter\Condition
                             ? 'filter-condition'
                             : 'filter-chain'
