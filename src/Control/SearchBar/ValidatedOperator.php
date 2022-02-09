@@ -22,9 +22,11 @@ class ValidatedOperator extends ValidatedTerm
     {
         switch (true) {
             case $condition instanceof Filter\Unequal:
+            case $condition instanceof Filter\HasNotValue:
                 $operator = '!=';
                 break;
             case $condition instanceof Filter\Equal:
+            case $condition instanceof Filter\HasValue:
                 $operator = '=';
                 break;
             case $condition instanceof Filter\GreaterThan:
