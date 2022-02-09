@@ -1,46 +1,27 @@
 /*
   RECOMMENDATION:
-      Please do not use the base color variables directly,
-      define a new variable instead that assigns the value of this base variable.
-        Examples:
+     Please do not use the base color variables directly,
+     define a new variable instead that assigns the value of this base variable.
+       Examples:
          - @base-color: red;
          - @my-new-var: @base-color;
          - @my-second-new-var: @base-color;
 
      Do not use the same variable for different use cases, but define a new variable for each use case.
 
-  NOTICE::
+  NOTICE:
     Color vars identification:
-       - Vars with `-bg` suffix are background-color vars. Please use only for setting bg-color.
-       - Vars with `-color` suffix color vars. Please use only for setting color.
+      - Vars with `-bg` suffix are background-color vars. Please use only for setting bg-color.
+      - Vars with `-color` suffix are color vars. Please use only for setting fg-color.
 
-    To use ipl-web widgets, the two theme mode variables @prefer-light-color-scheme and @enable-color-preference must be defined.
-    We have used a trick to have control over the system's preferred theme mode and our own.
-    The following describes how to initialise a variable to have your own theme mode:
+  MODE SUPPORT:
+    The standard LESS variables represent the dark mode. The LESS detached ruleset `@iplWebLightRules`
+    contains CSS variables that represent the light mode. It must be used explicitly to have any effect.
+    If you use media queries to support modes, just call the ruleset inside your media query:
 
-    - Default css is for dark mode.
-    - 0px = true (min-height: 0px), 999999px = false (min-height: 999999px, not reachable on the normal screen, so false)
-
-    System mode:
-        @enable-color-preference: 0px; // true
-        @prefer-light-color-scheme: 999999px; // false
-        If the system uses the light mode, the media query will be true
-
-    Light mode:
-        @prefer-light-color-scheme: 0px // true.
-        @enable-color-preference: 999999px; // false, so that we have control over the system's preferred theme mode.
-
-    Dark mode:
-        @prefer-light-color-scheme: 999999px // false,
-        @enable-color-preference: 999999px; // false, so that we have control over the system's preferred theme mode.
-        The media query code will be ignored.
-
-
-                                          true     OR                 true         and      true
-    @media (min-height: @prefer-light-color-scheme), (prefers-color-scheme: light) and (min-height: @enable-color-preference) {
-        // css here
-    }
-
+      @media (prefers-color-scheme: light) {
+        @iplWebLightRules();
+      }
 */
 
 @default-bg: #282E39;
@@ -111,7 +92,7 @@
 
 @card-border-color: @base-gray-light;
 
-@media (min-height: @prefer-light-color-scheme), (prefers-color-scheme: light) and (min-height: @enable-color-preference) {
+@iplWebLightRules: {
   :root {
     --base-gray: #819398;
     --base-gray-semilight: #94a5a6;
@@ -170,4 +151,4 @@
 
     --card-border-color: var(--base-gray-light);
   }
-}
+};
