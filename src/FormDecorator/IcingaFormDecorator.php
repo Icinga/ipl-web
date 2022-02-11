@@ -2,6 +2,7 @@
 
 namespace ipl\Web\FormDecorator;
 
+use Icinga\Web\Window;
 use ipl\Html\Attributes;
 use ipl\Html\Contract\FormSubmitElement;
 use ipl\Html\FormDecorator\DivDecorator;
@@ -34,7 +35,7 @@ class IcingaFormDecorator extends DivDecorator
     protected function createCheckbox(CheckboxElement $checkbox)
     {
         if (! $checkbox->getAttributes()->has('id')) {
-            $checkbox->setAttribute('id', base64_encode(random_bytes(8)));
+            $checkbox->setAttribute('id', Window::generateId());
         }
 
         $checkbox->getAttributes()->add('class', 'sr-only');
