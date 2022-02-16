@@ -549,7 +549,7 @@ class SearchEditor extends Form
 
         if ($this->queryString) {
             $this->addHtml($this->createElement('submitButton', 'structural-change', [
-                'value'             => 'clear:0',
+                'value'             => 'clear:rule-0',
                 'class'             => 'cancel-button',
                 'label'             => t('Clear Filter'),
                 'formnovalidate'    => true
