@@ -3,6 +3,8 @@
 namespace ipl\Web\Control;
 
 use ipl\Html\FormElement\ButtonElement;
+use ipl\Orm\Common\SortUtil;
+use ipl\Orm\Query;
 use ipl\Stdlib\Str;
 use ipl\Web\Compat\CompatForm;
 use ipl\Web\Url;
@@ -40,6 +42,24 @@ class SortControl extends CompatForm
     public function __construct(Url $url)
     {
         $this->url = $url;
+    }
+
+    /**
+     * Create a new sort control with the given options
+     *
+     * @param array<string,string> $options A sort spec to label map
+     *
+     * @return static
+     */
+    public static function create(array $options)
+    {
+        $normalized = [];
+        foreach ($options as $spec => $label) {
+            $normalized[SortUtil::normalizeSortSpec($spec)] = $label;
+        }
+
+        return (new static(Url::fromRequest()))
+            ->setColumns($normalized);
     }
 
     /**
@@ -141,6 +161,28 @@ class SortControl extends CompatForm
         }
 
         return $sort;
+    }
+
+    /**
+     * Sort the given query according to the request
+     *
+     * @param Query $query
+     *
+     * @return $this
+     */
+    public function apply(Query $query)
+    {
+        $default = (array) $query->getModel()->getDefaultSort();
+        if (! empty($default)) {
+            $this->setDefault(SortUtil::normalizeSortSpec($default));
+        }
+
+        $sort = $this->getSort();
+        if (! empty($sort)) {
+            $query->orderBy(SortUtil::createOrderBy($sort));
+        }
+
+        return $this;
     }
 
     protected function assemble()
