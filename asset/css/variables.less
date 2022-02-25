@@ -52,7 +52,7 @@
 
 @search-term-bg: @base-gray;
 @search-term-color: @default-text-color-inverted;
-@search-term-selected-bg: @base-gray-light;
+@search-term-selected-bg: @base-disabled;
 @search-term-invalid-bg: @state-critical;
 @search-term-invalid-color: @default-text-color-inverted;
 @search-term-disabled-bg: @base-disabled;
@@ -77,7 +77,7 @@
 
 @control-color: @base-primary-color;
 @control-hover-bg: @base-gray-lighter;
-@control-disabled-color: @base-gray-light;
+@control-disabled-color: @base-disabled;
 
 @suggestions-bg: @default-bg;
 @suggestions-color: @default-text-color-light;
@@ -95,19 +95,18 @@
 @iplWebLightRules: {
   :root {
     --base-gray: #819398;
-    --base-gray-semilight: #94a5a6;
     --base-gray-light: #d0d3da;
     --base-gray-lighter: #e8ecef;
 
-    --base-remove-bg: #ff5566;
+    --base-remove-bg: @state-critical;
 
     --default-text-color: #535353;
     --default-text-color-light: fade(#535353, 75%); // --default-text-color
     --default-text-color-inverted: #F5F9FA;
 
     --primary-button-color: var(--default-text-color-inverted);
-    --primary-button-bg: #00C3ED;
-    --primary-button-hover-bg: #0081a6;
+    --primary-button-bg: @primary-button-bg;
+    --primary-button-hover-bg: @primary-button-hover-bg;
 
     --searchbar-bg: #DEECF1;
     --searchbar-scrollbar-bg: var(--base-gray-light);
@@ -142,9 +141,9 @@
     --suggestions-color: var(--default-text-color-light);
     --suggestions-focus-bg: var(--primary-button-bg);
     --suggestions-focus-color: var(--default-text-color-inverted);
-    --suggestions-default-opt-bg: fade(#00C3ED, 10%); // --primary-button-bg
+    --suggestions-default-opt-bg: fade(@primary-button-bg, 10%);
     --suggestions-default-opt-color: var(--default-text-color-light);
-    --suggestions-hover-bg: fade(#00C3ED, 30%); // --primary-button-bg
+    --suggestions-hover-bg: fade(@primary-button-bg, 30%);
     --suggestions-border-color: var(--base-gray-light);
     --suggestions-separation-bg: var(--base-gray-lighter);
     --suggestions-failure-message-color: var(--default-text-color-light);
