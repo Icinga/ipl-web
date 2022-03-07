@@ -88,7 +88,7 @@ define(["BaseInput"], function (BaseInput) {
             }
 
             let addedTerms = this.exchangeTerm();
-            if (addedTerms.length) {
+            if (Object.keys(addedTerms).length) {
                 this.togglePlaceholder();
                 event.preventDefault();
                 this.autoSubmit(this.input, 'exchange', addedTerms);
