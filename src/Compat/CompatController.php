@@ -2,6 +2,7 @@
 
 namespace ipl\Web\Compat;
 
+use GuzzleHttp\Psr7\ServerRequest;
 use InvalidArgumentException;
 use Icinga\Web\Controller;
 use ipl\Html\BaseHtmlElement;
@@ -16,6 +17,7 @@ use ipl\Web\Layout\Footer;
 use ipl\Web\Url;
 use ipl\Web\Widget\Tabs;
 use LogicException;
+use Psr\Http\Message\ServerRequestInterface;
 
 class CompatController extends Controller
 {
@@ -69,6 +71,16 @@ class CompatController extends Controller
         ViewRenderer::inject();
 
         $this->view->document = $this->document;
+    }
+
+    /**
+     * Get the current server request
+     *
+     * @return ServerRequestInterface
+     */
+    public function getServerRequest()
+    {
+        return ServerRequest::fromGlobals();
     }
 
     /**
