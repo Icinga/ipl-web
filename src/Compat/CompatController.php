@@ -183,14 +183,12 @@ class CompatController extends Controller
     }
 
     /**
-     * Add an active tab with the given title and set it as the window's title too
+     * Set the given title as the window's title
      *
      * @param string $title
      * @param mixed  ...$args
      *
      * @return $this
-     *
-     * @throws InvalidArgumentException
      */
     protected function setTitle($title, ...$args)
     {
@@ -200,11 +198,26 @@ class CompatController extends Controller
 
         $this->view->title = $title;
 
-        $this->getTabs()->add(uniqid(), [
-            'active'    => true,
-            'label'     => $title,
+        return $this;
+    }
+
+    /**
+     * Add an active tab with the given title and set it as the window's title too
+     *
+     * @param string $title
+     * @param mixed  ...$args
+     *
+     * @return $this
+     */
+    protected function addTitleTab($title, ...$args)
+    {
+        $this->setTitle($title, ...$args);
+
+        $tabName = uniqid();
+        $this->getTabs()->add($tabName, [
+            'label'     => $this->view->title,
             'url'       => $this->getRequest()->getUrl()
-        ]);
+        ])->activate($tabName);
 
         return $this;
     }
