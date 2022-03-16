@@ -2,6 +2,7 @@
 
 namespace ipl\Web\Compat;
 
+use GuzzleHttp\Psr7\ServerRequest;
 use InvalidArgumentException;
 use Icinga\Web\Controller;
 use ipl\Html\BaseHtmlElement;
@@ -16,6 +17,7 @@ use ipl\Web\Layout\Footer;
 use ipl\Web\Url;
 use ipl\Web\Widget\Tabs;
 use LogicException;
+use Psr\Http\Message\ServerRequestInterface;
 
 class CompatController extends Controller
 {
@@ -69,6 +71,16 @@ class CompatController extends Controller
         ViewRenderer::inject();
 
         $this->view->document = $this->document;
+    }
+
+    /**
+     * Get the current server request
+     *
+     * @return ServerRequestInterface
+     */
+    public function getServerRequest()
+    {
+        return ServerRequest::fromGlobals();
     }
 
     /**
@@ -171,14 +183,12 @@ class CompatController extends Controller
     }
 
     /**
-     * Add an active tab with the given title and set it as the window's title too
+     * Set the given title as the window's title
      *
      * @param string $title
      * @param mixed  ...$args
      *
      * @return $this
-     *
-     * @throws InvalidArgumentException
      */
     protected function setTitle($title, ...$args)
     {
@@ -188,11 +198,26 @@ class CompatController extends Controller
 
         $this->view->title = $title;
 
-        $this->getTabs()->add(uniqid(), [
-            'active'    => true,
-            'label'     => $title,
+        return $this;
+    }
+
+    /**
+     * Add an active tab with the given title and set it as the window's title too
+     *
+     * @param string $title
+     * @param mixed  ...$args
+     *
+     * @return $this
+     */
+    protected function addTitleTab($title, ...$args)
+    {
+        $this->setTitle($title, ...$args);
+
+        $tabName = uniqid();
+        $this->getTabs()->add($tabName, [
+            'label'     => $this->view->title,
             'url'       => $this->getRequest()->getUrl()
-        ]);
+        ])->activate($tabName);
 
         return $this;
     }
