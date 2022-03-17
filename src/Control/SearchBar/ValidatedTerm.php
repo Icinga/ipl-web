@@ -131,13 +131,13 @@ abstract class ValidatedTerm
     /**
      * Set the validation message
      *
-     * @param string $message
+     * @param ?string $message
      *
      * @return $this
      */
     public function setMessage($message)
     {
-        $this->message = (string) $message;
+        $this->message = $message;
 
         return $this;
     }
