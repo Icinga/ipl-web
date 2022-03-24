@@ -17,7 +17,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: ['7.0', '7.1', '7.2', '7.3', '7.4', '8.0', '8.1']
+        php: ['7.2', '7.3', '7.4', '8.0', '8.1']
         os: ['ubuntu-latest']
 
     steps:
@@ -51,13 +51,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: ['7.0', '7.1', '7.2', '7.3', '7.4', '8.0', '8.1']
+        php: ['7.2', '7.3', '7.4', '8.0', '8.1']
         os: ['ubuntu-latest']
-        include:
-          - php: '7.0'
-            phpunit-version: 6.5
-          - php: '7.1'
-            phpunit-version: 7.5
 
     steps:
       - name: Checkout code base
