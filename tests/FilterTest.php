@@ -588,6 +588,19 @@ class FilterTest extends TestCase
             "Filter\Renderer doesn't draw parentheses for empty nested chains"
         );
 
+        $nestedEmptyAllWithConditionOnSameLevel = Filter::all(
+            Filter::equal('foo', 'bar'),
+            Filter::all(
+                Filter::all(),
+                Filter::equal('bar', 'foo')
+            )
+        );
+        $this->assertEquals(
+            '(foo=bar&(()&bar=foo))',
+            (new Renderer($nestedEmptyAllWithConditionOnSameLevel))->setStrict()->render(),
+            "Filter\Renderer doesn't draw parentheses for empty nested chains with non-empty siblings"
+        );
+
         $nestedEmptyAny = Filter::all(
             Filter::equal('foo', 'bar'),
             Filter::any()
@@ -596,6 +609,19 @@ class FilterTest extends TestCase
             '(foo=bar&(|))',
             (new Renderer($nestedEmptyAny))->setStrict()->render(),
             "Filter\Renderer doesn't draw group operator for empty nested OR chains"
+        );
+
+        $nestedEmptyAnyWithConditionOnSameLevel = Filter::all(
+            Filter::equal('foo', 'bar'),
+            Filter::all(
+                Filter::any(),
+                Filter::equal('bar', 'foo')
+            )
+        );
+        $this->assertEquals(
+            '(foo=bar&((|)&bar=foo))',
+            (new Renderer($nestedEmptyAnyWithConditionOnSameLevel))->setStrict()->render(),
+            "Filter\Renderer doesn't draw group operator for empty nested OR chains with non-empty siblings"
         );
     }
 
@@ -630,9 +656,19 @@ class FilterTest extends TestCase
             "Filter\Parser doesn't respect parentheses for empty nested chains"
         );
         $this->assertEquals(
+            '(foo=bar&(()&bar=foo))',
+            (new Renderer((new Parser('(foo=bar&(()&bar=foo))'))->setStrict()->parse()))->setStrict()->render(),
+            "Filter\Parser doesn't respect parentheses for empty nested chains with non-empty siblings"
+        );
+        $this->assertEquals(
             '(foo=bar&(|))',
             (new Renderer((new Parser('(foo=bar&(|))'))->setStrict()->parse()))->setStrict()->render(),
             "Filter\Parser doesn't respect group operator for empty nested OR chains"
+        );
+        $this->assertEquals(
+            '(foo=bar&((|)&bar=foo))',
+            (new Renderer((new Parser('(foo=bar&((|)&bar=foo))'))->setStrict()->parse()))->setStrict()->render(),
+            "Filter\Parser doesn't respect group operator for empty nested OR chains with non-empty siblings"
         );
     }
 }
