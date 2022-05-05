@@ -240,9 +240,9 @@ define(["../notjQuery"], function ($) {
             }, 200);
         }
 
-        suggest(input, value, data = null) {
+        suggest(input, value, data = {}) {
             if (this.instrumented) {
-                if (data === null) {
+                if (! Object.keys(data).length) {
                     data = value;
                 }
 
@@ -256,6 +256,10 @@ define(["../notjQuery"], function ($) {
             $(input).focus({ scripted: true });
 
             if (this.instrumented) {
+                if (! Object.keys(data).length) {
+                    data = value;
+                }
+
                 $(input).trigger('completion', data);
             } else {
                 input.value = value;
