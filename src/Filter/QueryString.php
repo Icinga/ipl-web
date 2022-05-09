@@ -67,8 +67,10 @@ final class QueryString
     {
         switch (true) {
             case $rule instanceof Filter\Unequal:
+            case $rule instanceof Filter\Unlike:
                 return '!=';
             case $rule instanceof Filter\Equal:
+            case $rule instanceof Filter\Similar:
                 return '=';
             case $rule instanceof Filter\GreaterThan:
                 return '>';

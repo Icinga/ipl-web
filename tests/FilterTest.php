@@ -23,6 +23,33 @@ class FilterTest extends TestCase
         );
     }
 
+    public function testParserIdentifiesWildCardCharacters()
+    {
+        $this->assertInstanceOf(
+            Filter\Similar::class,
+            QueryString::parse("foo=ba*"),
+            "Filter\Parser doesn't parse conditions with wildcard character correctly"
+        );
+
+        $this->assertInstanceOf(
+            Filter\Equal::class,
+            QueryString::parse("foo=bar"),
+            "Filter\Parser doesn't parse conditions without wildcard character correctly"
+        );
+
+        $this->assertInstanceOf(
+            Filter\Unlike::class,
+            QueryString::parse("foo!=ba*"),
+            "Filter\Parser doesn't parse conditions with wildcard character correctly"
+        );
+
+        $this->assertInstanceOf(
+            Filter\Unequal::class,
+            QueryString::parse("foo!=bar"),
+            "Filter\Parser doesn't parse conditions without wildcard character correctly"
+        );
+    }
+
     public function testParserIdentifiesBooleanConditions()
     {
         $expectedTrue = QueryString::render(Filter::equal('active', true));
@@ -56,11 +83,25 @@ class FilterTest extends TestCase
             "Filter\Parser doesn't parse = comparisons correctly"
         );
 
+        $expectedSimilar = QueryString::render(Filter::similar('foo', 'ba*'));
+        $this->assertEquals(
+            $expectedSimilar,
+            QueryString::render(QueryString::parse($expectedSimilar)),
+            "Filter\Parser doesn't parse = comparisons correctly for wildcard characters"
+        );
+
         $expectedUnequal = QueryString::render(Filter::unequal('foo', 'bar'));
         $this->assertEquals(
             $expectedUnequal,
             QueryString::render(QueryString::parse($expectedUnequal)),
             "Filter\Parser doesn't parse != comparisons correctly"
+        );
+
+        $expectedUnlike = QueryString::render(Filter::unlike('foo', 'ba*'));
+        $this->assertEquals(
+            $expectedUnlike,
+            QueryString::render(QueryString::parse($expectedUnlike)),
+            "Filter\Parser doesn't parse != comparisons correctly for wildcard characters"
         );
 
         $expectedGreaterThan = QueryString::render(Filter::greaterThan('length', 3));
@@ -342,6 +383,8 @@ class FilterTest extends TestCase
             Filter::equal('active', false),
             /* testParserIdentifiesRelationalOperators */
             Filter::unequal('foo', 'bar'),
+            Filter::similar('foo', 'ba*'),
+            Filter::unlike('foo', 'ba*'),
             Filter::greaterThan('length', 3),
             Filter::lessThan('length', 3),
             Filter::greaterThanOrEqual('length', 3),
