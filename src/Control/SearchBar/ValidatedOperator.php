@@ -21,9 +21,11 @@ class ValidatedOperator extends ValidatedTerm
     public static function fromFilterCondition(Filter\Condition $condition)
     {
         switch (true) {
+            case $condition instanceof Filter\Unlike:
             case $condition instanceof Filter\Unequal:
                 $operator = '!=';
                 break;
+            case $condition instanceof Filter\Similar:
             case $condition instanceof Filter\Equal:
                 $operator = '=';
                 break;

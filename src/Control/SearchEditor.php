@@ -167,25 +167,45 @@ class SearchEditor extends Form
             }
 
             $newValue = $this->popKey($values, $identifier . '-value');
-            if ($newValue !== null && $rule->getValue() !== $newValue) {
+            $oldValue = $rule->getValue();
+            if ($newValue !== null && $oldValue !== $newValue) {
                 $rule->setValue($newValue);
             }
 
             $newOperator = $this->popKey($values, $identifier . '-operator');
             if ($newOperator !== null && QueryString::getRuleSymbol($rule) !== $newOperator) {
+                $value = $rule->getValue();
+                $column = $rule->getColumn();
                 switch ($newOperator) {
                     case '=':
-                        return Filter::equal($rule->getColumn(), $rule->getValue());
+                        if (is_string($value) && strpos($value, '*') !== false) {
+                            return Filter::similar($column, $value);
+                        }
+
+                        return Filter::equal($column, $value);
                     case '!=':
-                        return Filter::unequal($rule->getColumn(), $rule->getValue());
+                        if (is_string($value) && strpos($value, '*') !== false) {
+                            return Filter::unlike($column, $value);
+                        }
+
+                        return Filter::unequal($column, $value);
                     case '>':
-                        return Filter::greaterThan($rule->getColumn(), $rule->getValue());
+                        return Filter::greaterThan($column, $value);
                     case '>=':
-                        return Filter::greaterThanOrEqual($rule->getColumn(), $rule->getValue());
+                        return Filter::greaterThanOrEqual($column, $value);
                     case '<':
-                        return Filter::lessThan($rule->getColumn(), $rule->getValue());
+                        return Filter::lessThan($column, $value);
                     case '<=':
-                        return Filter::lessThanOrEqual($rule->getColumn(), $rule->getValue());
+                        return Filter::lessThanOrEqual($column, $value);
+                }
+            }
+
+            $value = $rule->getValue();
+            if ($oldValue !== $value && is_string($value) && strpos($value, '*') !== false) {
+                if (QueryString::getRuleSymbol($rule) === '=') {
+                    return Filter::similar($rule->getColumn(), $value);
+                } elseif (QueryString::getRuleSymbol($rule) === '!=') {
+                    return Filter::unlike($rule->getColumn(), $value);
                 }
             }
         } else {
