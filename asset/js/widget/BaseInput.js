@@ -54,8 +54,11 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
             $(this.termContainer).on('input', '[data-label]', this.onInput, this);
             $(this.termContainer).on('keydown', '[data-label]', this.onKeyDown, this);
             $(this.termContainer).on('keyup', '[data-label]', this.onKeyUp, this);
-            $(this.termContainer).on('focusout', '[data-index]', this.onTermFocusOut, this);
             $(this.termContainer).on('focusin', '[data-index]', this.onTermFocus, this);
+
+            if (! this.isReadOnlyMode()) {
+                $(this.termContainer).on('focusout', '[data-index]', this.onTermFocusOut, this);
+            }
 
             // Copy/Paste
             $(this.input).on('paste', this.onPaste, this);
@@ -310,6 +313,14 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
             return this.usedTerms.length > 0;
         }
 
+        isReadOnlyMode() {
+            return this.input.dataset.termMode === 'read-only';
+        }
+
+        isTermDirectionVertical() {
+            return this.input.dataset.termDirection === 'vertical';
+        }
+
         hasSyntaxError(input) {
             if (typeof input === 'undefined') {
                 input = this.input;
@@ -524,6 +535,10 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
         }
 
         togglePlaceholder() {
+            if (this.isTermDirectionVertical()) {
+                return;
+            }
+
             let placeholder = '';
 
             if (! this.hasTerms()) {
@@ -639,7 +654,10 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
                 toFocus = this.input;
             }
 
-            toFocus.selectionStart = toFocus.selectionEnd = 0;
+            if (! this.isReadOnlyMode()) {
+                toFocus.selectionStart = toFocus.selectionEnd = 0;
+            }
+
             $(toFocus).focus();
 
             return toFocus;
@@ -662,7 +680,10 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
                 toFocus = this.input;
             }
 
-            toFocus.selectionStart = toFocus.selectionEnd = toFocus.value.length;
+            if (! this.isReadOnlyMode()) {
+                toFocus.selectionStart = toFocus.selectionEnd = toFocus.value.length;
+            }
+
             $(toFocus).focus();
 
             return toFocus;
@@ -804,6 +825,10 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
                     this.autoSubmit(input, 'remove', { terms: removedTerms });
                     break;
                 case 'Delete':
+                    if (this.isTermDirectionVertical()) {
+                        break;
+                    }
+
                     removedTerms = this.clearSelectedTerms();
 
                     if (termIndex >= 0 && ! input.value) {
@@ -834,13 +859,31 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
                     }
                     break;
                 case 'ArrowLeft':
-                    if (input.selectionStart === 0 && this.hasTerms()) {
+                    if (! this.isTermDirectionVertical() && this.hasTerms()
+                        && (this.isReadOnlyMode() || input.selectionStart === 0)) {
                         event.preventDefault();
                         this.moveFocusBackward();
                     }
                     break;
                 case 'ArrowRight':
-                    if (input.selectionStart === input.value.length && this.hasTerms()) {
+                    if (! this.isTermDirectionVertical() && this.hasTerms()
+                        && (this.isReadOnlyMode() || input.selectionStart === input.value.length)) {
+                        event.preventDefault();
+                        this.moveFocusForward();
+                    }
+                    break;
+                case 'ArrowUp':
+                    if (this.isTermDirectionVertical() && this.hasTerms()
+                        && (this.completer === null || ! this.completer.isBeingCompleted(input))
+                    ) {
+                        event.preventDefault();
+                        this.moveFocusBackward();
+                    }
+                    break;
+                case 'ArrowDown':
+                    if (this.isTermDirectionVertical() && this.hasTerms()
+                        && (this.completer === null || ! this.completer.isBeingCompleted(input))
+                    ) {
                         event.preventDefault();
                         this.moveFocusForward();
                     }
@@ -924,6 +967,10 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
             }
 
             this.deselectTerms();
+
+            if (this.isReadOnlyMode()) {
+                return;
+            }
 
             if (! this.hasSyntaxError(input) && (
                 this.completer === null || ! this.completer.isBeingCompleted(input, false)
