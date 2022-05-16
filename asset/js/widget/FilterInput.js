@@ -321,6 +321,14 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
             this.identifyLastRenderedTerm();
         }
 
+        isReadOnlyMode() {
+            return false;
+        }
+
+        isTermDirectionVertical() {
+            return false;
+        }
+
         identifyLastRenderedTerm() {
             let lastTerm = Array.from(this.termContainer.querySelectorAll('[data-index]')).pop();
             if (! lastTerm) {
