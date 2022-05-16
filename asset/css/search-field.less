@@ -1,0 +1,81 @@
+form.search-field {
+  .search-icon {
+    padding: 0.5em 0 0.5em 0.5em;
+    background-color: @searchbar-bg;
+    .rounded-corners(0.25em);
+    border-top-right-radius: unset;
+    border-bottom-right-radius: unset;
+    min-height: 26px;
+    margin-bottom: 0.25em;
+  }
+
+  input.search-field {
+    .rounded-corners(0.25em);
+    .appearance(none);
+    padding: 0.5em;
+    margin-bottom: 0.5em;
+    margin-right: 1em;
+    background-color: @searchbar-bg;
+    border: none;
+    border-top-left-radius: unset;
+    border-bottom-left-radius: unset;
+    background-image: unset;
+  }
+
+  input[type="submit"] {
+    .rounded-corners(3px);
+    margin-bottom: 0.5em;
+    max-width: 10em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    background-color: @primary-button-bg;
+    color: @primary-button-color;
+    border: 2px solid @primary-button-bg;
+    padding: ~"calc(0.5em - 2px) 1em";
+  }
+
+  #term-container {
+    margin-top: 1em;
+
+    label {
+      position: relative;
+
+      .trash-icon {
+        display: none;
+        position: absolute;
+        right: 9px;
+        top: 1px;
+      }
+
+      &:hover {
+        //badge for read-only mode
+        input[type="button"] {
+          background-color: @search-term-selected-bg;
+          color: @search-term-selected-color;
+        }
+
+        .trash-icon {
+          display: inline-block;
+          color: @cancel-button-color;
+          background-color: @search-term-selected-bg;
+        }
+      }
+
+      //badge
+      input[type="button"], input[type="text"] {
+        .rounded-corners(0.25em);
+        border: none;
+        padding: 0.5em;
+        margin-right: 0.5em;
+        margin-bottom: 0.5em;
+        max-width: 10em;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        background-color: @search-term-bg;
+        color: @search-term-color;
+      }
+    }
+  }
+}
