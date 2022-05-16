@@ -13,6 +13,10 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
         bind() {
             super.bind();
 
+            if (this.isReadOnlyMode()) {
+                $(this.termContainer).on('click', '[data-index]', this.onTermClick, this);
+            }
+
             // TODO: Compatibility only. Remove as soon as possible once Web 2.12 (?) is out.
             //       Or upon any other update which lets Web trigger a real submit upon auto submit.
             $(this.input.form).on('change', 'select.autosubmit', this.onSubmit, this);
@@ -88,6 +92,32 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
             data.exclude = this.usedTerms.map(termData => termData.search);
 
             super.complete(input, data);
+        }
+
+        renderTerm(termData, termIndex) {
+            if (! this.isReadOnlyMode()) {
+                return super.renderTerm(termData, termIndex);
+            }
+
+            let label = $.render(
+                '<label><input type="button"><i class="fa fa-trash trash-icon"></i></label>'
+            );
+
+            if (termData.class) {
+                label.classList.add(termData.class);
+            }
+
+            if (termData.title) {
+                label.title = termData.title;
+            }
+
+            label.dataset.label = termData.label;
+            label.dataset.search = termData.search;
+            label.dataset.index = termIndex;
+
+            label.firstChild.value = termData.label;
+
+            return label;
         }
 
         /**
@@ -195,6 +225,12 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
             }
 
             super.onButtonClick(event);
+        }
+
+        onTermClick(event) {
+            let termIndex = event.target.parentNode.dataset.index;
+            this.removeTerm(event.target.parentNode);
+            this.moveFocusForward(termIndex - 1);
         }
     }
 
