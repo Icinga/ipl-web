@@ -555,6 +555,9 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
 
             if (from === -1) {
                 toFocus = inputs.shift();
+                if (typeof toFocus === 'undefined') {
+                    toFocus = this.input;
+                }
             } else if (from + 1 < inputs.length) {
                 toFocus = inputs[from + 1];
             } else {
