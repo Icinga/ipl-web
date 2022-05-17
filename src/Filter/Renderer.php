@@ -173,7 +173,7 @@ class Renderer
 
         if (is_array($value)) {
             $this->string .= '(' . join('|', array_map('rawurlencode', $value)) . ')';
-        } else {
+        } elseif ($value !== null) {
             $this->string .= rawurlencode($value);
         }
     }
