@@ -286,7 +286,7 @@ class SearchBar extends Form
             'id'            => $dataInputId,
             'validators'    => [
                 new CallbackValidator(function ($data, CallbackValidator $_) use ($termContainer, $searchInputId) {
-                    $data = json_decode($data, true);
+                    $data = $data ? json_decode($data, true) : null;
                     if (empty($data)) {
                         return true;
                     }
