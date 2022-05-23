@@ -3,6 +3,7 @@
 namespace ipl\Web\Compat;
 
 use GuzzleHttp\Psr7\ServerRequest;
+use Icinga\Application\Icinga;
 use ipl\Orm\Query;
 use ipl\Stdlib\Seq;
 use ipl\Web\Control\SearchBar;
@@ -43,10 +44,13 @@ trait SearchControls
      */
     public function createSearchBar(Query $query, array $preserveParams = null): SearchBar
     {
-        $requestUrl = Url::fromRequest();
-        $redirectUrl = $preserveParams !== null
-            ? $requestUrl->onlyWith($preserveParams)
-            : (clone $requestUrl)->setParams([]);
+        $preserveParams = array_merge(
+            Icinga::app()->getFrameworkParams(),
+            $preserveParams ?? []
+        );
+
+        $requestUrl = Url::fromPath($this->getRequest()->getUrl()->getRelativeUrl());
+        $redirectUrl = $requestUrl->onlyWith($preserveParams);
 
         $filter = QueryString::fromString((string) $this->params)
             ->on(QueryString::ON_CONDITION, function (Filter\Condition $condition) use ($query) {
@@ -132,10 +136,15 @@ trait SearchControls
      */
     public function createSearchEditor(Query $query, array $preserveParams = null): SearchEditor
     {
-        $requestUrl = Url::fromRequest();
+        $requestUrl = Url::fromPath($this->getRequest()->getUrl()->getRelativeUrl());
         $moduleName = $this->getRequest()->getModuleName();
         $controllerName = $this->getRequest()->getControllerName();
         $redirectUrl = Url::fromPath("$moduleName/$controllerName");
+
+        $preserveParams = array_merge(
+            Icinga::app()->getFrameworkParams(),
+            $preserveParams ?? []
+        );
         if (! empty($preserveParams)) {
             $redirectUrl->setParams($requestUrl->onlyWith($preserveParams)->getParams());
         }

@@ -261,6 +261,10 @@ class CompatController extends Controller
             return;
         }
 
+        if ($redirectUrl !== null && ($dashletId = $this->Window()->getDashletId()) !== null) {
+            $redirectUrl->setParam('_dashlet', bin2hex($dashletId));
+        }
+
         if ($this->tabs->count() > 0) {
             if ($redirectUrl !== null) {
                 $this->tabs->setRefreshUrl($redirectUrl);
