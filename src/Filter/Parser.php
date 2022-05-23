@@ -517,7 +517,7 @@ class Parser
         switch ($operator) {
             case '=':
                 if (is_string($value) && strpos($value, "*") !== false) {
-                    return Filter::similar($column, $value);
+                    return Filter::like($column, $value);
                 }
 
                 return Filter::equal($column, $value);

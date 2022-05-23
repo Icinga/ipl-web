@@ -156,7 +156,7 @@ class Renderer
                 $this->string .= '!=';
                 break;
             case $condition instanceof Filter\Equal:
-            case $condition instanceof Filter\Similar:
+            case $condition instanceof Filter\Like:
                 $this->string .= '=';
                 break;
             case $condition instanceof Filter\GreaterThan:

@@ -26,7 +26,7 @@ class FilterTest extends TestCase
     public function testParserIdentifiesWildCardCharacters()
     {
         $this->assertInstanceOf(
-            Filter\Similar::class,
+            Filter\Like::class,
             QueryString::parse("foo=ba*"),
             "Filter\Parser doesn't parse conditions with wildcard character correctly"
         );
@@ -83,10 +83,10 @@ class FilterTest extends TestCase
             "Filter\Parser doesn't parse = comparisons correctly"
         );
 
-        $expectedSimilar = QueryString::render(Filter::similar('foo', 'ba*'));
+        $expectedLike = QueryString::render(Filter::like('foo', 'ba*'));
         $this->assertEquals(
-            $expectedSimilar,
-            QueryString::render(QueryString::parse($expectedSimilar)),
+            $expectedLike,
+            QueryString::render(QueryString::parse($expectedLike)),
             "Filter\Parser doesn't parse = comparisons correctly for wildcard characters"
         );
 
@@ -383,7 +383,7 @@ class FilterTest extends TestCase
             Filter::equal('active', false),
             /* testParserIdentifiesRelationalOperators */
             Filter::unequal('foo', 'bar'),
-            Filter::similar('foo', 'ba*'),
+            Filter::like('foo', 'ba*'),
             Filter::unlike('foo', 'ba*'),
             Filter::greaterThan('length', 3),
             Filter::lessThan('length', 3),
