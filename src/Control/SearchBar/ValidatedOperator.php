@@ -25,7 +25,7 @@ class ValidatedOperator extends ValidatedTerm
             case $condition instanceof Filter\Unequal:
                 $operator = '!=';
                 break;
-            case $condition instanceof Filter\Similar:
+            case $condition instanceof Filter\Like:
             case $condition instanceof Filter\Equal:
                 $operator = '=';
                 break;

@@ -179,7 +179,7 @@ class SearchEditor extends Form
                 switch ($newOperator) {
                     case '=':
                         if (is_string($value) && strpos($value, '*') !== false) {
-                            return Filter::similar($column, $value);
+                            return Filter::like($column, $value);
                         }
 
                         return Filter::equal($column, $value);
@@ -203,7 +203,7 @@ class SearchEditor extends Form
             $value = $rule->getValue();
             if ($oldValue !== $value && is_string($value) && strpos($value, '*') !== false) {
                 if (QueryString::getRuleSymbol($rule) === '=') {
-                    return Filter::similar($rule->getColumn(), $value);
+                    return Filter::like($rule->getColumn(), $value);
                 } elseif (QueryString::getRuleSymbol($rule) === '!=') {
                     return Filter::unlike($rule->getColumn(), $value);
                 }

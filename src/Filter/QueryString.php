@@ -70,7 +70,7 @@ final class QueryString
             case $rule instanceof Filter\Unlike:
                 return '!=';
             case $rule instanceof Filter\Equal:
-            case $rule instanceof Filter\Similar:
+            case $rule instanceof Filter\Like:
                 return '=';
             case $rule instanceof Filter\GreaterThan:
                 return '>';
