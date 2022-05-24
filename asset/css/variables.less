@@ -103,6 +103,7 @@
     --base-gray: #819398;
     --base-gray-light: #d0d3da;
     --base-gray-lighter: #e8ecef;
+    --base-disabled: var(--base-gray-light);
 
     --base-remove-bg: @state-critical;
 
@@ -119,11 +120,11 @@
 
     --search-term-bg: var(--base-gray-light);
     --search-term-color: var(--default-text-color);
-    --search-term-selected-bg: var(--base-gray-light);
+    --search-term-selected-bg: var(--base-disabled);
     --search-term-invalid-bg: var(--base-remove-bg);
     --search-term-invalid-color: var(--default-text-color-inverted);
     --search-term-disabled-bg: var(--base-gray-light);
-    --search-term-selected-color: var(--base-gray-light);
+    --search-term-selected-color: var(--base-gray);
     --search-term-highlighted-bg: var(--primary-button-bg);
     --search-term-highlighted-color: var(--default-text-color-inverted);
 
