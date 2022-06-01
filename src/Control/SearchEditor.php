@@ -461,9 +461,11 @@ class SearchEditor extends Form
             'autocomplete' => 'off',
             'data-type' => 'column',
             'data-enrichment-type' => 'completion',
-            'data-term-suggestions' => '#search-editor-suggestions',
-            'data-suggest-url' => $this->suggestionUrl
+            'data-term-suggestions' => '#search-editor-suggestions'
         ]);
+        $columnInput->getAttributes()->registerAttributeCallback('data-suggest-url', function () {
+            return (string) $this->getSuggestionUrl();
+        });
         (new CallbackDecorator(function ($element) {
             $errors = new HtmlElement('ul', Attributes::create(['class' => 'search-errors']));
 
@@ -534,9 +536,11 @@ class SearchEditor extends Form
             'autocomplete' => 'off',
             'data-type' => 'value',
             'data-enrichment-type' => 'completion',
-            'data-term-suggestions' => '#search-editor-suggestions',
-            'data-suggest-url' => $this->suggestionUrl
+            'data-term-suggestions' => '#search-editor-suggestions'
         ]);
+        $valueInput->getAttributes()->registerAttributeCallback('data-suggest-url', function () {
+            return (string) $this->getSuggestionUrl();
+        });
 
         $this->registerElement($columnInput);
         $this->registerElement($columnSearchInput);
