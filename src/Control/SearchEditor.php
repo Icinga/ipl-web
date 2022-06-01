@@ -64,6 +64,16 @@ class SearchEditor extends Form
     }
 
     /**
+     * Get the suggestion url
+     *
+     * @return ?Url
+     */
+    public function getSuggestionUrl(): ?Url
+    {
+        return $this->suggestionUrl;
+    }
+
+    /**
      * Set the suggestion url
      *
      * @param Url $url
