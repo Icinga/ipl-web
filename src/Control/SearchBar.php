@@ -464,8 +464,10 @@ class SearchBar extends Form
                 })
             ]
         ]);
-        if (($suggestionUrl = $this->getSuggestionUrl()) !== null) {
-            $filterInput->setAttribute('data-suggest-url', $suggestionUrl);
+        if ($this->getSuggestionUrl() !== null) {
+            $filterInput->getAttributes()->registerAttributeCallback('data-suggest-url', function () {
+                return (string) $this->getSuggestionUrl();
+            });
         }
 
         $this->registerElement($filterInput);
