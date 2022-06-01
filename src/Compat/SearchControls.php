@@ -37,16 +37,22 @@ trait SearchControls
      * Create and return the SearchBar
      *
      * @param Query $query The query being filtered
+     * @param Url $redirectUrl Url to redirect to upon success
      * @param array $preserveParams Query params to preserve when redirecting
      *
      * @return SearchBar
      */
-    public function createSearchBar(Query $query, array $preserveParams = null): SearchBar
+    public function createSearchBar(Query $query, ...$params): SearchBar
     {
         $requestUrl = Url::fromRequest();
-        $redirectUrl = $preserveParams !== null
-            ? $requestUrl->onlyWith($preserveParams)
-            : (clone $requestUrl)->setParams([]);
+        $preserveParams = array_pop($params) ?? [];
+        $redirectUrl = array_pop($params);
+
+        if ($redirectUrl !== null) {
+            $redirectUrl->addParams($requestUrl->onlyWith($preserveParams)->getParams()->toArray(false));
+        } else {
+            $redirectUrl = $requestUrl->onlyWith($preserveParams);
+        }
 
         $filter = QueryString::fromString((string) $this->params)
             ->on(QueryString::ON_CONDITION, function (Filter\Condition $condition) use ($query) {
@@ -56,6 +62,7 @@ trait SearchControls
 
         $searchBar = new SearchBar();
         $searchBar->setFilter($filter);
+        $searchBar->setRedirectUrl($redirectUrl);
         $searchBar->setAction($redirectUrl->getAbsoluteUrl());
         $searchBar->setIdProtector([$this->getRequest(), 'protectId']);
 
@@ -98,7 +105,9 @@ trait SearchControls
         $searchBar->on(SearchBar::ON_ADD, $columnValidator)
             ->on(SearchBar::ON_INSERT, $columnValidator)
             ->on(SearchBar::ON_SAVE, $columnValidator)
-            ->on(SearchBar::ON_SENT, function (SearchBar $form) use ($redirectUrl) {
+            ->on(SearchBar::ON_SENT, function (SearchBar $form) {
+                /** @var Url $redirectUrl */
+                $redirectUrl = $form->getRedirectUrl();
                 $existingParams = $redirectUrl->getParams();
                 $redirectUrl->setQueryString(QueryString::render($form->getFilter()));
                 foreach ($existingParams->toArray(false) as $name => $value) {
@@ -126,23 +135,29 @@ trait SearchControls
      * Create and return the SearchEditor
      *
      * @param Query $query The query being filtered
+     * @param Url $redirectUrl Url to redirect to upon success
      * @param array $preserveParams Query params to preserve when redirecting
      *
      * @return SearchEditor
      */
-    public function createSearchEditor(Query $query, array $preserveParams = null): SearchEditor
+    public function createSearchEditor(Query $query, ...$params): SearchEditor
     {
         $requestUrl = Url::fromRequest();
+        $preserveParams = array_pop($params) ?? [];
+        $redirectUrl = array_pop($params);
         $moduleName = $this->getRequest()->getModuleName();
         $controllerName = $this->getRequest()->getControllerName();
-        $redirectUrl = Url::fromPath("$moduleName/$controllerName");
-        if (! empty($preserveParams)) {
-            $redirectUrl->setParams($requestUrl->onlyWith($preserveParams)->getParams());
+
+        if ($redirectUrl !== null) {
+            $redirectUrl->addParams($requestUrl->onlyWith($preserveParams)->getParams()->toArray(false));
+        } else {
+            $redirectUrl = Url::fromPath("$moduleName/$controllerName");
         }
 
         $editor = new SearchEditor();
-        $editor->setQueryString((string) $this->params->without($preserveParams));
+        $editor->setRedirectUrl($redirectUrl);
         $editor->setAction($requestUrl->getAbsoluteUrl());
+        $editor->setQueryString((string) $this->params->without($preserveParams));
 
         if (method_exists($this, 'completeAction')) {
             $editor->setSuggestionUrl(Url::fromPath(
@@ -168,7 +183,9 @@ trait SearchControls
                     $condition->setColumn($path);
                 }
             }
-        })->on(SearchEditor::ON_SUCCESS, function (SearchEditor $form) use ($redirectUrl) {
+        })->on(SearchEditor::ON_SUCCESS, function (SearchEditor $form) {
+            /** @var Url $redirectUrl */
+            $redirectUrl = $form->getRedirectUrl();
             $existingParams = $redirectUrl->getParams();
             $redirectUrl->setQueryString(QueryString::render($form->getFilter()));
             foreach ($existingParams->toArray(false) as $name => $value) {

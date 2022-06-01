@@ -464,8 +464,10 @@ class SearchBar extends Form
                 })
             ]
         ]);
-        if (($suggestionUrl = $this->getSuggestionUrl()) !== null) {
-            $filterInput->setAttribute('data-suggest-url', $suggestionUrl);
+        if ($this->getSuggestionUrl() !== null) {
+            $filterInput->getAttributes()->registerAttributeCallback('data-suggest-url', function () {
+                return (string) $this->getSuggestionUrl();
+            });
         }
 
         $this->registerElement($filterInput);
@@ -474,15 +476,16 @@ class SearchBar extends Form
         $this->registerElement($submitButton);
 
         $editorOpener = null;
-        if (($editorUrl = $this->getEditorUrl()) !== null) {
+        if ($this->getEditorUrl() !== null) {
             $editorOpener = new HtmlElement(
                 'button',
                 Attributes::create([
                     'type'                      => 'button',
                     'class'                     => 'search-editor-opener control-button',
-                    'title'                     => t('Adjust Filter'),
-                    'data-search-editor-url'    => $editorUrl
-                ]),
+                    'title'                     => t('Adjust Filter')
+                ])->registerAttributeCallback('data-search-editor-url', function () {
+                    return (string) $this->getEditorUrl();
+                }),
                 new Icon('cog')
             );
         }
