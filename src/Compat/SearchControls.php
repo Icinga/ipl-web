@@ -152,6 +152,9 @@ trait SearchControls
             $redirectUrl->addParams($requestUrl->onlyWith($preserveParams)->getParams()->toArray(false));
         } else {
             $redirectUrl = Url::fromPath("$moduleName/$controllerName");
+            if (! empty($preserveParams)) {
+                $redirectUrl->setParams($requestUrl->onlyWith($preserveParams)->getParams());
+            }
         }
 
         $editor = new SearchEditor();
