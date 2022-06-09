@@ -3,6 +3,7 @@
 namespace ipl\Web\Compat;
 
 use GuzzleHttp\Psr7\ServerRequest;
+use ipl\Orm\Exception\InvalidRelationException;
 use ipl\Orm\Query;
 use ipl\Stdlib\Seq;
 use ipl\Web\Control\SearchBar;
@@ -14,13 +15,13 @@ use ipl\Stdlib\Filter;
 trait SearchControls
 {
     /**
-     * Fetch meta-data for the given query
+     * Fetch available filter columns for the given query
      *
      * @param Query $query
      *
-     * @return array
+     * @return array<string, string> Keys are column paths, values are labels
      */
-    abstract public function fetchMetaData(Query $query);
+    abstract public function fetchFilterColumns(Query $query);
 
     /**
      * Get whether {@see SearchControls::createSearchBar()} and {@see SearchControls::createSearchEditor()}
@@ -82,23 +83,31 @@ trait SearchControls
             )->setParams($redirectUrl->getParams()));
         }
 
-        $metaData = $this->fetchMetaData($query);
-        $columnValidator = function (SearchBar\ValidatedColumn $column) use ($query, $metaData) {
-            $columnPath = $column->getSearchValue();
-            if (strpos($columnPath, '.') === false) {
-                $columnPath = $query->getResolver()->qualifyPath($columnPath, $query->getModel()->getTableName());
+        $filterColumns = $this->fetchFilterColumns($query);
+        $columnValidator = function (SearchBar\ValidatedColumn $column) use ($query, $filterColumns) {
+            $searchPath = $column->getSearchValue();
+            if (strpos($searchPath, '.') === false) {
+                $column->setSearchValue($query->getResolver()->qualifyPath(
+                    $searchPath,
+                    $query->getModel()->getTableName()
+                ));
             }
 
-            if (! isset($metaData[$columnPath])) {
-                list($columnPath, $columnLabel) = Seq::find($metaData, $column->getSearchValue(), false);
+            try {
+                $definition = $query->getResolver()->getColumnDefinition($searchPath);
+            } catch (InvalidRelationException $_) {
+                list($columnPath, $columnLabel) = Seq::find($filterColumns, $searchPath, false);
                 if ($columnPath === null) {
                     $column->setMessage(t('Is not a valid column'));
+                    $column->setSearchValue($searchPath); // Resets the qualification made above
                 } else {
                     $column->setSearchValue($columnPath);
                     $column->setLabel($columnLabel);
                 }
-            } else {
-                $column->setLabel($metaData[$columnPath]);
+            }
+
+            if (isset($definition)) {
+                $column->setLabel($definition->getLabel());
             }
         };
 
@@ -175,15 +184,29 @@ trait SearchControls
             }
         });
 
-        $metaData = $this->fetchMetaData($query);
-        $editor->on(SearchEditor::ON_VALIDATE_COLUMN, function (Filter\Condition $condition) use ($query, $metaData) {
-            $column = $condition->getColumn();
-            if (! isset($metaData[$column])) {
-                $path = Seq::findKey($metaData, $condition->metaData()->get('columnLabel', $column), false);
-                if ($path === null) {
+        $filterColumns = $this->fetchFilterColumns($query);
+        $editor->on(SearchEditor::ON_VALIDATE_COLUMN, function (Filter\Condition $condition) use ($query, $filterColumns) {
+            $searchPath = $condition->getColumn();
+            if (strpos($searchPath, '.') === false) {
+                $condition->setColumn($query->getResolver()->qualifyPath(
+                    $searchPath,
+                    $query->getModel()->getTableName()
+                ));
+            }
+
+            try {
+                $query->getResolver()->getColumnDefinition($searchPath);
+            } catch (InvalidRelationException $_) {
+                $columnPath = Seq::findKey(
+                    $filterColumns,
+                    $condition->metaData()->get('columnLabel', $searchPath),
+                    false
+                );
+                if ($columnPath === null) {
+                    $condition->setColumn($searchPath);
                     throw new SearchBar\SearchException(t('Is not a valid column'));
                 } else {
-                    $condition->setColumn($path);
+                    $condition->setColumn($columnPath);
                 }
             }
         })->on(SearchEditor::ON_SUCCESS, function (SearchEditor $form) {
@@ -228,9 +251,14 @@ trait SearchControls
             $condition->setColumn($path);
         }
 
-        $metaData = $this->fetchMetaData($query);
-        if (isset($metaData[$path])) {
-            $condition->metaData()->set('columnLabel', $metaData[$path]);
+        try {
+            $label = $query->getResolver()->getColumnDefinition($path)->getLabel();
+        } catch (InvalidRelationException $_) {
+            $label = null;
+        }
+
+        if (isset($label)) {
+            $condition->metaData()->set('columnLabel', $label);
         }
     }
 }
