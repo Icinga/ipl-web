@@ -85,17 +85,21 @@ trait SearchControls
 
         $filterColumns = $this->fetchFilterColumns($query);
         $columnValidator = function (SearchBar\ValidatedColumn $column) use ($query, $filterColumns) {
-            $columnPath = $column->getSearchValue();
-            if (strpos($columnPath, '.') === false) {
-                $columnPath = $query->getResolver()->qualifyPath($columnPath, $query->getModel()->getTableName());
+            $searchPath = $column->getSearchValue();
+            if (strpos($searchPath, '.') === false) {
+                $column->setSearchValue($query->getResolver()->qualifyPath(
+                    $searchPath,
+                    $query->getModel()->getTableName()
+                ));
             }
 
             try {
-                $definition = $query->getResolver()->getColumnDefinition($columnPath);
+                $definition = $query->getResolver()->getColumnDefinition($searchPath);
             } catch (InvalidRelationException $_) {
-                list($columnPath, $columnLabel) = Seq::find($filterColumns, $column->getSearchValue(), false);
+                list($columnPath, $columnLabel) = Seq::find($filterColumns, $searchPath, false);
                 if ($columnPath === null) {
                     $column->setMessage(t('Is not a valid column'));
+                    $column->setSearchValue($searchPath); // Resets the qualification made above
                 } else {
                     $column->setSearchValue($columnPath);
                     $column->setLabel($columnLabel);
@@ -182,20 +186,27 @@ trait SearchControls
 
         $filterColumns = $this->fetchFilterColumns($query);
         $editor->on(SearchEditor::ON_VALIDATE_COLUMN, function (Filter\Condition $condition) use ($query, $filterColumns) {
-            $column = $condition->getColumn();
+            $searchPath = $condition->getColumn();
+            if (strpos($searchPath, '.') === false) {
+                $condition->setColumn($query->getResolver()->qualifyPath(
+                    $searchPath,
+                    $query->getModel()->getTableName()
+                ));
+            }
 
             try {
-                $query->getResolver()->getColumnDefinition($column);
+                $query->getResolver()->getColumnDefinition($searchPath);
             } catch (InvalidRelationException $_) {
-                $path = Seq::findKey(
+                $columnPath = Seq::findKey(
                     $filterColumns,
-                    $condition->metaData()->get('columnLabel', $column),
+                    $condition->metaData()->get('columnLabel', $searchPath),
                     false
                 );
-                if ($path === null) {
+                if ($columnPath === null) {
+                    $condition->setColumn($searchPath);
                     throw new SearchBar\SearchException(t('Is not a valid column'));
                 } else {
-                    $condition->setColumn($path);
+                    $condition->setColumn($columnPath);
                 }
             }
         })->on(SearchEditor::ON_SUCCESS, function (SearchEditor $form) {
