@@ -20,6 +20,6 @@
     "ext-json": "*",
     "ipl/html": ">=0.4.0",
     "ipl/stdlib": ">=0.11.0",
-    "fortawesome/font-awesome": "^5.13"
+    "fortawesome/font-awesome": "^6"
   }
 }
