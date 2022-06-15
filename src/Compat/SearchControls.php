@@ -185,7 +185,12 @@ trait SearchControls
         });
 
         $filterColumns = $this->fetchFilterColumns($query);
-        $editor->on(SearchEditor::ON_VALIDATE_COLUMN, function (Filter\Condition $condition) use ($query, $filterColumns) {
+        $editor->on(SearchEditor::ON_VALIDATE_COLUMN, function (
+            Filter\Condition $condition
+        ) use (
+            $query,
+            $filterColumns
+        ) {
             $searchPath = $condition->getColumn();
             if (strpos($searchPath, '.') === false) {
                 $condition->setColumn($query->getResolver()->qualifyPath(
