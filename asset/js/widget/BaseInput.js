@@ -159,6 +159,10 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
                     termData['class'] = label.className;
                 }
 
+                if (label.title) {
+                    termData['title'] = label.title;
+                }
+
                 this.registerTerm(this.decodeTerm(termData), label.dataset.index);
             });
         }
@@ -338,6 +342,12 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
             if (!! termData.search || termData.search === '') {
                 label.dataset.search = termData.search;
             }
+
+            if (!! termData.title) {
+                label.title = termData.title;
+            } else {
+                label.title = '';
+            }
         }
 
         termsToQueryString(terms) {
@@ -473,6 +483,10 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
 
             if (termData.class) {
                 label.classList.add(termData.class);
+            }
+
+            if (termData.title) {
+                label.title = termData.title;
             }
 
             label.dataset.label = termData.label;

@@ -236,7 +236,8 @@ abstract class Suggestions extends BaseHtmlElement
             $attributes = [
                 'type'          => 'button',
                 'tabindex'      => -1,
-                'data-search'   => $term
+                'data-search'   => $term,
+                'data-title'    => $term
             ];
             if ($this->type !== null) {
                 $attributes['data-type'] = $this->type;
