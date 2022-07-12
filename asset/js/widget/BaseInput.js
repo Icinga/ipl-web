@@ -319,7 +319,7 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
 
             // Only save if something has changed
             if (termData === false) {
-                return this.removeTerm(input.parentNode, updateDOM);
+                console.warn('[BaseInput] Input is empty, cannot save');
             } else if (this.usedTerms[termIndex].label !== termData.label) {
                 this.usedTerms[termIndex] = termData;
                 this.updateTermData(termData, input);
@@ -720,7 +720,11 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
                     break;
                 case 'Enter':
                     if (termIndex >= 0) {
-                        this.saveTerm(input, false);
+                        if (this.readPartialTerm(input)) {
+                            this.saveTerm(input, false);
+                        } else {
+                            this.removeTerm(input.parentNode, false);
+                        }
                     }
                     break;
                 case 'ArrowLeft':
@@ -781,15 +785,19 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
             }
 
             // skipSaveOnBlur is set if the input is about to be removed anyway.
-            // If saveTerm would remove the input as well, the other removal will fail
-            // without any chance to handle it. (Element.remove() blurs the input)
+            // If we remove the input as well, the other removal will fail without
+            // any chance to handle it. (Element.remove() blurs the input)
             if (typeof input.skipSaveOnBlur === 'undefined' || ! input.skipSaveOnBlur) {
                 setTimeout(() => {
                     if (this.completer === null || ! this.completer.isBeingCompleted(input)) {
-                        let savedTerm = this.saveTerm(input);
-                        if (savedTerm !== false) {
-                            let termIndex = Number(input.parentNode.dataset.index);
-                            this.autoSubmit(input, 'save', { [termIndex]: savedTerm });
+                        let termIndex = Number(input.parentNode.dataset.index);
+                        if (this.readPartialTerm(input)) {
+                            let savedTerm = this.saveTerm(input);
+                            if (savedTerm !== false) {
+                                this.autoSubmit(input, 'save', { [termIndex]: savedTerm });
+                            }
+                        } else {
+                            this.autoSubmit(input, 'remove', { [termIndex]: this.removeTerm(input.parentNode) });
                         }
                     }
                 }, 0);

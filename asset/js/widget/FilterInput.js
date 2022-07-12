@@ -1055,35 +1055,31 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
                     return;
                 case 'save':
                     let updateAt = changedIndices[0];
-                    if (typeof this.usedTerms[updateAt] !== 'undefined'
-                        && this.usedTerms[updateAt] === changedTerms[updateAt]
-                    ) {
-                        let valueAt = updateAt;
-                        switch (changedTerms[updateAt].type) {
-                            case 'column':
-                                return;
-                            case 'operator':
-                                valueAt++;
-                        }
-
-                        if (valueAt === updateAt) {
-                            if (changedIndices.length === 1) {
-                                changedTerms = {
-                                    ...{
-                                        [valueAt - 2]: this.usedTerms[valueAt - 2],
-                                        [valueAt - 1]: this.usedTerms[valueAt - 1]
-                                    },
-                                    ...changedTerms
-                                };
-                            }
-
-                            break;
-                        } else if (this.usedTerms.length > valueAt && this.usedTerms[valueAt].type === 'value') {
-                            break;
-                        }
-
-                        return;
+                    let valueAt = updateAt;
+                    switch (changedTerms[updateAt].type) {
+                        case 'column':
+                            return;
+                        case 'operator':
+                            valueAt++;
                     }
+
+                    if (valueAt === updateAt) {
+                        if (changedIndices.length === 1) {
+                            changedTerms = {
+                                ...{
+                                    [valueAt - 2]: this.usedTerms[valueAt - 2],
+                                    [valueAt - 1]: this.usedTerms[valueAt - 1]
+                                },
+                                ...changedTerms
+                            };
+                        }
+
+                        break;
+                    } else if (this.usedTerms.length > valueAt && this.usedTerms[valueAt].type === 'value') {
+                        break;
+                    }
+
+                    return;
                 case 'remove':
                     let firstTermAt = changedIndices.shift();
                     if (changedTerms[firstTermAt].type === 'column'
