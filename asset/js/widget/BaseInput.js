@@ -321,10 +321,11 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
             if (termData === false) {
                 console.warn('[BaseInput] Input is empty, cannot save');
             } else if (this.usedTerms[termIndex].label !== termData.label) {
+                let oldTermData = this.usedTerms[termIndex];
                 this.usedTerms[termIndex] = termData;
                 this.updateTermData(termData, input);
 
-                return termData;
+                return oldTermData;
             }
 
             return false;
@@ -503,6 +504,13 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
         autoSubmit(input, changeType, changedTerms) {
             if (this.shouldNotAutoSubmit()) {
                 return;
+            }
+
+            if (changeType === 'save') {
+                // Replace old term data with the new one, as required by the backend
+                for (const termIndex of Object.keys(changedTerms)) {
+                    changedTerms[termIndex] = this.usedTerms[termIndex];
+                }
             }
 
             this.dataInput.value = JSON.stringify({
@@ -792,9 +800,9 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
                     if (this.completer === null || ! this.completer.isBeingCompleted(input)) {
                         let termIndex = Number(input.parentNode.dataset.index);
                         if (this.readPartialTerm(input)) {
-                            let savedTerm = this.saveTerm(input);
-                            if (savedTerm !== false) {
-                                this.autoSubmit(input, 'save', { [termIndex]: savedTerm });
+                            let previousTerm = this.saveTerm(input);
+                            if (previousTerm !== false) {
+                                this.autoSubmit(input, 'save', { [termIndex]: previousTerm });
                             }
                         } else {
                             this.autoSubmit(input, 'remove', { [termIndex]: this.removeTerm(input.parentNode) });
