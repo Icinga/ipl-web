@@ -313,18 +313,19 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
             return this.termsToQueryString(this.usedTerms);
         }
 
-        saveTerm(input, updateDOM = true) {
+        saveTerm(input, updateDOM = true, force = false) {
             let termIndex = input.parentNode.dataset.index;
             let termData = this.readFullTerm(input, termIndex);
 
-            // Only save if something has changed
+            // Only save if something has changed, unless forced
             if (termData === false) {
-                return this.removeTerm(input.parentNode, updateDOM);
-            } else if (this.usedTerms[termIndex].label !== termData.label) {
+                console.warn('[BaseInput] Input is empty, cannot save');
+            } else if (force || this.usedTerms[termIndex].label !== termData.label) {
+                let oldTermData = this.usedTerms[termIndex];
                 this.usedTerms[termIndex] = termData;
                 this.updateTermData(termData, input);
 
-                return termData;
+                return oldTermData;
             }
 
             return false;
@@ -505,6 +506,13 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
                 return;
             }
 
+            if (changeType === 'save') {
+                // Replace old term data with the new one, as required by the backend
+                for (const termIndex of Object.keys(changedTerms)) {
+                    changedTerms[termIndex] = this.usedTerms[termIndex];
+                }
+            }
+
             this.dataInput.value = JSON.stringify({
                 type: changeType,
                 terms: changedTerms
@@ -616,7 +624,7 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
             this.writePartialTerm(termData.label, input);
 
             if (termIndex >= 0) {
-                this.autoSubmit(input, 'save', { [termIndex]: this.saveTerm(input) });
+                this.autoSubmit(input, 'save', { [termIndex]: this.saveTerm(input, false, true) });
             } else {
                 this.autoSubmit(input, 'exchange', this.exchangeTerm());
                 this.togglePlaceholder();
@@ -720,7 +728,11 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
                     break;
                 case 'Enter':
                     if (termIndex >= 0) {
-                        this.saveTerm(input, false);
+                        if (this.readPartialTerm(input)) {
+                            this.saveTerm(input, false);
+                        } else {
+                            this.removeTerm(input.parentNode, false);
+                        }
                     }
                     break;
                 case 'ArrowLeft':
@@ -781,15 +793,19 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
             }
 
             // skipSaveOnBlur is set if the input is about to be removed anyway.
-            // If saveTerm would remove the input as well, the other removal will fail
-            // without any chance to handle it. (Element.remove() blurs the input)
+            // If we remove the input as well, the other removal will fail without
+            // any chance to handle it. (Element.remove() blurs the input)
             if (typeof input.skipSaveOnBlur === 'undefined' || ! input.skipSaveOnBlur) {
                 setTimeout(() => {
                     if (this.completer === null || ! this.completer.isBeingCompleted(input)) {
-                        let savedTerm = this.saveTerm(input);
-                        if (savedTerm !== false) {
-                            let termIndex = Number(input.parentNode.dataset.index);
-                            this.autoSubmit(input, 'save', { [termIndex]: savedTerm });
+                        let termIndex = Number(input.parentNode.dataset.index);
+                        if (this.readPartialTerm(input)) {
+                            let previousTerm = this.saveTerm(input);
+                            if (previousTerm !== false) {
+                                this.autoSubmit(input, 'save', { [termIndex]: previousTerm });
+                            }
+                        } else {
+                            this.autoSubmit(input, 'remove', { [termIndex]: this.removeTerm(input.parentNode) });
                         }
                     }
                 }, 0);
