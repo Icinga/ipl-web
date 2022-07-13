@@ -355,12 +355,12 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
             lastTerm.classList.add('last-term');
         }
 
-        saveTerm(input, updateDOM = true) {
+        saveTerm(input, updateDOM = true, force = false) {
             if (! this.checkValidity(input)) {
                 return false;
             }
 
-            return super.saveTerm(input, updateDOM);
+            return super.saveTerm(input, updateDOM, force);
         }
 
         termsToQueryString(terms) {

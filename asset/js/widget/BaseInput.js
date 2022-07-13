@@ -313,14 +313,14 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
             return this.termsToQueryString(this.usedTerms);
         }
 
-        saveTerm(input, updateDOM = true) {
+        saveTerm(input, updateDOM = true, force = false) {
             let termIndex = input.parentNode.dataset.index;
             let termData = this.readFullTerm(input, termIndex);
 
-            // Only save if something has changed
+            // Only save if something has changed, unless forced
             if (termData === false) {
                 console.warn('[BaseInput] Input is empty, cannot save');
-            } else if (this.usedTerms[termIndex].label !== termData.label) {
+            } else if (force || this.usedTerms[termIndex].label !== termData.label) {
                 let oldTermData = this.usedTerms[termIndex];
                 this.usedTerms[termIndex] = termData;
                 this.updateTermData(termData, input);
@@ -624,7 +624,7 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
             this.writePartialTerm(termData.label, input);
 
             if (termIndex >= 0) {
-                this.autoSubmit(input, 'save', { [termIndex]: this.saveTerm(input) });
+                this.autoSubmit(input, 'save', { [termIndex]: this.saveTerm(input, false, true) });
             } else {
                 this.autoSubmit(input, 'exchange', this.exchangeTerm());
                 this.togglePlaceholder();
