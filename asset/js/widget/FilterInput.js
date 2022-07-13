@@ -1058,7 +1058,11 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
                     let valueAt = updateAt;
                     switch (changedTerms[updateAt].type) {
                         case 'column':
-                            return;
+                            if (changedTerms[updateAt].label !== this.usedTerms[updateAt].label) {
+                                return;
+                            }
+
+                            valueAt++;
                         case 'operator':
                             valueAt++;
                     }
