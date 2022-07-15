@@ -271,7 +271,7 @@ abstract class Suggestions extends BaseHtmlElement
             $button = (new ButtonElement(null, $attributes))
                 ->setAttribute('value', $label)
                 ->addHtml(Text::create($label));
-            if ($this->shouldShowRelationFor($term)) {
+            if ($this->type === 'column' && $this->shouldShowRelationFor($term)) {
                 $relationPath = substr($term, 0, strrpos($term, '.'));
                 $button->getAttributes()->add('class', 'has-details');
                 $button->addHtml(new HtmlElement(
