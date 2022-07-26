@@ -76,8 +76,13 @@
 .state-ball {
   .ball();
 
-  &.state-pending {
+  &.state-pending:not(.ball-size-l):not(.ball-size-xl) {
     .ball-solid(var(--state-pending, @state-pending));
+  }
+
+  &.state-pending.ball-size-l,
+  &.state-pending.ball-size-xl {
+    .ball-outline(var(--state-pending, @state-pending));
   }
 
   &.state-up:not(.ball-size-l):not(.ball-size-xl) {
