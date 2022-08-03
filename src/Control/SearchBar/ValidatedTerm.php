@@ -183,7 +183,7 @@ abstract class ValidatedTerm
             'search'     => $this->getSearchValue(),
             'label'      => $this->getLabel() ?: $this->getSearchValue(),
             'invalidMsg' => $this->getMessage(),
-            'pattern'    => $this->getPattern()
+            'pattern'    => $this->isValid() ? null : $this->getPattern()
         ];
     }
 

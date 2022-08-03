@@ -246,7 +246,7 @@ class SearchBar extends Form
                 $changes[$indices[0]] = array_merge($termsData[0], $column->toTermData());
             }
 
-            if ($operator && ! $operator->isValid()) {
+            if ($operator && (! $operator->isValid() || $operator->hasBeenChanged())) {
                 $changes[$indices[1]] = array_merge($termsData[1], $operator->toTermData());
             }
 
@@ -402,9 +402,11 @@ class SearchBar extends Form
                             $condition->setColumn($column->getSearchValue());
                             $condition->setValue($value->getSearchValue());
 
-                            if (! $column->isValid()) {
+                            if (! $column->isValid() || ! $operator->isValid() || ! $value->isValid()) {
                                 $invalid = true;
+                            }
 
+                            if (! $column->isValid() || $column->hasBeenChanged()) {
                                 if ($submitted) {
                                     $condition->metaData()->merge($column->toMetaData());
                                 } else {
@@ -412,9 +414,7 @@ class SearchBar extends Form
                                 }
                             }
 
-                            if (! $operator->isValid()) {
-                                $invalid = true;
-
+                            if (! $operator->isValid() || $operator->hasBeenChanged()) {
                                 if ($submitted) {
                                     $condition->metaData()->merge($operator->toMetaData());
                                 } else {
@@ -422,9 +422,7 @@ class SearchBar extends Form
                                 }
                             }
 
-                            if (! $value->isValid()) {
-                                $invalid = true;
-
+                            if (! $value->isValid() || $value->hasBeenChanged()) {
                                 if ($submitted) {
                                     $condition->metaData()->merge($value->toMetaData());
                                 } else {
