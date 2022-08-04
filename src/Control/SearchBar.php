@@ -229,15 +229,13 @@ class SearchBar extends Form
 
     private function validateCondition($eventType, $indices, $termsData, &$changes)
     {
-        // TODO: In case of the query string validation, all three are guaranteed to be set.
-        //       The Parser also provides defaults, why shouldn't we here?
         $column = ValidatedColumn::fromTermData($termsData[0]);
         $operator = isset($termsData[1])
             ? ValidatedOperator::fromTermData($termsData[1])
-            : null;
+            : new ValidatedOperator('=');
         $value = isset($termsData[2])
             ? ValidatedValue::fromTermData($termsData[2])
-            : null;
+            : new ValidatedValue(true);
 
         $this->emit($eventType, [$column, $operator, $value]);
 
