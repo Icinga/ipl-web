@@ -8,9 +8,9 @@ use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\FormattedString;
 use ipl\Html\FormElement\ButtonElement;
-use ipl\Html\FormElement\InputElement;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
+use ipl\Orm\Query;
 use ipl\Stdlib\Contract\Paginatable;
 use ipl\Stdlib\Filter;
 use ipl\Web\Control\SearchEditor;
@@ -77,6 +77,13 @@ abstract class Suggestions extends BaseHtmlElement
 
         return $this;
     }
+
+    /**
+     * Get the query that's used to fetch suggestions
+     *
+     * @return Query
+     */
+    abstract public function getQuery(): Query;
 
     /**
      * Return whether the relation should be shown for the given column
