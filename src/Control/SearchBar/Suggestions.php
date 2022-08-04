@@ -10,6 +10,7 @@ use ipl\Html\FormattedString;
 use ipl\Html\FormElement\ButtonElement;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
+use ipl\Orm\ColumnDefinition;
 use ipl\Orm\Query;
 use ipl\Stdlib\Contract\Paginatable;
 use ipl\Stdlib\Filter;
@@ -43,6 +44,9 @@ abstract class Suggestions extends BaseHtmlElement
     /** @var string */
     protected $failureMessage;
 
+    /** @var ColumnDefinition */
+    protected $columnDefinition;
+
     public function setSearchTerm($term)
     {
         $this->searchTerm = $term;
@@ -74,6 +78,13 @@ abstract class Suggestions extends BaseHtmlElement
     public function setFailureMessage($message)
     {
         $this->failureMessage = $message;
+
+        return $this;
+    }
+
+    public function setColumnDefinition(ColumnDefinition $definition): self
+    {
+        $this->columnDefinition = $definition;
 
         return $this;
     }
@@ -338,11 +349,13 @@ abstract class Suggestions extends BaseHtmlElement
                     break;
                 }
 
-                $searchFilter = QueryString::parse(
-                    isset($requestData['searchFilter'])
-                        ? $requestData['searchFilter']
-                        : ''
+                $this->setColumnDefinition(
+                    $this->getQuery()
+                        ->getResolver()
+                        ->getColumnDefinition($requestData['column'])
                 );
+
+                $searchFilter = QueryString::parse($requestData['searchFilter'] ?? '');
                 if ($searchFilter instanceof Filter\Condition) {
                     $searchFilter = Filter::all($searchFilter);
                 }
