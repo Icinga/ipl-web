@@ -367,7 +367,15 @@ abstract class Suggestions extends BaseHtmlElement
                 }
 
                 if ($search) {
-                    $this->setDefault(['search' => $label]);
+                    if ($requestData['operator'] !== '=' && $requestData['operator'] !== '!=') {
+                        // The transferred label usually contains automatically added wildcards.
+                        // The search term on the other hand may also have some, but then they
+                        // were explicitly added by the user. This ensures only the latter is
+                        // suggested as default.
+                        $this->setDefault(['search' => $search]);
+                    } else {
+                        $this->setDefault(['search' => $label]);
+                    }
                 }
 
                 break;
