@@ -236,8 +236,13 @@ class SearchBar extends Form
         $value = isset($termsData[2])
             ? ValidatedValue::fromTermData($termsData[2])
             : new ValidatedValue(true);
+        $condition = QueryString::createCondition(
+            $column->getSearchValue(),
+            $operator->getSearchValue(),
+            $value->getSearchValue()
+        );
 
-        $this->emit($eventType, [$column, $operator, $value]);
+        $this->emit($eventType, [$column, $operator, $value, $condition]);
 
         if ($eventType !== self::ON_REMOVE) {
             if (! $column->isValid() || $column->hasBeenChanged()) {
@@ -395,7 +400,9 @@ class SearchBar extends Form
                             $column = ValidatedColumn::fromFilterCondition($condition);
                             $operator = ValidatedOperator::fromFilterCondition($condition);
                             $value = ValidatedValue::fromFilterCondition($condition);
-                            $this->emit(self::ON_ADD, [$column, $operator, $value]);
+
+                            // $condition is cloned as validators shouldn't be able to change it directly
+                            $this->emit(self::ON_ADD, [$column, $operator, $value, clone $condition]);
 
                             $condition->setColumn($column->getSearchValue());
                             $condition->setValue($value->getSearchValue());
