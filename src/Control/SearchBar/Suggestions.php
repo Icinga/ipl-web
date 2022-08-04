@@ -247,9 +247,9 @@ abstract class Suggestions extends BaseHtmlElement
             $data = new LimitIterator(new IteratorIterator($this->data), 0, self::DEFAULT_LIMIT);
         }
 
-        foreach ($data as $term => $meta) {
+        foreach ($data as $term => $label) {
             if (is_int($term)) {
-                $term = $meta;
+                $term = $label;
             }
 
             $attributes = [
@@ -262,18 +262,7 @@ abstract class Suggestions extends BaseHtmlElement
                 $attributes['data-type'] = $this->type;
             }
 
-            if (is_array($meta)) {
-                foreach ($meta as $key => $value) {
-                    if ($key === 'label') {
-                        $label = $value;
-                    }
-
-                    $attributes['data-' . $key] = $value;
-                }
-            } else {
-                $label = $meta;
-                $attributes['data-label'] = $meta;
-            }
+            $attributes['data-label'] = $label;
 
             $button = (new ButtonElement(null, $attributes))
                 ->setAttribute('value', $label)
