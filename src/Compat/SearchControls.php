@@ -84,7 +84,7 @@ trait SearchControls
         }
 
         $filterColumns = $this->fetchFilterColumns($query);
-        $columnValidator = function (SearchBar\ValidatedColumn $column) use ($query, $filterColumns) {
+        $columnValidator = function ($column, $operator, $value, $condition) use ($query, $filterColumns) {
             $searchPath = $column->getSearchValue();
             if (strpos($searchPath, '.') === false) {
                 $column->setSearchValue($query->getResolver()->qualifyPath(
@@ -108,6 +108,12 @@ trait SearchControls
 
             if (isset($definition)) {
                 $column->setLabel($definition->getLabel());
+
+                if (! $definition->isValidValue($condition)) {
+                    $value->setMessage(t('Is not a valid value'));
+                } else {
+                    $value->setLabel($definition->getValueLabel($value->getSearchValue()));
+                }
             }
         };
 
@@ -257,13 +263,15 @@ trait SearchControls
         }
 
         try {
-            $label = $query->getResolver()->getColumnDefinition($path)->getLabel();
+            $definition = $query->getResolver()->getColumnDefinition($path);
         } catch (InvalidRelationException $_) {
-            $label = null;
+            // pass
         }
 
-        if (isset($label)) {
-            $condition->metaData()->set('columnLabel', $label);
+        if (isset($definition)) {
+            $condition->metaData()->set('columnLabel', $definition->getLabel());
+            $condition->metaData()->set('valueLabel', $definition->getValueLabel($condition->getValue()));
+            //$condition->metaData()->set('valueType', $definition->getType());
         }
     }
 }

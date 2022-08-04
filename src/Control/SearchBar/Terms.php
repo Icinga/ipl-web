@@ -153,6 +153,7 @@ class Terms extends BaseHtmlElement
         $operator = QueryString::getRuleSymbol($filter);
         $value = $filter->getValue();
         $columnLabel = $filter->metaData()->get('columnLabel', $column);
+        $valueLabel = $filter->metaData()->get('valueLabel', $value);
 
         $group = new HtmlElement(
             'div',
@@ -197,13 +198,17 @@ class Terms extends BaseHtmlElement
                     'class'  => 'value',
                     'type'   => 'value',
                     'search' => rawurlencode($value),
-                    'label'  => $value
+                    'label'  => $valueLabel
                 ];
                 if ($filter->metaData()->has('invalidValuePattern')) {
                     $valueData['pattern'] = $filter->metaData()->get('invalidValuePattern');
                     if ($filter->metaData()->has('invalidValueMessage')) {
                         $valueData['invalidMsg'] = $filter->metaData()->get('invalidValueMessage');
                     }
+                }
+
+                if ($filter->metaData()->has('valueType')) {
+                    $valueData['data-type'] = $filter->metaData()->get('valueType');
                 }
 
                 $this->assembleTerm($valueData, $group);
@@ -246,6 +251,11 @@ class Terms extends BaseHtmlElement
             if (isset($data['invalidMsg'])) {
                 $term->getFirst('input')->setAttribute('data-invalid-msg', $data['invalidMsg']);
             }
+        }
+
+        if (isset($data['data-type'])) {
+            $term->setAttribute('data-data-type', $data['data-type']);
+            $term->getFirst('input')->setAttribute('type', $data['data-type']);
         }
 
         $where->addHtml($term);

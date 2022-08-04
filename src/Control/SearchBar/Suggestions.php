@@ -273,6 +273,13 @@ abstract class Suggestions extends BaseHtmlElement
                 $attributes['data-type'] = $this->type;
             }
 
+            if ($this->type === 'value') {
+                $label = $this->columnDefinition->getValueLabel($term);
+                //$attributes['data-data-type'] = $this->columnDefinition->getType();
+                //$attributes['data-min-size'] = $this->columnDefinition->getMin();
+                //$attributes['data-max-size'] = $this->columnDefinition->getMax();
+            }
+
             $attributes['data-label'] = $label;
 
             $button = (new ButtonElement(null, $attributes))
