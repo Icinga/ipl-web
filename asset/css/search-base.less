@@ -42,6 +42,10 @@
     }
   }
 
+  .nothing-to-suggest {
+    color: var(--suggestions-color, @suggestions-color);
+  }
+
   .relation-path {
     padding: 0 .2em;
     background-color: var(--suggestions-relation-path-bg, @suggestions-relation-path-bg);
@@ -93,6 +97,10 @@
       em {
         margin-right: .5em;
       }
+    }
+
+    li.nothing-to-suggest {
+      padding: .5em 1em;
     }
   }
 
