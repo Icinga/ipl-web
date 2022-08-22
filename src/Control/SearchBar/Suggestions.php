@@ -21,6 +21,8 @@ use OuterIterator;
 use Psr\Http\Message\ServerRequestInterface;
 use Traversable;
 
+use function ipl\I18n\t;
+
 abstract class Suggestions extends BaseHtmlElement
 {
     const DEFAULT_LIMIT = 50;
@@ -307,6 +309,14 @@ abstract class Suggestions extends BaseHtmlElement
 
         if ($showDefault) {
             $this->assembleDefault();
+        }
+
+        if (! $this->searchTerm && $this->isEmpty()) {
+            $this->addHtml(new HtmlElement(
+                'li',
+                Attributes::create(['class' => 'nothing-to-suggest']),
+                new HtmlElement('em', null, Text::create(t('Nothing to suggest')))
+            ));
         }
     }
 
