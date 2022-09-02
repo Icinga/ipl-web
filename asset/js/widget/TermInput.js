@@ -6,7 +6,7 @@ define(["BaseInput"], function (BaseInput) {
         constructor(input) {
             super(input);
 
-            this.separator = ' ';
+            this.separator = this.input.dataset.termSeparator || ' ';
             this.ignoreSpaceUntil = null;
             this.ignoreSpaceSince = null;
         }
