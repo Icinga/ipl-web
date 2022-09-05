@@ -176,6 +176,12 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
         }
 
         onButtonClick(event) {
+            if (this.readPartialTerm(this.input).length === 0) {
+                super.onButtonClick(event);
+
+                return;
+            }
+
             if (! this.hasSyntaxError()) {
                 let addedTerms = this.exchangeTerm();
                 if (Object.keys(addedTerms).length) {
