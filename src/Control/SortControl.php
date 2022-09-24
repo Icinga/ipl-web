@@ -2,23 +2,25 @@
 
 namespace ipl\Web\Control;
 
+use ipl\Html\Form;
+use ipl\Html\FormDecorator\DivDecorator;
 use ipl\Html\FormElement\ButtonElement;
+use ipl\Html\HtmlElement;
 use ipl\Orm\Common\SortUtil;
 use ipl\Orm\Query;
 use ipl\Stdlib\Str;
-use ipl\Web\Compat\CompatForm;
 use ipl\Web\Url;
 use ipl\Web\Widget\Icon;
 
 /**
  * Allows to adjust the order of the items to display
  */
-class SortControl extends CompatForm
+class SortControl extends Form
 {
     /** @var string Default sort param */
     const DEFAULT_SORT_PARAM = 'sort';
 
-    protected $defaultAttributes = ['class' => 'icinga-form inline sort-control'];
+    protected $defaultAttributes = ['class' => 'sort-control'];
 
     /** @var string Name of the URL parameter which stores the sort column */
     protected $sortParam = self::DEFAULT_SORT_PARAM;
@@ -232,11 +234,12 @@ class SortControl extends CompatForm
             'label'   => 'Sort By',
             'options' => $columns,
             'value'   => $value
-        ])
-            ->getElement($this->getSortParam())
-            ->getWrapper()
-            ->getAttributes()
-            ->add('class', 'icinga-controls');
+        ]);
+        $select = $this->getElement($this->getSortParam());
+        (new DivDecorator())->decorate($select);
+
+        // Apply Icinga Web 2 style, for now
+        $select->prependWrapper(HtmlElement::create('div', ['class' => 'icinga-controls']));
 
         $toggleButton = new ButtonElement($this->getSortParam(), [
             'class' => 'control-button spinner',
