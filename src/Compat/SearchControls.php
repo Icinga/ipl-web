@@ -21,7 +21,15 @@ trait SearchControls
      *
      * @return array<string, string> Keys are column paths, values are labels
      */
-    abstract public function fetchFilterColumns(Query $query);
+    public function fetchFilterColumns(Query $query)
+    {
+        $columns = [];
+        foreach ($query->getResolver()->getColumnDefinitions($query->getModel()) as $name => $definition) {
+            $columns[$name] = $definition->getLabel();
+        }
+
+        return $columns;
+    }
 
     /**
      * Get whether {@see SearchControls::createSearchBar()} and {@see SearchControls::createSearchEditor()}
