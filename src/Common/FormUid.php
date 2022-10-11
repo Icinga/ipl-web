@@ -20,7 +20,7 @@ trait FormUid
     protected function createUidElement()
     {
         /** @var Form $this */
-        $element = $this->createElement('hidden', $this->uidElementName);
+        $element = $this->createElement('hidden', $this->uidElementName, ['ignore' => true]);
         $element->getAttributes()->registerAttributeCallback('value', function () {
             /** @var Form $this */
             return $this->getAttributes()->get('name')->getValue();
