@@ -3,6 +3,7 @@
 namespace ipl\Web\Compat;
 
 use GuzzleHttp\Psr7\ServerRequest;
+use ipl\Html\Html;
 use ipl\Orm\Exception\InvalidRelationException;
 use ipl\Orm\Query;
 use ipl\Stdlib\Seq;
@@ -74,6 +75,7 @@ trait SearchControls
         $searchBar->setRedirectUrl($redirectUrl);
         $searchBar->setAction($redirectUrl->getAbsoluteUrl());
         $searchBar->setIdProtector([$this->getRequest(), 'protectId']);
+        $searchBar->addWrapper(Html::tag('div', ['class' => 'search-controls']));
 
         $moduleName = $this->getRequest()->getModuleName();
         $controllerName = $this->getRequest()->getControllerName();
