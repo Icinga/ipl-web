@@ -516,7 +516,7 @@ class SearchBar extends Form
         // Render the editor container outside of this form. It will contain a form as well later on
         // loaded by XHR and HTML prohibits nested forms. It's style-wise also better...
         $doc = new HtmlDocument();
-        $this->setWrapper($doc);
+        $this->prependWrapper($doc);
         $doc->addHtml($this, ...($editorOpener ? [$editorOpener] : []));
     }
 }

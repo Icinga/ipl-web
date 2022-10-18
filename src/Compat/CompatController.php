@@ -132,6 +132,18 @@ class CompatController extends Controller
     {
         $this->controls->add($control);
 
+        if (
+            $control instanceof PaginationControl
+            || $control instanceof LimitControl
+            || $control instanceof SortControl
+            || $control instanceof SearchBar
+        ) {
+            $this->controls->getAttributes()
+                ->get('class')
+                ->removeValue('default-layout')
+                ->addValue('default-layout');
+        }
+
         return $this;
     }
 
