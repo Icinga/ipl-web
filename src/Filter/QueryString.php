@@ -66,11 +66,13 @@ final class QueryString
     public static function getRuleSymbol(Filter\Rule $rule)
     {
         switch (true) {
-            case $rule instanceof Filter\Unequal:
             case $rule instanceof Filter\Unlike:
+                return '!~';
+            case $rule instanceof Filter\Unequal:
                 return '!=';
-            case $rule instanceof Filter\Equal:
             case $rule instanceof Filter\Like:
+                return '~';
+            case $rule instanceof Filter\Equal:
                 return '=';
             case $rule instanceof Filter\GreaterThan:
                 return '>';
