@@ -45,7 +45,9 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
              * @type {{}[]}
              */
             this.relational_operators = [
-                { label: '=', search: '=', class: 'operator', type: 'operator', default: true },
+                { label: '~', search: '~', class: 'operator', type: 'operator', default: true },
+                { label: '!~', search: '!~', class: 'operator', type: 'operator' },
+                { label: '=', search: '=', class: 'operator', type: 'operator' },
                 { label: '!=', search: '!=', class: 'operator', type: 'operator' },
                 { label: '>', search: '>', class: 'operator', type: 'operator' },
                 { label: '<', search: '<', class: 'operator', type: 'operator' },
