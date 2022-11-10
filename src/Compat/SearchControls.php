@@ -99,7 +99,7 @@ trait SearchControls
             if (strpos($searchPath, '.') === false) {
                 $column->setSearchValue($query->getResolver()->qualifyPath(
                     $searchPath,
-                    $query->getModel()->getTableName()
+                    $query->getModel()->getTableAlias()
                 ));
             }
 
@@ -205,7 +205,7 @@ trait SearchControls
             if (strpos($searchPath, '.') === false) {
                 $condition->setColumn($query->getResolver()->qualifyPath(
                     $searchPath,
-                    $query->getModel()->getTableName()
+                    $query->getModel()->getTableAlias()
                 ));
             }
 
@@ -262,7 +262,7 @@ trait SearchControls
     {
         $path = $condition->getColumn();
         if (strpos($path, '.') === false) {
-            $path = $query->getResolver()->qualifyPath($path, $query->getModel()->getTableName());
+            $path = $query->getResolver()->qualifyPath($path, $query->getModel()->getTableAlias());
             $condition->setColumn($path);
         }
 
