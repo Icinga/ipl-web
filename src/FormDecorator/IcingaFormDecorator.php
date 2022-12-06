@@ -10,6 +10,7 @@ use ipl\Html\FormElement\CheckboxElement;
 use ipl\Html\FormElement\FieldsetElement;
 use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
+use ipl\Html\HtmlString;
 use ipl\Html\Text;
 use ipl\Web\Widget\Icon;
 
@@ -71,6 +72,12 @@ class IcingaFormDecorator extends DivDecorator
         $label = parent::assembleLabel();
         if ($label !== null && ! $this->formElement instanceof FieldsetElement) {
             $label->addWrapper(new HtmlElement('div', Attributes::create(['class' => 'control-label-group'])));
+        } else {
+            $label = new HtmlElement(
+                'div',
+                Attributes::create(['class' => 'control-label-group']),
+                HtmlString::create('&nbsp')
+            );
         }
 
         return $label;
