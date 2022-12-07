@@ -40,10 +40,6 @@
     padding: .5em;
     border: 1px solid @schedule-element-fields-border-color;
     .rounded-corners(.75em);
-
-    li {
-      margin-bottom: 1px;
-    }
   }
 
   .monthly, .ordinal {
@@ -58,6 +54,8 @@
   .schedule-element-fields {
     margin: 0;
     padding: 0;
+    .rounded-corners(.25em);
+    overflow: hidden;
 
     &.disabled { // When the "On the" radio button is checked
       pointer-events: none;
@@ -78,13 +76,16 @@
         cursor: pointer;
         text-align: center;
         padding: .8em 0 .8em;
-        border-right: 1px solid @schedule-element-fields-border-color;
         background: @schedule-element-fields-bg;
         color: @schedule-element-text-color;
 
         &:hover {
           background-color: @schedule-element-fields-hover-bg;
         }
+      }
+
+      &:not(:last-child) label {
+        border-right: 1px solid @schedule-element-fields-border-color;
       }
 
       input[type="radio"]:focus + label,
@@ -110,29 +111,45 @@
     }
   }
 
-  .weekly-fields .schedule-element-fields, .monthly .schedule-element-fields {
-    li:nth-child(7n + 1) label, li:first-of-type label {
-      border-radius: @input-border-radius 0 0 @input-border-radius;
+  .monthly {
+    li label {
+      border-top: 1px solid @schedule-element-fields-border-color;
     }
 
-    li:nth-child(7n) label, li:last-of-type label {
+    li:first-child,
+    li:nth-child(2),
+    li:nth-child(3),
+    li:nth-child(4),
+    li:nth-child(5),
+    li:nth-child(6),
+    li:nth-child(7) {
+      label {
+        border-top: none;
+      }
+    }
+
+    li:nth-child(7n) label {
       border-right: none;
-      border-radius: 0 @input-border-radius @input-border-radius 0;
     }
   }
 
-  .annually .schedule-element-fields {
-    li:nth-child(4n + 1) label {
-      border-radius: @input-border-radius 0 0 @input-border-radius;
+  .annually {
+    li {
+      width: 25%; // 100% / 4 elements
+    }
+
+    li label {
+      .rounded-corners(.25em);
+      margin-right: 1px;
+      margin-bottom: 1px;
+    }
+
+    .schedule-element-fields li label {
+      border-right: none;
     }
 
     li:nth-child(4n) label {
-      border-right: none;
-      border-radius: 0 @input-border-radius @input-border-radius 0;
+      margin-right: 0;
     }
-  }
-
-  .annually li {
-    width: 25%; // 100% / 4 elements
   }
 }
