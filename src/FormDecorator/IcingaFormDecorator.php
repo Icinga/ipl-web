@@ -7,6 +7,7 @@ use ipl\Html\Attributes;
 use ipl\Html\Contract\FormSubmitElement;
 use ipl\Html\FormDecorator\DivDecorator;
 use ipl\Html\FormElement\CheckboxElement;
+use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\Web\Widget\Icon;
@@ -45,14 +46,23 @@ class IcingaFormDecorator extends DivDecorator
             $classes[] = 'disabled';
         }
 
-        return [
+        $document = new HtmlDocument();
+        $document->addHtml(
             $checkbox,
-            new HtmlElement('label', Attributes::create([
-                'class'         => $classes,
-                'aria-hidden'   => 'true',
-                'for'           => $checkbox->getAttributes()->get('id')->getValue()
-            ]), new HtmlElement('span', Attributes::create(['class' => 'toggle-slider'])))
-        ];
+            new HtmlElement(
+                'label',
+                Attributes::create([
+                    'class'       => $classes,
+                    'aria-hidden' => 'true',
+                    'for'         => $checkbox->getAttributes()->get('id')->getValue()
+                ]),
+                new HtmlElement('span', Attributes::create(['class' => 'toggle-slider']))
+            )
+        );
+
+        $checkbox->prependWrapper($document);
+
+        return $checkbox;
     }
 
     protected function assembleLabel()
