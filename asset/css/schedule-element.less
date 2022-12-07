@@ -1,6 +1,7 @@
 // Schedule form element
 
 .schedule-element {
+  @input-border-radius: .25em;
 
   fieldset[name="schedule-element[weekly-fields]"] {
     display: flex;
@@ -36,13 +37,22 @@
   }
 
   .monthly, .annually, .ordinal {
-    padding: .4em;
-    border: .1em solid @schedule-element-fields-border-color;
-    .rounded-corners(.6em);
+    padding: .5em;
+    border: 1px solid @schedule-element-fields-border-color;
+    .rounded-corners(.75em);
 
     li {
       margin-bottom: 1px;
     }
+  }
+
+  .monthly, .ordinal {
+    margin-left: -.5em;
+  }
+
+  .annually {
+    margin-left: 13.5em; /* 14em - .5em */
+    margin-right: 1em;
   }
 
   .schedule-element-fields {
@@ -68,7 +78,7 @@
         cursor: pointer;
         text-align: center;
         padding: .8em 0 .8em;
-        border-right: .1em solid @schedule-element-fields-border-color;
+        border-right: 1px solid @schedule-element-fields-border-color;
         background: @schedule-element-fields-bg;
         color: @schedule-element-text-color;
 
@@ -102,23 +112,23 @@
 
   .weekly-fields .schedule-element-fields, .monthly .schedule-element-fields {
     li:nth-child(7n + 1) label, li:first-of-type label {
-      border-radius: .4em 0 0 .4em;
+      border-radius: @input-border-radius 0 0 @input-border-radius;
     }
 
     li:nth-child(7n) label, li:last-of-type label {
       border-right: none;
-      border-radius: 0 .4em .4em 0;
+      border-radius: 0 @input-border-radius @input-border-radius 0;
     }
   }
 
   .annually .schedule-element-fields {
     li:nth-child(4n + 1) label {
-      border-radius: .4em 0 0 .4em;
+      border-radius: @input-border-radius 0 0 @input-border-radius;
     }
 
     li:nth-child(4n) label {
       border-right: none;
-      border-radius: 0 .4em .4em 0;
+      border-radius: 0 @input-border-radius @input-border-radius 0;
     }
   }
 
