@@ -36,19 +36,14 @@
     margin: 0 1em;
   }
 
-  .monthly, .annually, .ordinal {
+  .monthly, .ordinal:not(.ordinal-annually) {
     padding: .5em;
     border: 1px solid @schedule-element-fields-border-color;
     .rounded-corners(.75em);
   }
 
-  .monthly, .ordinal {
+  .monthly, .ordinal:not(.annually) {
     margin-left: -.5em;
-  }
-
-  .annually {
-    margin-left: 13.5em; /* 14em - .5em */
-    margin-right: 1em;
   }
 
   .schedule-element-fields {
@@ -150,6 +145,14 @@
 
     li:nth-child(4n) label {
       margin-right: 0;
+    }
+
+    .toggle-slider-controls {
+      display: flex;
+      column-gap: 1em;
+      align-items: center;
+      margin-top: 1em;
+      margin-bottom: -.6em;
     }
   }
 }
