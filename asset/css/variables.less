@@ -105,11 +105,16 @@
 @schedule-element-fields-bg: @default-input-bg;
 @schedule-element-default-text-color: @default-bg;
 @schedule-element-text-color: @base-primary-color;
+
 @schedule-element-fields-selected-bg: @base-primary-color;
-@schedule-element-fields-hover-bg: fade(@schedule-element-text-color, 5%);
+@schedule-element-fields-hover-bg: #406B90;
+@schedule-element-fields-selected-hover-bg: #00A5CF;
+
 @schedule-element-fields-border-color: @base-gray-light;
+
+@schedule-element-fields-disabled-color: @base-gray;
 @schedule-element-fields-disabled-bg: @base-gray-lighter;
-@schedule-element-fields-focus-bg: @base-primary-dark;
+@schedule-element-fields-disabled-selected-bg: @base-gray-light;
 
 @iplWebLightRules: {
   :root {
@@ -177,6 +182,10 @@
 
     --schedule-element-fields-bg: var(--default-input-bg);
     --schedule-element-default-text-color: #F5F9FA;
+
+    --schedule-element-fields-hover-bg: #C7E8F0;
+    --schedule-element-fields-selected-hover-bg: #6FD7EF;
+
     --schedule-element-fields-border-color: var(--base-gray-light);
     --schedule-element-fields-disabled-bg: var(--base-gray-lighter);
   }
