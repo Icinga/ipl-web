@@ -7,6 +7,7 @@ use ipl\Html\Attributes;
 use ipl\Html\Contract\FormSubmitElement;
 use ipl\Html\FormDecorator\DivDecorator;
 use ipl\Html\FormElement\CheckboxElement;
+use ipl\Html\FormElement\FieldsetElement;
 use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
@@ -68,7 +69,7 @@ class IcingaFormDecorator extends DivDecorator
     protected function assembleLabel()
     {
         $label = parent::assembleLabel();
-        if ($label !== null) {
+        if ($label !== null && ! $this->formElement instanceof FieldsetElement) {
             $label->addWrapper(new HtmlElement('div', Attributes::create(['class' => 'control-label-group'])));
         }
 
@@ -77,6 +78,10 @@ class IcingaFormDecorator extends DivDecorator
 
     protected function assembleDescription()
     {
+        if ($this->formElement instanceof FieldsetElement) {
+            return parent::assembleDescription();
+        }
+
         if (($description = $this->formElement->getDescription()) !== null) {
             $iconAttributes = [
                 'class'         => 'control-info',
