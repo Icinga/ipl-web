@@ -93,6 +93,21 @@
         background-color: @schedule-element-fields-selected-bg;
         color: @schedule-element-default-text-color;
       }
+
+      input:checked + label:hover {
+        background-color: @schedule-element-fields-selected-hover-bg;
+        border-color: @schedule-element-fields-selected-hover-bg;
+      }
+    }
+
+    &.multiple-fields {
+      input:focus + label {
+        box-shadow: inset 0 0 0 3px rgba(0, 195, 237, 0.5);
+      }
+
+      input:checked:focus + label {
+        box-shadow: inset 0 0 0 3px rgba(255, 255, 255, .5);
+      }
     }
   }
 
@@ -115,23 +130,6 @@
 
     li:nth-child(7n) label {
       border-right: none;
-    }
-
-    input:checked + label {
-      &:hover {
-        background-color: @schedule-element-fields-selected-hover-bg;
-        border-color: @schedule-element-fields-selected-hover-bg;
-      }
-    }
-
-    input:focus + label {
-      //border: 3px solid lime;
-      box-shadow: inset 0 0 0 3px rgba(0, 195, 237, 0.5);
-    }
-
-    input:checked:focus + label {
-      //border: 3px solid lime;
-      box-shadow: inset 0 0 0 3px rgba(255,255,255,.5);
     }
   }
 
