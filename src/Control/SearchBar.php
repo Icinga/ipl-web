@@ -441,19 +441,26 @@ class SearchBar extends Form
                         $char = $e->getChar();
 
                         $this->getElement($this->getSearchParameter())
-                            ->setValue(substr($q, $charAt))
                             ->addAttributes([
                                 'title'     => sprintf(t('Unexpected %s at start of input'), $char),
                                 'pattern'   => sprintf('^(?!%s).*', $char === ')' ? '\)' : $char),
                                 'data-has-syntax-error' => true
-                            ]);
+                            ])
+                            ->getAttributes()
+                            ->registerAttributeCallback('value', function () use ($q, $charAt) {
+                                return substr($q, $charAt);
+                            });
 
                         $probablyValidQueryString = substr($q, 0, $charAt);
                         $this->setFilter(QueryString::parse($probablyValidQueryString));
                         return false;
                     }
 
-                    $this->getElement($this->getSearchParameter())->setValue('');
+                    $this->getElement($this->getSearchParameter())
+                        ->getAttributes()
+                        ->registerAttributeCallback('value', function () {
+                            return '';
+                        });
                     $this->setFilter($filter);
 
                     if (! empty($changes)) {
