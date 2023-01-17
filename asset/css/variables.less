@@ -34,6 +34,7 @@
 @base-primary-color: #00C3ED;
 @base-primary-bg: #00C3ED;
 @base-primary-dark: #0081a6;
+@base-primary-light: fade(@icinga-blue, 35%);
 
 @default-text-color: #fff;
 @default-text-color-light: fade(@default-text-color, 75%);
@@ -107,7 +108,8 @@
 @schedule-element-text-color: @base-primary-color;
 
 @schedule-element-fields-selected-bg: @base-primary-color;
-@schedule-element-fields-hover-bg: #406B90;
+@schedule-element-fields-hover-bg: fade(@base-primary-dark, 30);
+
 @schedule-element-fields-selected-hover-bg: #00A5CF;
 
 @schedule-element-fields-border-color: @base-gray-light;
@@ -181,10 +183,9 @@
     --card-border-color: var(--base-gray-light);
 
     --schedule-element-fields-bg: var(--default-input-bg);
-    --schedule-element-default-text-color: #F5F9FA;
+    --schedule-element-default-text-color: var(--base-primary-color);
 
-    --schedule-element-fields-hover-bg: #C7E8F0;
-    --schedule-element-fields-selected-hover-bg: #6FD7EF;
+    --schedule-element-fields-hover-bg: @base-primary-light;
 
     --schedule-element-fields-border-color: var(--base-gray-light);
     --schedule-element-fields-disabled-bg: var(--base-gray-lighter);
