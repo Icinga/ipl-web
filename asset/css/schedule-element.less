@@ -132,10 +132,24 @@
         outline-offset: 2px;
       }
 
+      &:focus-within + .note {
+        display: block;
+      }
+
       input:checked + label:hover {
         background-color: @schedule-element-fields-selected-bg;
       }
     }
+  }
+
+  .note {
+    display: none;
+    padding: .5em;
+    background: @base-gray-light;
+    .rounded-corners(.25em);
+    text-align: center;
+    margin-top: 1em;
+    line-height: 1.25;
   }
 
   /* .weekly */
