@@ -5,10 +5,13 @@ namespace ipl\Web\FormElement;
 use InvalidArgumentException;
 use ipl\Html\Attributes;
 use ipl\Html\Form;
+use ipl\Html\FormattedString;
 use ipl\Html\FormElement\FieldsetElement;
 use ipl\Html\HtmlElement;
+use ipl\Html\HtmlString;
 use ipl\Web\Common\FieldsProtector;
 use ipl\Web\Common\ScheduleFieldsUtils;
+use ipl\Web\Widget\Icon;
 
 class AnnuallyFields extends FieldsetElement
 {
@@ -99,6 +102,16 @@ class AnnuallyFields extends FieldsetElement
         $annuallyWrapper = HtmlElement::create('div', ['class' => 'annually']);
         $checkboxControls->prependWrapper($annuallyWrapper);
         $annuallyWrapper->addHtml($fieldsSelector);
+
+        $notes = HtmlElement::create('div', ['class' => 'note']);
+        $notes->addHtml(
+            FormattedString::create(
+                $this->translate('Use %s / %s keys to choose a month by keyboard.'),
+                new Icon('arrow-left'),
+                new Icon('arrow-right')
+            )
+        );
+        $annuallyWrapper->addHtml($notes);
 
         if ($runsOnThe === 'n' && $this->isAutoSubmitted) {
             $this->clearPopulatedValue('ordinal');
