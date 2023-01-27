@@ -1,3 +1,38 @@
+// General input styles
+
+.icinga-controls {
+  .uploaded-files {
+    background-color: @default-input-bg;
+  }
+}
+
+form.icinga-form {
+  .uploaded-files {
+    flex: 1 1 auto;
+    width: 0;
+  }
+}
+
+.icinga-controls {
+  .uploaded-files {
+    font-size: inherit;
+    padding: .5em;
+  }
+}
+
+// Button styles
+
+// The `form` selector is only required to overrule the hover effect applied by Icinga Web.
+// It's not required if done by Icinga Web itself, only here because this is applied earlier
+// as it's part of a library.
+form.icinga-controls {
+  button[type="submit"].remove-uploaded-file {
+    all: unset;
+  }
+}
+
+// Schedule Element styles
+
 .icinga-form > .schedule-element,
 .icinga-form > .schedule-element > fieldset {
   margin-top: 1em;
