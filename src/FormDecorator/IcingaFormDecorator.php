@@ -37,7 +37,10 @@ class IcingaFormDecorator extends DivDecorator
     protected function createCheckbox(CheckboxElement $checkbox)
     {
         if (! $checkbox->getAttributes()->has('id')) {
-            $checkbox->setAttribute('id', Window::generateId());
+            $checkbox->setAttribute(
+                'id',
+                $checkbox->getName() . '_' . Window::getInstance()->getContainerId()
+            );
         }
 
         $checkbox->getAttributes()->add('class', 'sr-only');
