@@ -1,6 +1,6 @@
 <?php
 
-namespace ipl\Web\FormElement;
+namespace ipl\Web\FormElement\ScheduleElement;
 
 use InvalidArgumentException;
 use ipl\Html\Attributes;
@@ -9,13 +9,13 @@ use ipl\Html\FormattedString;
 use ipl\Html\FormElement\FieldsetElement;
 use ipl\Html\HtmlElement;
 use ipl\Html\HtmlString;
-use ipl\Web\Common\FieldsProtector;
-use ipl\Web\Common\ScheduleFieldsUtils;
+use ipl\Web\FormElement\ScheduleElement\Common\FieldsProtector;
+use ipl\Web\FormElement\ScheduleElement\Common\FieldsUtils;
 use ipl\Web\Widget\Icon;
 
 class AnnuallyFields extends FieldsetElement
 {
-    use ScheduleFieldsUtils;
+    use FieldsUtils;
     use FieldsProtector;
 
     /** @var bool Whether the form is auto submitted */
@@ -78,7 +78,7 @@ class AnnuallyFields extends FieldsetElement
     {
         $this->getAttributes()->set('id', $this->protectId('annually-fields'));
 
-        $fieldsSelector = new ScheduleFieldsRadio('month', [
+        $fieldsSelector = new FieldsRadio('month', [
             'class'     => 'autosubmit sr-only',
             'value'     => $this->default,
             'options'   => $this->months,

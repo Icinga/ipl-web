@@ -1,17 +1,17 @@
 <?php
 
-namespace ipl\Web\FormElement;
+namespace ipl\Web\FormElement\ScheduleElement;
 
 use ipl\Html\Attributes;
 use ipl\Html\FormElement\FieldsetElement;
 use ipl\Html\HtmlElement;
 use ipl\Validator\DeferredInArrayValidator;
-use ipl\Web\Common\FieldsProtector;
-use ipl\Web\Common\ScheduleFieldsUtils;
+use ipl\Web\FormElement\ScheduleElement\Common\FieldsProtector;
+use ipl\Web\FormElement\ScheduleElement\Common\FieldsUtils;
 
 class MonthlyFields extends FieldsetElement
 {
-    use ScheduleFieldsUtils;
+    use FieldsUtils;
     use FieldsProtector;
 
     /** @var string Used as radio option to run each selected days/months */
