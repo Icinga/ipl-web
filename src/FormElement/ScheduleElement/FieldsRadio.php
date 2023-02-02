@@ -12,23 +12,6 @@ class FieldsRadio extends RadioElement
 {
     use FieldsProtector;
 
-    /** @var bool Whether to disable the "on the" radio options */
-    protected $disable;
-
-    /**
-     * En/Disable the "on the" radio options of this element
-     *
-     * @param bool $value
-     *
-     * @return $this
-     */
-    public function disable(bool $value): self
-    {
-        $this->disable = $value;
-
-        return $this;
-    }
-
     protected function assemble()
     {
         $listItems = HtmlElement::create('ul', ['class' => ['schedule-element-fields', 'single-fields']]);
@@ -41,31 +24,24 @@ class FieldsRadio extends RadioElement
 
             $htmlId = $this->protectId($option->getValue());
             $radio->getAttributes()
-                ->registerAttributeCallback('id', function () use ($htmlId) {
-                    return $htmlId;
-                })
+                ->set('id', $htmlId)
                 ->registerAttributeCallback('checked', function () use ($option) {
                     return (string) $this->getValue() === (string) $option->getValue();
                 })
-                ->registerAttributeCallback('required', function () {
-                    return $this->getRequiredAttribute();
-                })
+                ->registerAttributeCallback('required', [$this, 'getRequiredAttribute'])
                 ->registerAttributeCallback('disabled', function () use ($option) {
-                    return $option->isDisabled();
-                })
-                ->registerAttributeCallback('class', function () use ($option) {
-                    return Attributes::create(['class', $option->getLabelCssClass()])->get('class');
+                    return $this->getAttributes()->get('disabled')->getValue() || $option->isDisabled();
                 });
 
             $listItem = HtmlElement::create('li');
-            $radio->prependWrapper($listItem);
-
-            $listItem->addHtml($radio, HtmlElement::create('label', ['for' => $htmlId], $option->getLabel()));
-            $listItems->addHtml($radio);
-        }
-
-        if ($this->disable) {
-            $listItems->getAttributes()->add('class', 'disabled');
+            $listItem->addHtml(
+                $radio,
+                HtmlElement::create('label', [
+                    'for'   => $htmlId,
+                    'class' => $option->getLabelCssClass()
+                ], $option->getLabel())
+            );
+            $listItems->addHtml($listItem);
         }
 
         $this->addHtml($listItems);
