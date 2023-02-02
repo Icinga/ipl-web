@@ -1,6 +1,6 @@
 <?php
 
-namespace ipl\Web\Common;
+namespace ipl\Web\FormElement\ScheduleElement\Common;
 
 use DateInterval;
 use DateTime;
@@ -8,9 +8,9 @@ use Exception;
 use InvalidArgumentException;
 use ipl\Html\Contract\FormElement;
 use ipl\Scheduler\RRule;
-use ipl\Web\FormElement\MonthlyFields;
+use ipl\Web\FormElement\ScheduleElement\MonthlyFields;
 
-trait ScheduleFieldsUtils
+trait FieldsUtils
 {
     // Non-standard frequency options
     public static $everyDay = 'day';

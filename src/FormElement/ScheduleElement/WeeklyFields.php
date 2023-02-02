@@ -1,12 +1,12 @@
 <?php
 
-namespace ipl\Web\FormElement;
+namespace ipl\Web\FormElement\ScheduleElement;
 
 use InvalidArgumentException;
 use ipl\Html\Attributes;
 use ipl\Html\FormElement\FieldsetElement;
 use ipl\Html\HtmlElement;
-use ipl\Web\Common\FieldsProtector;
+use ipl\Web\FormElement\ScheduleElement\Common\FieldsProtector;
 
 class WeeklyFields extends FieldsetElement
 {

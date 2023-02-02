@@ -1,6 +1,6 @@
 <?php
 
-namespace ipl\Web\FormElement;
+namespace ipl\Web\FormElement\ScheduleElement;
 
 use DateTime;
 use ipl\Html\Attributes;
@@ -11,7 +11,7 @@ use ipl\I18n\Translation;
 use ipl\Scheduler\Contract\Frequency;
 use ipl\Scheduler\RRule;
 
-class ScheduleRecurrence extends BaseFormElement
+class Recurrence extends BaseFormElement
 {
     use Translation;
 

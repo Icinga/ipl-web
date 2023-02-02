@@ -8,7 +8,10 @@ use ipl\Html\FormElement\FieldsetElement;
 use ipl\Html\HtmlElement;
 use ipl\Scheduler\RRule;
 use ipl\Validator\BetweenValidator;
-use ipl\Web\Common\FieldsProtector;
+use ipl\Web\FormElement\ScheduleElement\AnnuallyFields;
+use ipl\Web\FormElement\ScheduleElement\Common\FieldsProtector;
+use ipl\Web\FormElement\ScheduleElement\MonthlyFields;
+use ipl\Web\FormElement\ScheduleElement\WeeklyFields;
 
 class ScheduleElement extends FieldsetElement
 {

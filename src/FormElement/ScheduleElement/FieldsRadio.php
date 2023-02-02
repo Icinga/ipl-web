@@ -1,14 +1,14 @@
 <?php
 
-namespace ipl\Web\FormElement;
+namespace ipl\Web\FormElement\ScheduleElement;
 
 use ipl\Html\Attributes;
 use ipl\Html\FormElement\InputElement;
 use ipl\Html\FormElement\RadioElement;
 use ipl\Html\HtmlElement;
-use ipl\Web\Common\FieldsProtector;
+use ipl\Web\FormElement\ScheduleElement\Common\FieldsProtector;
 
-class ScheduleFieldsRadio extends RadioElement
+class FieldsRadio extends RadioElement
 {
     use FieldsProtector;
 

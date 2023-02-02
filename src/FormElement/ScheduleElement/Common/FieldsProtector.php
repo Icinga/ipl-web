@@ -1,6 +1,6 @@
 <?php
 
-namespace ipl\Web\Common;
+namespace ipl\Web\FormElement\ScheduleElement\Common;
 
 trait FieldsProtector
 {
