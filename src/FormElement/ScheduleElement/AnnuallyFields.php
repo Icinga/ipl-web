@@ -8,7 +8,6 @@ use ipl\Html\Form;
 use ipl\Html\FormattedString;
 use ipl\Html\FormElement\FieldsetElement;
 use ipl\Html\HtmlElement;
-use ipl\Html\HtmlString;
 use ipl\Web\FormElement\ScheduleElement\Common\FieldsProtector;
 use ipl\Web\FormElement\ScheduleElement\Common\FieldsUtils;
 use ipl\Web\Widget\Icon;
@@ -27,11 +26,8 @@ class AnnuallyFields extends FieldsetElement
     /** @var string A month to preselect by default */
     protected $default = 'JAN';
 
-    protected function init(): void
+    public function __construct($name, $attributes = null)
     {
-        parent::init();
-        $this->initUtils();
-
         $this->months = [
             'JAN' => $this->translate('Jan'),
             'FEB' => $this->translate('Feb'),
@@ -46,6 +42,14 @@ class AnnuallyFields extends FieldsetElement
             'NOV' => $this->translate('Nov'),
             'DEC' => $this->translate('Dec')
         ];
+
+        parent::__construct($name, $attributes);
+    }
+
+    protected function init(): void
+    {
+        parent::init();
+        $this->initUtils();
     }
 
     public function onRegistered(Form $form)
@@ -64,8 +68,7 @@ class AnnuallyFields extends FieldsetElement
      */
     public function setDefault(string $default): self
     {
-        // Attributes are registered far before the initialization of this element!
-        if (! empty($this->months) && ! isset($this->months[strtoupper($this->default)])) {
+        if (! isset($this->months[strtoupper($this->default)])) {
             throw new InvalidArgumentException(sprintf('Invalid month provided: %s', $default));
         }
 
@@ -79,7 +82,7 @@ class AnnuallyFields extends FieldsetElement
         $this->getAttributes()->set('id', $this->protectId('annually-fields'));
 
         $fieldsSelector = new FieldsRadio('month', [
-            'class'     => 'autosubmit sr-only',
+            'class'     => ['autosubmit', 'sr-only'],
             'value'     => $this->default,
             'options'   => $this->months,
             'protector' => function ($value) {

@@ -18,10 +18,8 @@ class WeeklyFields extends FieldsetElement
     /** @var string A valid weekday to be selected by default */
     protected $default = 'MO';
 
-    protected function init(): void
+    public function __construct($name, $attributes = null)
     {
-        parent::init();
-
         $this->weekdays = [
             'MO' => $this->translate('Mon'),
             'TU' => $this->translate('Tue'),
@@ -31,6 +29,8 @@ class WeeklyFields extends FieldsetElement
             'SA' => $this->translate('Sat'),
             'SU' => $this->translate('Sun')
         ];
+
+        parent::__construct($name, $attributes);
     }
 
     /**
@@ -43,8 +43,7 @@ class WeeklyFields extends FieldsetElement
     public function setDefault(string $default): self
     {
         $weekday = strlen($default) > 2 ? substr($default, 0, -1) : $default;
-        // Attributes are registered far before the initialization of this element!
-        if (! empty($this->weekdays) && ! isset($this->weekdays[strtoupper($weekday)])) {
+        if (! isset($this->weekdays[strtoupper($weekday)])) {
             throw new InvalidArgumentException(sprintf('Invalid weekday provided: %s', $default));
         }
 
@@ -106,7 +105,7 @@ class WeeklyFields extends FieldsetElement
         $foundCheckedDay = false;
         foreach ($this->weekdays as $day => $value) {
             $checkbox = $this->createElement('checkbox', $day, [
-                'class' => 'sr-only autosubmit',
+                'class' => ['autosubmit', 'sr-only'],
                 'value' => $this->getPopulatedValue($day, 'n')
             ]);
             $this->registerElement($checkbox);
@@ -116,18 +115,16 @@ class WeeklyFields extends FieldsetElement
             $checkbox->getAttributes()->set('id', $htmlId);
 
             $listItem = HtmlElement::create('li');
-            $checkbox->prependWrapper($listItem);
-
             $listItem->addHtml($checkbox, HtmlElement::create('label', ['for' => $htmlId], $value));
-            $listItems->addHtml($checkbox);
+            $listItems->addHtml($listItem);
         }
 
         if (! $foundCheckedDay) {
             $this->getElement($this->default)->setChecked(true);
         }
 
-        $listItems->prependWrapper($fieldsWrapper);
-        $this->addHtml($listItems);
+        $fieldsWrapper->addHtml($listItems);
+        $this->addHtml($fieldsWrapper);
     }
 
     protected function registerAttributeCallbacks(Attributes $attributes)

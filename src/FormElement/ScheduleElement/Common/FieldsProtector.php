@@ -26,11 +26,11 @@ trait FieldsProtector
      *
      * The provided id is returned as is, if no protector is specified
      *
-     * @param mixed $id
+     * @param string $id
      *
-     * @return mixed
+     * @return string
      */
-    public function protectId($id)
+    public function protectId(string $id): string
     {
         if (is_callable($this->protector)) {
             return call_user_func($this->protector, $id);
