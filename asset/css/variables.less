@@ -51,7 +51,7 @@
 
 @primary-button-color: @default-text-color-inverted;
 @primary-button-bg: @base-primary-bg;
-@primary-button-hover-bg: @base-primary-dark;
+@primary-button-hover-bg: #0081a6;
 
 @search-term-bg: @base-gray;
 @search-term-color: @default-text-color-inverted;
@@ -104,13 +104,13 @@
 @card-border-color: @base-gray-light;
 
 @schedule-element-fields-bg: @default-input-bg;
-@schedule-element-default-text-color: @default-bg;
+@schedule-element-default-text-color: @default-text-color-inverted;
 @schedule-element-text-color: @base-primary-color;
 
-@schedule-element-fields-selected-bg: @base-primary-color;
-@schedule-element-fields-hover-bg: fade(@base-primary-dark, 30);
+@schedule-element-fields-selected-bg: @primary-button-bg;
+@schedule-element-fields-hover-bg: @base-primary-light;
 
-@schedule-element-fields-selected-hover-bg: #00A5CF;
+@schedule-element-fields-selected-hover-bg: @primary-button-hover-bg;
 
 @schedule-element-fields-border-color: @base-gray-light;
 
@@ -126,6 +126,9 @@
     --base-disabled: var(--base-gray-light);
 
     --base-remove-bg: @state-critical;
+
+    --base-primary-dark: fade(@primary-button-bg, 35%);
+    --base-primary-light: fade(@primary-button-bg, 35%);
 
     --default-text-color: #535353;
     --default-text-color-light: fade(#535353, 75%); // --default-text-color
@@ -183,11 +186,18 @@
     --card-border-color: var(--base-gray-light);
 
     --schedule-element-fields-bg: var(--default-input-bg);
-    --schedule-element-default-text-color: var(--base-primary-color);
+    --schedule-element-default-text-color: var(--default-text-color-inverted);
+    --schedule-element-text-color: var(--base-primary-color);
 
-    --schedule-element-fields-hover-bg: @base-primary-light;
+    --schedule-element-fields-selected-bg: var(--base-primary-bg);
+    --schedule-element-fields-hover-bg: var(--base-primary-light);
+
+    --schedule-element-fields-selected-hover-bg: var(--base-primary-light);
 
     --schedule-element-fields-border-color: var(--base-gray-light);
+
+    --schedule-element-fields-disabled-color: var(--base-gray);
     --schedule-element-fields-disabled-bg: var(--base-gray-lighter);
+    --schedule-element-fields-disabled-selected-bg: var(--base-gray-light);
   }
 };
