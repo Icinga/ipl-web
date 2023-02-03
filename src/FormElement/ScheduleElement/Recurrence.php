@@ -6,7 +6,7 @@ use DateTime;
 use ipl\Html\Attributes;
 use ipl\Html\FormElement\BaseFormElement;
 use ipl\Html\HtmlElement;
-use ipl\Html\HtmlString;
+use ipl\Html\Text;
 use ipl\I18n\Translation;
 use ipl\Scheduler\Contract\Frequency;
 use ipl\Scheduler\RRule;
@@ -65,23 +65,13 @@ class Recurrence extends BaseFormElement
         $recurrences = $frequency->getNextRecurrences(new DateTime(), 3);
         if (! $recurrences->valid()) {
             // Such a situation can be caused by setting an invalid end time
-            $this->addHtml(HtmlString::create($this->translate('Recurrences cannot be generated')));
+            $this->addHtml(Text::create($this->translate('Recurrences cannot be generated')));
 
             return;
         }
 
         foreach ($recurrences as $recurrence) {
-            $this->addHtml(
-                HtmlElement::create(
-                    'p',
-                    null,
-                    sprintf(
-                        '%s, %s',
-                        $recurrence->format('D'),
-                        $recurrence->format('Y/m/d, H:i:s')
-                    )
-                )
-            );
+            $this->addHtml(HtmlElement::create('p', null, $recurrence->format($this->translate('D, Y/m/d, H:i:s'))));
         }
     }
 
