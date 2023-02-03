@@ -17,7 +17,7 @@ class Recurrence extends BaseFormElement
 
     protected $tag = 'div';
 
-    protected $defaultAttributes = ['class' => 'schedule-occurrence'];
+    protected $defaultAttributes = ['class' => 'schedule-recurrences'];
 
     /** @var callable A callable that generates a frequency instance */
     protected $frequencyCallback;
