@@ -5,7 +5,7 @@ namespace ipl\Web\FormElement\ScheduleElement;
 use ipl\Html\Attributes;
 use ipl\Html\FormElement\FieldsetElement;
 use ipl\Html\HtmlElement;
-use ipl\Validator\DeferredInArrayValidator;
+use ipl\Validator\InArrayValidator;
 use ipl\Web\FormElement\ScheduleElement\Common\FieldsProtector;
 use ipl\Web\FormElement\ScheduleElement\Common\FieldsUtils;
 
@@ -26,7 +26,7 @@ class MonthlyFields extends FieldsetElement
     /** @var int Day of the month to preselect by default */
     protected $default = 1;
 
-    /** @var int Available fields to be rendered */
+    /** @var int Number of fields to render */
     protected $availableFields;
 
     protected function init(): void
@@ -52,7 +52,7 @@ class MonthlyFields extends FieldsetElement
     }
 
     /**
-     * Set the default field/day to be selected by default
+     * Set the default field/day to be selected
      *
      * @param int $default
      *
@@ -106,7 +106,7 @@ class MonthlyFields extends FieldsetElement
         $foundCheckedDay = false;
         foreach (range(1, $this->availableFields) as $day) {
             $checkbox = $this->createElement('checkbox', "day$day", [
-                'class' => 'sr-only autosubmit',
+                'class' => ['autosubmit', 'sr-only'],
                 'value' => $this->getPopulatedValue("day$day", 'n')
             ]);
             $this->registerElement($checkbox);
@@ -116,10 +116,8 @@ class MonthlyFields extends FieldsetElement
             $checkbox->getAttributes()->set('id', $htmlId);
 
             $listItem = HtmlElement::create('li');
-            $checkbox->prependWrapper($listItem);
-
             $listItem->addHtml($checkbox, HtmlElement::create('label', ['for' => $htmlId], $day));
-            $listItems->addHtml($checkbox);
+            $listItems->addHtml($listItem);
         }
 
         if (! $foundCheckedDay) {
@@ -131,20 +129,20 @@ class MonthlyFields extends FieldsetElement
         $runsEach->prependWrapper($monthlyWrapper);
         $monthlyWrapper->addHtml($runsEach, $listItems);
 
-        $this->addElement('radio', 'runsOn', [
+        $runsOnThe = $this->createElement('radio', 'runsOn', [
             'required' => $runsOn !== static::RUNS_EACH,
             'class'    => 'autosubmit',
             'options'  => [static::RUNS_ONTHE => $this->translate('On the')]
         ]);
+        $this->registerElement($runsOnThe)->decorate($runsOnThe);
 
-        $runsOnThe = $this->getElement('runsOn');
-        $runsOnValidators = $runsOnThe->getValidators();
-        $runsOnValidators
+        $runsOnThe->getValidators()
             ->clearValidators()
             ->add(
-                new DeferredInArrayValidator(function (): array {
-                    return [static::RUNS_EACH, static::RUNS_ONTHE];
-                }),
+                new InArrayValidator([
+                    'strict'   => true,
+                    'haystack' => [static::RUNS_EACH, static::RUNS_ONTHE]
+                ]),
                 true
             );
 
@@ -161,6 +159,7 @@ class MonthlyFields extends FieldsetElement
         $this->registerElement($selectableDays);
 
         $ordinalWrapper->addHtml($enumerations, $selectableDays);
+        $this->addHtml($ordinalWrapper);
     }
 
     protected function registerAttributeCallbacks(Attributes $attributes)
