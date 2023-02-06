@@ -58,18 +58,19 @@ trait FieldsUtils
 
     protected function createOrdinalSelectableDays(): FormElement
     {
-        return $this->createElement('select', 'day', [
+        $select = $this->createElement('select', 'day', [
             'class'   => 'autosubmit',
             'value'   => $this->getPopulatedValue('day', static::$everyDay),
-            'options' => [
-                'Regular'       => $this->regulars,
-                'Non Standards' => [
-                    static::$everyDay     => $this->translate('Day'),
-                    static::$everyWeekday => $this->translate('Weekday (Mon - Fri)'),
-                    static::$everyWeekend => $this->translate('WeekEnd (Sat or Sun)')
-                ]
+            'options' => $this->regulars + [
+                'separator' => '──────────────────────────',
+                static::$everyDay     => $this->translate('Day'),
+                static::$everyWeekday => $this->translate('Weekday (Mon - Fri)'),
+                static::$everyWeekend => $this->translate('WeekEnd (Sat or Sun)')
             ]
         ]);
+        $select->getOption('separator')->getAttributes()->set('disabled', true);
+
+        return $select;
     }
 
     /**
