@@ -37,8 +37,9 @@ class FieldsRadio extends RadioElement
             $listItem->addHtml(
                 $radio,
                 HtmlElement::create('label', [
-                    'for'   => $htmlId,
-                    'class' => $option->getLabelCssClass()
+                    'for'      => $htmlId,
+                    'class'    => $option->getLabelCssClass(),
+                    'tabindex' => -1
                 ], $option->getLabel())
             );
             $listItems->addHtml($listItem);
