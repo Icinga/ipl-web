@@ -108,7 +108,7 @@ trait FieldsUtils
                 $values['runsOnThe'] = ! empty($byDay) ? 'y' : 'n';
             }
 
-            if (count($byDay) == 1 && preg_match('/^(-?\d)+(\S.*)$/', $byDay[0], $matches)) {
+            if (count($byDay) == 1 && preg_match('/^(-?\d)(\w.*)$/', $byDay[0], $matches)) {
                 $values['ordinal'] = $this->getOrdinalString($matches[1]);
                 $values['day'] = $this->getWeekdayName($matches[2]);
             } elseif (! empty($byDay)) {
