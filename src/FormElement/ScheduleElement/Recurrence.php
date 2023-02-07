@@ -65,7 +65,7 @@ class Recurrence extends BaseFormElement
         $recurrences = $frequency->getNextRecurrences(new DateTime(), 3);
         if (! $recurrences->valid()) {
             // Such a situation can be caused by setting an invalid end time
-            $this->addHtml(Text::create($this->translate('Recurrences cannot be generated')));
+            $this->addHtml(HtmlElement::create('p', null, Text::create($this->translate('Never'))));
 
             return;
         }
