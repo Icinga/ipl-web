@@ -14,6 +14,13 @@
   .control-group > .annually {
     flex: 1 1 auto;
   }
+
+  // TODO: This effectively restricts the weekly fields to always be aligned to the right,
+  //  regardless of the using an icinga-form or not. So this should be removed once we
+  //  have re-implemented the decorators.
+  .control-group > fieldset > .weekly {
+    margin-left: 14em;
+  }
 }
 
 form.icinga-form .control-group {
