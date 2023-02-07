@@ -484,7 +484,7 @@ class ScheduleElement extends FieldsetElement
      */
     private function assembleCommonElements(): void
     {
-        $repeat = $this->getFrequency();
+        $repeat = $this->getCustomFrequency();
         if ($repeat === RRule::WEEKLY) {
             $text = $this->translate('week(s) on');
             $max = 53;
