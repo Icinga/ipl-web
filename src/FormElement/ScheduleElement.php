@@ -25,13 +25,13 @@ class ScheduleElement extends FieldsetElement
     use FieldsProtector;
 
     /** @var string Plain cron expressions */
-    public const CRON_EXPR = 'cron_expr';
+    protected const CRON_EXPR = 'cron_expr';
 
     /** @var string Configure the individual expression parts manually */
-    public const CUSTOM_EXPR = 'custom';
+    protected const CUSTOM_EXPR = 'custom';
 
     /** @var string Used to run a one-off task */
-    public const NO_REPEAT = 'none';
+    protected const NO_REPEAT = 'none';
 
     protected $defaultAttributes = ['class' => 'schedule-element'];
 
@@ -110,13 +110,14 @@ class ScheduleElement extends FieldsetElement
         ];
     }
 
-    public function setDefaultElementDecorator($decorator)
+    /**
+     * Get whether this element is rendering a cron expression
+     *
+     * @return bool
+     */
+    public function hasCronExpression(): bool
     {
-        parent::setDefaultElementDecorator($decorator);
-
-        $this->weeklyField->setDefaultElementDecorator($this->getDefaultElementDecorator());
-        $this->monthlyFields->setDefaultElementDecorator($this->getDefaultElementDecorator());
-        $this->annuallyFields->setDefaultElementDecorator($this->getDefaultElementDecorator());
+        return $this->getFrequency() === static::CRON_EXPR;
     }
 
     /**
@@ -383,13 +384,13 @@ class ScheduleElement extends FieldsetElement
         $this->addElement('select', 'frequency', [
             'required'    => false,
             'class'       => 'autosubmit',
-            'options'     => [
-                static::NO_REPEAT => $this->translate('None'),
-                'Regular'         => $this->regulars,
-                'Advanced'        => $this->advanced
-            ],
             'label'       => $this->translate('Frequency'),
             'description' => $this->translate('Specifies how often this job run should be recurring'),
+            'options'     => [
+                static::NO_REPEAT            => $this->translate('None'),
+                $this->translate('Regular')  => $this->regulars,
+                $this->translate('Advanced') => $this->advanced
+            ],
         ]);
 
         if ($this->getFrequency() === static::CUSTOM_EXPR) {
@@ -414,17 +415,13 @@ class ScheduleElement extends FieldsetElement
                     break;
                 case RRule::MONTHLY:
                     $this->assembleCommonElements();
-                    $this
-                        ->registerElement($this->monthlyFields)
-                        ->addHtml($this->monthlyFields);
+                    $this->addElement($this->monthlyFields);
 
                     break;
                 case RRule::YEARLY:
-                    $this
-                        ->registerElement($this->annuallyFields)
-                        ->addHtml($this->annuallyFields);
+                    $this->addElement($this->annuallyFields);
             }
-        } elseif ($this->getFrequency() === static::CRON_EXPR) {
+        } elseif ($this->hasCronExpression()) {
             $this->addElement('text', 'cron-expression', [
                 'label'       => $this->translate('Cron Expression'),
                 'description' => $this->translate('Job cron Schedule'),
@@ -444,7 +441,7 @@ class ScheduleElement extends FieldsetElement
             ]);
         }
 
-        if ($this->getFrequency() !== static::NO_REPEAT && $this->getFrequency() !== static::CRON_EXPR) {
+        if ($this->getFrequency() !== static::NO_REPEAT && ! $this->hasCronExpression()) {
             $this->addElement(
                 new Recurrence('schedule-recurrences', [
                     'id'        => $this->protectId('schedule-recurrences'),
@@ -533,7 +530,7 @@ class ScheduleElement extends FieldsetElement
         $partUpdates = [];
         if (
             $autoSubmittedBy
-            && $this->getFrequency() !== static::CRON_EXPR
+            && ! $this->hasCronExpression()
             && (
                 preg_match('/^schedule-element\[(start|end)]$/', $autoSubmittedBy[0], $matches)
                 || preg_match($pattern, $autoSubmittedBy[0])
