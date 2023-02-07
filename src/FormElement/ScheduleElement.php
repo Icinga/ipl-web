@@ -45,10 +45,10 @@ class ScheduleElement extends FieldsetElement
     protected $regulars = [];
 
     /** @var string Schedule frequency of this element */
-    protected $frequency = RRule::DAILY;
+    protected $frequency = self::NO_REPEAT;
 
     /** @var string */
-    protected $customFrequency;
+    protected $customFrequency = RRule::DAILY;
 
     /** @var DateTime */
     protected $start;
