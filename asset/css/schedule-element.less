@@ -80,7 +80,7 @@
         text-align: center;
         padding: .75em 0;
         background: @schedule-element-fields-bg;
-        color: @schedule-element-text-color;
+        color: @schedule-element-fields-color;
 
         &:hover {
           background-color: @schedule-element-fields-hover-bg;
@@ -93,7 +93,7 @@
 
       input:checked + label {
         background-color: @schedule-element-fields-selected-bg;
-        color: @schedule-element-default-text-color;
+        color: @schedule-element-fields-selected-color;
       }
 
       input:checked + label:hover {
@@ -108,11 +108,11 @@
       }
 
       input:focus + label {
-        box-shadow: inset 0 0 0 3px rgba(0, 195, 237, 0.5);
+        box-shadow: inset 0 0 0 3px @schedule-element-fields-outline-color;
       }
 
       input:checked:focus + label {
-        box-shadow: inset 0 0 0 3px rgba(255, 255, 255, .5);
+        box-shadow: inset 0 0 0 3px @schedule-element-fields-selected-outline-color;
       }
     }
 
@@ -132,7 +132,7 @@
       }
 
       &:focus-within {
-        outline: 3px solid fade(@base-primary-bg, 50);
+        outline: 3px solid @schedule-element-fields-outline-color;
         outline-offset: 2px;
       }
 
@@ -149,7 +149,7 @@
   .note {
     display: none;
     padding: .5em;
-    background: @base-gray-light;
+    background: @schedule-element-keyboard-note-bg;
     .rounded-corners(.25em);
     text-align: center;
     margin-top: 1em;
