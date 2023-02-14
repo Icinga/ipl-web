@@ -12,7 +12,8 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "ipl\\Tests\\Web\\": "tests"
+      "ipl\\Tests\\Web\\": "tests",
+      "ipl\\Tests\\Html\\": "vendor/ipl/html/tests"
     }
   },
   "require": {
