@@ -8,6 +8,7 @@ use ipl\Html\FormElement\FieldsetElement;
 use ipl\Html\HtmlElement;
 use ipl\Scheduler\Contract\Frequency;
 use ipl\Scheduler\Cron;
+use ipl\Scheduler\OneOff;
 use ipl\Scheduler\RRule;
 use ipl\Validator\BetweenValidator;
 use ipl\Validator\CallbackValidator;
@@ -207,11 +208,9 @@ class ScheduleElement extends FieldsetElement
         $start = parent::getValue('start');
         switch ($frequency) {
             case static::NO_REPEAT:
-                $rule = static::NO_REPEAT;
-
-                break;
+                return new OneOff($start);
             case static::CRON_EXPR:
-                $rule = parent::getValue('cron-expression');
+                $rule = new Cron(parent::getValue('cron-expression'));
 
                 break;
             case RRule::MINUTELY:
@@ -302,50 +301,41 @@ class ScheduleElement extends FieldsetElement
                 }
         }
 
-        if ($rule instanceof RRule) {
-            $rule = $rule->jsonSerialize();
-        }
-
-        $values = [
-            'frequency' => $rule,
-            'start'     => $start,
-            'end'       => null
-        ];
-
+        $rule->startAt($start);
         if (parent::getValue('use-end-time', 'n') === 'y') {
-            $values['end'] = parent::getValue('end');
+            $rule->endAt(parent::getValue('end'));
         }
 
-        return $values;
+        return $rule;
     }
 
     public function setValue($value)
     {
-        if (isset($value['start']) && $value['start'] instanceof DateTime) {
-            $this->setStart($value['start']);
-        }
-
-        if (isset($value['end']) && ! isset($value['use-end-time'])) {
-            $value['use-end-time'] = 'y';
-        }
-
-        $frequency = $value['frequency'] ?? null;
-        if ($frequency && $frequency !== static::CUSTOM_EXPR && $frequency !== static::CRON_EXPR) {
-            $rule = $frequency;
-            if (! $rule instanceof Frequency) {
-                $rule = $this->frequencyFromConfig($value);
+        $values = $value;
+        $rule = $value;
+        if ($rule instanceof Frequency) {
+            if ($rule->getStart()) {
+                $this->setStart($rule->getStart());
             }
 
-            if ($rule instanceof Cron) {
-                $value['cron-expression'] = $frequency;
-                $value['frequency'] = static::CRON_EXPR;
+            $values = [];
+            if ($rule->getEnd() && ! $rule instanceof OneOff) {
+                $values['use-end-time'] = 'y';
+                $values['end'] = $rule->getEnd();
+            }
+
+            if ($rule instanceof OneOff) {
+                $values['frequency'] = static::NO_REPEAT;
+            } elseif ($rule instanceof Cron) {
+                $values['cron-expression'] = $rule->getExpression();
+                $values['frequency'] = static::CRON_EXPR;
 
                 $this->setFrequency(static::CRON_EXPR);
             } elseif ($rule instanceof RRule) {
-                $value['interval'] = $rule->getInterval();
+                $values['interval'] = $rule->getInterval();
                 switch ($rule->getFrequency()) {
                     case RRule::DAILY:
-                        if ($rule->getInterval() <= 1 && strpos($rule->jsonSerialize(), 'INTERVAL=') === false) {
+                        if ($rule->getInterval() <= 1 && strpos($rule->getString(), 'INTERVAL=') === false) {
                             $this->setFrequency(RRule::DAILY);
                         } else {
                             $this
@@ -358,7 +348,7 @@ class ScheduleElement extends FieldsetElement
                         if (! $rule->getByDay() || empty($rule->getByDay())) {
                             $this->setFrequency(RRule::WEEKLY);
                         } else {
-                            $value['weekly-fields'] = $this->weeklyField->loadWeekDays($rule->getByDay());
+                            $values['weekly-fields'] = $this->weeklyField->loadWeekDays($rule->getByDay());
                             $this
                                 ->setFrequency(static::CUSTOM_EXPR)
                                 ->setCustomFrequency(RRule::WEEKLY);
@@ -372,10 +362,10 @@ class ScheduleElement extends FieldsetElement
                             $this->setFrequency(static::CUSTOM_EXPR);
 
                             if ($isMonthly) {
-                                $value['monthly-fields'] = $this->monthlyFields->loadRRule($rule);
+                                $values['monthly-fields'] = $this->monthlyFields->loadRRule($rule);
                                 $this->setCustomFrequency(RRule::MONTHLY);
                             } else {
-                                $value['annually-fields'] = $this->annuallyFields->loadRRule($rule);
+                                $values['annually-fields'] = $this->annuallyFields->loadRRule($rule);
                                 $this->setCustomFrequency(RRule::YEARLY);
                             }
                         } elseif ($isMonthly && $rule->getInterval() === 3) {
@@ -389,12 +379,12 @@ class ScheduleElement extends FieldsetElement
                         $this->setFrequency($rule->getFrequency());
                 }
 
-                $value['frequency'] = $this->getFrequency();
-                $value['custom-frequency'] = $this->getCustomFrequency();
+                $values['frequency'] = $this->getFrequency();
+                $values['custom-frequency'] = $this->getCustomFrequency();
             }
         }
 
-        return parent::setValue($value);
+        return parent::setValue($values);
     }
 
     protected function assemble()
@@ -506,34 +496,21 @@ class ScheduleElement extends FieldsetElement
                     },
                     'frequency' => function (): Frequency {
                         if ($this->getFrequency() === static::CUSTOM_EXPR) {
-                            list($rule, $start, $end) = array_values($this->getValue());
-                            $rule = new RRule($rule);
+                            $rule = $this->getValue();
                         } else {
                             $rule = RRule::fromFrequency($this->getFrequency());
-                            $start = $this->getPopulatedValue('start', new DateTime());
-                            if (! $start instanceof DateTime) {
-                                $start = new DateTime($start);
-                            }
-
-                            $end = null;
-                            if ($this->getPopulatedValue('use-end-time') === 'y') {
-                                $end = $this->getPopulatedValue('end', new DateTime());
-                                if (! $end instanceof DateTime) {
-                                    $end = new DateTime($end);
-                                }
-                            }
                         }
 
                         $now = new DateTime();
+                        $start = $this->getValue('start');
                         if ($start < $now) {
                             $now->setTime($start->format('H'), $start->format('i'), $start->format('s'));
-
                             $start = $now;
                         }
 
                         $rule->startAt($start);
-                        if ($end instanceof DateTime) {
-                            $rule->endAt($end);
+                        if ($this->getPopulatedValue('use-end-time') === 'y') {
+                            $rule->endAt($this->getValue('end'));
                         }
 
                         return $rule;

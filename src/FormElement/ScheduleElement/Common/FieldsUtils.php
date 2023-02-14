@@ -98,8 +98,8 @@ trait FieldsUtils
                 $values['runsOn'] = MonthlyFields::RUNS_ONTHE;
             } else {
                 $months = $rule->getByMonth();
-                if (empty($months) && $rule->getStartDate()) {
-                    $months[] = $rule->getStartDate()->format('m');
+                if (empty($months) && $rule->getStart()) {
+                    $months[] = $rule->getStart()->format('m');
                 } elseif (empty($months)) {
                     $months[] = date('m');
                 }
