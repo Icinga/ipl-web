@@ -4,6 +4,7 @@ namespace ipl\Web\FormElement;
 
 use DateTime;
 use InvalidArgumentException;
+use ipl\Html\Attributes;
 use ipl\Html\FormElement\FieldsetElement;
 use ipl\Html\HtmlElement;
 use ipl\Scheduler\Contract\Frequency;
@@ -589,5 +590,12 @@ class ScheduleElement extends FieldsetElement
         }
 
         return $partUpdates;
+    }
+
+    protected function registerAttributeCallbacks(Attributes $attributes)
+    {
+        parent::registerAttributeCallbacks($attributes);
+
+        $attributes->registerAttributeCallback('protector', null, [$this, 'setIdProtector']);
     }
 }
