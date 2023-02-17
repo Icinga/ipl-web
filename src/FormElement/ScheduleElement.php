@@ -565,15 +565,14 @@ class ScheduleElement extends FieldsetElement
     public function prepareMultipartUpdate(RequestInterface $request): array
     {
         $autoSubmittedBy = $request->getHeader('X-Icinga-AutoSubmittedBy');
-        $pattern = '/^schedule-element\[(weekly-fields|monthly-fields|annually-fields)]'
-            . '\[(ordinal|interval|month|day(\d+)?|[A-Z]{2})]$/';
+        $pattern = '/\[(weekly-fields|monthly-fields|annually-fields)]\[(ordinal|interval|month|day(\d+)?|[A-Z]{2})]$/';
 
         $partUpdates = [];
         if (
             $autoSubmittedBy
             && ! $this->hasCronExpression()
             && (
-                preg_match('/^schedule-element\[(start|end)]$/', $autoSubmittedBy[0], $matches)
+                preg_match('/\[(start|end)]$/', $autoSubmittedBy[0], $matches)
                 || preg_match($pattern, $autoSubmittedBy[0])
             )
         ) {
