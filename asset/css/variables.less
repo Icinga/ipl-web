@@ -33,10 +33,13 @@
 
 @base-primary-color: #00C3ED;
 @base-primary-bg: #00C3ED;
+@base-primary-dark: #0081a6;
+@base-primary-light: fade(@base-primary-bg, 50%);
 
 @default-text-color: #fff;
 @default-text-color-light: fade(@default-text-color, 75%);
 @default-text-color-inverted: @default-bg;
+@default-input-bg: #404d72;
 
 @state-ok: #44bb77;
 @state-up: @state-ok;
@@ -48,7 +51,7 @@
 
 @primary-button-color: @default-text-color-inverted;
 @primary-button-bg: @base-primary-bg;
-@primary-button-hover-bg: #0081a6;
+@primary-button-hover-bg: @base-primary-dark;
 
 @search-term-bg: @base-gray;
 @search-term-color: @default-text-color-inverted;
@@ -66,7 +69,7 @@
 @search-logical-operator-bg: @base-gray-light;
 @search-logical-operator-color: @default-text-color-light;
 
-@searchbar-bg: #404d72;
+@searchbar-bg: @default-input-bg;
 @searchbar-scrollbar-bg: @base-gray-light;
 
 @search-editor-control-color: @base-gray-light;
@@ -100,6 +103,20 @@
 
 @card-border-color: @base-gray-light;
 
+@schedule-element-fields-bg: @default-input-bg;
+@schedule-element-fields-color: @base-primary-color;
+@schedule-element-fields-border-color: @base-gray-light;
+@schedule-element-fields-selected-bg: @primary-button-bg;
+@schedule-element-fields-selected-color: @default-text-color-inverted;
+@schedule-element-fields-hover-bg: @base-primary-light;
+@schedule-element-fields-outline-color: fade(@base-primary-bg, 50%);
+@schedule-element-fields-selected-outline-color: fade(#fff, 50%);
+@schedule-element-fields-selected-hover-bg: @primary-button-hover-bg;
+@schedule-element-fields-disabled-color: @base-gray;
+@schedule-element-fields-disabled-bg: @base-gray-lighter;
+@schedule-element-fields-disabled-selected-bg: @base-gray-light;
+@schedule-element-keyboard-note-bg: @base-gray-light;
+
 @iplWebLightRules: {
   :root {
     --base-gray: #819398;
@@ -112,12 +129,13 @@
     --default-text-color: #535353;
     --default-text-color-light: fade(#535353, 75%); // --default-text-color
     --default-text-color-inverted: #F5F9FA;
+    --default-input-bg: #DEECF1;
 
     --primary-button-color: var(--default-text-color-inverted);
     --primary-button-bg: @primary-button-bg;
     --primary-button-hover-bg: @primary-button-hover-bg;
 
-    --searchbar-bg: #DEECF1;
+    --searchbar-bg: var(--default-input-bg);
     --searchbar-scrollbar-bg: var(--base-gray-light);
 
     --search-term-bg: var(--base-gray-light);
@@ -162,5 +180,19 @@
     --suggestions-relation-path-focus-bg: var(--base-gray);
 
     --card-border-color: var(--base-gray-light);
+
+    --schedule-element-fields-bg: var(--default-input-bg);
+    --schedule-element-fields-color: var(--base-primary-color);
+    --schedule-element-fields-border-color: var(--base-gray-light);
+    --schedule-element-fields-selected-bg: var(--primary-button-bg);
+    --schedule-element-fields-selected-color: var(--default-text-color-inverted);
+    --schedule-element-fields-hover-bg: @base-primary-light;
+    --schedule-element-fields-outline-color: fade(@base-primary-bg, 50%);
+    --schedule-element-fields-selected-outline-color: fade(#fff, 50%);
+    --schedule-element-fields-selected-hover-bg: var(--primary-button-hover-bg);
+    --schedule-element-fields-disabled-color: var(--base-gray);
+    --schedule-element-fields-disabled-bg: var(--base-gray-lighter);
+    --schedule-element-fields-disabled-selected-bg: var(--base-gray-light);
+    --schedule-element-keyboard-note-bg: var(--base-gray-light);
   }
 };
