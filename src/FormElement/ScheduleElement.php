@@ -397,7 +397,7 @@ class ScheduleElement extends FieldsetElement
         $this->setStart($start);
 
         $this->addElement('localDateTime', 'start', [
-            'class'       => 'autosubmit',
+            'class'       => ! $this->hasCronExpression() ? 'autosubmit' : null,
             'required'    => true,
             'label'       => $this->translate('Start'),
             'value'       => $start,
@@ -419,7 +419,7 @@ class ScheduleElement extends FieldsetElement
             }
 
             $this->addElement('localDateTime', 'end', [
-                'class'       => 'autosubmit',
+                'class'       => ! $this->hasCronExpression() ? 'autosubmit' : null,
                 'required'    => true,
                 'value'       => $end,
                 'label'       => $this->translate('End'),
