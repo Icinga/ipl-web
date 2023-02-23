@@ -1,0 +1,97 @@
+<?php
+
+namespace ipl\Tests\Web\Compat;
+
+use ipl\Html\FormElement\SubmitElement;
+use ipl\Tests\Html\TestCase;
+use ipl\Web\Compat\CompatForm;
+
+class CompatFormTest extends TestCase
+{
+    /** @var CompatForm */
+    private $form;
+
+    protected function setUp(): void
+    {
+        $this->form = new CompatForm();
+    }
+
+    public function testDuplicateSubmitButtonApplied(): void
+    {
+        $this->form->addElement('submit', 'submitCreate');
+        $this->form->addElement('submit', 'submitDelete');
+
+        $expected = <<<'HTML'
+    <form class="icinga-form icinga-controls" method="POST">
+      <input class="primary-submit-btn-duplicate" name="submitCreate" type="submit" value="submitCreate"/>
+      <div class="control-group form-controls">
+        <input class="btn-primary" name="submitCreate" type="submit" value="submitCreate"/>
+      </div>
+      <div class="control-group form-controls">
+        <input class="btn-primary" name="submitDelete" type="submit" value="submitDelete"/>
+      </div>
+    </form>
+HTML;
+
+        $this->assertHtml($expected, $this->form);
+    }
+
+    public function testDuplicateSubmitButtonOmitted(): void
+    {
+        $this->form->addElement('submit', 'submitCreate');
+
+        $expected = <<<'HTML'
+    <form class="icinga-form icinga-controls" method="POST">
+      <div class="control-group form-controls">
+        <input class="btn-primary" name="submitCreate" type="submit" value="submitCreate"/>
+      </div>
+    </form>
+HTML;
+
+        $this->assertHtml($expected, $this->form);
+    }
+
+    public function testDuplicateSubmitButtonAddedOnlyOnce(): void
+    {
+        $this->form->addElement('submit', 'submitCreate', ['id' => 'submit_id']);
+        $this->form->addElement('submit', 'submitDelete');
+
+        $expected = <<<'HTML'
+    <form class="icinga-form icinga-controls" method="POST">
+      <input class="primary-submit-btn-duplicate" name="submitCreate" type="submit" value="submitCreate"/>
+      <div class="control-group form-controls">
+        <input id="submit_id" class="btn-primary" name="submitCreate" type="submit" value="submitCreate"/>
+      </div>
+      <div class="control-group form-controls">
+        <input class="btn-primary" name="submitDelete" type="submit" value="submitDelete"/>
+      </div>
+    </form>
+HTML;
+
+        // Call render twice to ensure that the submit button is only prepended once.
+        $this->form->render();
+        $this->assertHtml($expected, $this->form);
+    }
+
+    public function testDuplicateSubmitButtonRespectsOriginalAttributes(): void
+    {
+        $submitButton = new SubmitElement('test_submit', [
+            'class'          => 'autosubmit',
+            'formnovalidate' => true
+        ]);
+
+        $prefixButton = $this->form->duplicateSubmitButton($submitButton);
+
+        // Name should stay the same
+        $this->assertSame($submitButton->getName(), 'test_submit');
+        $this->assertSame($prefixButton->getName(), 'test_submit');
+
+        // Added attributes should stay the same
+        $this->assertSame($submitButton->getAttributes()->get('formnovalidate')->getValue(), true);
+        $this->assertSame($prefixButton->getAttributes()->get('formnovalidate')->getValue(), true);
+
+        // Class attribute should change to `primary-submit-btn-duplicate`
+        $this->assertSame($submitButton->getAttributes()->get('class')->getValue(), 'autosubmit');
+        $this->assertSame($prefixButton->getAttributes()->get('class')->getValue(), 'primary-submit-btn-duplicate');
+    }
+}
