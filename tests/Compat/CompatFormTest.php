@@ -25,9 +25,11 @@ class CompatFormTest extends TestCase
     <form class="icinga-form icinga-controls" method="POST">
       <input class="primary-submit-btn-duplicate" name="submitCreate" type="submit" value="submitCreate"/>
       <div class="control-group form-controls">
+        <div class="control-label-group">&amp;nbsp</div>
         <input class="btn-primary" name="submitCreate" type="submit" value="submitCreate"/>
       </div>
       <div class="control-group form-controls">
+        <div class="control-label-group">&amp;nbsp</div>
         <input class="btn-primary" name="submitDelete" type="submit" value="submitDelete"/>
       </div>
     </form>
@@ -43,6 +45,7 @@ HTML;
         $expected = <<<'HTML'
     <form class="icinga-form icinga-controls" method="POST">
       <div class="control-group form-controls">
+        <div class="control-label-group">&amp;nbsp</div>
         <input class="btn-primary" name="submitCreate" type="submit" value="submitCreate"/>
       </div>
     </form>
@@ -60,9 +63,11 @@ HTML;
     <form class="icinga-form icinga-controls" method="POST">
       <input class="primary-submit-btn-duplicate" name="submitCreate" type="submit" value="submitCreate"/>
       <div class="control-group form-controls">
+        <div class="control-label-group">&amp;nbsp</div>
         <input id="submit_id" class="btn-primary" name="submitCreate" type="submit" value="submitCreate"/>
       </div>
       <div class="control-group form-controls">
+        <div class="control-label-group">&amp;nbsp</div>
         <input class="btn-primary" name="submitDelete" type="submit" value="submitDelete"/>
       </div>
     </form>
