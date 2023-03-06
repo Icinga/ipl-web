@@ -76,7 +76,7 @@ class IcingaFormDecorator extends DivDecorator
         if (! $this->formElement instanceof FieldsetElement) {
             if ($label !== null) {
                 $label->addWrapper(new HtmlElement('div', Attributes::create(['class' => 'control-label-group'])));
-            } else {
+            } elseif (! $this->formElement instanceof FormSubmitElement) {
                 $label = new HtmlElement(
                     'div',
                     Attributes::create(['class' => 'control-label-group']),
@@ -96,9 +96,9 @@ class IcingaFormDecorator extends DivDecorator
 
         if (($description = $this->formElement->getDescription()) !== null) {
             $iconAttributes = [
-                'class'         => 'control-info',
-                'role'          => 'image',
-                'title'         => $description
+                'class' => 'control-info',
+                'role'  => 'image',
+                'title' => $description
             ];
 
             $describedBy = null;
