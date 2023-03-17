@@ -214,6 +214,18 @@ class SearchBar extends Form
         return $id;
     }
 
+    public function populate($values)
+    {
+        if (array_key_exists($this->getSearchParameter(), (array) $values)) {
+            // If a filter is set, it must be reset in case new data arrives. The new data controls the filter,
+            // though if no data is sent, (populate() is only called if the form is sent) then the filter must
+            // be reset explicitly here to not keep the outdated filter.
+            $this->filter = Filter::all();
+        }
+
+        parent::populate($values);
+    }
+
     public function isValidEvent($event)
     {
         switch ($event) {
