@@ -261,7 +261,7 @@ class ScheduleElementTest extends TestCase
         $this->assertEquals($start, $element->getValue('start'));
         $this->assertNull($element->getValue('end'));
         $this->assertSame('cron_expr', $element->getValue('frequency'));
-        $this->assertSame($cron->getExpression(), $element->getValue('cron-expression'));
+        $this->assertSame($cron->getExpression(), $element->getValue('cron_expression'));
 
         $this->assertEquals($cron, $element->getValue());
     }
@@ -279,7 +279,7 @@ class ScheduleElementTest extends TestCase
         $this->assertEquals($start, $element->getValue('start'));
         $this->assertEquals($end, $element->getValue('end'));
         $this->assertSame('cron_expr', $element->getValue('frequency'));
-        $this->assertSame($cron->getExpression(), $element->getValue('cron-expression'));
+        $this->assertSame($cron->getExpression(), $element->getValue('cron_expression'));
 
         $this->assertEquals($cron, $element->getValue());
     }
