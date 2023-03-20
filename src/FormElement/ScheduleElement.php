@@ -211,7 +211,7 @@ class ScheduleElement extends FieldsetElement
             case static::NO_REPEAT:
                 return new OneOff($start);
             case static::CRON_EXPR:
-                $rule = new Cron(parent::getValue('cron-expression'));
+                $rule = new Cron(parent::getValue('cron_expression'));
 
                 break;
             case RRule::MINUTELY:
@@ -328,7 +328,7 @@ class ScheduleElement extends FieldsetElement
             if ($rule instanceof OneOff) {
                 $values['frequency'] = static::NO_REPEAT;
             } elseif ($rule instanceof Cron) {
-                $values['cron-expression'] = $rule->getExpression();
+                $values['cron_expression'] = $rule->getExpression();
                 $values['frequency'] = static::CRON_EXPR;
 
                 $this->setFrequency(static::CRON_EXPR);
@@ -468,15 +468,13 @@ class ScheduleElement extends FieldsetElement
                     $this->addElement($this->annuallyFields);
             }
         } elseif ($this->hasCronExpression()) {
-            $this->addElement('text', 'cron-expression', [
+            $this->addElement('text', 'cron_expression', [
                 'label'       => $this->translate('Cron Expression'),
                 'description' => $this->translate('Job cron Schedule'),
                 'validators' => [
-                    new CallbackValidator(function ($value) {
+                    new CallbackValidator(function ($value, CallbackValidator $validator) {
                         if ($value && ! Cron::isValid($value)) {
-                            $this
-                                ->getElement('cron-expression')
-                                ->addMessage($this->translate('Invalid CRON expression'));
+                            $validator->addMessage($this->translate('Invalid CRON expression'));
 
                             return false;
                         }
