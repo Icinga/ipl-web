@@ -4,7 +4,6 @@ namespace ipl\Web\FormElement\ScheduleElement;
 
 use InvalidArgumentException;
 use ipl\Html\Attributes;
-use ipl\Html\Form;
 use ipl\Html\FormattedString;
 use ipl\Html\FormElement\FieldsetElement;
 use ipl\Html\HtmlElement;
@@ -16,9 +15,6 @@ class AnnuallyFields extends FieldsetElement
 {
     use FieldsUtils;
     use FieldsProtector;
-
-    /** @var bool Whether the form is auto submitted */
-    protected $isAutoSubmitted = true;
 
     /** @var array A list of valid months */
     protected $months = [];
@@ -50,13 +46,6 @@ class AnnuallyFields extends FieldsetElement
     {
         parent::init();
         $this->initUtils();
-    }
-
-    public function onRegistered(Form $form)
-    {
-        $form->on(Form::ON_SENT, function ($form) {
-            $this->isAutoSubmitted = ! $form->hasBeenSubmitted();
-        });
     }
 
     /**
@@ -115,11 +104,6 @@ class AnnuallyFields extends FieldsetElement
             )
         );
         $annuallyWrapper->addHtml($notes);
-
-        if ($runsOnThe === 'n' && $this->isAutoSubmitted) {
-            $this->clearPopulatedValue('ordinal');
-            $this->clearPopulatedValue('day');
-        }
 
         $enumerations = $this->createOrdinalElement();
         $enumerations->getAttributes()->set('disabled', $runsOnThe === 'n');
