@@ -201,7 +201,7 @@ class ScheduleElement extends FieldsetElement
 
     public function getValue($name = null, $default = null)
     {
-        if ($name !== null) {
+        if ($name !== null || ! $this->hasBeenValidated()) {
             return parent::getValue($name, $default);
         }
 
