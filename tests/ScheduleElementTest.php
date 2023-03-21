@@ -20,9 +20,11 @@ class ScheduleElementTest extends TestCase
     protected function assembleElement(array $options): ScheduleElement
     {
         $element = new ScheduleElement('test', $options);
+        // ScheduleElement#getValue won't return an instance of Frequency if it's not validated
+        $element->ensureAssembled()->validate();
 
         // Remove the recurrences preview. It randomizes the HTML and isn't subject to test
-        if ($element->ensureAssembled()->hasElement('schedule-recurrences')) {
+        if ($element->hasElement('schedule-recurrences')) {
             $element->remove($element->getElement('schedule-recurrences'));
         }
 
