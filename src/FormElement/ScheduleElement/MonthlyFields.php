@@ -5,7 +5,9 @@ namespace ipl\Web\FormElement\ScheduleElement;
 use ipl\Html\Attributes;
 use ipl\Html\FormElement\FieldsetElement;
 use ipl\Html\HtmlElement;
+use ipl\Validator\CallbackValidator;
 use ipl\Validator\InArrayValidator;
+use ipl\Validator\ValidatorChain;
 use ipl\Web\FormElement\ScheduleElement\Common\FieldsProtector;
 use ipl\Web\FormElement\ScheduleElement\Common\FieldsUtils;
 
@@ -103,25 +105,19 @@ class MonthlyFields extends FieldsetElement
             $listItems->getAttributes()->add('class', 'disabled');
         }
 
-        $foundCheckedDay = false;
         foreach (range(1, $this->availableFields) as $day) {
             $checkbox = $this->createElement('checkbox', "day$day", [
                 'class' => ['autosubmit', 'sr-only'],
-                'value' => $this->getPopulatedValue("day$day", 'n')
+                'value' => $day === $this->default && $runsOn === static::RUNS_EACH
             ]);
             $this->registerElement($checkbox);
 
-            $foundCheckedDay = $foundCheckedDay || $checkbox->isChecked();
             $htmlId = $this->protectId("day$day");
             $checkbox->getAttributes()->set('id', $htmlId);
 
             $listItem = HtmlElement::create('li');
             $listItem->addHtml($checkbox, HtmlElement::create('label', ['for' => $htmlId], $day));
             $listItems->addHtml($listItem);
-        }
-
-        if (! $foundCheckedDay) {
-            $this->getElement("day{$this->default}")->setChecked(true);
         }
 
         $monthlyWrapper = HtmlElement::create('div', ['class' => 'monthly']);
@@ -165,5 +161,31 @@ class MonthlyFields extends FieldsetElement
             ->registerAttributeCallback('default', null, [$this, 'setDefault'])
             ->registerAttributeCallback('availableFields', null, [$this, 'setAvailableFields'])
             ->registerAttributeCallback('protector', null, [$this, 'setIdProtector']);
+    }
+
+    protected function addDefaultValidators(ValidatorChain $chain): void
+    {
+        $chain->add(
+            new CallbackValidator(function ($_, CallbackValidator $validator): bool {
+                if ($this->getValue('runsOn', static::RUNS_EACH) !== static::RUNS_EACH) {
+                    return true;
+                }
+
+                $valid = false;
+                foreach (range(1, $this->availableFields) as $day) {
+                    if ($this->getValue("day$day") === 'y') {
+                        $valid = true;
+
+                        break;
+                    }
+                }
+
+                if (! $valid) {
+                    $validator->addMessage($this->translate('You must select at least one of these days'));
+                }
+
+                return $valid;
+            })
+        );
     }
 }

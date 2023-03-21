@@ -6,6 +6,8 @@ use InvalidArgumentException;
 use ipl\Html\Attributes;
 use ipl\Html\FormElement\FieldsetElement;
 use ipl\Html\HtmlElement;
+use ipl\Validator\CallbackValidator;
+use ipl\Validator\ValidatorChain;
 use ipl\Web\FormElement\ScheduleElement\Common\FieldsProtector;
 
 class WeeklyFields extends FieldsetElement
@@ -102,25 +104,19 @@ class WeeklyFields extends FieldsetElement
         $fieldsWrapper = HtmlElement::create('div', ['class' => 'weekly']);
         $listItems = HtmlElement::create('ul', ['class' => ['schedule-element-fields', 'multiple-fields']]);
 
-        $foundCheckedDay = false;
         foreach ($this->weekdays as $day => $value) {
             $checkbox = $this->createElement('checkbox', $day, [
                 'class' => ['autosubmit', 'sr-only'],
-                'value' => $this->getPopulatedValue($day, 'n')
+                'value' => $day === $this->default
             ]);
             $this->registerElement($checkbox);
 
-            $foundCheckedDay = $foundCheckedDay || $checkbox->isChecked();
             $htmlId = $this->protectId("weekday-$day");
             $checkbox->getAttributes()->set('id', $htmlId);
 
             $listItem = HtmlElement::create('li');
             $listItem->addHtml($checkbox, HtmlElement::create('label', ['for' => $htmlId], $value));
             $listItems->addHtml($listItem);
-        }
-
-        if (! $foundCheckedDay) {
-            $this->getElement($this->default)->setChecked(true);
         }
 
         $fieldsWrapper->addHtml($listItems);
@@ -134,5 +130,27 @@ class WeeklyFields extends FieldsetElement
         $attributes
             ->registerAttributeCallback('default', null, [$this, 'setDefault'])
             ->registerAttributeCallback('protector', null, [$this, 'setIdProtector']);
+    }
+
+    protected function addDefaultValidators(ValidatorChain $chain): void
+    {
+        $chain->add(
+            new CallbackValidator(function ($_, CallbackValidator $validator): bool {
+                $valid = false;
+                foreach ($this->weekdays as $weekday => $_) {
+                    if ($this->getValue($weekday) === 'y') {
+                        $valid = true;
+
+                        break;
+                    }
+                }
+
+                if (! $valid) {
+                    $validator->addMessage($this->translate('You must select at least one of these weekdays'));
+                }
+
+                return $valid;
+            })
+        );
     }
 }
