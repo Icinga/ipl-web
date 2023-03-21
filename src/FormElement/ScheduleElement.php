@@ -490,8 +490,28 @@ class ScheduleElement extends FieldsetElement
                 new Recurrence('schedule-recurrences', [
                     'id'        => $this->protectId('schedule-recurrences'),
                     'label'     => $this->translate('Next occurrences'),
-                    'valid'     => function (): bool {
-                        return $this->isValid();
+                    'validate'  => function (): array {
+                        $isValid = $this->isValid();
+                        $reason = null;
+                        if (! $isValid && $this->getFrequency() === static::CUSTOM_EXPR) {
+                            if (! $this->getElement('interval')->isValid()) {
+                                $reason = current($this->getElement('interval')->getMessages());
+                            } else {
+                                $frequency = $this->getCustomFrequency();
+                                switch ($frequency) {
+                                    case RRule::WEEKLY:
+                                        $reason = current($this->weeklyField->getMessages());
+
+                                        break;
+                                    default: // monthly
+                                        $reason = current($this->monthlyFields->getMessages());
+
+                                        break;
+                                }
+                            }
+                        }
+
+                        return [$isValid, $reason];
                     },
                     'frequency' => function (): Frequency {
                         if ($this->getFrequency() === static::CUSTOM_EXPR) {

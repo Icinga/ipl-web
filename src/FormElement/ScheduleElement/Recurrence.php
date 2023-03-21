@@ -23,7 +23,7 @@ class Recurrence extends BaseFormElement
     protected $frequencyCallback;
 
     /** @var callable A validation callback for the schedule element */
-    protected $isValidCallback;
+    protected $validateCallback;
 
     /**
      * Set a validation callback that will be called when assembling this element
@@ -34,7 +34,7 @@ class Recurrence extends BaseFormElement
      */
     public function setValid(callable $callback): self
     {
-        $this->isValidCallback = $callback;
+        $this->validateCallback = $callback;
 
         return $this;
     }
@@ -55,8 +55,11 @@ class Recurrence extends BaseFormElement
 
     protected function assemble()
     {
-        $isValid = ($this->isValidCallback)();
+        list($isValid, $reason) = ($this->validateCallback)();
         if (! $isValid) {
+            // Render why we can't generate the recurrences
+            $this->addHtml(Text::create($reason));
+
             return;
         }
 
@@ -81,6 +84,6 @@ class Recurrence extends BaseFormElement
 
         $attributes
             ->registerAttributeCallback('frequency', null, [$this, 'setFrequency'])
-            ->registerAttributeCallback('valid', null, [$this, 'setValid']);
+            ->registerAttributeCallback('validate', null, [$this, 'setValid']);
     }
 }
