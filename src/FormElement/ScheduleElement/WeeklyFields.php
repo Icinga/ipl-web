@@ -78,20 +78,15 @@ class WeeklyFields extends FieldsetElement
     /**
      * Transform the given weekdays into key=>value array that can be populated
      *
-     * @param array $days
+     * @param array $weekdays
      *
      * @return array
      */
-    public function loadWeekDays(array $days): array
+    public function loadWeekDays(array $weekdays): array
     {
         $values = [];
-        foreach ($days as $day) {
-            $weekDays = strtoupper($day);
-            if (! isset($this->weekdays[$weekDays])) {
-                throw new InvalidArgumentException(sprintf('Invalid weekday provided: %s', $day));
-            }
-
-            $values[$weekDays] = 'y';
+        foreach ($this->weekdays as $weekday => $_) {
+            $values[$weekday] = in_array($weekday, $weekdays, true) ? 'y' : 'n';
         }
 
         return $values;

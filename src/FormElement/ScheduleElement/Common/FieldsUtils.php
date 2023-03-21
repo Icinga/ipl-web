@@ -85,8 +85,9 @@ trait FieldsUtils
         $values = [];
         $isMonthly = $rule->getFrequency() === RRule::MONTHLY;
         if ($isMonthly && (! empty($rule->getByMonthDay()) || empty($rule->getByDay()))) {
-            foreach ($rule->getByMonthDay() ?? [] as $value) {
-                $values["day$value"] = 'y';
+            $monthDays = $rule->getByMonthDay() ?? [];
+            foreach (range(1, $this->availableFields) as $value) {
+                $values["day$value"] = in_array((string) $value, $monthDays, true) ? 'y' : 'n';
             }
 
             $values['runsOn'] = MonthlyFields::RUNS_EACH;
