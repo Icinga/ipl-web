@@ -50,6 +50,21 @@ class CompatForm extends Form
         return true;
     }
 
+    protected function ensureDefaultElementLoaderRegistered()
+    {
+        if (! $this->defaultElementLoaderRegistered) {
+            $this->addPluginLoader(
+                'element',
+                'ipl\\Web\\FormElement',
+                'Element'
+            );
+
+            parent::ensureDefaultElementLoaderRegistered();
+        }
+
+        return $this;
+    }
+
     /**
      * Return a duplicate of the given submit button with the `class` attribute fixed to `primary-submit-btn-duplicate`
      *
