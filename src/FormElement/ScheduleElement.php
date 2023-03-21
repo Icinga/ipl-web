@@ -596,6 +596,8 @@ class ScheduleElement extends FieldsetElement
                 || preg_match('/\[interval]/', $autoSubmittedBy[0])
             )
         ) {
+            $this->ensureAssembled();
+
             $partUpdates[] = $this->getElement('schedule-recurrences');
             if (
                 $this->getFrequency() === static::CUSTOM_EXPR
