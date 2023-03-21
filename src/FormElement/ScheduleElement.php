@@ -469,6 +469,7 @@ class ScheduleElement extends FieldsetElement
             }
         } elseif ($this->hasCronExpression()) {
             $this->addElement('text', 'cron_expression', [
+                'required'    => true,
                 'label'       => $this->translate('Cron Expression'),
                 'description' => $this->translate('Job cron Schedule'),
                 'validators' => [
