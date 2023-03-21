@@ -564,7 +564,7 @@ class ScheduleElement extends FieldsetElement
     public function prepareMultipartUpdate(RequestInterface $request): array
     {
         $autoSubmittedBy = $request->getHeader('X-Icinga-AutoSubmittedBy');
-        $pattern = '/\[(weekly-fields|monthly-fields|annually-fields)]\[(ordinal|interval|month|day(\d+)?|[A-Z]{2})]$/';
+        $pattern = '/\[(weekly-fields|monthly-fields|annually-fields)]\[(ordinal|month|day(\d+)?|[A-Z]{2})]$/';
 
         $partUpdates = [];
         if (
@@ -573,6 +573,7 @@ class ScheduleElement extends FieldsetElement
             && (
                 preg_match('/\[(start|end)]$/', $autoSubmittedBy[0], $matches)
                 || preg_match($pattern, $autoSubmittedBy[0])
+                || preg_match('/\[interval]/', $autoSubmittedBy[0])
             )
         ) {
             $partUpdates[] = $this->getElement('schedule-recurrences');
