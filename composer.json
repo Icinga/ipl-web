@@ -20,7 +20,7 @@
     "php": ">=7.2",
     "ext-json": "*",
     "psr/http-message": "^1.0",
-    "ipl/html": "dev-master",
+    "ipl/html": "dev-main",
     "ipl/validator": "@dev",
     "ipl/i18n": ">=0.2.0",
     "ipl/scheduler": ">=0.1.0",
