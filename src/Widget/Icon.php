@@ -29,4 +29,9 @@ class Icon extends BaseHtmlElement
                 ->add('class', ['icon', 'fa', "fa-$name"])
                 ->add($attributes);
     }
+
+    public function setStyle($aa)
+    {
+        return $this;
+    }
 }
