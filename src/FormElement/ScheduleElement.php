@@ -125,7 +125,7 @@ class ScheduleElement extends FieldsetElement
      */
     public function getFrequency(): string
     {
-        return $this->getValue('frequency', $this->frequency);
+        return $this->getPopulatedValue('frequency', $this->frequency);
     }
 
     /**
@@ -396,8 +396,9 @@ class ScheduleElement extends FieldsetElement
         }
         $this->setStart($start);
 
+        $autosubmit = ! $this->hasCronExpression() && $this->getFrequency() !== static::NO_REPEAT;
         $this->addElement('localDateTime', 'start', [
-            'class'       => ! $this->hasCronExpression() ? 'autosubmit' : null,
+            'class'       => $autosubmit ? 'autosubmit' : null,
             'required'    => true,
             'label'       => $this->translate('Start'),
             'value'       => $start,
@@ -590,7 +591,6 @@ class ScheduleElement extends FieldsetElement
         $partUpdates = [];
         if (
             $autoSubmittedBy
-            && ! $this->hasCronExpression()
             && (
                 preg_match('/\[(start|end)]$/', $autoSubmittedBy[0], $matches)
                 || preg_match($pattern, $autoSubmittedBy[0])
