@@ -315,10 +315,8 @@ define(["../notjQuery"], function ($) {
                 activeElement = document.activeElement;
             }
 
-            return input === this.completedInput && (
-                (! activeElement && this.hasSuggestions())
-                    || (activeElement && this.termSuggestions.contains(activeElement))
-            );
+            return input === this.completedInput && this.hasSuggestions()
+                && (! activeElement || input === activeElement || this.termSuggestions.contains(activeElement));
         }
 
         /**
