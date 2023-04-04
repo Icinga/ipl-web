@@ -1536,7 +1536,8 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
 
         onPaste(event) {
             if (! this.hasTerms()) {
-                super.onPaste(event);
+                this.submitTerms(event.clipboardData.getData('text/plain'));
+                event.preventDefault();
             } else if (! this.input.value) {
                 let terms = event.clipboardData.getData('text/plain');
                 if (this.termType === 'logical_operator') {

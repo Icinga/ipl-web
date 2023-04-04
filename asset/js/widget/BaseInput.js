@@ -862,11 +862,11 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
         }
 
         onPaste(event) {
-            if (this.hasTerms() || this.input.value) {
+            if (this.shouldNotAutoSubmit() || this.hasTerms() || this.input.value) {
                 return;
             }
 
-            this.submitTerms(event.clipboardData.getData('text/plain'));
+            this.autoSubmit(this.input, 'paste', [event.clipboardData.getData('text/plain')]);
 
             event.preventDefault();
         }
