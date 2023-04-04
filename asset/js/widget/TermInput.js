@@ -8,14 +8,24 @@ define(["BaseInput"], function (BaseInput) {
 
             this.separator = this.input.dataset.termSeparator || ' ';
             this.ignoreSpaceUntil = null;
-            this.ignoreSpaceSince = null;
         }
 
         reset() {
             super.reset();
 
             this.ignoreSpaceUntil = null;
-            this.ignoreSpaceSince = null;
+        }
+
+        readPartialTerm(input) {
+            let value = super.readPartialTerm(input);
+            if (value && this.ignoreSpaceUntil && value[0] === this.ignoreSpaceUntil) {
+                value = value.slice(1);
+                if (value.slice(-1) === this.ignoreSpaceUntil) {
+                    value = value.slice(0, -1);
+                }
+            }
+
+            return value;
         }
 
         writePartialTerm(value, input) {
@@ -28,31 +38,38 @@ define(["BaseInput"], function (BaseInput) {
 
         readFullTerm(input, termIndex = null) {
             let termData = super.readFullTerm(input, termIndex);
-            if (this.ignoreSpaceUntil !== null && termData.label[this.ignoreSpaceSince] === this.ignoreSpaceUntil) {
-                if (termData.label.length - 1 === this.ignoreSpaceSince
-                    || termData.label.slice(-1) !== this.ignoreSpaceUntil
-                    || (this.ignoreSpaceSince === 0 && (termData.label.length < 2
-                        || termData.label.slice(0, 1) !== this.ignoreSpaceUntil)
-                    )
-                ) {
+            if (termData && this.ignoreSpaceUntil !== null && input.value[0] === this.ignoreSpaceUntil) {
+                if (input.value.slice(-1) !== this.ignoreSpaceUntil || input.value.length < 2) {
                     return false;
                 }
+
+                this.ignoreSpaceUntil = null;
             }
 
             return termData;
         }
 
-        addTerm(termData, termIndex = null) {
-            if (this.ignoreSpaceUntil !== null) {
-                if (this.ignoreSpaceSince === 0 && termData.label[this.ignoreSpaceSince] === this.ignoreSpaceUntil) {
-                    termData.label = termData.label.slice(1, -1);
+        hasSyntaxError(input) {
+            if ((typeof input === 'undefined' || input === this.input) && this.ignoreSpaceUntil !== null) {
+                if (this.input.value === this.ignoreSpaceUntil) {
+                    return true;
                 }
-
-                this.ignoreSpaceUntil = null;
-                this.ignoreSpaceSince = null;
             }
 
-            super.addTerm(termData, termIndex);
+            return super.hasSyntaxError(input);
+        }
+
+        termsToQueryString(terms) {
+            let quoted = [];
+            for (const termData of terms) {
+                if (termData.search.indexOf(this.separator) >= 0) {
+                    quoted.push({ ...termData, search: '"' + termData.search + '"' });
+                } else {
+                    quoted.push(termData);
+                }
+            }
+
+            return super.termsToQueryString(quoted);
         }
 
         complete(input, data) {
@@ -69,7 +86,30 @@ define(["BaseInput"], function (BaseInput) {
             super.onSubmit(event);
 
             this.ignoreSpaceUntil = null;
-            this.ignoreSpaceSince = null;
+        }
+
+        onInput(event) {
+            let label = event.target.parentNode;
+            if (label.dataset.index >= 0) {
+                super.onInput(event);
+                return;
+            }
+
+            let input = event.target;
+            let firstChar = input.value[0];
+
+            if (this.ignoreSpaceUntil !== null) {
+                // Reset if the user changes/removes the source char
+                if (firstChar !== this.ignoreSpaceUntil) {
+                    this.ignoreSpaceUntil = null;
+                }
+            }
+
+            if (this.ignoreSpaceUntil === null && (firstChar === "'" || firstChar === '"')) {
+                this.ignoreSpaceUntil = firstChar;
+            }
+
+            super.onInput(event);
         }
 
         onKeyDown(event) {
