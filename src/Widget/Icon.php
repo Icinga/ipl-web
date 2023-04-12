@@ -12,6 +12,12 @@ class Icon extends BaseHtmlElement
 {
     protected $tag = 'i';
 
+    /** @var string Icon style */
+    protected $style;
+
+    /** @var string Icon default style */
+    protected $defaultStyle = 'fa';
+
     /**
      * Create a icon element
      *
@@ -26,7 +32,36 @@ class Icon extends BaseHtmlElement
     {
         $this
             ->getAttributes()
-                ->add('class', ['icon', 'fa', "fa-$name"])
+                ->add('class', ['icon', "fa-$name"])
                 ->add($attributes);
+    }
+
+    /**
+     * Get the icon style
+     *
+     * @return string
+     */
+    public function getStyle(): string
+    {
+        return $this->style ?? $this->defaultStyle;
+    }
+
+    /**
+     * Set the icon style
+     *
+     * @param string $style Style class with prefix
+     *
+     * @return $this
+     */
+    public function setStyle(string $style): self
+    {
+        $this->style = $style;
+
+        return $this;
+    }
+
+    protected function assemble()
+    {
+        $this->addAttributes(['class' => $this->getStyle()]);
     }
 }

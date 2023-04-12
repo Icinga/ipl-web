@@ -6,6 +6,8 @@ use ipl\Html\Attributes;
 
 class IcingaIcon extends Icon
 {
+    protected $style = '';
+
     /**
      * Create a icon element
      *
