@@ -36,6 +36,62 @@ HTML;
         $this->assertHtml($expected, $this->form);
     }
 
+    public function testSubmitElementDuplication(): void
+    {
+        $this->form->addElement('submit', 'submit', [
+            'label' => 'Submit label',
+            'class' => 'btn-primary'
+        ]);
+        $this->form->addElement('submit', 'delete', [
+            'label' => 'Delete label',
+            'class' => 'btn-danger'
+        ]);
+        $this->form->setSubmitButton($this->form->getElement('submit'));
+
+        $expected = <<<'HTML'
+    <form class="icinga-form icinga-controls" method="POST">
+      <input class="primary-submit-btn-duplicate" name="submit" type="submit" value="Submit label"/>
+      <div class="control-group form-controls">
+        <input class="btn-primary btn-primary" name="submit" type="submit" value="Submit label"/>
+      </div>
+      <div class="control-group form-controls">
+        <input class="btn-danger btn-primary" name="delete" type="submit" value="Delete label"/>
+      </div>
+    </form>
+HTML;
+
+        $this->assertHtml($expected, $this->form);
+    }
+
+
+    public function testSubmitButtonElementDuplication(): void
+    {
+        $this->form->addElement('submitButton', 'submit', [
+            'label' => 'Submit label',
+            'class' => 'btn-primary',
+            'value' => 'submit_value'
+        ]);
+        $this->form->addElement('submitButton', 'delete', [
+            'label' => 'Delete label',
+            'class' => 'btn-danger'
+        ]);
+        $this->form->setSubmitButton($this->form->getElement('submit'));
+
+        $expected = <<<'HTML'
+    <form class="icinga-form icinga-controls" method="POST">
+      <button class="primary-submit-btn-duplicate" name="submit" type="submit" value="submit_value" />
+      <div class="control-group form-controls">
+        <button class="btn-primary btn-primary" name="submit" type="submit" value="submit_value">Submit label</button>
+      </div>
+      <div class="control-group form-controls">
+        <button class="btn-danger btn-primary" name="delete" type="submit" value="y">Delete label</button>
+      </div>
+    </form>
+HTML;
+
+        $this->assertHtml($expected, $this->form);
+    }
+
     public function testDuplicateSubmitButtonOmitted(): void
     {
         $this->form->addElement('submit', 'submitCreate');

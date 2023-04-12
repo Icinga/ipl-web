@@ -2,8 +2,10 @@
 
 namespace ipl\Web\Compat;
 
+use http\Exception\InvalidArgumentException;
 use ipl\Html\Contract\FormSubmitElement;
 use ipl\Html\Form;
+use ipl\Html\FormElement\SubmitButtonElement;
 use ipl\Html\FormElement\SubmitElement;
 use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlString;
@@ -53,14 +55,31 @@ class CompatForm extends Form
      *
      * @param FormSubmitElement $originalSubmitButton
      *
-     * @return SubmitElement
+     * @return FormSubmitElement
      */
-    public function duplicateSubmitButton(FormSubmitElement $originalSubmitButton): SubmitElement
+    public function duplicateSubmitButton(FormSubmitElement $originalSubmitButton): FormSubmitElement
     {
         $attributes = (clone $originalSubmitButton->getAttributes())
             ->set('class', 'primary-submit-btn-duplicate');
         $attributes->remove('id');
+        // Remove to avoid `type="submit submit"` in SubmitButtonElement
+        $attributes->remove('type');
 
-        return new SubmitElement($originalSubmitButton->getName(), $attributes);
+        if ($originalSubmitButton instanceof SubmitElement) {
+            $newSubmitButton = new SubmitElement($originalSubmitButton->getName(), $attributes);
+            $newSubmitButton->setLabel($originalSubmitButton->getButtonLabel());
+
+            return $newSubmitButton;
+        } elseif ($originalSubmitButton instanceof SubmitButtonElement) {
+            $newSubmitButton = new SubmitButtonElement($originalSubmitButton->getName(), $attributes);
+            $newSubmitButton->setSubmitValue($originalSubmitButton->getSubmitValue());
+
+            return $newSubmitButton;
+        }
+
+        throw new InvalidArgumentException(sprintf(
+            'Cannot duplicate submit button of type "%s"',
+            get_class($originalSubmitButton)
+        ));
     }
 }
