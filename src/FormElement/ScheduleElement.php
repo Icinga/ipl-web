@@ -390,7 +390,7 @@ class ScheduleElement extends FieldsetElement
 
     protected function assemble()
     {
-        $start = $this->getPopulatedValue('start', $this->start);
+        $start = $this->getPopulatedValue('start') ?: $this->start;
         if (! $start instanceof DateTime) {
             $start = new DateTime($start);
         }
