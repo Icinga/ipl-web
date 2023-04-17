@@ -162,6 +162,22 @@ define(["BaseInput"], function (BaseInput) {
                     }
             }
         }
+
+        onButtonClick(event) {
+            if (! this.hasSyntaxError()) {
+                let addedTerms = this.exchangeTerm();
+                if (Object.keys(addedTerms).length) {
+                    this.togglePlaceholder();
+                    event.preventDefault();
+                    this.autoSubmit(this.input, 'exchange', addedTerms);
+                    this.ignoreSpaceUntil = null;
+
+                    return;
+                }
+            }
+
+            super.onButtonClick(event);
+        }
     }
 
     return TermInput;
