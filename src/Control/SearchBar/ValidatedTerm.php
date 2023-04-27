@@ -71,9 +71,9 @@ abstract class ValidatedTerm
     /**
      * Get the search value
      *
-     * @return mixed
+     * @return string
      */
-    public function getSearchValue()
+    public function getSearchValue(): string
     {
         return $this->searchValue;
     }
@@ -81,11 +81,11 @@ abstract class ValidatedTerm
     /**
      * Set the search value
      *
-     * @param mixed $searchValue
+     * @param string $searchValue
      *
      * @return $this
      */
-    public function setSearchValue($searchValue)
+    public function setSearchValue(string $searchValue): self
     {
         $this->searchValue = $searchValue;
         $this->changed = true;
@@ -98,7 +98,7 @@ abstract class ValidatedTerm
      *
      * @return string
      */
-    public function getLabel()
+    public function getLabel(): ?string
     {
         return $this->label;
     }
@@ -110,7 +110,7 @@ abstract class ValidatedTerm
      *
      * @return $this
      */
-    public function setLabel($label)
+    public function setLabel(string $label): self
     {
         $this->label = (string) $label;
         $this->changed = true;
@@ -123,7 +123,7 @@ abstract class ValidatedTerm
      *
      * @return string
      */
-    public function getMessage()
+    public function getMessage(): ?string
     {
         return $this->message;
     }
@@ -135,7 +135,7 @@ abstract class ValidatedTerm
      *
      * @return $this
      */
-    public function setMessage($message)
+    public function setMessage(string $message): self
     {
         $this->message = $message;
 
@@ -149,7 +149,7 @@ abstract class ValidatedTerm
      *
      * @return string
      */
-    public function getPattern()
+    public function getPattern(): string
     {
         if ($this->pattern === null) {
             return sprintf(self::DEFAULT_PATTERN, $this->getSearchValue());
@@ -165,7 +165,7 @@ abstract class ValidatedTerm
      *
      * @return $this
      */
-    public function setPattern($pattern)
+    public function setPattern(string $pattern): self
     {
         $this->pattern = (string) $pattern;
 
