@@ -317,7 +317,43 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
             return this.termsToQueryString(this.usedTerms);
         }
 
+        checkValidity(input) {
+            if (input.pattern && ! input.checkValidity()) {
+                if (! input.value.match(input.pattern)) {
+                    if (input.dataset.invalidMsg) {
+                        input.setCustomValidity(input.dataset.invalidMsg);
+                    }
+
+                    return false;
+                }
+
+                // If the pattern matches, reset the custom validity, otherwise the value is still invalid.
+                input.setCustomValidity('');
+            }
+
+            // The pattern isn't set or it matches. Any other custom validity must not be accounted for here.
+            return true;
+        }
+
+        reportValidity(element) {
+            setTimeout(() => element.reportValidity(), 0);
+        }
+
+        validate(element) {
+            if (! this.checkValidity(element)) {
+                this.reportValidity(element);
+
+                return false;
+            }
+
+            return true;
+        }
+
         saveTerm(input, updateDOM = true, force = false) {
+            if (! this.checkValidity(input)) {
+                return false;
+            }
+
             let termIndex = input.parentNode.dataset.index;
             let termData = this.readFullTerm(input, termIndex);
 
@@ -347,6 +383,18 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
                 label.title = termData.title;
             } else {
                 label.title = '';
+            }
+
+            if (termData.pattern) {
+                input.pattern = termData.pattern;
+                delete termData.pattern;
+
+                if (termData.invalidMsg) {
+                    input.dataset.invalidMsg = termData.invalidMsg;
+                    delete termData.invalidMsg;
+                }
+
+                this.validate(input);
             }
         }
 
@@ -640,6 +688,8 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
             this.lastCompletedTerm = termData;
             this.writePartialTerm(termData.label, input);
 
+            this.checkValidity(input);
+
             if (termIndex >= 0) {
                 this.autoSubmit(input, 'save', { [termIndex]: this.saveTerm(input, false, true) });
             } else {
@@ -660,6 +710,10 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
             }
 
             if (! this.hasSyntaxError(input)) {
+                if (isTerm && ! this.validate(input)) {
+                    return;
+                }
+
                 this.complete(input, { term: termData });
             }
 
@@ -830,6 +884,12 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
         }
 
         onTermFocus(event) {
+            let input = event.target;
+
+            if (input.parentNode.dataset.index >= 0) {
+                this.validate(input);
+            }
+
             if (event.detail.scripted) {
                 // Only request suggestions if the user manually focuses the term
                 return;
@@ -837,7 +897,6 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
 
             this.deselectTerms();
 
-            let input = event.target;
             if (! this.hasSyntaxError(input) && (
                 this.completer === null || ! this.completer.isBeingCompleted(input, false)
             )) {
