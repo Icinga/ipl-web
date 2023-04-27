@@ -575,12 +575,12 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
                 }
             }
 
-            this.dataInput.value = JSON.stringify({
-                type: changeType,
-                terms: changedTerms
-            });
-
             if (Object.keys(changedTerms).length) {
+                this.dataInput.value = JSON.stringify({
+                    type: changeType,
+                    terms: changedTerms
+                });
+
                 $(this.input.form).trigger('submit', { submittedBy: input });
             }
         }
