@@ -970,9 +970,14 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
             return label;
         }
 
-        autoSubmit(input, changeType, changedTerms) {
+        autoSubmit(input, changeType, data) {
             if (this.shouldNotAutoSubmit()) {
                 return;
+            }
+
+            let changedTerms = [];
+            if ('terms' in data) {
+                changedTerms = data['terms'];
             }
 
             let changedIndices = Object.keys(changedTerms).sort((a, b) => a - b);
@@ -987,7 +992,7 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
                     lastTermAt = changedIndices.pop();
                     if (changedTerms[lastTermAt].type === 'value') {
                         if (! changedIndices.length) {
-                            changedTerms = {
+                            data['terms'] = {
                                 ...{
                                     [lastTermAt - 2]: this.usedTerms[lastTermAt - 2],
                                     [lastTermAt - 1]: this.usedTerms[lastTermAt - 1]
@@ -1030,7 +1035,7 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
 
                     if (valueAt === updateAt) {
                         if (changedIndices.length === 1) {
-                            changedTerms = {
+                            data['terms'] = {
                                 ...{
                                     [valueAt - 2]: this.usedTerms[valueAt - 2],
                                     [valueAt - 1]: this.usedTerms[valueAt - 1]
@@ -1058,7 +1063,7 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
                     return;
             }
 
-            super.autoSubmit(input, changeType, changedTerms);
+            super.autoSubmit(input, changeType, data);
         }
 
         encodeTerm(termData) {
@@ -1307,7 +1312,7 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
                 }
             }
 
-            this.autoSubmit(this.input, 'remove', this.removeRange(labels));
+            this.autoSubmit(this.input, 'remove', { terms: this.removeRange(labels) });
             this.togglePlaceholder();
         }
 
@@ -1421,7 +1426,7 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
 
                 if (newTerm !== null) {
                     let label = this.insertTerm(newTerm, termIndex + 1);
-                    this.autoSubmit(label.firstChild, 'insert', { [termIndex + 1]: newTerm });
+                    this.autoSubmit(label.firstChild, 'insert', { terms: { [termIndex + 1]: newTerm } });
                     this.complete(label.firstChild, { term: newTerm });
                     $(label.firstChild).focus({ scripted: true });
                     event.preventDefault();
@@ -1432,13 +1437,13 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
                     this.togglePlaceholder();
                 } else if (operators.exactMatch) {
                     if (termType !== operators[0].type) {
-                        this.autoSubmit(input, 'exchange', this.exchangeTerm());
+                        this.autoSubmit(input, 'exchange', { terms: this.exchangeTerm() });
                     } else {
                         this.clearPartialTerm(input);
                     }
 
                     this.addTerm({ ...operators[0] });
-                    this.autoSubmit(input, 'add', { [this.usedTerms.length - 1]: operators[0] });
+                    this.autoSubmit(input, 'add', { terms: { [this.usedTerms.length - 1]: operators[0] } });
                     this.togglePlaceholder();
                     event.preventDefault();
                 } else if (termType === 'operator') {
@@ -1484,7 +1489,7 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
             if (isTerm && input.checkValidity()) {
                 let value = this.readPartialTerm(input);
                 if (value && ! ['column', 'value'].includes(input.parentNode.dataset.type)) {
-                    this.autoSubmit(input, 'save', { [termIndex]: this.saveTerm(input) });
+                    this.autoSubmit(input, 'save', { terms: { [termIndex]: this.saveTerm(input) } });
                 }
             }
         }

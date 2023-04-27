@@ -131,7 +131,7 @@ define(["BaseInput"], function (BaseInput) {
             if (Object.keys(addedTerms).length) {
                 this.togglePlaceholder();
                 event.preventDefault();
-                this.autoSubmit(this.input, 'exchange', addedTerms);
+                this.autoSubmit(this.input, 'exchange', { terms: addedTerms });
             }
         }
 
@@ -169,7 +169,7 @@ define(["BaseInput"], function (BaseInput) {
                 if (Object.keys(addedTerms).length) {
                     this.togglePlaceholder();
                     event.preventDefault();
-                    this.autoSubmit(this.input, 'exchange', addedTerms);
+                    this.autoSubmit(this.input, 'exchange', { terms: addedTerms });
                     this.ignoreSpaceUntil = null;
 
                     return;
