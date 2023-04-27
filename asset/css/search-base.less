@@ -1,4 +1,46 @@
 // Style
+
+.search-bar .filter-input-area,
+.term-input-area {
+  // Scrollbar style
+
+  // Firefox
+  scrollbar-width: thin;
+  scrollbar-color: var(--searchbar-scrollbar-bg, @searchbar-scrollbar-bg) transparent;
+
+  &::-webkit-scrollbar {
+    display: none;
+    height: .5em;
+  }
+
+  &:hover::-webkit-scrollbar {
+    display: initial;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border-radius: .25em;
+    background: var(--searchbar-scrollbar-bg, @searchbar-scrollbar-bg);
+  }
+}
+
+.search-bar,
+.term-input-area {
+  [data-index] input:invalid {
+    background-color: var(--search-term-invalid-bg, @search-term-invalid-bg);
+    color: var(--search-term-invalid-color, @search-term-invalid-color);
+  }
+
+  [data-index] input:disabled {
+    background-color: var(--search-term-disabled-bg, @search-term-disabled-bg);
+  }
+
+  .selected input {
+    background-color: var(--search-term-selected-bg, @search-term-selected-bg);
+    color: var(--search-term-selected-color, @search-term-selected-color);
+    font-style: italic;
+  }
+}
+
 .search-suggestions {
   background: var(--suggestions-bg, @suggestions-bg);
   border: 1px solid var(--suggestions-border-color, @suggestions-border-color);
@@ -73,6 +115,73 @@
 }
 
 // Layout
+.search-bar .filter-input-area,
+.term-input-area {
+  overflow: auto hidden;
+  overflow-x: overlay; // Not invalid, but proprietary feature by chrome/webkit
+  display: flex;
+  flex-wrap: nowrap;
+  width: 100%;
+  height: ~"calc(2em + 10px)"; // Search bar height + approximate scrollbar height
+
+  // Lets inputs grow based on their contents, Inspired by https://css-tricks.com/auto-growing-inputs-textareas/
+  label {
+    position: relative;
+    display: inline-block;
+    min-width: 2em;
+    height: 100%;
+
+    &::after,
+    input {
+      width: auto;
+      padding: 0 .5em;
+      resize: none;
+    }
+
+    input {
+      width: 100%;
+      position: absolute;
+      top: 0;
+      line-height: 20/12; // 20 (px) desired / default font size (px)
+    }
+
+    &::after {
+      height: 0;
+      content: attr(data-label);
+      visibility: hidden;
+      white-space: nowrap;
+      padding: 0 7/12em; // 7 (px) desired / default font size (px)
+    }
+  }
+
+  > label {
+    flex: 1 0 auto;
+
+    &::after,
+    input {
+      max-width: none;
+      min-width: 8em;
+    }
+  }
+
+  > .terms {
+    display: inline;
+    flex-shrink: 0;
+
+    label {
+      margin-right: 1px;
+    }
+  }
+}
+
+.term-input-area {
+  label input:focus {
+    @labelPad: 7/12em;
+    outline-width: 3px;
+    outline-offset: ~"calc(-@{labelPad} + 3px)";
+  }
+}
+
 .search-suggestions {
   z-index: 2; // Required so that nothing else can overlap it (such as opaque elements and the impact overlay)
   position: absolute;
