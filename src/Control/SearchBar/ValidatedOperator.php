@@ -68,12 +68,12 @@ class ValidatedOperator extends ValidatedTerm
         return $data;
     }
 
-    public function setSearchValue($searchValue)
+    public function setSearchValue(string $searchValue): ValidatedTerm
     {
         throw new LogicException('Operators cannot be changed');
     }
 
-    public function setLabel($label)
+    public function setLabel(string $label): ValidatedTerm
     {
         throw new LogicException('Operators cannot be changed');
     }
