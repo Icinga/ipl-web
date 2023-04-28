@@ -105,24 +105,6 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
             return termIndex;
         }
 
-        updateTermData(termData, input) {
-            super.updateTermData(termData, input);
-
-            if (termData.pattern) {
-                input.pattern = termData.pattern;
-                delete termData.pattern;
-
-                if (termData.invalidMsg) {
-                    input.dataset.invalidMsg = termData.invalidMsg;
-                    delete termData.invalidMsg;
-                }
-
-                if (! this.checkValidity(input)) {
-                    this.reportValidity(input);
-                }
-            }
-        }
-
         readFullTerm(input, termIndex = null) {
             let termData = super.readFullTerm(input, termIndex);
             if (termData === false) {
@@ -355,14 +337,6 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
             lastTerm.classList.add('last-term');
         }
 
-        saveTerm(input, updateDOM = true, force = false) {
-            if (! this.checkValidity(input)) {
-                return false;
-            }
-
-            return super.saveTerm(input, updateDOM, force);
-        }
-
         termsToQueryString(terms) {
             if (! this.input.form.checkValidity()) {
                 let filtered = [];
@@ -386,8 +360,7 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
             let termIndex = Number(label.dataset.index);
             if (termIndex < this.usedTerms.length - 1) {
                 // It's not the last term
-                if (! this.checkValidity(label.firstChild, label.dataset.type, termIndex)) {
-                    this.reportValidity(label.firstChild);
+                if (! this.validate(label.firstChild)) {
                     return false;
                 }
             }
@@ -834,25 +807,17 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
         }
 
         checkValidity(input, type = null, termIndex = null) {
+            if (! super.checkValidity(input)) {
+                return false;
+            }
+
             if (type === null) {
                 type = input.parentNode.dataset.type;
             }
 
-            if (input.pattern && ! input.checkValidity()) {
-                if (! input.value.match(input.pattern)) {
-                    if (input.dataset.invalidMsg) {
-                        input.setCustomValidity(input.dataset.invalidMsg);
-                    }
-
-                    return false;
-                }
-
-                input.setCustomValidity('');
-            }
-
             if (! type || type === 'value') {
                 // type is undefined for the main input, values have no special validity rules
-                return input.checkValidity();
+                return true;
             }
 
             if (termIndex === null && input.parentNode.dataset.index >= 0) {
@@ -949,10 +914,6 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
             return input.checkValidity();
         }
 
-        reportValidity(element) {
-            setTimeout(() => element.reportValidity(), 0);
-        }
-
         renderSuggestions(suggestions) {
             let itemTemplate = $.render('<li><input type="button" tabindex="-1"></li>');
 
@@ -1009,9 +970,14 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
             return label;
         }
 
-        autoSubmit(input, changeType, changedTerms) {
+        autoSubmit(input, changeType, data) {
             if (this.shouldNotAutoSubmit()) {
                 return;
+            }
+
+            let changedTerms = [];
+            if ('terms' in data) {
+                changedTerms = data['terms'];
             }
 
             let changedIndices = Object.keys(changedTerms).sort((a, b) => a - b);
@@ -1026,7 +992,7 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
                     lastTermAt = changedIndices.pop();
                     if (changedTerms[lastTermAt].type === 'value') {
                         if (! changedIndices.length) {
-                            changedTerms = {
+                            data['terms'] = {
                                 ...{
                                     [lastTermAt - 2]: this.usedTerms[lastTermAt - 2],
                                     [lastTermAt - 1]: this.usedTerms[lastTermAt - 1]
@@ -1069,7 +1035,7 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
 
                     if (valueAt === updateAt) {
                         if (changedIndices.length === 1) {
-                            changedTerms = {
+                            data['terms'] = {
                                 ...{
                                     [valueAt - 2]: this.usedTerms[valueAt - 2],
                                     [valueAt - 1]: this.usedTerms[valueAt - 1]
@@ -1097,7 +1063,7 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
                     return;
             }
 
-            super.autoSubmit(input, changeType, changedTerms);
+            super.autoSubmit(input, changeType, data);
         }
 
         encodeTerm(termData) {
@@ -1247,22 +1213,19 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
 
         onTermFocus(event) {
             let input = event.target;
+            let isTerm = input.parentNode.dataset.index >= 0;
             let termType = input.parentNode.dataset.type || this.termType;
 
-            if (input.parentNode.dataset.index >= 0) {
-                if (
-                    ! this.checkValidity(input, termType)
-                    && termType !== 'operator'
-                    && termType !== 'logical_operator'
-                ) {
-                    this.reportValidity(input);
-                }
-
+            if (isTerm) {
                 this.highlightTerm(input.parentNode);
             }
 
             let value = this.readPartialTerm(input);
             if (! value && (termType === 'column' || termType === 'value')) {
+                if (isTerm) {
+                    this.validate(input);
+                }
+
                 // No automatic suggestions without input
                 return;
             }
@@ -1349,17 +1312,14 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
                 }
             }
 
-            this.autoSubmit(this.input, 'remove', this.removeRange(labels));
+            this.autoSubmit(this.input, 'remove', { terms: this.removeRange(labels) });
             this.togglePlaceholder();
         }
 
         onCompletion(event) {
             super.onCompletion(event);
 
-            let input = event.target;
-            this.checkValidity(input);
-
-            if (input.parentNode.dataset.index >= 0) {
+            if (event.target.parentNode.dataset.index >= 0) {
                 return;
             }
 
@@ -1466,7 +1426,7 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
 
                 if (newTerm !== null) {
                     let label = this.insertTerm(newTerm, termIndex + 1);
-                    this.autoSubmit(label.firstChild, 'insert', { [termIndex + 1]: newTerm });
+                    this.autoSubmit(label.firstChild, 'insert', { terms: { [termIndex + 1]: newTerm } });
                     this.complete(label.firstChild, { term: newTerm });
                     $(label.firstChild).focus({ scripted: true });
                     event.preventDefault();
@@ -1477,13 +1437,13 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
                     this.togglePlaceholder();
                 } else if (operators.exactMatch) {
                     if (termType !== operators[0].type) {
-                        this.autoSubmit(input, 'exchange', this.exchangeTerm());
+                        this.autoSubmit(input, 'exchange', { terms: this.exchangeTerm() });
                     } else {
                         this.clearPartialTerm(input);
                     }
 
                     this.addTerm({ ...operators[0] });
-                    this.autoSubmit(input, 'add', { [this.usedTerms.length - 1]: operators[0] });
+                    this.autoSubmit(input, 'add', { terms: { [this.usedTerms.length - 1]: operators[0] } });
                     this.togglePlaceholder();
                     event.preventDefault();
                 } else if (termType === 'operator') {
@@ -1499,21 +1459,14 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
 
         onInput(event) {
             let input = event.target;
-            let termIndex = Number(input.parentNode.dataset.index);
-
             if (this.hasSyntaxError(input)) {
-                // pass
-            } else if (termIndex >= 0) {
-                let value = this.readPartialTerm(input);
-                if (! this.checkValidity(input)) {
-                    this.reportValidity(input);
-                    // Let inputs also grow upon invalid input
-                    this.updateTermData({ label: value }, input);
-                    return;
-                } else if (value && ! ['column', 'value'].includes(input.parentNode.dataset.type)) {
-                    this.autoSubmit(input, 'save', { [termIndex]: this.saveTerm(input) });
-                }
-            } else if (this.termType === 'operator' || this.termType === 'logical_operator') {
+                return super.onInput(event);
+            }
+
+            let termIndex = Number(input.parentNode.dataset.index);
+            let isTerm = termIndex >= 0;
+
+            if (! isTerm && (this.termType === 'operator' || this.termType === 'logical_operator')) {
                 let value = this.readPartialTerm(input);
 
                 if (value && ! this.validOperator(value).partialMatches) {
@@ -1532,11 +1485,19 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
             }
 
             super.onInput(event);
+
+            if (isTerm && input.checkValidity()) {
+                let value = this.readPartialTerm(input);
+                if (value && ! ['column', 'value'].includes(input.parentNode.dataset.type)) {
+                    this.autoSubmit(input, 'save', { terms: { [termIndex]: this.saveTerm(input) } });
+                }
+            }
         }
 
         onPaste(event) {
             if (! this.hasTerms()) {
-                super.onPaste(event);
+                this.submitTerms(event.clipboardData.getData('text/plain'));
+                event.preventDefault();
             } else if (! this.input.value) {
                 let terms = event.clipboardData.getData('text/plain');
                 if (this.termType === 'logical_operator') {

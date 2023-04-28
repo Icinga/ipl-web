@@ -180,7 +180,22 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
             // Reset the data input, otherwise the value remains and is sent continuously with subsequent requests
             this.dataInput.value = '';
 
-            for (const termIndex of Object.keys(changedTerms)) {
+            if (changedTerms === 'bogus') {
+                return;
+            }
+
+            let changedIndices = Object.keys(changedTerms);
+            if (! changedIndices.length) {
+                // Perform a partial reset. this.reset() empties the termContainer, which isn't desired here
+                this.usedTerms = [];
+                this.lastCompletedTerm = null;
+
+                this.registerTerms();
+                this.togglePlaceholder();
+                this.termInput.value = '';
+            }
+
+            for (const termIndex of changedIndices) {
                 let label = this.termContainer.querySelector(`[data-index="${ termIndex }"]`);
                 if (! label) {
                     continue;
@@ -317,7 +332,43 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
             return this.termsToQueryString(this.usedTerms);
         }
 
+        checkValidity(input) {
+            if (input.pattern && ! input.checkValidity()) {
+                if (! input.value.match(input.pattern)) {
+                    if (input.dataset.invalidMsg) {
+                        input.setCustomValidity(input.dataset.invalidMsg);
+                    }
+
+                    return false;
+                }
+
+                // If the pattern matches, reset the custom validity, otherwise the value is still invalid.
+                input.setCustomValidity('');
+            }
+
+            // The pattern isn't set or it matches. Any other custom validity must not be accounted for here.
+            return true;
+        }
+
+        reportValidity(element) {
+            setTimeout(() => element.reportValidity(), 0);
+        }
+
+        validate(element) {
+            if (! this.checkValidity(element)) {
+                this.reportValidity(element);
+
+                return false;
+            }
+
+            return true;
+        }
+
         saveTerm(input, updateDOM = true, force = false) {
+            if (! this.checkValidity(input)) {
+                return false;
+            }
+
             let termIndex = input.parentNode.dataset.index;
             let termData = this.readFullTerm(input, termIndex);
 
@@ -347,6 +398,18 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
                 label.title = termData.title;
             } else {
                 label.title = '';
+            }
+
+            if (termData.pattern) {
+                input.pattern = termData.pattern;
+                delete termData.pattern;
+
+                if (termData.invalidMsg) {
+                    input.dataset.invalidMsg = termData.invalidMsg;
+                    delete termData.invalidMsg;
+                }
+
+                this.validate(input);
             }
         }
 
@@ -515,26 +578,34 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
             return 'noAutoSubmit' in this.input.dataset;
         }
 
-        autoSubmit(input, changeType, changedTerms) {
+        autoSubmit(input, changeType, data) {
             if (this.shouldNotAutoSubmit()) {
                 return;
             }
 
-            if (changeType === 'save') {
+            if (changeType === 'save' && 'terms' in data) {
                 // Replace old term data with the new one, as required by the backend
-                for (const termIndex of Object.keys(changedTerms)) {
-                    changedTerms[termIndex] = this.usedTerms[termIndex];
+                for (const termIndex of Object.keys(data['terms'])) {
+                    data['terms'][termIndex] = this.usedTerms[termIndex];
                 }
+            }
+
+            if (changeType === 'remove' && ! Object.keys(data['terms']).length) {
+                return;
             }
 
             this.dataInput.value = JSON.stringify({
                 type: changeType,
-                terms: changedTerms
+                ...data
             });
 
-            if (Object.keys(changedTerms).length) {
-                $(this.input.form).trigger('submit', { submittedBy: input });
+            let eventData = { submittedBy: input };
+            if (changeType === 'paste') {
+                // Ensure that what's pasted is also transmitted as value
+                eventData['terms'] = this.termsToQueryString(data['terms']) + this.separator + data['input'];
             }
+
+            $(this.input.form).trigger('submit', eventData);
         }
 
         submitTerms(terms) {
@@ -555,6 +626,9 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
 
             if (from === -1) {
                 toFocus = inputs.shift();
+                if (typeof toFocus === 'undefined') {
+                    toFocus = this.input;
+                }
             } else if (from + 1 < inputs.length) {
                 toFocus = inputs[from + 1];
             } else {
@@ -637,10 +711,12 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
             this.lastCompletedTerm = termData;
             this.writePartialTerm(termData.label, input);
 
+            this.checkValidity(input);
+
             if (termIndex >= 0) {
-                this.autoSubmit(input, 'save', { [termIndex]: this.saveTerm(input, false, true) });
+                this.autoSubmit(input, 'save', { terms: { [termIndex]: this.saveTerm(input, false, true) } });
             } else {
-                this.autoSubmit(input, 'exchange', this.exchangeTerm());
+                this.autoSubmit(input, 'exchange', { terms: this.exchangeTerm() });
                 this.togglePlaceholder();
             }
         }
@@ -657,11 +733,15 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
             }
 
             if (! this.hasSyntaxError(input)) {
+                if (isTerm && ! this.validate(input)) {
+                    return;
+                }
+
                 this.complete(input, { term: termData });
             }
 
             if (! isTerm) {
-                this.autoSubmit(this.input, 'remove', this.clearSelectedTerms());
+                this.autoSubmit(this.input, 'remove', { terms: this.clearSelectedTerms() });
                 this.togglePlaceholder();
             }
         }
@@ -717,7 +797,7 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
                     }
 
                     this.togglePlaceholder();
-                    this.autoSubmit(input, 'remove', removedTerms);
+                    this.autoSubmit(input, 'remove', { terms: removedTerms });
                     break;
                 case 'Delete':
                     removedTerms = this.clearSelectedTerms();
@@ -738,7 +818,7 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
                     }
 
                     this.togglePlaceholder();
-                    this.autoSubmit(input, 'remove', removedTerms);
+                    this.autoSubmit(input, 'remove', { terms: removedTerms });
                     break;
                 case 'Enter':
                     if (termIndex >= 0) {
@@ -790,7 +870,7 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
 
                     break;
                 case 'Delete':
-                    this.autoSubmit(event.target, 'remove', this.clearSelectedTerms());
+                    this.autoSubmit(event.target, 'remove', { terms: this.clearSelectedTerms() });
                     this.togglePlaceholder();
                     break;
             }
@@ -816,10 +896,11 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
                         if (this.readPartialTerm(input)) {
                             let previousTerm = this.saveTerm(input);
                             if (previousTerm !== false) {
-                                this.autoSubmit(input, 'save', { [termIndex]: previousTerm });
+                                this.autoSubmit(input, 'save', { terms: { [termIndex]: previousTerm } });
                             }
                         } else {
-                            this.autoSubmit(input, 'remove', { [termIndex]: this.removeTerm(input.parentNode) });
+                            this.autoSubmit(
+                                input, 'remove', { terms: { [termIndex]: this.removeTerm(input.parentNode) } });
                         }
                     }
                 }, 0);
@@ -827,6 +908,12 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
         }
 
         onTermFocus(event) {
+            let input = event.target;
+
+            if (input.parentNode.dataset.index >= 0) {
+                this.validate(input);
+            }
+
             if (event.detail.scripted) {
                 // Only request suggestions if the user manually focuses the term
                 return;
@@ -834,8 +921,9 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
 
             this.deselectTerms();
 
-            let input = event.target;
-            if (! this.hasSyntaxError(input) && ! this.completer.isBeingCompleted(input, false)) {
+            if (! this.hasSyntaxError(input) && (
+                this.completer === null || ! this.completer.isBeingCompleted(input, false)
+            )) {
                 // Only request suggestions if the input is valid and not already being completed
                 let value = this.readPartialTerm(input);
                 this.complete(input, { trigger: 'script', term: { label: value } });
@@ -859,11 +947,14 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
         }
 
         onPaste(event) {
-            if (this.hasTerms() || this.input.value) {
+            if (this.shouldNotAutoSubmit() || this.input.value) {
                 return;
             }
 
-            this.submitTerms(event.clipboardData.getData('text/plain'));
+            this.autoSubmit(this.input, 'paste', {
+                input: event.clipboardData.getData('text/plain'),
+                terms: this.usedTerms
+            });
 
             event.preventDefault();
         }
@@ -889,7 +980,7 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
 
             if (event.type === 'cut') {
                 this.clearPartialTerm(this.input);
-                this.autoSubmit(this.input, 'remove', this.clearSelectedTerms());
+                this.autoSubmit(this.input, 'remove', { terms: this.clearSelectedTerms() });
                 this.togglePlaceholder();
             }
         }
