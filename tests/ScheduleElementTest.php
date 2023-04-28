@@ -322,7 +322,7 @@ class ScheduleElementTest extends TestCase
 
     public function testCustomWeeklyFrequency()
     {
-        $start = new DateTime('2023-02-07T15:17:07');
+        $start = new DateTime('2023-02-08T15:17:07');
         $frequency = (new RRule('FREQ=WEEKLY;INTERVAL=4;BYDAY=WE'))->startAt($start);
         $element = $this->assembleElement(['value' => $frequency]);
 
@@ -346,7 +346,7 @@ class ScheduleElementTest extends TestCase
 
     public function testCustomWeeklyFrequencyWithEnd()
     {
-        $start = new DateTime('2023-02-07T15:17:07');
+        $start = new DateTime('2023-02-08T15:17:07');
         $end = new DateTime('2023-02-10T18:00:00');
         $frequency = (new RRule('FREQ=WEEKLY;INTERVAL=4;BYDAY=WE'))
             ->startAt($start)
@@ -374,7 +374,7 @@ class ScheduleElementTest extends TestCase
 
     public function testCustomMonthlyFrequency()
     {
-        $start = new DateTime('2023-02-07T15:17:07');
+        $start = new DateTime('2023-02-08T15:17:07');
         $frequency = (new RRule('FREQ=MONTHLY;INTERVAL=1;BYMONTHDAY=8,17,18,27'))->startAt($start);
         $element = $this->assembleElement(['value' => $frequency]);
 
@@ -422,7 +422,7 @@ class ScheduleElementTest extends TestCase
 
     public function testCustomMonthlyFrequencyWithEnd()
     {
-        $start = new DateTime('2023-02-07T15:17:07');
+        $start = new DateTime('2023-02-08T15:17:07');
         $end = new DateTime('2023-02-10T18:00:00');
         $frequency = (new RRule('FREQ=MONTHLY;INTERVAL=1;BYMONTHDAY=8,17,18,27'))
             ->startAt($start)
@@ -474,7 +474,7 @@ class ScheduleElementTest extends TestCase
 
     public function testCustomOnTheEachMonthFrequency()
     {
-        $start = new DateTime('2023-02-07T15:17:07');
+        $start = new DateTime('2023-02-08T15:17:07');
         $end = new DateTime('2023-02-10T18:00:00');
         $frequency = (new RRule('FREQ=MONTHLY;INTERVAL=1;BYDAY=2WE'))
             ->startAt($start)
@@ -590,5 +590,17 @@ class ScheduleElementTest extends TestCase
         ], $element->getValue('annually-fields'));
 
         $this->assertEquals($frequency, $element->getValue());
+    }
+
+    public function testRecurrenceStartIsSyncedCorrectly()
+    {
+        $start = new DateTime('2023-04-27T11:00:00');
+        $frequency = (new RRule('FREQ=WEEKLY;INTERVAL=2;BYDAY=SA,SU'))->startAt($start);
+
+        $value = $this->assembleElement(['value' => $frequency])->getValue();
+
+        // The initial start date is April 27, but the frequency only triggers on Saturday/Sunday,
+        // so the first recurrence is on April 29 and the start date should've been synced.
+        $this->assertEquals(new DateTime('2023-04-29T11:00:00'), $value->getStart());
     }
 }

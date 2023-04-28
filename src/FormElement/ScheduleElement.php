@@ -307,6 +307,12 @@ class ScheduleElement extends FieldsetElement
             $rule->endAt(parent::getValue('end'));
         }
 
+        // Sync the start time and first recurrence of the rule
+        if (! $this->hasCronExpression() && $this->getFrequency() !== static::NO_REPEAT) {
+            $nextDue = $rule->getNextRecurrences($start)->current() ?? $start;
+            $rule->startAt($nextDue);
+        }
+
         return $rule;
     }
 
