@@ -502,7 +502,10 @@ class ScheduleElement extends FieldsetElement
                         $isValid = $this->isValid();
                         $reason = null;
                         if (! $isValid && $this->getFrequency() === static::CUSTOM_EXPR) {
-                            if (! $this->getElement('interval')->isValid()) {
+                            if (
+                                $this->getCustomFrequency() !== RRule::YEARLY
+                                && ! $this->getElement('interval')->isValid()
+                            ) {
                                 $reason = current($this->getElement('interval')->getMessages());
                             } else {
                                 $frequency = $this->getCustomFrequency();
@@ -511,8 +514,12 @@ class ScheduleElement extends FieldsetElement
                                         $reason = current($this->weeklyField->getMessages());
 
                                         break;
-                                    default: // monthly
+                                    case RRule::MONTHLY:
                                         $reason = current($this->monthlyFields->getMessages());
+
+                                        break;
+                                    default: // annually
+                                        $reason = current($this->annuallyFields->getMessages());
 
                                         break;
                                 }
