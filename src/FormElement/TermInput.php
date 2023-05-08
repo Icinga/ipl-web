@@ -153,7 +153,9 @@ class TermInput extends FieldsetElement
         $ignoreSeparator = false;
         for ($i = 0; $i <= strlen($value); $i++) {
             if (! isset($value[$i])) {
-                $terms[] = rawurldecode($term);
+                if (! empty($term)) {
+                    $terms[] = rawurldecode($term);
+                }
 
                 break;
             }

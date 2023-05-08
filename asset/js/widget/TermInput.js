@@ -1,4 +1,4 @@
-define(["BaseInput"], function (BaseInput) {
+define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
 
     "use strict";
 
@@ -8,6 +8,17 @@ define(["BaseInput"], function (BaseInput) {
 
             this.separator = this.input.dataset.termSeparator || ' ';
             this.ignoreSpaceUntil = null;
+        }
+
+        bind() {
+            super.bind();
+
+            // TODO: Compatibility only. Remove as soon as possible once Web 2.12 (?) is out.
+            //       Or upon any other update which lets Web trigger a real submit upon auto submit.
+            $(this.input.form).on('change', 'select.autosubmit', this.onSubmit, this);
+            $(this.input.form).on('change', 'input.autosubmit', this.onSubmit, this);
+
+            return this;
         }
 
         reset() {
