@@ -15,6 +15,9 @@ class Renderer
     /** @var bool Whether strict mode is enabled */
     protected $strict = false;
 
+    /** @var bool Whether to url encode operators */
+    private $encodeOperators = true;
+
     /**
      * Create a new filter Renderer
      *
@@ -130,6 +133,13 @@ class Renderer
         }
     }
 
+    public function encodeOperators(bool $encode = true): self
+    {
+        $this->encodeOperators = $encode;
+
+        return $this;
+    }
+
     /**
      * Assemble the given filter Condition
      *
@@ -160,16 +170,16 @@ class Renderer
                 $this->string .= '=';
                 break;
             case $condition instanceof Filter\GreaterThan:
-                $this->string .= rawurlencode('>');
+                $this->string .= $this->encodeOperators ? rawurlencode('>') : '>';
                 break;
             case $condition instanceof Filter\LessThan:
-                $this->string .= rawurlencode('<');
+                $this->string .= $this->encodeOperators ? rawurlencode('<') : '<';
                 break;
             case $condition instanceof Filter\GreaterThanOrEqual:
-                $this->string .= rawurlencode('>') . '=';
+                $this->string .= $this->encodeOperators ? rawurlencode('>') . '=' : '>=';
                 break;
             case $condition instanceof Filter\LessThanOrEqual:
-                $this->string .= rawurlencode('<') . '=';
+                $this->string .= $this->encodeOperators ? rawurlencode('<') . '=' : '<=';
                 break;
         }
 
