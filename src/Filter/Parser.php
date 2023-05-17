@@ -516,14 +516,18 @@ class Parser
 
         switch ($operator) {
             case '=':
-                if (is_string($value) && strpos($value, "*") !== false) {
-                    return Filter::like($column, $value);
+                if (is_string($value) && ($pos = strpos($value, '*')) !== false) {
+                    if ($pos === 0 || mb_substr($value, -1) === '*') {
+                        return Filter::like($column, $value);
+                    }
                 }
 
                 return Filter::equal($column, $value);
             case '!=':
-                if (is_string($value) && strpos($value, '*') !== false) {
-                    return Filter::unlike($column, $value);
+                if (is_string($value) && ($pos = strpos($value, '*')) !== false) {
+                    if ($pos === 0 || mb_substr($value, -1) === '*') {
+                        return Filter::unlike($column, $value);
+                    }
                 }
 
                 return Filter::unequal($column, $value);

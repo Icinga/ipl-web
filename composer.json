@@ -19,6 +19,7 @@
   "require": {
     "php": ">=7.2",
     "ext-json": "*",
+    "ext-mbstring": "*",
     "psr/http-message": "^1.0",
     "ipl/html": ">=0.7.0",
     "ipl/i18n": ">=0.2.0",
