@@ -578,8 +578,12 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
             return 'noAutoSubmit' in this.input.dataset;
         }
 
+        shouldNotAutoSubmitOnRemove() {
+            return 'noAutoSubmitOnRemove' in this.input.dataset;
+        }
+
         autoSubmit(input, changeType, data) {
-            if (this.shouldNotAutoSubmit()) {
+            if (this.shouldNotAutoSubmit() || (changeType === 'remove' && this.shouldNotAutoSubmitOnRemove())) {
                 return;
             }
 
