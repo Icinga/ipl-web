@@ -7,7 +7,7 @@ use ipl\Stdlib\Data;
 abstract class ValidatedTerm
 {
     /** @var string The default validation constraint */
-    const DEFAULT_PATTERN = '^\s*(?!%s\b).*\s*$';
+    const DEFAULT_PATTERN = '^\s*(?!%s).*\s*$';
 
     /** @var mixed The search value */
     protected $searchValue;
@@ -152,7 +152,17 @@ abstract class ValidatedTerm
     public function getPattern(): string
     {
         if ($this->pattern === null) {
-            return sprintf(self::DEFAULT_PATTERN, $this->getSearchValue());
+            // The search value might contain special characters. preg_quote can't be used here,
+            // since this is not a PCRE pattern and is evaluated by browsers. The pattern used
+            // here is from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions#escaping
+            $searchValue = preg_replace('/[.*+?^${}()|[\\]\\\\]/', '\\\\$0', $this->getSearchValue());
+
+            if (ctype_alnum(substr($searchValue, -1))) {
+                // The word boundary check is only necessary when dealing with ... words
+                $searchValue .= '\\b';
+            }
+
+            return sprintf(self::DEFAULT_PATTERN, $searchValue);
         }
 
         return $this->pattern;
@@ -183,7 +193,7 @@ abstract class ValidatedTerm
             'search'     => $this->getSearchValue(),
             'label'      => $this->getLabel() ?: $this->getSearchValue(),
             'invalidMsg' => $this->getMessage(),
-            'pattern'    => $this->getPattern()
+            'pattern'    => $this->isValid() ? null : $this->getPattern()
         ];
     }
 

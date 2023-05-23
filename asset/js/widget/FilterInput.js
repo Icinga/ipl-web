@@ -959,6 +959,10 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
             let label = super.renderTerm(termData, termIndex);
             label.dataset.type = termData.type;
 
+            if (!! termData.dataType) {
+                label.firstChild.type = termData.dataType;
+            }
+
             if (! termData.class) {
                 label.classList.add(termData.type);
             }

@@ -8,9 +8,10 @@ use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\FormattedString;
 use ipl\Html\FormElement\ButtonElement;
-use ipl\Html\FormElement\InputElement;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
+use ipl\Orm\ColumnDefinition;
+use ipl\Orm\Query;
 use ipl\Stdlib\Contract\Paginatable;
 use ipl\Stdlib\Filter;
 use ipl\Web\Control\SearchEditor;
@@ -44,6 +45,9 @@ abstract class Suggestions extends BaseHtmlElement
 
     /** @var string */
     protected $failureMessage;
+
+    /** @var ColumnDefinition */
+    protected $columnDefinition;
 
     public function setSearchTerm($term)
     {
@@ -79,6 +83,20 @@ abstract class Suggestions extends BaseHtmlElement
 
         return $this;
     }
+
+    public function setColumnDefinition(ColumnDefinition $definition): self
+    {
+        $this->columnDefinition = $definition;
+
+        return $this;
+    }
+
+    /**
+     * Get the query that's used to fetch suggestions
+     *
+     * @return Query
+     */
+    abstract public function getQuery(): Query;
 
     /**
      * Return whether the relation should be shown for the given column
@@ -242,9 +260,9 @@ abstract class Suggestions extends BaseHtmlElement
             $data = new LimitIterator(new IteratorIterator($this->data), 0, self::DEFAULT_LIMIT);
         }
 
-        foreach ($data as $term => $meta) {
+        foreach ($data as $term => $label) {
             if (is_int($term)) {
-                $term = $meta;
+                $term = $label;
             }
 
             $attributes = [
@@ -257,18 +275,14 @@ abstract class Suggestions extends BaseHtmlElement
                 $attributes['data-type'] = $this->type;
             }
 
-            if (is_array($meta)) {
-                foreach ($meta as $key => $value) {
-                    if ($key === 'label') {
-                        $label = $value;
-                    }
-
-                    $attributes['data-' . $key] = $value;
-                }
-            } else {
-                $label = $meta;
-                $attributes['data-label'] = $meta;
+            if ($this->type === 'value') {
+                $label = $this->columnDefinition->getValueLabel($term);
+                //$attributes['data-data-type'] = $this->columnDefinition->getType();
+                //$attributes['data-min-size'] = $this->columnDefinition->getMin();
+                //$attributes['data-max-size'] = $this->columnDefinition->getMax();
             }
+
+            $attributes['data-label'] = $label;
 
             $button = (new ButtonElement(null, $attributes))
                 ->setAttribute('value', $label)
@@ -352,11 +366,13 @@ abstract class Suggestions extends BaseHtmlElement
                     break;
                 }
 
-                $searchFilter = QueryString::parse(
-                    isset($requestData['searchFilter'])
-                        ? $requestData['searchFilter']
-                        : ''
+                $this->setColumnDefinition(
+                    $this->getQuery()
+                        ->getResolver()
+                        ->getColumnDefinition($requestData['column'])
                 );
+
+                $searchFilter = QueryString::parse($requestData['searchFilter'] ?? '');
                 if ($searchFilter instanceof Filter\Condition) {
                     $searchFilter = Filter::all($searchFilter);
                 }
@@ -368,7 +384,15 @@ abstract class Suggestions extends BaseHtmlElement
                 }
 
                 if ($search) {
-                    $this->setDefault(['search' => $label]);
+                    if ($requestData['operator'] !== '=' && $requestData['operator'] !== '!=') {
+                        // The transferred label usually contains automatically added wildcards.
+                        // The search term on the other hand may also have some, but then they
+                        // were explicitly added by the user. This ensures only the latter is
+                        // suggested as default.
+                        $this->setDefault(['search' => $search]);
+                    } else {
+                        $this->setDefault(['search' => $label]);
+                    }
                 }
 
                 break;

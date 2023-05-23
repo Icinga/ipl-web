@@ -241,24 +241,27 @@ class SearchBar extends Form
 
     private function validateCondition($eventType, $indices, $termsData, &$changes)
     {
-        // TODO: In case of the query string validation, all three are guaranteed to be set.
-        //       The Parser also provides defaults, why shouldn't we here?
         $column = ValidatedColumn::fromTermData($termsData[0]);
         $operator = isset($termsData[1])
             ? ValidatedOperator::fromTermData($termsData[1])
-            : null;
+            : new ValidatedOperator('=');
         $value = isset($termsData[2])
             ? ValidatedValue::fromTermData($termsData[2])
-            : null;
+            : new ValidatedValue(true);
+        $condition = QueryString::createCondition(
+            $column->getSearchValue(),
+            $operator->getSearchValue(),
+            $value->getSearchValue()
+        );
 
-        $this->emit($eventType, [$column, $operator, $value]);
+        $this->emit($eventType, [$column, $operator, $value, $condition]);
 
         if ($eventType !== self::ON_REMOVE) {
             if (! $column->isValid() || $column->hasBeenChanged()) {
                 $changes[$indices[0]] = array_merge($termsData[0], $column->toTermData());
             }
 
-            if ($operator && ! $operator->isValid()) {
+            if ($operator && (! $operator->isValid() || $operator->hasBeenChanged())) {
                 $changes[$indices[1]] = array_merge($termsData[1], $operator->toTermData());
             }
 
@@ -409,14 +412,18 @@ class SearchBar extends Form
                             $column = ValidatedColumn::fromFilterCondition($condition);
                             $operator = ValidatedOperator::fromFilterCondition($condition);
                             $value = ValidatedValue::fromFilterCondition($condition);
-                            $this->emit(self::ON_ADD, [$column, $operator, $value]);
+
+                            // $condition is cloned as validators shouldn't be able to change it directly
+                            $this->emit(self::ON_ADD, [$column, $operator, $value, clone $condition]);
 
                             $condition->setColumn($column->getSearchValue());
                             $condition->setValue($value->getSearchValue());
 
-                            if (! $column->isValid()) {
+                            if (! $column->isValid() || ! $operator->isValid() || ! $value->isValid()) {
                                 $invalid = true;
+                            }
 
+                            if (! $column->isValid() || $column->hasBeenChanged()) {
                                 if ($submitted) {
                                     $condition->metaData()->merge($column->toMetaData());
                                 } else {
@@ -424,9 +431,7 @@ class SearchBar extends Form
                                 }
                             }
 
-                            if (! $operator->isValid()) {
-                                $invalid = true;
-
+                            if (! $operator->isValid() || $operator->hasBeenChanged()) {
                                 if ($submitted) {
                                     $condition->metaData()->merge($operator->toMetaData());
                                 } else {
@@ -434,9 +439,7 @@ class SearchBar extends Form
                                 }
                             }
 
-                            if (! $value->isValid()) {
-                                $invalid = true;
-
+                            if (! $value->isValid() || $value->hasBeenChanged()) {
                                 if ($submitted) {
                                     $condition->metaData()->merge($value->toMetaData());
                                 } else {

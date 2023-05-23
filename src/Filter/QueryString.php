@@ -89,4 +89,44 @@ final class QueryString
                 throw new InvalidArgumentException('Unknown rule type provided');
         }
     }
+
+    /**
+     * Create and return a condition
+     *
+     * @param string $column
+     * @param string $operator
+     * @param mixed  $value
+     *
+     * @return Filter\Condition
+     * @throws InvalidArgumentException In case the operator is invalid
+     */
+    public static function createCondition(string $column, string $operator, $value): Filter\Condition
+    {
+        $column = trim($column);
+
+        switch ($operator) {
+            case '=':
+                if (is_string($value) && strpos($value, "*") !== false) {
+                    return Filter::like($column, $value);
+                }
+
+                return Filter::equal($column, $value);
+            case '!=':
+                if (is_string($value) && strpos($value, '*') !== false) {
+                    return Filter::unlike($column, $value);
+                }
+
+                return Filter::unequal($column, $value);
+            case '>':
+                return Filter::greaterThan($column, $value);
+            case '>=':
+                return Filter::greaterThanOrEqual($column, $value);
+            case '<':
+                return Filter::lessThan($column, $value);
+            case '<=':
+                return Filter::lessThanOrEqual($column, $value);
+            default:
+                throw new InvalidArgumentException(sprintf("Invalid operator '%s'", $operator));
+        }
+    }
 }
