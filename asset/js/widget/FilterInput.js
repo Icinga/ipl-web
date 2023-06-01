@@ -521,8 +521,8 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
                 case 'operator':
                 case 'logical_operator':
                     let suggestions = this.validOperator(
-                        data.trigger === 'script' ? '': data.term.label, data.term.type, termIndex);
-                    if (suggestions.exactMatch) {
+                        data.trigger === 'script' ? '' : data.term.label, data.term.type, termIndex);
+                    if (suggestions.exactMatch && ! suggestions.partialMatches) {
                         // User typed a suggestion manually, don't show the same suggestion again
                         return;
                     }
@@ -684,7 +684,7 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
                 operators = filtered;
             }
 
-            operators.exactMatch = exactMatch && ! partialMatch;
+            operators.exactMatch = exactMatch;
             operators.partialMatches = partialMatch;
 
             return operators;
@@ -845,7 +845,7 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
                 }
             } else {
                 let isRequired = ! options.exactMatch;
-                if ((options.partialMatches && options.length > 1) || (type === 'negation_operator' && ! value)) {
+                if (type === 'negation_operator' && ! value) {
                     isRequired = false;
                 } else if (type === 'operator' && ! value) {
                     let nextTermAt = termIndex + 1;
@@ -1407,9 +1407,10 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
 
             if (isTerm) {
                 let newTerm = null;
-                if (operators.exactMatch && operators[0].label.toLowerCase() !== value.toLowerCase()) {
+                let exactMatchOnly = operators.exactMatch && ! operators.partialMatches;
+                if (exactMatchOnly && operators[0].label.toLowerCase() !== value.toLowerCase()) {
                     // The user completes a partial match
-                } else if (operators.exactMatch && (termType !== 'operator' || operators[0].type !== 'operator')) {
+                } else if (exactMatchOnly && (termType !== 'operator' || operators[0].type !== 'operator')) {
                     newTerm = { ...operators[0] };
                 } else if (operators.partialMatches && termType !== 'operator') {
                     newTerm = { ...operators[0], label: value, search: value };
