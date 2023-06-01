@@ -324,8 +324,10 @@ define(["../notjQuery"], function ($) {
          */
 
         onSubmit(event) {
-            // Reset all states, the user is about to navigate away
-            this.reset();
+            if (! event.detail || ! event.detail.submittedBy) {
+                // Reset all states, the user is about to navigate away
+                this.reset();
+            }
         }
 
         onFocusOut(event) {
