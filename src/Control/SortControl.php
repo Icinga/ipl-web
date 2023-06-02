@@ -169,12 +169,13 @@ class SortControl extends Form
      * Sort the given query according to the request
      *
      * @param Query $query
+     * @param ?array|string $defaultSort
      *
      * @return $this
      */
-    public function apply(Query $query)
+    public function apply(Query $query, $defaultSort = null)
     {
-        $default = (array) $query->getModel()->getDefaultSort();
+        $default = $defaultSort ?? (array) $query->getModel()->getDefaultSort();
         if (! empty($default)) {
             $this->setDefault(SortUtil::normalizeSortSpec($default));
         }

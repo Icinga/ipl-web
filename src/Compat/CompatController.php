@@ -283,6 +283,7 @@ class CompatController extends Controller
      *
      * @param Query $query
      * @param array $columns Possible sort columns as sort string-label pairs
+     * @param ?array|string $defaultSort Optional default sort column
      *
      * @return SortControl
      */
@@ -292,7 +293,13 @@ class CompatController extends Controller
 
         $this->params->shift($sortControl->getSortParam());
 
-        return $sortControl->apply($query);
+        $defaultSort = null;
+
+        if (func_num_args() === 3) {
+            $defaultSort = func_get_args()[2];
+        }
+
+        return $sortControl->apply($query, $defaultSort);
     }
 
     /**
