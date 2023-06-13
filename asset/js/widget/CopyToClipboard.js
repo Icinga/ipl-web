@@ -11,20 +11,11 @@ define(["../notjQuery"], function ($) {
         onClick(event)
         {
             let button = event.currentTarget;
-            let clipboardSource = button.dataset.clipboardSource;
+            let clipboardSource = button.parentElement.querySelector("[data-clipboard-source]");
             let copyText;
 
             if (clipboardSource) {
-                if (clipboardSource === 'parent') {
-                    copyText = button.parentElement.innerText;
-                } else {
-                    let el = document.getElementById(clipboardSource);
-                    if (! el) {
-                        throw new Error('Clipboard source element with id  "' + clipboardSource + '" is not defined');
-                    } else {
-                        copyText = el.innerText;
-                    }
-                }
+                copyText = clipboardSource.innerText;
             } else {
                 throw new Error('Clipboard source is required but not provided');
             }

@@ -5,7 +5,6 @@ namespace ipl\Web\Widget;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
-use ipl\Html\Text;
 use ipl\I18n\Translation;
 
 /**
@@ -22,8 +21,8 @@ class CopyToClipboard extends BaseHtmlElement
     /**
      * Create a copy to clipboard button
      *
-     * Creates a copy to clipboard button, which when clicked copies the text from the html element identified by
-     * the target ID. If the target ID is not mentioned then the text from the parent html element is copied.
+     * Creates a copy to clipboard button, which when clicked copies the text from the html element identified as
+     * clipboard source that the clipboard button attaches itself to.
      */
     private function __construct()
     {
@@ -31,6 +30,7 @@ class CopyToClipboard extends BaseHtmlElement
             [
                 'class'                 => 'copy-to-clipboard',
                 'data-icinga-clipboard' => true,
+                'tabindex'              => -1,
                 'data-copied-label'     => $this->translate('Copied'),
                 'title'                 => $this->translate('Copy to clipboard'),
             ]
@@ -38,36 +38,27 @@ class CopyToClipboard extends BaseHtmlElement
     }
 
     /**
-     * Method to attach the copy to clipboard button to the given source Html element
-     *
-     * If the source has target ID then it is attached as a sibling else it is attached as a child to the given source
-     * Html element
+     * Attach the copy to clipboard button to the given Html source element
      *
      * @param BaseHtmlElement $source
      *
-     * @return BaseHtmlElement
+     * @return void
      */
-    public static function attachTo(BaseHtmlElement $source): BaseHtmlElement
+    public static function attachTo(BaseHtmlElement $source): void
     {
-        $button = new static();
         $clipboardWrapper = new HtmlElement(
             'div',
             Attributes::create(['class' => 'clipboard-wrapper'])
         );
 
-        if ($source->hasAttribute('id')) {
-            $button->addAttributes(['data-clipboard-source' => $source->getAttribute('id')->getValue()]);
-        } else {
-            $button->addAttributes(['data-clipboard-source' => 'parent']);
-        }
+        $clipboardWrapper->addHtml(new static());
 
-        $clipboardWrapper->addHtml($source, $button);
-
-        return $clipboardWrapper;
+        $source->addAttributes(['data-clipboard-source' => true]);
+        $source->prependWrapper($clipboardWrapper);
     }
 
     public function assemble(): void
     {
-        $this->setContent(new Icon('clone'));
+        $this->setHtmlContent(new Icon('clone'));
     }
 }
