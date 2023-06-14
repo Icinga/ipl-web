@@ -5,6 +5,8 @@ define(["../notjQuery"], function ($) {
     class CopyToClipboard {
         constructor(button)
         {
+            button.classList.add('active');
+            button.removeAttribute('tabindex');
             $(button).on('click', null, this.onClick, this);
         }
 
@@ -20,23 +22,22 @@ define(["../notjQuery"], function ($) {
                 throw new Error('Clipboard source is required but not provided');
             }
 
-            try {
+            if (navigator.clipboard) {
                 navigator.clipboard.writeText(copyText).then(() => {
                     let previousHtml = button.innerHTML;
-                    button.innerHTML = button.dataset.copiedLabel;
-
+                    button.innerText = button.dataset.copiedLabel;
                     button.classList.add('copied');
-                    // after 1 second, reset it.
-                    setTimeout(() => {
-                        button.classList.remove('copied');
 
+                    setTimeout(() => {
+                        // after 4 second, reset it.
+                        button.classList.remove('copied');
                         button.innerHTML = previousHtml;
-                    }, 1000);
+                    }, 4000);
                 }).catch((err) => {
                     console.error('Failed to copy: ', err);
                 });
-            } catch (err) {
-                console.error('Copy to clipboard requires HTTPS connection: ', err);
+            } else {
+                throw new Error('Copy to clipboard requires HTTPS connection');
             }
 
             event.stopPropagation();

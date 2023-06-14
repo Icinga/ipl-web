@@ -21,19 +21,21 @@
   background: none;
   padding: 0.25em 0.5em;
   cursor: default;
-}
 
-.active {
-  cursor: pointer;
-  &:hover, &:focus {
-    opacity: 0.8;
-    color: var(--control-color, @control-color);;
-    outline-offset: -2px;
+  &.active {
+    cursor: pointer;
+    &:hover, &:focus {
+      opacity: 0.8;
+      color: var(--control-color, @control-color);
+      outline-offset: -2px;
+    }
   }
 }
 
-.copy-to-clipboard.copied,
-.clipboard-wrapper:hover .copy-to-clipboard.copied {
-  opacity: 0;
-  transition: opacity 1s linear;
+.copy-to-clipboard.active,
+.clipboard-wrapper:hover .copy-to-clipboard.active {
+  &.copied {
+    opacity: 0;
+    transition: opacity 1s linear 3s;
+  }
 }
