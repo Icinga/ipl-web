@@ -8,22 +8,26 @@
   }
 
   &:hover {
-    .copy-to-clipboard {
+    .copy-to-clipboard.active {
       opacity: 0.8;
     }
   }
 }
 
 .copy-to-clipboard {
-  appearance: none;
+  .appearance(none);
   border: none;
   opacity: 0;
   background: none;
   padding: 0.25em 0.5em;
+  cursor: default;
+}
 
+.active {
+  cursor: pointer;
   &:hover, &:focus {
     opacity: 0.8;
-    color: @control-color;
+    color: var(--control-color, @control-color);;
     outline-offset: -2px;
   }
 }
