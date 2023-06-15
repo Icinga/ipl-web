@@ -368,7 +368,11 @@ abstract class Suggestions extends BaseHtmlElement
                 }
 
                 if ($search) {
-                    $this->setDefault(['search' => $label]);
+                    $this->setDefault([
+                        'search' => $requestData['operator'] === '~' || $requestData['operator'] === '!~'
+                            ? $label
+                            : $search
+                    ]);
                 }
 
                 break;

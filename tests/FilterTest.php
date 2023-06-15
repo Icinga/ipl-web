@@ -23,33 +23,6 @@ class FilterTest extends TestCase
         );
     }
 
-    public function testParserIdentifiesWildCardCharacters()
-    {
-        $this->assertInstanceOf(
-            Filter\Like::class,
-            QueryString::parse("foo=ba*"),
-            "Filter\Parser doesn't parse conditions with wildcard character correctly"
-        );
-
-        $this->assertInstanceOf(
-            Filter\Equal::class,
-            QueryString::parse("foo=bar"),
-            "Filter\Parser doesn't parse conditions without wildcard character correctly"
-        );
-
-        $this->assertInstanceOf(
-            Filter\Unlike::class,
-            QueryString::parse("foo!=ba*"),
-            "Filter\Parser doesn't parse conditions with wildcard character correctly"
-        );
-
-        $this->assertInstanceOf(
-            Filter\Unequal::class,
-            QueryString::parse("foo!=bar"),
-            "Filter\Parser doesn't parse conditions without wildcard character correctly"
-        );
-    }
-
     public function testParserIdentifiesBooleanConditions()
     {
         $expectedTrue = QueryString::render(Filter::equal('active', true));
@@ -87,7 +60,7 @@ class FilterTest extends TestCase
         $this->assertEquals(
             $expectedLike,
             QueryString::render(QueryString::parse($expectedLike)),
-            "Filter\Parser doesn't parse = comparisons correctly for wildcard characters"
+            "Filter\Parser doesn't parse ~ comparisons correctly for wildcard characters"
         );
 
         $expectedUnequal = QueryString::render(Filter::unequal('foo', 'bar'));
@@ -101,7 +74,7 @@ class FilterTest extends TestCase
         $this->assertEquals(
             $expectedUnlike,
             QueryString::render(QueryString::parse($expectedUnlike)),
-            "Filter\Parser doesn't parse != comparisons correctly for wildcard characters"
+            "Filter\Parser doesn't parse !~ comparisons correctly for wildcard characters"
         );
 
         $expectedGreaterThan = QueryString::render(Filter::greaterThan('length', 3));

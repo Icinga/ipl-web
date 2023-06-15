@@ -361,7 +361,7 @@ class Parser
             }
         }
 
-        if (in_array($this->nextChar(), ['=', '>', '<', '!'], true)) {
+        if (in_array($this->nextChar(), ['~', '=', '>', '<', '!'], true)) {
             $operator = $this->readChar();
         } else {
             $operator = false;
@@ -389,7 +389,7 @@ class Parser
             }
         } elseif (in_array($operator, ['>', '<', '!'], true)) {
             $toFloat = $operator === '>' || $operator === '<';
-            if ($this->nextChar() === '=') {
+            if (in_array($this->nextChar(), ['~', '='], true)) {
                 $operator .= $this->readChar();
             }
         }
@@ -419,7 +419,7 @@ class Parser
      */
     protected function readColumn()
     {
-        $str = $this->readUntil('=', '(', ')', '&', '|', '>', '<', '!');
+        $str = $this->readUntil('~', '=', '(', ')', '&', '|', '>', '<', '!');
 
         if ($str === false) {
             return $str;
@@ -515,17 +515,13 @@ class Parser
         $column = trim($column);
 
         switch ($operator) {
+            case '~':
+                return Filter::like($column, $value);
+            case '!~':
+                return Filter::unlike($column, $value);
             case '=':
-                if (is_string($value) && strpos($value, "*") !== false) {
-                    return Filter::like($column, $value);
-                }
-
                 return Filter::equal($column, $value);
             case '!=':
-                if (is_string($value) && strpos($value, '*') !== false) {
-                    return Filter::unlike($column, $value);
-                }
-
                 return Filter::unequal($column, $value);
             case '>':
                 return Filter::greaterThan($column, $value);

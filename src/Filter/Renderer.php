@@ -151,12 +151,16 @@ class Renderer
         }
 
         switch (true) {
-            case $condition instanceof Filter\Unequal:
             case $condition instanceof Filter\Unlike:
+                $this->string .= '!~';
+                break;
+            case $condition instanceof Filter\Unequal:
                 $this->string .= '!=';
                 break;
-            case $condition instanceof Filter\Equal:
             case $condition instanceof Filter\Like:
+                $this->string .= '~';
+                break;
+            case $condition instanceof Filter\Equal:
                 $this->string .= '=';
                 break;
             case $condition instanceof Filter\GreaterThan:
