@@ -25,7 +25,8 @@ class TimeUntil extends BaseHtmlElement
 
         $this->addAttributes([
             'datetime' => $dateTime,
-            'title'    => $dateTime
+            'title' => $dateTime,
+            'data-ago-label' => DateFormatter::timeAgo(time())
         ]);
 
         $this->add(DateFormatter::timeUntil($this->until));
