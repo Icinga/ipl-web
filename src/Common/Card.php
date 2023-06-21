@@ -11,9 +11,11 @@ abstract class Card extends BaseHtmlElement
 
     abstract protected function assembleBody(BaseHtmlElement $body);
 
-    abstract protected function assembleFooter(BaseHtmlElement $footer);
-
     abstract protected function assembleHeader(BaseHtmlElement $header);
+
+    protected function assembleFooter(BaseHtmlElement $footer)
+    {
+    }
 
     protected function createBody()
     {
@@ -30,7 +32,9 @@ abstract class Card extends BaseHtmlElement
 
         $this->assembleFooter($footer);
 
-        return $footer;
+        if (! $footer->isEmpty()) {
+            return $footer;
+        }
     }
 
     protected function createHeader()
