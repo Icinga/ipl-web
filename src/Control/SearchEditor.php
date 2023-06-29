@@ -187,17 +187,13 @@ class SearchEditor extends Form
                 $value = $rule->getValue();
                 $column = $rule->getColumn();
                 switch ($newOperator) {
+                    case '~':
+                        return Filter::like($column, $value);
+                    case '!~':
+                        return Filter::unlike($column, $value);
                     case '=':
-                        if (is_string($value) && strpos($value, '*') !== false) {
-                            return Filter::like($column, $value);
-                        }
-
                         return Filter::equal($column, $value);
                     case '!=':
-                        if (is_string($value) && strpos($value, '*') !== false) {
-                            return Filter::unlike($column, $value);
-                        }
-
                         return Filter::unequal($column, $value);
                     case '>':
                         return Filter::greaterThan($column, $value);
@@ -524,6 +520,8 @@ class SearchEditor extends Form
 
         $operatorInput = $this->createElement('select', $identifier . '-operator', [
             'options'   => [
+                '~'     => '~',
+                '!~'    => '!~',
                 '='     => '=',
                 '!='    => '!=',
                 '>'     => '>',
