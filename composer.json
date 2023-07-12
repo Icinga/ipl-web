@@ -25,7 +25,8 @@
     "ipl/orm": ">=0.5.2",
     "ipl/scheduler": ">=0.1.0",
     "ipl/stdlib": ">=0.12.0",
-    "fortawesome/font-awesome": "^6"
+    "fortawesome/font-awesome": "^6",
+    "wikimedia/less.php": "^3.2.1"
   },
   "require-dev": {
     "ipl/html": "dev-main",
