@@ -4,6 +4,7 @@ namespace ipl\Web;
 
 use ipl\Html\Attribute;
 use ipl\Html\Attributes;
+use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
 use ipl\Html\HtmlString;
 use ipl\Html\ValidHtml;
@@ -39,6 +40,26 @@ class Style extends LessRuleset implements ValidHtml
         $this->module = $name;
 
         return $this;
+    }
+
+    /**
+     * Add given css properties for given element
+     *
+     * @param BaseHtmlElement $element Element for which the style is to apply
+     * @param array $properties Css properties
+     *
+     * @return $this
+     */
+    public function addFor(BaseHtmlElement $element, array $properties): self
+    {
+        $id = $element->getAttribute('id')->getValue();
+
+        if ($id === null) {
+            $id = uniqid('csp-style', false);
+            $element->setAttribute('id', $id);
+        }
+
+        return $this->add('#' . $id, $properties);
     }
 
     public function render(): string
