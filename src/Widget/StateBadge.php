@@ -4,6 +4,9 @@ namespace ipl\Web\Widget;
 
 use ipl\Html\BaseHtmlElement;
 
+/**
+ * @deprecated Use {@see \Icinga\Module\Icingadb\Widget\StateBadge} instead.
+ */
 class StateBadge extends BaseHtmlElement
 {
     protected $defaultAttributes = ['class' => 'state-badge'];
