@@ -11,6 +11,9 @@ use ipl\Web\Url;
 use ipl\Web\Widget\Link;
 use ipl\Web\Widget\StateBadge;
 
+/**
+ * @deprecated Use {@see \Icinga\Module\Icingadb\Common\StateBadges} instead.
+ */
 abstract class StateBadges extends BaseHtmlElement
 {
     use BaseFilter;
