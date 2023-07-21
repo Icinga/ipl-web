@@ -9,16 +9,16 @@ abstract class ValidatedTerm
     /** @var string The default validation constraint */
     const DEFAULT_PATTERN = '^\s*(?!%s\b).*\s*$';
 
-    /** @var mixed The search value */
+    /** @var string The search value */
     protected $searchValue;
 
-    /** @var string The label */
+    /** @var ?string The label */
     protected $label;
 
-    /** @var string The validation message */
+    /** @var ?string The validation message */
     protected $message;
 
-    /** @var string The validation constraint */
+    /** @var ?string The validation constraint */
     protected $pattern;
 
     /** @var bool Whether the term has been adjusted */
@@ -27,10 +27,10 @@ abstract class ValidatedTerm
     /**
      * Create a new ValidatedTerm
      *
-     * @param mixed $searchValue The search value
+     * @param string $searchValue The search value
      * @param ?string $label The label
      */
-    public function __construct($searchValue, $label = null)
+    public function __construct(string $searchValue, ?string $label = null)
     {
         $this->searchValue = $searchValue;
         $this->label = $label;
@@ -106,13 +106,13 @@ abstract class ValidatedTerm
     /**
      * Set the label
      *
-     * @param string $label
+     * @param ?string $label
      *
      * @return $this
      */
-    public function setLabel(string $label): self
+    public function setLabel(?string $label): self
     {
-        $this->label = (string) $label;
+        $this->label = $label;
         $this->changed = true;
 
         return $this;
@@ -121,7 +121,7 @@ abstract class ValidatedTerm
     /**
      * Get the validation message
      *
-     * @return string
+     * @return ?string
      */
     public function getMessage(): ?string
     {
@@ -131,7 +131,7 @@ abstract class ValidatedTerm
     /**
      * Set the validation message
      *
-     * @param ?string $message
+     * @param string $message
      *
      * @return $this
      */
@@ -167,7 +167,7 @@ abstract class ValidatedTerm
      */
     public function setPattern(string $pattern): self
     {
-        $this->pattern = (string) $pattern;
+        $this->pattern = $pattern;
 
         return $this;
     }

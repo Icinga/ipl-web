@@ -73,7 +73,7 @@ class ValidatedOperator extends ValidatedTerm
         throw new LogicException('Operators cannot be changed');
     }
 
-    public function setLabel(string $label): ValidatedTerm
+    public function setLabel(?string $label): ValidatedTerm
     {
         throw new LogicException('Operators cannot be changed');
     }
