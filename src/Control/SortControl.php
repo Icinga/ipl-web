@@ -2,6 +2,7 @@
 
 namespace ipl\Web\Control;
 
+use GuzzleHttp\Psr7\ServerRequest;
 use ipl\Html\Form;
 use ipl\Html\FormDecorator\DivDecorator;
 use ipl\Html\FormElement\ButtonElement;
@@ -187,6 +188,12 @@ class SortControl extends Form
      */
     public function apply(Query $query, $defaultSort = null): self
     {
+        if ($this->getRequest() === null) {
+            // handleRequest() has not been called yet
+            // TODO: Remove this once everything using this requires ipl v0.12.0
+            $this->handleRequest(ServerRequest::fromGlobals());
+        }
+
         $default = $defaultSort ?? (array) $query->getModel()->getDefaultSort();
         if (! empty($default)) {
             $this->setDefault(SortUtil::normalizeSortSpec($default));
