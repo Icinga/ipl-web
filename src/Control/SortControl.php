@@ -11,6 +11,7 @@ use ipl\Orm\Common\SortUtil;
 use ipl\Orm\Query;
 use ipl\Stdlib\Str;
 use ipl\Web\Common\FormUid;
+use ipl\Web\Url;
 use ipl\Web\Widget\Icon;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -29,6 +30,13 @@ class SortControl extends Form
     /** @var string Name of the URL parameter which stores the sort column */
     protected $sortParam = self::DEFAULT_SORT_PARAM;
 
+    /**
+     * @var Url Request URL
+     * @deprecated Access {@see self::getRequest()} instead.
+     * @todo Remove once cube calls {@see self::handleRequest()}.
+     */
+    protected $url;
+
     /** @var array Possible sort columns as sort string-value pairs */
     private $columns;
 
@@ -41,12 +49,14 @@ class SortControl extends Form
      * Create a new sort control
      *
      * @param array $columns Possible sort columns
+     * @param Url $url Request URL
      *
      * @internal Use {@see self::create()} instead.
      */
-    private function __construct(array $columns)
+    private function __construct(array $columns, Url $url)
     {
         $this->setColumns($columns);
+        $this->url = $url;
     }
 
     /**
@@ -63,7 +73,7 @@ class SortControl extends Form
             $normalized[SortUtil::normalizeSortSpec($spec)] = $label;
         }
 
-        $self = new static($normalized);
+        $self = new static($normalized, Url::fromRequest());
 
         $self->on(self::ON_REQUEST, function (ServerRequestInterface $request) use ($self) {
             if ($self->getMethod() === 'POST' && $request->getMethod() === 'GET') {
@@ -158,7 +168,11 @@ class SortControl extends Form
      */
     public function getSort(): ?string
     {
-        $sort = $this->getPopulatedValue($this->getSortParam(), $this->getDefault());
+        if ($this->getRequest() === null) {
+            $sort = $this->url->getParam($this->getSortParam(), $this->getDefault());
+        } else {
+            $sort = $this->getPopulatedValue($this->getSortParam(), $this->getDefault());
+        }
 
         if (! empty($sort)) {
             $columns = $this->getColumns();
