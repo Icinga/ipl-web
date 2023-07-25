@@ -293,6 +293,8 @@ class CompatController extends Controller
 
         $this->params->shift($sortControl->getSortParam());
 
+        $sortControl->handleRequest($this->getServerRequest());
+
         $defaultSort = null;
 
         if (func_num_args() === 3) {

@@ -9,14 +9,17 @@ use ipl\Html\HtmlElement;
 use ipl\Orm\Common\SortUtil;
 use ipl\Orm\Query;
 use ipl\Stdlib\Str;
-use ipl\Web\Url;
+use ipl\Web\Common\FormUid;
 use ipl\Web\Widget\Icon;
+use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Allows to adjust the order of the items to display
  */
 class SortControl extends Form
 {
+    use FormUid;
+
     /** @var string Default sort param */
     public const DEFAULT_SORT_PARAM = 'sort';
 
@@ -24,9 +27,6 @@ class SortControl extends Form
 
     /** @var string Name of the URL parameter which stores the sort column */
     protected $sortParam = self::DEFAULT_SORT_PARAM;
-
-    /** @var Url Request URL */
-    protected $url;
 
     /** @var array Possible sort columns as sort string-value pairs */
     private $columns;
@@ -40,14 +40,12 @@ class SortControl extends Form
      * Create a new sort control
      *
      * @param array $columns Possible sort columns
-     * @param Url $url Request URL
      *
      * @internal Use {@see self::create()} instead.
      */
-    private function __construct(array $columns, Url $url)
+    private function __construct(array $columns)
     {
         $this->setColumns($columns);
-        $this->url = $url;
     }
 
     /**
@@ -64,7 +62,18 @@ class SortControl extends Form
             $normalized[SortUtil::normalizeSortSpec($spec)] = $label;
         }
 
-        return new static($normalized, Url::fromRequest());
+        $self = new static($normalized);
+
+        $self->on(self::ON_REQUEST, function (ServerRequestInterface $request) use ($self) {
+            if ($self->getMethod() === 'POST' && $request->getMethod() === 'GET') {
+                // If the form is submitted by POST, handleRequest() won't access the URL, so we have to
+                if (($sort = $request->getQueryParams()[$self->getSortParam()] ?? null)) {
+                    $self->populate([$self->getSortParam() => $sort]);
+                }
+            }
+        });
+
+        return $self;
     }
 
     /**
@@ -148,7 +157,7 @@ class SortControl extends Form
      */
     public function getSort(): ?string
     {
-        $sort = $this->url->getParam($this->getSortParam(), $this->getDefault());
+        $sort = $this->getPopulatedValue($this->getSortParam(), $this->getDefault());
 
         if (! empty($sort)) {
             $columns = $this->getColumns();
@@ -253,6 +262,10 @@ class SortControl extends Form
         ]);
         $toggleButton->add(new Icon($toggleIcon));
 
-        $this->addElement($toggleButton);
+        $this->addHtml($toggleButton);
+
+        if ($this->getMethod() === 'POST' && $this->hasAttribute('name')) {
+            $this->addElement($this->createUidElement());
+        }
     }
 }
