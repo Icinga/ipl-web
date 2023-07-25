@@ -39,10 +39,14 @@ class SortControl extends Form
     /**
      * Create a new sort control
      *
+     * @param array $columns Possible sort columns
      * @param Url $url Request URL
+     *
+     * @internal Use {@see self::create()} instead.
      */
-    public function __construct(Url $url)
+    private function __construct(array $columns, Url $url)
     {
+        $this->setColumns($columns);
         $this->url = $url;
     }
 
@@ -60,8 +64,7 @@ class SortControl extends Form
             $normalized[SortUtil::normalizeSortSpec($spec)] = $label;
         }
 
-        return (new static(Url::fromRequest()))
-            ->setColumns($normalized);
+        return new static($normalized, Url::fromRequest());
     }
 
     /**
