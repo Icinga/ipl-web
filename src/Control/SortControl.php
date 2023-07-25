@@ -18,7 +18,7 @@ use ipl\Web\Widget\Icon;
 class SortControl extends Form
 {
     /** @var string Default sort param */
-    const DEFAULT_SORT_PARAM = 'sort';
+    public const DEFAULT_SORT_PARAM = 'sort';
 
     protected $defaultAttributes = ['class' => 'sort-control'];
 
@@ -31,7 +31,7 @@ class SortControl extends Form
     /** @var array Possible sort columns as sort string-value pairs */
     private $columns;
 
-    /** @var string Default sort string */
+    /** @var ?string Default sort string */
     private $default;
 
     protected $method = 'GET';
@@ -69,7 +69,7 @@ class SortControl extends Form
      *
      * @return array Sort string-value pairs
      */
-    public function getColumns()
+    public function getColumns(): array
     {
         return $this->columns;
     }
@@ -81,7 +81,7 @@ class SortControl extends Form
      *
      * @return $this
      */
-    public function setColumns(array $columns)
+    public function setColumns(array $columns): self
     {
         // We're working with lowercase keys throughout the sort control
         $this->columns = array_change_key_case($columns, CASE_LOWER);
@@ -92,9 +92,9 @@ class SortControl extends Form
     /**
      * Get the default sort string
      *
-     * @return string
+     * @return ?string
      */
-    public function getDefault()
+    public function getDefault(): ?string
     {
         return $this->default;
     }
@@ -102,11 +102,11 @@ class SortControl extends Form
     /**
      * Set the default sort string
      *
-     * @param array|string $default
+     * @param string $default
      *
      * @return $this
      */
-    public function setDefault($default)
+    public function setDefault(string $default): self
     {
         // We're working with lowercase keys throughout the sort control
         $this->default = strtolower($default);
@@ -119,7 +119,7 @@ class SortControl extends Form
      *
      * @return string
      */
-    public function getSortParam()
+    public function getSortParam(): string
     {
         return $this->sortParam;
     }
@@ -131,7 +131,7 @@ class SortControl extends Form
      *
      * @return $this
      */
-    public function setSortParam($sortParam)
+    public function setSortParam(string $sortParam): self
     {
         $this->sortParam = $sortParam;
 
@@ -141,9 +141,9 @@ class SortControl extends Form
     /**
      * Get the sort string
      *
-     * @return string|null
+     * @return ?string
      */
-    public function getSort()
+    public function getSort(): ?string
     {
         $sort = $this->url->getParam($this->getSortParam(), $this->getDefault());
 
@@ -173,7 +173,7 @@ class SortControl extends Form
      *
      * @return $this
      */
-    public function apply(Query $query, $defaultSort = null)
+    public function apply(Query $query, $defaultSort = null): self
     {
         $default = $defaultSort ?? (array) $query->getModel()->getDefaultSort();
         if (! empty($default)) {
