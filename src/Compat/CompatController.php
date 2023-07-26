@@ -386,8 +386,11 @@ class CompatController extends Controller
      * Instruct the client to side-load additional updates
      *
      * If an item in the given array is indexed by an integer, its value will be used by the client to refresh
-     * the parent of the element identified by it. If indexed by a string, the client will use this index to
-     * identify a container (by id) and will use the value (a URL) to load content into it.
+     * the parent of the element identified by it. The value is expected to be a valid CSS selector such
+     * as `.foo`, `#foo`. If indexed by a string, the client will use this index to identify a container (by id) and
+     * will use the value (a URL) to load content into it. Since Icinga Web >= 2.12, the indices can be specified with
+     * or without the `#` indicator. If you require compatibility with older Icinga Web versions, you have to specify
+     * the indices (container ids) without the `#` char.
      *
      * @param array $updates
      *
