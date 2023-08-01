@@ -73,14 +73,15 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
         termsToQueryString(terms) {
             let quoted = [];
             for (const termData of terms) {
-                if (termData.search.indexOf(this.separator) >= 0) {
-                    quoted.push({ ...termData, search: '"' + termData.search + '"' });
-                } else {
-                    quoted.push(termData);
+                let search = this.encodeTerm(termData).search;
+                if (search.indexOf(this.separator) >= 0) {
+                    search = '"' + termData.search + '"';
                 }
+
+                quoted.push(search);
             }
 
-            return super.termsToQueryString(quoted);
+            return quoted.join(this.separator).trim();
         }
 
         complete(input, data) {
