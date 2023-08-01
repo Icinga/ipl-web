@@ -149,13 +149,13 @@ abstract class ValidatedTerm
      *
      * @return string
      */
-    public function getPattern(): string
+    public function getPattern(): ?string
     {
-        if ($this->pattern === null) {
-            return sprintf(self::DEFAULT_PATTERN, $this->getSearchValue());
+        if ($this->message === null) {
+            return null;
         }
 
-        return $this->pattern;
+        return $this->pattern ?? sprintf(self::DEFAULT_PATTERN, $this->getLabel() ?: $this->getSearchValue());
     }
 
     /**

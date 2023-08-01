@@ -90,7 +90,7 @@ class RegisteredTerm implements Term
             return null;
         }
 
-        return $this->pattern ?? sprintf(Term::DEFAULT_CONSTRAINT, $this->getSearchValue());
+        return $this->pattern ?? sprintf(Term::DEFAULT_CONSTRAINT, $this->getLabel() ?? $this->getSearchValue());
     }
 
     /**
