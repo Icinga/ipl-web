@@ -2,6 +2,7 @@
 
 namespace ipl\Web\Control;
 
+use GuzzleHttp\Psr7\ServerRequest;
 use ipl\Html\Form;
 use ipl\Html\FormDecorator\DivDecorator;
 use ipl\Html\FormElement\ButtonElement;
@@ -9,29 +10,37 @@ use ipl\Html\HtmlElement;
 use ipl\Orm\Common\SortUtil;
 use ipl\Orm\Query;
 use ipl\Stdlib\Str;
+use ipl\Web\Common\FormUid;
 use ipl\Web\Url;
 use ipl\Web\Widget\Icon;
+use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Allows to adjust the order of the items to display
  */
 class SortControl extends Form
 {
+    use FormUid;
+
     /** @var string Default sort param */
-    const DEFAULT_SORT_PARAM = 'sort';
+    public const DEFAULT_SORT_PARAM = 'sort';
 
     protected $defaultAttributes = ['class' => 'sort-control'];
 
     /** @var string Name of the URL parameter which stores the sort column */
     protected $sortParam = self::DEFAULT_SORT_PARAM;
 
-    /** @var Url Request URL */
+    /**
+     * @var Url Request URL
+     * @deprecated Access {@see self::getRequest()} instead.
+     * @todo Remove once cube calls {@see self::handleRequest()}.
+     */
     protected $url;
 
     /** @var array Possible sort columns as sort string-value pairs */
     private $columns;
 
-    /** @var string Default sort string */
+    /** @var ?string Default sort string */
     private $default;
 
     protected $method = 'GET';
@@ -39,10 +48,14 @@ class SortControl extends Form
     /**
      * Create a new sort control
      *
+     * @param array $columns Possible sort columns
      * @param Url $url Request URL
+     *
+     * @internal Use {@see self::create()} instead.
      */
-    public function __construct(Url $url)
+    private function __construct(array $columns, Url $url)
     {
+        $this->setColumns($columns);
         $this->url = $url;
     }
 
@@ -60,8 +73,18 @@ class SortControl extends Form
             $normalized[SortUtil::normalizeSortSpec($spec)] = $label;
         }
 
-        return (new static(Url::fromRequest()))
-            ->setColumns($normalized);
+        $self = new static($normalized, Url::fromRequest());
+
+        $self->on(self::ON_REQUEST, function (ServerRequestInterface $request) use ($self) {
+            if ($self->getMethod() === 'POST' && $request->getMethod() === 'GET') {
+                // If the form is submitted by POST, handleRequest() won't access the URL, so we have to
+                if (($sort = $request->getQueryParams()[$self->getSortParam()] ?? null)) {
+                    $self->populate([$self->getSortParam() => $sort]);
+                }
+            }
+        });
+
+        return $self;
     }
 
     /**
@@ -69,7 +92,7 @@ class SortControl extends Form
      *
      * @return array Sort string-value pairs
      */
-    public function getColumns()
+    public function getColumns(): array
     {
         return $this->columns;
     }
@@ -81,7 +104,7 @@ class SortControl extends Form
      *
      * @return $this
      */
-    public function setColumns(array $columns)
+    public function setColumns(array $columns): self
     {
         // We're working with lowercase keys throughout the sort control
         $this->columns = array_change_key_case($columns, CASE_LOWER);
@@ -92,9 +115,9 @@ class SortControl extends Form
     /**
      * Get the default sort string
      *
-     * @return string
+     * @return ?string
      */
-    public function getDefault()
+    public function getDefault(): ?string
     {
         return $this->default;
     }
@@ -102,11 +125,11 @@ class SortControl extends Form
     /**
      * Set the default sort string
      *
-     * @param array|string $default
+     * @param string $default
      *
      * @return $this
      */
-    public function setDefault($default)
+    public function setDefault(string $default): self
     {
         // We're working with lowercase keys throughout the sort control
         $this->default = strtolower($default);
@@ -119,7 +142,7 @@ class SortControl extends Form
      *
      * @return string
      */
-    public function getSortParam()
+    public function getSortParam(): string
     {
         return $this->sortParam;
     }
@@ -131,7 +154,7 @@ class SortControl extends Form
      *
      * @return $this
      */
-    public function setSortParam($sortParam)
+    public function setSortParam(string $sortParam): self
     {
         $this->sortParam = $sortParam;
 
@@ -141,11 +164,15 @@ class SortControl extends Form
     /**
      * Get the sort string
      *
-     * @return string|null
+     * @return ?string
      */
-    public function getSort()
+    public function getSort(): ?string
     {
-        $sort = $this->url->getParam($this->getSortParam(), $this->getDefault());
+        if ($this->getRequest() === null) {
+            $sort = $this->url->getParam($this->getSortParam(), $this->getDefault());
+        } else {
+            $sort = $this->getPopulatedValue($this->getSortParam(), $this->getDefault());
+        }
 
         if (! empty($sort)) {
             $columns = $this->getColumns();
@@ -173,8 +200,14 @@ class SortControl extends Form
      *
      * @return $this
      */
-    public function apply(Query $query, $defaultSort = null)
+    public function apply(Query $query, $defaultSort = null): self
     {
+        if ($this->getRequest() === null) {
+            // handleRequest() has not been called yet
+            // TODO: Remove this once everything using this requires ipl v0.12.0
+            $this->handleRequest(ServerRequest::fromGlobals());
+        }
+
         $default = $defaultSort ?? (array) $query->getModel()->getDefaultSort();
         if (! empty($default)) {
             $this->setDefault(SortUtil::normalizeSortSpec($default));
@@ -250,6 +283,10 @@ class SortControl extends Form
         ]);
         $toggleButton->add(new Icon($toggleIcon));
 
-        $this->addElement($toggleButton);
+        $this->addHtml($toggleButton);
+
+        if ($this->getMethod() === 'POST' && $this->hasAttribute('name')) {
+            $this->addElement($this->createUidElement());
+        }
     }
 }
