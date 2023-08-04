@@ -37,6 +37,9 @@ class TermInput extends FieldsetElement
     /** @var Url The suggestion url */
     protected $suggestionUrl;
 
+    /** @var bool Whether term direction is vertical */
+    protected $verticalTermDirection = false;
+
     /** @var array Changes to transmit to the client */
     protected $changes = [];
 
@@ -74,6 +77,30 @@ class TermInput extends FieldsetElement
     public function getSuggestionUrl(): ?Url
     {
         return $this->suggestionUrl;
+    }
+
+    /**
+     * Set whether term direction should be vertical
+     *
+     * @param bool $state
+     *
+     * @return $this
+     */
+    public function setVerticalTermDirection(bool $state = true): self
+    {
+        $this->verticalTermDirection = $state;
+
+        return $this;
+    }
+
+    /**
+     * Get the desired term direction
+     *
+     * @return ?string
+     */
+    public function getTermDirection(): ?string
+    {
+        return $this->verticalTermDirection ? 'vertical' : null;
     }
 
     /**
@@ -387,6 +414,7 @@ class TermInput extends FieldsetElement
             'data-enrichment-type' => 'terms',
             'data-with-multi-completion' => true,
             'data-no-auto-submit-on-remove' => true,
+            'data-term-direction' => $this->getTermDirection(),
             'data-data-input' => '#' . $dataInputId,
             'data-term-input' => '#' . $termInputId,
             'data-term-container' => '#' . $termContainer->getAttribute('id')->getValue(),
@@ -408,7 +436,7 @@ class TermInput extends FieldsetElement
 
         $mainInput->prependWrapper((new HtmlElement(
             'div',
-            Attributes::create(['class' => 'term-input-area']),
+            Attributes::create(['class' => ['term-input-area', $this->getTermDirection()]]),
             $termContainer,
             new HtmlElement('label', null, $mainInput)
         )));

@@ -1,7 +1,7 @@
 // Style
 
 .search-bar .filter-input-area,
-.term-input-area {
+.term-input-area:not(.vertical) {
   // Scrollbar style
 
   // Firefox
@@ -118,7 +118,7 @@
 
 // Layout
 .search-bar .filter-input-area,
-.term-input-area {
+.term-input-area:not(.vertical) {
   overflow: auto hidden;
   overflow-x: overlay; // Not invalid, but proprietary feature by chrome/webkit
   display: flex;
@@ -136,7 +136,7 @@
     &::after,
     input {
       width: auto;
-      padding: 0 .5em;
+      padding: .25em .5em;
       resize: none;
     }
 
@@ -172,6 +172,33 @@
 
     label {
       margin-right: 1px;
+    }
+  }
+}
+
+.term-input-area.vertical {
+  display: flex;
+  flex-direction: column-reverse;
+
+  > .terms {
+    @gap: 1px;
+    @termsPerRow: 2;
+
+    display: flex;
+    flex-wrap: wrap;
+    gap: @gap;
+    margin-top: @gap;
+
+    label {
+      @termWidth: 100%/@termsPerRow;
+      @totalGapWidthPerRow: (@termsPerRow - 1) * @gap;
+
+      min-width: ~"calc(@{termWidth} - (@{totalGapWidthPerRow} / @{termsPerRow}))";
+      flex: 1 1 auto;
+
+      input {
+        text-overflow: ellipsis;
+      }
     }
   }
 }
