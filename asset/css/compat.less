@@ -74,11 +74,26 @@ form.icinga-form .control-group {
 form.icinga-form .control-group {
   > .term-input-area {
     flex: 1 1 auto;
+
     width: auto;
+    &.vertical {
+      width: 0;
+    }
 
     input[type="text"] {
       flex: unset;
       width: 100%;
+    }
+  }
+}
+
+// SearchBar styles
+
+.icinga-module.module-icingadb .controls .search-bar .filter-input-area {
+  label {
+    &::after,
+    input {
+      padding: 0 .5em;
     }
   }
 }

@@ -532,6 +532,10 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
         }
 
         togglePlaceholder() {
+            if (this.isTermDirectionVertical()) {
+                return;
+            }
+
             let placeholder = '';
 
             if (! this.hasTerms()) {
@@ -625,6 +629,10 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
                 'submit',
                 { terms: terms }
             );
+        }
+
+        isTermDirectionVertical() {
+            return this.input.dataset.termDirection === 'vertical';
         }
 
         moveFocusForward(from = null) {
@@ -784,7 +792,9 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
                 case 'Backspace':
                     removedTerms = this.clearSelectedTerms();
 
-                    if (termIndex >= 0 && ! input.value) {
+                    if (this.isTermDirectionVertical()) {
+                        // pass
+                    } else if (termIndex >= 0 && ! input.value) {
                         let removedTerm = this.removeTerm(input.parentNode);
                         if (removedTerm !== false) {
                             input = this.moveFocusBackward(termIndex);
@@ -816,7 +826,7 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
                 case 'Delete':
                     removedTerms = this.clearSelectedTerms();
 
-                    if (termIndex >= 0 && ! input.value) {
+                    if (! this.isTermDirectionVertical() && termIndex >= 0 && ! input.value) {
                         let removedTerm = this.removeTerm(input.parentNode);
                         if (removedTerm !== false) {
                             input = this.moveFocusForward(termIndex - 1);
@@ -851,6 +861,26 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
                     break;
                 case 'ArrowRight':
                     if (input.selectionStart === input.value.length && this.hasTerms()) {
+                        event.preventDefault();
+                        this.moveFocusForward();
+                    }
+                    break;
+                case 'ArrowUp':
+                    if (this.isTermDirectionVertical()
+                        && input.selectionStart === 0
+                        && this.hasTerms()
+                        && (this.completer === null || ! this.completer.isBeingCompleted(input))
+                    ) {
+                        event.preventDefault();
+                        this.moveFocusBackward();
+                    }
+                    break;
+                case 'ArrowDown':
+                    if (this.isTermDirectionVertical()
+                        && input.selectionStart === input.value.length
+                        && this.hasTerms()
+                        && (this.completer === null || ! this.completer.isBeingCompleted(input))
+                    ) {
                         event.preventDefault();
                         this.moveFocusForward();
                     }

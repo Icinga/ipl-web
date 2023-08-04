@@ -1078,6 +1078,10 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
             return termData;
         }
 
+        isTermDirectionVertical() {
+            return false;
+        }
+
         highlightTerm(label, highlightedBy = null) {
             label.classList.add('highlighted');
 
