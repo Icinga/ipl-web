@@ -6,6 +6,9 @@ define(["../notjQuery"], function ($) {
         constructor(input, instrumented = false) {
             this.input = input;
             this.instrumented = instrumented;
+            this.selectionStartInput = null;
+            this.selectionActive = false;
+            this.mouseSelectionActive = false;
             this.nextSuggestion = null;
             this.activeSuggestion = null;
             this.suggestionKiller = null;
@@ -31,6 +34,14 @@ define(["../notjQuery"], function ($) {
             $(this.termSuggestions).on('focusout', '[type="button"]', this.onFocusOut, this);
             $(this.termSuggestions).on('click', '[type="button"]', this.onSuggestionClick, this);
             $(this.termSuggestions).on('keydown', '[type="button"]', this.onSuggestionKeyDown, this);
+
+            if (this.selectionEnabled()) {
+                $(this.termSuggestions).on('keyup', '[type="button"]', this.onSuggestionKeyUp, this);
+                $(this.termSuggestions).on('mouseover', '[type="button"]', this.onSuggestionMouseOver, this);
+                $(this.termSuggestions).on('mousedown', '[type="button"]', this.onSuggestionMouseDown, this);
+                $(this.termSuggestions).on('mouseup', '[type="button"]', this.onSuggestionsMouseUp, this);
+                $(this.termSuggestions).on('mouseleave', this.onSuggestionsMouseLeave, this);
+            }
 
             if (this.instrumented) {
                 if (to !== null) {
@@ -132,6 +143,8 @@ define(["../notjQuery"], function ($) {
             this.completedInput = null;
             this.completedValue = null;
             this.completedData = null;
+
+            this.endSelection();
         }
 
         prepareCompletionData(input, data = null) {
@@ -281,7 +294,7 @@ define(["../notjQuery"], function ($) {
             this.hideSuggestions();
         }
 
-        moveToSuggestion(backwards = false) {
+        moveToSuggestion(backwards = false, stopAtEdge = false) {
             let focused = this.termSuggestions.querySelector('[type="button"]:focus');
             let inputs = Array.from(this.termSuggestions.querySelectorAll('[type="button"]'));
 
@@ -290,6 +303,8 @@ define(["../notjQuery"], function ($) {
                 let sibling = inputs[backwards ? inputs.indexOf(focused) - 1 : inputs.indexOf(focused) + 1];
                 if (sibling) {
                     input = sibling;
+                } else if (stopAtEdge) {
+                    return null;
                 } else {
                     input = this.completedInput;
                 }
@@ -299,7 +314,7 @@ define(["../notjQuery"], function ($) {
 
             $(input).focus();
 
-            if (this.completedValue !== null) {
+            if (! stopAtEdge && this.completedValue !== null) {
                 if (input === this.completedInput) {
                     this.suggest(this.completedInput, this.completedValue);
                 } else {
@@ -317,6 +332,126 @@ define(["../notjQuery"], function ($) {
 
             return input === this.completedInput && this.hasSuggestions()
                 && (! activeElement || input === activeElement || this.termSuggestions.contains(activeElement));
+        }
+
+        selectionEnabled() {
+            return this.instrumented && 'withMultiCompletion' in this.input.dataset;
+        }
+
+        selectionAllowed() {
+            return this.completedInput === this.input && this.selectionEnabled();
+        }
+
+        startSelection(input) {
+            this.selectionActive = true;
+            this.selectionStartInput = input;
+        }
+
+        isSelectionActive() {
+            return this.selectionActive;
+        }
+
+        endSelection() {
+            this.selectionStartInput = null;
+            this.selectionActive = false;
+            this.mouseSelectionActive = false;
+        }
+
+        selectSuggestion(input) {
+            input.classList.add('selected');
+        }
+
+        deselectSuggestion(input) {
+            input.classList.remove('selected');
+        }
+
+        toggleSelection(input) {
+            input.classList.toggle('selected');
+            let selected = input.classList.contains('selected');
+            if (selected && ! this.isSelectionActive()) {
+                this.startSelection(input);
+            }
+
+            if (! selected && input === this.selectionStartInput) {
+                this.selectionStartInput = this.termSuggestions.querySelector('[type="button"].selected');
+                if (! this.selectionStartInput) {
+                    this.endSelection();
+                    $(this.input).focus();
+                } else {
+                    $(this.selectionStartInput).focus();
+                }
+            }
+
+            return selected;
+        }
+
+        isSelectedSuggestion(input) {
+            return input.classList.contains('selected');
+        }
+
+        getSelectedSuggestions() {
+            return this.termSuggestions.querySelectorAll('[type="button"].selected');
+        }
+
+        clearSelection() {
+            if (! this.isSelectionActive()) {
+                return;
+            }
+
+            for (const selectedInput of this.getSelectedSuggestions()) {
+                this.deselectSuggestion(selectedInput);
+            }
+
+            this.endSelection();
+        }
+
+        handleKeySelection(input, newInput) {
+            if (! this.isSelectionActive()) {
+                this.startSelection(input);
+                this.selectSuggestion(input);
+                this.selectSuggestion(newInput);
+                this.suggest(this.completedInput, '');
+            } else if (this.isSelectedSuggestion(newInput)) {
+                this.deselectSuggestion(input);
+            } else {
+                this.selectSuggestion(newInput);
+            }
+        }
+
+        startMouseSelection(input) {
+            this.startSelection(input);
+            this.mouseSelectionActive = true;
+        }
+
+        isMouseSelectionActive() {
+            return this.mouseSelectionActive;
+        }
+
+        finishMouseSelection() {
+            if (! this.mouseSelectionActive) {
+                return;
+            }
+
+            this.mouseSelectionActive = false;
+            this.selectSuggestion(this.selectionStartInput);
+
+            let selectionFound = false;
+            let selectionCandidates = [];
+            for (const input of this.termSuggestions.querySelectorAll('[type="button"]')) {
+                if (input.classList.contains('selected')) {
+                    if (selectionFound) {
+                        for (const candidate of selectionCandidates) {
+                            this.selectSuggestion(candidate);
+                        }
+
+                        selectionCandidates = [];
+                    } else {
+                        selectionFound = true;
+                    }
+                } else if (selectionFound) {
+                    selectionCandidates.push(input);
+                }
+            }
         }
 
         /**
@@ -357,15 +492,73 @@ define(["../notjQuery"], function ($) {
             }, 250);
         }
 
+        onSuggestionMouseDown(event) {
+            if (! this.selectionAllowed()) {
+                return;
+            }
+
+            if (event.ctrlKey || event.metaKey) {
+                // onSuggestionClick only toggles the suggestion's selection and should
+                // be the only one who decides which other suggestion should be focused
+                event.preventDefault();
+            } else {
+                this.clearSelection();
+                this.startMouseSelection(event.target);
+            }
+        }
+
+        onSuggestionsMouseUp(event) {
+            if (! event.ctrlKey && ! event.metaKey) {
+                this.finishMouseSelection();
+            }
+        }
+
+        onSuggestionsMouseLeave(_) {
+            this.finishMouseSelection();
+        }
+
+        onSuggestionMouseOver(event) {
+            if (this.isMouseSelectionActive()) {
+                this.selectSuggestion(event.target);
+            }
+        }
+
+        onSuggestionKeyUp(event) {
+            if (this.completedInput === null) {
+                return;
+            }
+
+            let input = event.target;
+
+            switch (event.key) {
+                case 'Shift':
+                    if (this.isSelectionActive()) {
+                        event.preventDefault();
+
+                        if (input === this.selectionStartInput && this.getSelectedSuggestions().length === 1) {
+                            this.deselectSuggestion(input);
+                            this.endSelection();
+                        }
+                    }
+
+                    break;
+            }
+        }
+
         onSuggestionKeyDown(event) {
             if (this.completedInput === null) {
                 return;
             }
 
+            let newInput;
+            let input = event.target;
+            let allowSelection = event.shiftKey && this.selectionAllowed();
+
             switch (event.key) {
                 case 'Escape':
                     $(this.completedInput).focus({ scripted: true });
                     this.suggest(this.completedInput, this.completedValue);
+                    this.clearSelection();
                     break;
                 case 'Tab':
                     event.preventDefault();
@@ -374,12 +567,30 @@ define(["../notjQuery"], function ($) {
                 case 'ArrowLeft':
                 case 'ArrowUp':
                     event.preventDefault();
-                    this.moveToSuggestion(true);
+
+                    newInput = this.moveToSuggestion(true, allowSelection);
+                    if (allowSelection) {
+                        if (newInput !== null) {
+                            this.handleKeySelection(input, newInput);
+                        }
+                    } else {
+                        this.clearSelection();
+                    }
+
                     break;
                 case 'ArrowRight':
                 case 'ArrowDown':
                     event.preventDefault();
-                    this.moveToSuggestion();
+
+                    newInput = this.moveToSuggestion(false, allowSelection);
+                    if (allowSelection) {
+                        if (newInput !== null) {
+                            this.handleKeySelection(input, newInput);
+                        }
+                    } else {
+                        this.clearSelection();
+                    }
+
                     break;
             }
         }
@@ -389,9 +600,23 @@ define(["../notjQuery"], function ($) {
                 return;
             }
 
-            let input = event.currentTarget;
+            if (event.ctrlKey || event.metaKey) {
+                if (this.selectionAllowed()) {
+                    this.toggleSelection(event.target);
+                    event.preventDefault();
+                }
+            } else if (this.isSelectionActive() && this.isSelectedSuggestion(event.target)) {
+                let terms = [];
+                for (const suggestion of this.getSelectedSuggestions()) {
+                    terms.push({ ...suggestion.dataset });
+                }
 
-            this.complete(this.completedInput, input.value, { ...input.dataset });
+                this.complete(this.completedInput, null, { type: 'terms', terms: terms });
+            } else {
+                let input = event.currentTarget;
+
+                this.complete(this.completedInput, input.value, { ...input.dataset });
+            }
         }
 
         onKeyDown(event) {
