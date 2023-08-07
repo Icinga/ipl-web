@@ -113,12 +113,8 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
                 return false;
             }
 
-            if (termData.type === 'terms') {
-                termData = JSON.parse(termData.terms);
-            } else {
-                if (! termData.type) {
-                    termData.type = this.termType;
-                }
+            if (! Array.isArray(termData) && ! termData.type) {
+                termData.type = this.termType;
             }
 
             return termData;

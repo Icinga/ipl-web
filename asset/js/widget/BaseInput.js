@@ -232,7 +232,7 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
 
         readFullTerm(input, termIndex = null) {
             let value = this.readPartialTerm(input);
-            if (! value) {
+            if (! value && this.lastCompletedTerm === null) {
                 return false;
             }
 
@@ -242,11 +242,19 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
                 termData = { ...this.usedTerms[termIndex] };
             }
 
-            termData.label = value;
-            termData.search = value;
+            if (value) {
+                termData.label = value;
+                termData.search = value;
+            }
 
             if (this.lastCompletedTerm !== null) {
-                if (termData.label === this.lastCompletedTerm.label) {
+                if ('type' in this.lastCompletedTerm && this.lastCompletedTerm.type === 'terms') {
+                    if (typeof this.lastCompletedTerm.terms === 'string') {
+                        termData = JSON.parse(this.lastCompletedTerm.terms);
+                    } else {
+                        termData = this.lastCompletedTerm.terms;
+                    }
+                } else if (termData.label === this.lastCompletedTerm.label) {
                     Object.assign(termData, this.lastCompletedTerm);
                 }
 
@@ -713,9 +721,11 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
             let termIndex = Number(input.parentNode.dataset.index);
 
             this.lastCompletedTerm = termData;
-            this.writePartialTerm(termData.label, input);
 
-            this.checkValidity(input);
+            if ('label' in termData) {
+                this.writePartialTerm(termData.label, input);
+                this.checkValidity(input);
+            }
 
             if (termIndex >= 0) {
                 this.autoSubmit(input, 'save', { terms: { [termIndex]: this.saveTerm(input, false, true) } });
