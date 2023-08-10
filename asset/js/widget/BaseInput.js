@@ -966,9 +966,13 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
 
                 // This is not part of `onSubmit()` because otherwise it would override what `autoSubmit()` does
                 this.dataInput.value = JSON.stringify({ type: 'submit', terms: this.usedTerms });
+
+                return;
             } else if (this.manageRequired && ! this.hasTerms()) {
                 this.input.required = true;
             }
+
+            this.dataInput.value = '';
         }
 
         onPaste(event) {
