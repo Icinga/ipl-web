@@ -385,6 +385,7 @@ class TermInput extends FieldsetElement
             'autocomplete' => 'off',
             'data-term-separator' => ',',
             'data-enrichment-type' => 'terms',
+            'data-with-multi-completion' => true,
             'data-no-auto-submit-on-remove' => true,
             'data-data-input' => '#' . $dataInputId,
             'data-term-input' => '#' . $termInputId,

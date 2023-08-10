@@ -99,7 +99,8 @@
     background: none;
   }
 
-  [type="button"]:focus {
+  [type="button"]:focus,
+  [type="button"].selected {
     background: var(--suggestions-focus-bg, @suggestions-focus-bg);
     color: var(--suggestions-focus-color, @suggestions-focus-color);
     outline: none;
@@ -109,7 +110,8 @@
     }
   }
 
-  [type="button"]:not(:focus):hover {
+  [type="button"]:not(:focus):hover,
+  [type="button"]:not(.selected):hover {
     background: var(--suggestions-hover-bg, @suggestions-hover-bg);
   }
 }
