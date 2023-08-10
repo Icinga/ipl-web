@@ -135,7 +135,7 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
                 return;
             }
 
-            if (event.key !== this.separator) {
+            if (event.key !== this.separator && event.key !== 'Enter') {
                 return;
             }
 
