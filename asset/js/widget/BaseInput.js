@@ -10,6 +10,7 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
             this.usedTerms = [];
             this.completer = null;
             this.lastCompletedTerm = null;
+            this.manageRequired = input.required;
             this._dataInput = null;
             this._termInput = null;
             this._termContainer = null;
@@ -147,7 +148,15 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
                 this.togglePlaceholder();
             }
 
-            return this.hasTerms();
+            if (this.hasTerms()) {
+                if (this.manageRequired) {
+                    this.input.required = false;
+                }
+
+                return true;
+            }
+
+            return false;
         }
 
         registerTerms() {
@@ -951,11 +960,13 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
             }
 
             if (this.hasTerms()) {
-                this.input.required = false;
+                if (this.manageRequired) {
+                    this.input.required = false;
+                }
 
                 // This is not part of `onSubmit()` because otherwise it would override what `autoSubmit()` does
                 this.dataInput.value = JSON.stringify({ type: 'submit', terms: this.usedTerms });
-            } else if (typeof this.input.dataset.manageRequired !== 'undefined') {
+            } else if (this.manageRequired && ! this.hasTerms()) {
                 this.input.required = true;
             }
         }
