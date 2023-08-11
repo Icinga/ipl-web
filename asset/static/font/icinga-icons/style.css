@@ -1,24 +1,23 @@
 @font-face {
   font-family: 'Icinga-Icons';
-  src:  url('@{iplWebAssets}/font/Icinga-Icons.eot');
-  src:  url('@{iplWebAssets}/font/Icinga-Icons.eot') format('embedded-opentype'),
-  url('@{iplWebAssets}/font/Icinga-Icons.ttf') format('truetype'),
-  url('@{iplWebAssets}/font/Icinga-Icons.woff') format('woff'),
-  url('@{iplWebAssets}/font/Icinga-Icons.svg') format('svg');
+  src:
+    url('fonts/Icinga-Icons.ttf?xnw9vw') format('truetype'),
+    url('fonts/Icinga-Icons.woff?xnw9vw') format('woff'),
+    url('fonts/Icinga-Icons.svg?xnw9vw#Icinga-Icons') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
 }
 
-[class^="iicon-"]:before, [class*=" iicon-"]:before {
+[class^="iicon-"], [class*=" iicon-"] {
   /* use !important to prevent issues with browser extensions that change fonts */
-  font-family: 'Icinga-Icons';
-  speak: none;
+  font-family: 'Icinga-Icons' !important;
+  speak: never;
   font-style: normal;
   font-weight: normal;
   font-variant: normal;
   text-transform: none;
-  line-height: 1em;
+  line-height: 1;
 
   /* Better Font Rendering =========== */
   -webkit-font-smoothing: antialiased;
@@ -43,15 +42,12 @@
 .iicon-icinga:before {
   content: "\e907";
 }
-.iicon-minimal:before,
 .iicon-list-view-minimal:before {
   content: "\e900";
 }
-.iicon-detailed:before,
 .iicon-list-view-detailed:before {
   content: "\e901";
 }
-.iicon-default:before,
 .iicon-list-view-default:before {
   content: "\e902";
 }
