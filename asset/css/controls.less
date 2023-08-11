@@ -116,7 +116,11 @@
  */
 .controls.default-layout {
   .box-shadow(0, 0, 0, 1px, @controls-separator-bg);
+
   z-index: 1; // The content may clip, this ensures the separator is always visible
+  & + .content {
+    z-index: 0;
+  }
 
   > .pagination-control {
     float: left;
