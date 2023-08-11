@@ -181,6 +181,7 @@ class SortControl extends Form
                 // Choose sort string based on the first closest match
                 foreach (array_keys($columns) as $key) {
                     if (Str::startsWith($key, $sort)) {
+                        $this->populate([$this->getSortParam() => $key]);
                         $sort = $key;
 
                         break;
