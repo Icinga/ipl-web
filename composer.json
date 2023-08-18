@@ -30,6 +30,7 @@
     "ipl/html": "dev-main",
     "ipl/i18n": "dev-main",
     "ipl/scheduler": "dev-main",
-    "ipl/stdlib": "dev-main"
+    "ipl/stdlib": "dev-main",
+    "shardj/zf1-future": "^1.22"
   }
 }
