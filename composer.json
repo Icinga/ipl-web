@@ -25,5 +25,11 @@
     "ipl/scheduler": ">=0.1.0",
     "ipl/stdlib": ">=0.12.0",
     "fortawesome/font-awesome": "^6"
+  },
+  "require-dev": {
+    "ipl/html": "dev-main",
+    "ipl/i18n": "dev-main",
+    "ipl/scheduler": "dev-main",
+    "ipl/stdlib": "dev-main"
   }
 }
