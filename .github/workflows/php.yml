@@ -31,8 +31,9 @@ jobs:
           tools: phpcs
 
       - name: Setup dependencies
-        run: composer require -n --no-progress overtrue/phplint
-          && git clone --single-branch -b master https://github.com/Icinga/icingaweb2.git vendor/icingaweb2
+        run: |
+          composer require -n --no-progress overtrue/phplint
+          git clone --depth 1 https://github.com/Icinga/icingaweb2.git vendor/icingaweb2
 
       - name: PHP Lint
         if: success() || matrix.allow_failure
