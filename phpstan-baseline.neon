@@ -1,0 +1,1891 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Method ipl\\\\Web\\\\Common\\\\Card\\:\\:assemble\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Common/Card.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Common\\\\Card\\:\\:assembleBody\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Common/Card.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Common\\\\Card\\:\\:assembleFooter\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Common/Card.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Common\\\\Card\\:\\:assembleHeader\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Common/Card.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Common\\\\Card\\:\\:createBody\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Common/Card.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Common\\\\Card\\:\\:createFooter\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Common/Card.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Common\\\\Card\\:\\:createHeader\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Common/Card.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Common\\\\StateBadges\\:\\:createLink\\(\\) has parameter \\$filter with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Common/StateBadges.php
+
+		-
+			message: "#^Parameter \\#1 \\$rule of method ipl\\\\Stdlib\\\\Filter\\\\Chain\\:\\:add\\(\\) expects ipl\\\\Stdlib\\\\Filter\\\\Rule, ipl\\\\Stdlib\\\\Filter\\\\Rule\\|null given\\.$#"
+			count: 1
+			path: src/Common/StateBadges.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\Common\\\\StateBadges\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Common/StateBadges.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Compat\\\\CompatController\\:\\:createSortControl\\(\\) has parameter \\$columns with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Compat/CompatController.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Compat\\\\CompatController\\:\\:prepareInit\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Compat/CompatController.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Compat\\\\CompatController\\:\\:sendExtraUpdates\\(\\) has parameter \\$updates with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Compat/CompatController.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Compat\\\\CompatController\\:\\:sendMultipartUpdate\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Compat/CompatController.php
+
+		-
+			message: "#^PHPDoc tag @param has invalid value \\(\\?array\\|string \\$defaultSort Optional default sort column\\)\\: Unexpected token \"\\|\", expected variable at offset 262$#"
+			count: 1
+			path: src/Compat/CompatController.php
+
+		-
+			message: "#^Parameter \\#1 \\$content of static method ipl\\\\Html\\\\Text\\:\\:create\\(\\) expects string, string\\|false given\\.$#"
+			count: 1
+			path: src/Compat/CompatController.php
+
+		-
+			message: "#^Parameter \\#1 \\$id of method ipl\\\\Web\\\\Compat\\\\Multipart\\:\\:setFor\\(\\) expects string, array\\|string\\|true given\\.$#"
+			count: 1
+			path: src/Compat/CompatController.php
+
+		-
+			message: "#^Parameter \\#2 \\$values of function vsprintf expects array\\<bool\\|float\\|int\\|string\\|null\\>, array\\<int\\|string, mixed\\> given\\.$#"
+			count: 1
+			path: src/Compat/CompatController.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\Compat\\\\CompatController\\:\\:\\$parts type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Compat/CompatController.php
+
+		-
+			message: "#^Return type \\(ipl\\\\Web\\\\Widget\\\\Tabs\\) of method ipl\\\\Web\\\\Compat\\\\CompatController\\:\\:getTabs\\(\\) should be compatible with return type \\(Icinga\\\\Web\\\\Widget\\\\Tabs\\) of method Icinga\\\\Web\\\\Controller\\\\ActionController\\:\\:getTabs\\(\\)$#"
+			count: 1
+			path: src/Compat/CompatController.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\Compat\\\\CompatForm\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Compat/CompatForm.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Compat\\\\Multipart\\:\\:assemble\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Compat/Multipart.php
+
+		-
+			message: "#^Access to an undefined property Zend_View_Interface\\:\\:\\$document\\.$#"
+			count: 2
+			path: src/Compat/ViewRenderer.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Compat\\\\ViewRenderer\\:\\:inject\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Compat/ViewRenderer.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\LimitControl\\:\\:assemble\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Control/LimitControl.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\LimitControl\\:\\:getLimit\\(\\) should return int but returns mixed\\.$#"
+			count: 1
+			path: src/Control/LimitControl.php
+
+		-
+			message: "#^Static property ipl\\\\Web\\\\Control\\\\LimitControl\\:\\:\\$limits \\(array\\<int\\>\\) does not accept default value of type array\\<int, string\\>\\.$#"
+			count: 1
+			path: src/Control/LimitControl.php
+
+		-
+			message: "#^Cannot cast mixed to int\\.$#"
+			count: 2
+			path: src/Control/PaginationControl.php
+
+		-
+			message: "#^Class ipl\\\\Web\\\\Compat\\\\CompatForm does not have a constructor and must be instantiated without any parameters\\.$#"
+			count: 1
+			path: src/Control/PaginationControl.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\PaginationControl\\:\\:assemble\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Control/PaginationControl.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\PaginationControl\\:\\:translate\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Control/PaginationControl.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\PaginationControl\\:\\:translate\\(\\) has parameter \\$message with no type specified\\.$#"
+			count: 1
+			path: src/Control/PaginationControl.php
+
+		-
+			message: "#^Parameter \\#2 \\$value of method Icinga\\\\Web\\\\Url\\:\\:setParam\\(\\) expects array\\|bool\\|string, int given\\.$#"
+			count: 1
+			path: src/Control/PaginationControl.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\Control\\\\PaginationControl\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Control/PaginationControl.php
+
+		-
+			message: "#^Access to an undefined property ipl\\\\Html\\\\Form\\:\\:\\$uidElementName\\.$#"
+			count: 3
+			path: src/Control/SearchBar.php
+
+		-
+			message: "#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#"
+			count: 1
+			path: src/Control/SearchBar.php
+
+		-
+			message: "#^Cannot access offset 'terms' on mixed\\.$#"
+			count: 2
+			path: src/Control/SearchBar.php
+
+		-
+			message: "#^Cannot access offset 'type' on mixed\\.$#"
+			count: 2
+			path: src/Control/SearchBar.php
+
+		-
+			message: "#^Cannot access offset mixed on array\\|object\\.$#"
+			count: 1
+			path: src/Control/SearchBar.php
+
+		-
+			message: "#^Cannot call method getHeaderLine\\(\\) on Psr\\\\Http\\\\Message\\\\ServerRequestInterface\\|null\\.$#"
+			count: 1
+			path: src/Control/SearchBar.php
+
+		-
+			message: "#^Cannot call method getParsedBody\\(\\) on Psr\\\\Http\\\\Message\\\\ServerRequestInterface\\|null\\.$#"
+			count: 1
+			path: src/Control/SearchBar.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchBar\\:\\:assemble\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Control/SearchBar.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchBar\\:\\:getChanges\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Control/SearchBar.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchBar\\:\\:populate\\(\\) has parameter \\$values with no value type specified in iterable type iterable\\.$#"
+			count: 1
+			path: src/Control/SearchBar.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchBar\\:\\:protectId\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Control/SearchBar.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchBar\\:\\:protectId\\(\\) has parameter \\$id with no type specified\\.$#"
+			count: 1
+			path: src/Control/SearchBar.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchBar\\:\\:validateCondition\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Control/SearchBar.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchBar\\:\\:validateCondition\\(\\) has parameter \\$changes with no type specified\\.$#"
+			count: 1
+			path: src/Control/SearchBar.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchBar\\:\\:validateCondition\\(\\) has parameter \\$eventType with no type specified\\.$#"
+			count: 1
+			path: src/Control/SearchBar.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchBar\\:\\:validateCondition\\(\\) has parameter \\$indices with no type specified\\.$#"
+			count: 1
+			path: src/Control/SearchBar.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchBar\\:\\:validateCondition\\(\\) has parameter \\$termsData with no type specified\\.$#"
+			count: 1
+			path: src/Control/SearchBar.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\Control\\\\SearchBar\\:\\:\\$changes type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Control/SearchBar.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\Control\\\\SearchBar\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Control/SearchBar.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\Control\\\\SearchBar\\:\\:\\$uidElementName has no type specified\\.$#"
+			count: 1
+			path: src/Control/SearchBar.php
+
+		-
+			message: "#^Cannot access offset 'column' on mixed\\.$#"
+			count: 3
+			path: src/Control/SearchBar/Suggestions.php
+
+		-
+			message: "#^Cannot access offset 'label' on mixed\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Suggestions.php
+
+		-
+			message: "#^Cannot access offset 'operator' on mixed\\.$#"
+			count: 2
+			path: src/Control/SearchBar/Suggestions.php
+
+		-
+			message: "#^Cannot access offset 'search' on mixed\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Suggestions.php
+
+		-
+			message: "#^Cannot access offset 'searchFilter' on mixed\\.$#"
+			count: 2
+			path: src/Control/SearchBar/Suggestions.php
+
+		-
+			message: "#^Cannot access offset 'showQuickSearch' on mixed\\.$#"
+			count: 2
+			path: src/Control/SearchBar/Suggestions.php
+
+		-
+			message: "#^Cannot access offset 'term' on mixed\\.$#"
+			count: 3
+			path: src/Control/SearchBar/Suggestions.php
+
+		-
+			message: "#^Cannot access offset 'type' on mixed\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Suggestions.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchBar\\\\Suggestions\\:\\:assemble\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Suggestions.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchBar\\\\Suggestions\\:\\:assembleDefault\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Suggestions.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchBar\\\\Suggestions\\:\\:fetchColumnSuggestions\\(\\) return type has no value type specified in iterable type Traversable\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Suggestions.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchBar\\\\Suggestions\\:\\:fetchValueSuggestions\\(\\) return type has no value type specified in iterable type Traversable\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Suggestions.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchBar\\\\Suggestions\\:\\:filterColumnSuggestions\\(\\) has parameter \\$data with no value type specified in iterable type Traversable\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Suggestions.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchBar\\\\Suggestions\\:\\:filterToTerms\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Suggestions.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchBar\\\\Suggestions\\:\\:hasMore\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Suggestions.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchBar\\\\Suggestions\\:\\:hasMore\\(\\) has parameter \\$data with no type specified\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Suggestions.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchBar\\\\Suggestions\\:\\:hasMore\\(\\) has parameter \\$than with no type specified\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Suggestions.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchBar\\\\Suggestions\\:\\:setData\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Suggestions.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchBar\\\\Suggestions\\:\\:setData\\(\\) has parameter \\$data with no type specified\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Suggestions.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchBar\\\\Suggestions\\:\\:setDefault\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Suggestions.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchBar\\\\Suggestions\\:\\:setDefault\\(\\) has parameter \\$default with no type specified\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Suggestions.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchBar\\\\Suggestions\\:\\:setFailureMessage\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Suggestions.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchBar\\\\Suggestions\\:\\:setFailureMessage\\(\\) has parameter \\$message with no type specified\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Suggestions.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchBar\\\\Suggestions\\:\\:setSearchTerm\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Suggestions.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchBar\\\\Suggestions\\:\\:setSearchTerm\\(\\) has parameter \\$term with no type specified\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Suggestions.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchBar\\\\Suggestions\\:\\:setType\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Suggestions.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchBar\\\\Suggestions\\:\\:setType\\(\\) has parameter \\$type with no type specified\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Suggestions.php
+
+		-
+			message: "#^Parameter \\#1 \\$column of method ipl\\\\Web\\\\Control\\\\SearchBar\\\\Suggestions\\:\\:fetchValueSuggestions\\(\\) expects string, mixed given\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Suggestions.php
+
+		-
+			message: "#^Parameter \\#1 \\$name of class ipl\\\\Html\\\\FormElement\\\\ButtonElement constructor expects string, null given\\.$#"
+			count: 2
+			path: src/Control/SearchBar/Suggestions.php
+
+		-
+			message: "#^Parameter \\#1 \\$searchTerm of method ipl\\\\Web\\\\Control\\\\SearchBar\\\\Suggestions\\:\\:createQuickSearchFilter\\(\\) expects string, mixed given\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Suggestions.php
+
+		-
+			message: "#^Parameter \\#1 \\$searchTerm of method ipl\\\\Web\\\\Control\\\\SearchBar\\\\Suggestions\\:\\:fetchColumnSuggestions\\(\\) expects string, mixed given\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Suggestions.php
+
+		-
+			message: "#^Parameter \\#1 \\$string of static method ipl\\\\Web\\\\Filter\\\\QueryString\\:\\:parse\\(\\) expects string, mixed given\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Suggestions.php
+
+		-
+			message: "#^Parameter \\#2 \\$searchTerm of method ipl\\\\Web\\\\Control\\\\SearchBar\\\\Suggestions\\:\\:fetchValueSuggestions\\(\\) expects string, mixed given\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Suggestions.php
+
+		-
+			message: "#^Parameter \\#2 \\$searchTerm of method ipl\\\\Web\\\\Control\\\\SearchBar\\\\Suggestions\\:\\:filterColumnSuggestions\\(\\) expects string, mixed given\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Suggestions.php
+
+		-
+			message: "#^Parameter \\#3 \\$length of function substr expects int\\|null, int\\|false given\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Suggestions.php
+
+		-
+			message: "#^Parameter \\#3 \\$searchFilter of method ipl\\\\Web\\\\Control\\\\SearchBar\\\\Suggestions\\:\\:fetchValueSuggestions\\(\\) expects ipl\\\\Stdlib\\\\Filter\\\\Chain, ipl\\\\Stdlib\\\\Filter\\\\Rule given\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Suggestions.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\Control\\\\SearchBar\\\\Suggestions\\:\\:\\$data type has no value type specified in iterable type Traversable\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Suggestions.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\Control\\\\SearchBar\\\\Suggestions\\:\\:\\$default type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Suggestions.php
+
+		-
+			message: "#^Variable \\$label might not be defined\\.$#"
+			count: 2
+			path: src/Control/SearchBar/Suggestions.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchBar\\\\Terms\\:\\:applyChanges\\(\\) has parameter \\$changes with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Terms.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchBar\\\\Terms\\:\\:assemble\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Terms.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchBar\\\\Terms\\:\\:assembleChain\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Terms.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchBar\\\\Terms\\:\\:assembleChain\\(\\) has parameter \\$wrap with no type specified\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Terms.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchBar\\\\Terms\\:\\:assembleCondition\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Terms.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchBar\\\\Terms\\:\\:assembleConditions\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Terms.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchBar\\\\Terms\\:\\:assembleTerm\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Terms.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchBar\\\\Terms\\:\\:assembleTerm\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Terms.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchBar\\\\Terms\\:\\:setFilter\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Terms.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchBar\\\\Terms\\:\\:setFilter\\(\\) has parameter \\$filter with no type specified\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Terms.php
+
+		-
+			message: "#^Parameter \\#1 \\$string of function rawurlencode expects string, mixed given\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Terms.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\Control\\\\SearchBar\\\\Terms\\:\\:\\$changes type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Terms.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\Control\\\\SearchBar\\\\Terms\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Terms.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchBar\\\\ValidatedColumn\\:\\:toTermData\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Control/SearchBar/ValidatedColumn.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchBar\\\\ValidatedOperator\\:\\:toTermData\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Control/SearchBar/ValidatedOperator.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchBar\\\\ValidatedTerm\\:\\:fromTermData\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Control/SearchBar/ValidatedTerm.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchBar\\\\ValidatedTerm\\:\\:toTermData\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Control/SearchBar/ValidatedTerm.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchBar\\\\ValidatedValue\\:\\:toTermData\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Control/SearchBar/ValidatedValue.php
+
+		-
+			message: "#^Call to an undefined method ipl\\\\Stdlib\\\\Filter\\\\Rule\\:\\:add\\(\\)\\.$#"
+			count: 2
+			path: src/Control/SearchEditor.php
+
+		-
+			message: "#^Call to an undefined method ipl\\\\Stdlib\\\\Filter\\\\Rule\\:\\:remove\\(\\)\\.$#"
+			count: 1
+			path: src/Control/SearchEditor.php
+
+		-
+			message: "#^Call to an undefined method ipl\\\\Stdlib\\\\Filter\\\\Rule\\:\\:replace\\(\\)\\.$#"
+			count: 1
+			path: src/Control/SearchEditor.php
+
+		-
+			message: "#^Cannot call method add\\(\\) on ipl\\\\Stdlib\\\\Filter\\\\Rule\\|null\\.$#"
+			count: 1
+			path: src/Control/SearchEditor.php
+
+		-
+			message: "#^Cannot call method insertAfter\\(\\) on ipl\\\\Stdlib\\\\Filter\\\\Rule\\|null\\.$#"
+			count: 1
+			path: src/Control/SearchEditor.php
+
+		-
+			message: "#^Cannot call method insertBefore\\(\\) on ipl\\\\Stdlib\\\\Filter\\\\Rule\\|null\\.$#"
+			count: 1
+			path: src/Control/SearchEditor.php
+
+		-
+			message: "#^Cannot call method remove\\(\\) on ipl\\\\Stdlib\\\\Filter\\\\Rule\\|null\\.$#"
+			count: 1
+			path: src/Control/SearchEditor.php
+
+		-
+			message: "#^Cannot call method setValue\\(\\) on ipl\\\\Html\\\\Contract\\\\FormElement\\|null\\.$#"
+			count: 1
+			path: src/Control/SearchEditor.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchEditor\\:\\:applyChanges\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Control/SearchEditor.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchEditor\\:\\:applyChanges\\(\\) has parameter \\$path with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Control/SearchEditor.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchEditor\\:\\:applyChanges\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Control/SearchEditor.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchEditor\\:\\:applyStructuralChange\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Control/SearchEditor.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchEditor\\:\\:assemble\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Control/SearchEditor.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchEditor\\:\\:createButtons\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Control/SearchEditor.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchEditor\\:\\:createButtons\\(\\) has parameter \\$identifier with no type specified\\.$#"
+			count: 1
+			path: src/Control/SearchEditor.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchEditor\\:\\:createCondition\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Control/SearchEditor.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchEditor\\:\\:createCondition\\(\\) has parameter \\$identifier with no type specified\\.$#"
+			count: 1
+			path: src/Control/SearchEditor.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchEditor\\:\\:createTree\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Control/SearchEditor.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchEditor\\:\\:createTree\\(\\) has parameter \\$path with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Control/SearchEditor.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchEditor\\:\\:popKey\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Control/SearchEditor.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchEditor\\:\\:popKey\\(\\) has parameter \\$default with no type specified\\.$#"
+			count: 1
+			path: src/Control/SearchEditor.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchEditor\\:\\:popKey\\(\\) has parameter \\$from with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Control/SearchEditor.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchEditor\\:\\:popKey\\(\\) has parameter \\$key with no type specified\\.$#"
+			count: 1
+			path: src/Control/SearchEditor.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchEditor\\:\\:populate\\(\\) has parameter \\$values with no value type specified in iterable type iterable\\.$#"
+			count: 1
+			path: src/Control/SearchEditor.php
+
+		-
+			message: "#^Parameter \\#2 \\$value of static method ipl\\\\Stdlib\\\\Filter\\:\\:equal\\(\\) expects array\\|bool\\|float\\|int\\|string, mixed given\\.$#"
+			count: 1
+			path: src/Control/SearchEditor.php
+
+		-
+			message: "#^Parameter \\#2 \\$value of static method ipl\\\\Stdlib\\\\Filter\\:\\:greaterThan\\(\\) expects float\\|int\\|string, mixed given\\.$#"
+			count: 1
+			path: src/Control/SearchEditor.php
+
+		-
+			message: "#^Parameter \\#2 \\$value of static method ipl\\\\Stdlib\\\\Filter\\:\\:greaterThanOrEqual\\(\\) expects float\\|int\\|string, mixed given\\.$#"
+			count: 1
+			path: src/Control/SearchEditor.php
+
+		-
+			message: "#^Parameter \\#2 \\$value of static method ipl\\\\Stdlib\\\\Filter\\:\\:lessThan\\(\\) expects float\\|int\\|string, mixed given\\.$#"
+			count: 1
+			path: src/Control/SearchEditor.php
+
+		-
+			message: "#^Parameter \\#2 \\$value of static method ipl\\\\Stdlib\\\\Filter\\:\\:lessThanOrEqual\\(\\) expects float\\|int\\|string, mixed given\\.$#"
+			count: 1
+			path: src/Control/SearchEditor.php
+
+		-
+			message: "#^Parameter \\#2 \\$value of static method ipl\\\\Stdlib\\\\Filter\\:\\:like\\(\\) expects array\\<string\\>\\|string, mixed given\\.$#"
+			count: 1
+			path: src/Control/SearchEditor.php
+
+		-
+			message: "#^Parameter \\#2 \\$value of static method ipl\\\\Stdlib\\\\Filter\\:\\:unequal\\(\\) expects array\\|bool\\|float\\|int\\|string, mixed given\\.$#"
+			count: 1
+			path: src/Control/SearchEditor.php
+
+		-
+			message: "#^Parameter \\#2 \\$value of static method ipl\\\\Stdlib\\\\Filter\\:\\:unlike\\(\\) expects array\\<string\\>\\|string, mixed given\\.$#"
+			count: 1
+			path: src/Control/SearchEditor.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\Control\\\\SearchEditor\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Control/SearchEditor.php
+
+		-
+			message: "#^Access to an undefined property ipl\\\\Html\\\\Form\\:\\:\\$uidElementName\\.$#"
+			count: 3
+			path: src/Control/SortControl.php
+
+		-
+			message: "#^Cannot access offset mixed on array\\|object\\.$#"
+			count: 1
+			path: src/Control/SortControl.php
+
+		-
+			message: "#^Cannot call method getParsedBody\\(\\) on Psr\\\\Http\\\\Message\\\\ServerRequestInterface\\|null\\.$#"
+			count: 1
+			path: src/Control/SortControl.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SortControl\\:\\:__construct\\(\\) has parameter \\$columns with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Control/SortControl.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SortControl\\:\\:apply\\(\\) has parameter \\$defaultSort with no type specified\\.$#"
+			count: 1
+			path: src/Control/SortControl.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SortControl\\:\\:assemble\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Control/SortControl.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SortControl\\:\\:getColumns\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Control/SortControl.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SortControl\\:\\:getSort\\(\\) should return string\\|null but returns mixed\\.$#"
+			count: 1
+			path: src/Control/SortControl.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Control\\\\SortControl\\:\\:setColumns\\(\\) has parameter \\$columns with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Control/SortControl.php
+
+		-
+			message: "#^PHPDoc tag @param has invalid value \\(\\?array\\|string \\$defaultSort\\)\\: Unexpected token \"\\|\", expected variable at offset 111$#"
+			count: 1
+			path: src/Control/SortControl.php
+
+		-
+			message: "#^Parameter \\#1 \\$string of function strtolower expects string, mixed given\\.$#"
+			count: 1
+			path: src/Control/SortControl.php
+
+		-
+			message: "#^Parameter \\#2 \\$start of static method ipl\\\\Stdlib\\\\Str\\:\\:startsWith\\(\\) expects string, mixed given\\.$#"
+			count: 1
+			path: src/Control/SortControl.php
+
+		-
+			message: "#^Parameter \\#2 \\$string of function explode expects string, int\\|string\\|null given\\.$#"
+			count: 1
+			path: src/Control/SortControl.php
+
+		-
+			message: "#^Part \\$column \\(mixed\\) of encapsed string cannot be cast to string\\.$#"
+			count: 3
+			path: src/Control/SortControl.php
+
+		-
+			message: "#^Part \\$direction \\(mixed\\) of encapsed string cannot be cast to string\\.$#"
+			count: 1
+			path: src/Control/SortControl.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\Control\\\\SortControl\\:\\:\\$columns type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Control/SortControl.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\Control\\\\SortControl\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Control/SortControl.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\Control\\\\SortControl\\:\\:\\$uidElementName has no type specified\\.$#"
+			count: 1
+			path: src/Control/SortControl.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Filter\\\\ParseException\\:\\:__construct\\(\\) has parameter \\$char with no type specified\\.$#"
+			count: 1
+			path: src/Filter/ParseException.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Filter\\\\ParseException\\:\\:__construct\\(\\) has parameter \\$charPos with no type specified\\.$#"
+			count: 1
+			path: src/Filter/ParseException.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Filter\\\\ParseException\\:\\:__construct\\(\\) has parameter \\$extra with no type specified\\.$#"
+			count: 1
+			path: src/Filter/ParseException.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Filter\\\\ParseException\\:\\:__construct\\(\\) has parameter \\$filter with no type specified\\.$#"
+			count: 1
+			path: src/Filter/ParseException.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Filter\\\\ParseException\\:\\:getChar\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Filter/ParseException.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Filter\\\\ParseException\\:\\:getCharPos\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Filter/ParseException.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\Filter\\\\ParseException\\:\\:\\$char has no type specified\\.$#"
+			count: 1
+			path: src/Filter/ParseException.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\Filter\\\\ParseException\\:\\:\\$charPos has no type specified\\.$#"
+			count: 1
+			path: src/Filter/ParseException.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Filter\\\\Parser\\:\\:parseError\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Filter/Parser.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Filter\\\\Parser\\:\\:readFilters\\(\\) has parameter \\$filters with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Filter/Parser.php
+
+		-
+			message: "#^Parameter \\#1 \\$column of method ipl\\\\Web\\\\Filter\\\\Parser\\:\\:createCondition\\(\\) expects string, string\\|false given\\.$#"
+			count: 1
+			path: src/Filter/Parser.php
+
+		-
+			message: "#^Parameter \\#1 \\$column of static method ipl\\\\Stdlib\\\\Filter\\:\\:equal\\(\\) expects string, string\\|false given\\.$#"
+			count: 1
+			path: src/Filter/Parser.php
+
+		-
+			message: "#^Parameter \\#1 \\$haystack of function strpos expects string, string\\|false given\\.$#"
+			count: 1
+			path: src/Filter/Parser.php
+
+		-
+			message: "#^Parameter \\#1 \\$string of function substr expects string, string\\|false given\\.$#"
+			count: 4
+			path: src/Filter/Parser.php
+
+		-
+			message: "#^Parameter \\#2 \\$array of function array_map expects array, array\\<int, string\\>\\|false given\\.$#"
+			count: 1
+			path: src/Filter/Parser.php
+
+		-
+			message: "#^Parameter \\#2 \\$value of static method ipl\\\\Stdlib\\\\Filter\\:\\:equal\\(\\) expects array\\|bool\\|float\\|int\\|string, mixed given\\.$#"
+			count: 1
+			path: src/Filter/Parser.php
+
+		-
+			message: "#^Parameter \\#2 \\$value of static method ipl\\\\Stdlib\\\\Filter\\:\\:greaterThan\\(\\) expects float\\|int\\|string, mixed given\\.$#"
+			count: 1
+			path: src/Filter/Parser.php
+
+		-
+			message: "#^Parameter \\#2 \\$value of static method ipl\\\\Stdlib\\\\Filter\\:\\:greaterThanOrEqual\\(\\) expects float\\|int\\|string, mixed given\\.$#"
+			count: 1
+			path: src/Filter/Parser.php
+
+		-
+			message: "#^Parameter \\#2 \\$value of static method ipl\\\\Stdlib\\\\Filter\\:\\:lessThan\\(\\) expects float\\|int\\|string, mixed given\\.$#"
+			count: 1
+			path: src/Filter/Parser.php
+
+		-
+			message: "#^Parameter \\#2 \\$value of static method ipl\\\\Stdlib\\\\Filter\\:\\:lessThanOrEqual\\(\\) expects float\\|int\\|string, mixed given\\.$#"
+			count: 1
+			path: src/Filter/Parser.php
+
+		-
+			message: "#^Parameter \\#2 \\$value of static method ipl\\\\Stdlib\\\\Filter\\:\\:like\\(\\) expects array\\<string\\>\\|string, mixed given\\.$#"
+			count: 1
+			path: src/Filter/Parser.php
+
+		-
+			message: "#^Parameter \\#2 \\$value of static method ipl\\\\Stdlib\\\\Filter\\:\\:unequal\\(\\) expects array\\|bool\\|float\\|int\\|string, mixed given\\.$#"
+			count: 1
+			path: src/Filter/Parser.php
+
+		-
+			message: "#^Parameter \\#2 \\$value of static method ipl\\\\Stdlib\\\\Filter\\:\\:unlike\\(\\) expects array\\<string\\>\\|string, mixed given\\.$#"
+			count: 1
+			path: src/Filter/Parser.php
+
+		-
+			message: "#^Variable \\$chain might not be defined\\.$#"
+			count: 2
+			path: src/Filter/Parser.php
+
+		-
+			message: "#^Parameter \\#1 \\$string of function rawurlencode expects string, mixed given\\.$#"
+			count: 1
+			path: src/Filter/Renderer.php
+
+		-
+			message: "#^Binary operation \"\\.\" between 'desc_' and array\\|bool\\|string\\|null results in an error\\.$#"
+			count: 1
+			path: src/FormDecorator/IcingaFormDecorator.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\FormDecorator\\\\IcingaFormDecorator\\:\\:assembleDescription\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/FormDecorator/IcingaFormDecorator.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\FormDecorator\\\\IcingaFormDecorator\\:\\:assembleElement\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/FormDecorator/IcingaFormDecorator.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\FormDecorator\\\\IcingaFormDecorator\\:\\:assembleLabel\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/FormDecorator/IcingaFormDecorator.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\FormDecorator\\\\IcingaFormDecorator\\:\\:createCheckbox\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/FormDecorator/IcingaFormDecorator.php
+
+		-
+			message: "#^Anonymous function should return ipl\\\\Scheduler\\\\Contract\\\\Frequency but returns mixed\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement.php
+
+		-
+			message: "#^Call to an undefined method ipl\\\\Scheduler\\\\Cron\\|ipl\\\\Scheduler\\\\RRule\\:\\:getNextRecurrences\\(\\)\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement.php
+
+		-
+			message: "#^Call to an undefined method ipl\\\\Scheduler\\\\RRule\\:\\:getByDay\\(\\)\\.$#"
+			count: 4
+			path: src/FormElement/ScheduleElement.php
+
+		-
+			message: "#^Call to an undefined method ipl\\\\Scheduler\\\\RRule\\:\\:getByMonth\\(\\)\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement.php
+
+		-
+			message: "#^Call to an undefined method ipl\\\\Scheduler\\\\RRule\\:\\:getByMonthDay\\(\\)\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement.php
+
+		-
+			message: "#^Call to an undefined method ipl\\\\Scheduler\\\\RRule\\:\\:getInterval\\(\\)\\.$#"
+			count: 3
+			path: src/FormElement/ScheduleElement.php
+
+		-
+			message: "#^Call to an undefined method ipl\\\\Scheduler\\\\RRule\\:\\:getString\\(\\)\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement.php
+
+		-
+			message: "#^Cannot call method endAt\\(\\) on mixed\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement.php
+
+		-
+			message: "#^Cannot call method format\\(\\) on mixed\\.$#"
+			count: 3
+			path: src/FormElement/ScheduleElement.php
+
+		-
+			message: "#^Cannot call method startAt\\(\\) on mixed\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\:\\:assemble\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\:\\:getCustomFrequency\\(\\) should return string\\|null but returns mixed\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\:\\:getFrequency\\(\\) should return string but returns mixed\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\:\\:getValue\\(\\) has parameter \\$default with no type specified\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\:\\:getValue\\(\\) has parameter \\$name with no type specified\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\:\\:prepareMultipartUpdate\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\:\\:registerAttributeCallbacks\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement.php
+
+		-
+			message: "#^Parameter \\#1 \\$dateTime of class ipl\\\\Scheduler\\\\OneOff constructor expects DateTimeInterface, mixed given\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement.php
+
+		-
+			message: "#^Parameter \\#1 \\$datetime of class DateTime constructor expects string, mixed given\\.$#"
+			count: 2
+			path: src/FormElement/ScheduleElement.php
+
+		-
+			message: "#^Parameter \\#1 \\$end of method ipl\\\\Scheduler\\\\Cron\\:\\:endAt\\(\\) expects DateTimeInterface, mixed given\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement.php
+
+		-
+			message: "#^Parameter \\#1 \\$expression of class ipl\\\\Scheduler\\\\Cron constructor expects string, mixed given\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement.php
+
+		-
+			message: "#^Parameter \\#1 \\$ordinal of method ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\\\AnnuallyFields\\:\\:getOrdinalAsInteger\\(\\) expects string, mixed given\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement.php
+
+		-
+			message: "#^Parameter \\#1 \\$start of method ipl\\\\Scheduler\\\\Cron\\:\\:startAt\\(\\) expects DateTimeInterface, mixed given\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement.php
+
+		-
+			message: "#^Parameter \\#1 \\$start of method ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\:\\:setStart\\(\\) expects DateTime, DateTimeInterface given\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement.php
+
+		-
+			message: "#^Parameter \\#2 \\.\\.\\.\\$values of function sprintf expects bool\\|float\\|int\\|string\\|null, mixed given\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement.php
+
+		-
+			message: "#^Parameter \\#3 \\.\\.\\.\\$values of function sprintf expects bool\\|float\\|int\\|string\\|null, mixed given\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement.php
+
+		-
+			message: "#^Part \\$interval \\(mixed\\) of encapsed string cannot be cast to string\\.$#"
+			count: 4
+			path: src/FormElement/ScheduleElement.php
+
+		-
+			message: "#^Part \\$month \\(mixed\\) of encapsed string cannot be cast to string\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\:\\:\\$advanced type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\:\\:\\$customFrequencies type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\:\\:\\$protector \\(callable\\(\\)\\: mixed\\) does not accept \\(callable\\(\\)\\: mixed\\)\\|null\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\:\\:\\$regulars type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement.php
+
+		-
+			message: "#^Access to an undefined property ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\\\AnnuallyFields\\:\\:\\$availableFields\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/AnnuallyFields.php
+
+		-
+			message: "#^Call to an undefined method ipl\\\\Html\\\\Contract\\\\FormElement\\:\\:getOption\\(\\)\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/AnnuallyFields.php
+
+		-
+			message: "#^Call to an undefined method ipl\\\\Scheduler\\\\RRule\\:\\:getByDay\\(\\)\\.$#"
+			count: 2
+			path: src/FormElement/ScheduleElement/AnnuallyFields.php
+
+		-
+			message: "#^Call to an undefined method ipl\\\\Scheduler\\\\RRule\\:\\:getByMonth\\(\\)\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/AnnuallyFields.php
+
+		-
+			message: "#^Call to an undefined method ipl\\\\Scheduler\\\\RRule\\:\\:getByMonthDay\\(\\)\\.$#"
+			count: 2
+			path: src/FormElement/ScheduleElement/AnnuallyFields.php
+
+		-
+			message: "#^Call to an undefined method ipl\\\\Scheduler\\\\RRule\\:\\:getBySetPosition\\(\\)\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/AnnuallyFields.php
+
+		-
+			message: "#^Cannot access an offset on array\\|float\\|int\\|string\\|false\\|null\\.$#"
+			count: 2
+			path: src/FormElement/ScheduleElement/AnnuallyFields.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\\\AnnuallyFields\\:\\:assemble\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/AnnuallyFields.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\\\AnnuallyFields\\:\\:loadRRule\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/AnnuallyFields.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\\\AnnuallyFields\\:\\:registerAttributeCallbacks\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/AnnuallyFields.php
+
+		-
+			message: "#^Parameter \\#2 \\$datetime of static method DateTime\\:\\:createFromFormat\\(\\) expects string, int given\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/AnnuallyFields.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\\\AnnuallyFields\\:\\:\\$everyDay has no type specified\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/AnnuallyFields.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\\\AnnuallyFields\\:\\:\\$everyWeekday has no type specified\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/AnnuallyFields.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\\\AnnuallyFields\\:\\:\\$everyWeekend has no type specified\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/AnnuallyFields.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\\\AnnuallyFields\\:\\:\\$fifth has no type specified\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/AnnuallyFields.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\\\AnnuallyFields\\:\\:\\$first has no type specified\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/AnnuallyFields.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\\\AnnuallyFields\\:\\:\\$fourth has no type specified\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/AnnuallyFields.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\\\AnnuallyFields\\:\\:\\$last has no type specified\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/AnnuallyFields.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\\\AnnuallyFields\\:\\:\\$months type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/AnnuallyFields.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\\\AnnuallyFields\\:\\:\\$protector \\(callable\\(\\)\\: mixed\\) does not accept \\(callable\\(\\)\\: mixed\\)\\|null\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/AnnuallyFields.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\\\AnnuallyFields\\:\\:\\$regulars has no type specified\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/AnnuallyFields.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\\\AnnuallyFields\\:\\:\\$second has no type specified\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/AnnuallyFields.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\\\AnnuallyFields\\:\\:\\$third has no type specified\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/AnnuallyFields.php
+
+		-
+			message: "#^Cannot cast mixed to string\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/FieldsRadio.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\\\FieldsRadio\\:\\:assemble\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/FieldsRadio.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\\\FieldsRadio\\:\\:registerAttributeCallbacks\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/FieldsRadio.php
+
+		-
+			message: "#^Parameter \\#1 \\$id of method ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\\\FieldsRadio\\:\\:protectId\\(\\) expects string, int\\|string\\|null given\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/FieldsRadio.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\\\FieldsRadio\\:\\:\\$protector \\(callable\\(\\)\\: mixed\\) does not accept \\(callable\\(\\)\\: mixed\\)\\|null\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/FieldsRadio.php
+
+		-
+			message: "#^Call to an undefined method ipl\\\\Html\\\\Contract\\\\FormElement\\:\\:getOption\\(\\)\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/MonthlyFields.php
+
+		-
+			message: "#^Call to an undefined method ipl\\\\Scheduler\\\\RRule\\:\\:getByDay\\(\\)\\.$#"
+			count: 2
+			path: src/FormElement/ScheduleElement/MonthlyFields.php
+
+		-
+			message: "#^Call to an undefined method ipl\\\\Scheduler\\\\RRule\\:\\:getByMonth\\(\\)\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/MonthlyFields.php
+
+		-
+			message: "#^Call to an undefined method ipl\\\\Scheduler\\\\RRule\\:\\:getByMonthDay\\(\\)\\.$#"
+			count: 2
+			path: src/FormElement/ScheduleElement/MonthlyFields.php
+
+		-
+			message: "#^Call to an undefined method ipl\\\\Scheduler\\\\RRule\\:\\:getBySetPosition\\(\\)\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/MonthlyFields.php
+
+		-
+			message: "#^Cannot access an offset on array\\|float\\|int\\|string\\|false\\|null\\.$#"
+			count: 2
+			path: src/FormElement/ScheduleElement/MonthlyFields.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\\\MonthlyFields\\:\\:assemble\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/MonthlyFields.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\\\MonthlyFields\\:\\:getSelectedDays\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/MonthlyFields.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\\\MonthlyFields\\:\\:loadRRule\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/MonthlyFields.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\\\MonthlyFields\\:\\:registerAttributeCallbacks\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/MonthlyFields.php
+
+		-
+			message: "#^Parameter \\#2 \\$datetime of static method DateTime\\:\\:createFromFormat\\(\\) expects string, int given\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/MonthlyFields.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\\\MonthlyFields\\:\\:\\$everyDay has no type specified\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/MonthlyFields.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\\\MonthlyFields\\:\\:\\$everyWeekday has no type specified\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/MonthlyFields.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\\\MonthlyFields\\:\\:\\$everyWeekend has no type specified\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/MonthlyFields.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\\\MonthlyFields\\:\\:\\$fifth has no type specified\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/MonthlyFields.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\\\MonthlyFields\\:\\:\\$first has no type specified\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/MonthlyFields.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\\\MonthlyFields\\:\\:\\$fourth has no type specified\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/MonthlyFields.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\\\MonthlyFields\\:\\:\\$last has no type specified\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/MonthlyFields.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\\\MonthlyFields\\:\\:\\$protector \\(callable\\(\\)\\: mixed\\) does not accept \\(callable\\(\\)\\: mixed\\)\\|null\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/MonthlyFields.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\\\MonthlyFields\\:\\:\\$regulars has no type specified\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/MonthlyFields.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\\\MonthlyFields\\:\\:\\$second has no type specified\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/MonthlyFields.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\\\MonthlyFields\\:\\:\\$third has no type specified\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/MonthlyFields.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\\\Recurrence\\:\\:assemble\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/Recurrence.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\\\Recurrence\\:\\:registerAttributeCallbacks\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/Recurrence.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\\\Recurrence\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/Recurrence.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\\\WeeklyFields\\:\\:assemble\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/WeeklyFields.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\\\WeeklyFields\\:\\:getSelectedWeekDays\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/WeeklyFields.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\\\WeeklyFields\\:\\:loadWeekDays\\(\\) has parameter \\$weekdays with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/WeeklyFields.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\\\WeeklyFields\\:\\:loadWeekDays\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/WeeklyFields.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\\\WeeklyFields\\:\\:registerAttributeCallbacks\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/WeeklyFields.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\\\WeeklyFields\\:\\:\\$protector \\(callable\\(\\)\\: mixed\\) does not accept \\(callable\\(\\)\\: mixed\\)\\|null\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/WeeklyFields.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\\\WeeklyFields\\:\\:\\$weekdays type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/FormElement/ScheduleElement/WeeklyFields.php
+
+		-
+			message: "#^Anonymous function has an unused use \\$termContainer\\.$#"
+			count: 1
+			path: src/FormElement/TermInput.php
+
+		-
+			message: "#^Binary operation \"\\.\" between '\\#' and array\\|bool\\|string\\|null results in an error\\.$#"
+			count: 1
+			path: src/FormElement/TermInput.php
+
+		-
+			message: "#^Cannot access offset 'input' on mixed\\.$#"
+			count: 1
+			path: src/FormElement/TermInput.php
+
+		-
+			message: "#^Cannot access offset 'terms' on mixed\\.$#"
+			count: 1
+			path: src/FormElement/TermInput.php
+
+		-
+			message: "#^Cannot access offset 'type' on mixed\\.$#"
+			count: 2
+			path: src/FormElement/TermInput.php
+
+		-
+			message: "#^Cannot call method getHeader\\(\\) on Psr\\\\Http\\\\Message\\\\ServerRequestInterface\\|null\\.$#"
+			count: 1
+			path: src/FormElement/TermInput.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\FormElement\\\\TermInput\\:\\:assemble\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/FormElement/TermInput.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\FormElement\\\\TermInput\\:\\:getValue\\(\\) has parameter \\$default with no type specified\\.$#"
+			count: 1
+			path: src/FormElement/TermInput.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\FormElement\\\\TermInput\\:\\:getValue\\(\\) has parameter \\$name with no type specified\\.$#"
+			count: 1
+			path: src/FormElement/TermInput.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\FormElement\\\\TermInput\\:\\:prepareMultipartUpdate\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/FormElement/TermInput.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\FormElement\\\\TermInput\\:\\:validateTerms\\(\\) has parameter \\$changes with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/FormElement/TermInput.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\FormElement\\\\TermInput\\:\\:validateTerms\\(\\) has parameter \\$terms with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/FormElement/TermInput.php
+
+		-
+			message: "#^Parameter \\#1 \\$array of function array_push expects array, mixed given\\.$#"
+			count: 1
+			path: src/FormElement/TermInput.php
+
+		-
+			message: "#^Parameter \\#1 \\$content of static method ipl\\\\Html\\\\Text\\:\\:create\\(\\) expects string, string\\|false given\\.$#"
+			count: 3
+			path: src/FormElement/TermInput.php
+
+		-
+			message: "#^Parameter \\#1 \\$json of function json_decode expects string, mixed given\\.$#"
+			count: 1
+			path: src/FormElement/TermInput.php
+
+		-
+			message: "#^Parameter \\#1 \\$label of method ipl\\\\Html\\\\FormElement\\\\BaseFormElement\\:\\:setLabel\\(\\) expects string, null given\\.$#"
+			count: 1
+			path: src/FormElement/TermInput.php
+
+		-
+			message: "#^Parameter \\#1 \\$value of method ipl\\\\Web\\\\FormElement\\\\TermInput\\:\\:parseValue\\(\\) expects string, mixed given\\.$#"
+			count: 2
+			path: src/FormElement/TermInput.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\FormElement\\\\TermInput\\:\\:\\$changes type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/FormElement/TermInput.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\FormElement\\\\TermInput\\\\RegisteredTerm\\:\\:applyTermData\\(\\) has parameter \\$termData with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/FormElement/TermInput/RegisteredTerm.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\FormElement\\\\TermInput\\\\RegisteredTerm\\:\\:\\$pattern \\(string\\) on left side of \\?\\? is not nullable\\.$#"
+			count: 1
+			path: src/FormElement/TermInput/RegisteredTerm.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\FormElement\\\\TermInput\\\\TermContainer\\:\\:assemble\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/FormElement/TermInput/TermContainer.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\FormElement\\\\TermInput\\\\TermContainer\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/FormElement/TermInput/TermContainer.php
+
+		-
+			message: "#^Cannot access offset 'exclude' on mixed\\.$#"
+			count: 1
+			path: src/FormElement/TermInput/TermSuggestions.php
+
+		-
+			message: "#^Cannot access offset 'label' on mixed\\.$#"
+			count: 1
+			path: src/FormElement/TermInput/TermSuggestions.php
+
+		-
+			message: "#^Cannot access offset 'search' on mixed\\.$#"
+			count: 1
+			path: src/FormElement/TermInput/TermSuggestions.php
+
+		-
+			message: "#^Cannot access offset 'term' on mixed\\.$#"
+			count: 2
+			path: src/FormElement/TermInput/TermSuggestions.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\FormElement\\\\TermInput\\\\TermSuggestions\\:\\:__construct\\(\\) has parameter \\$provider with no value type specified in iterable type Traversable\\.$#"
+			count: 1
+			path: src/FormElement/TermInput/TermSuggestions.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\FormElement\\\\TermInput\\\\TermSuggestions\\:\\:assemble\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/FormElement/TermInput/TermSuggestions.php
+
+		-
+			message: "#^Parameter \\#1 \\$term of method ipl\\\\Web\\\\FormElement\\\\TermInput\\\\TermSuggestions\\:\\:setOriginalSearchValue\\(\\) expects string, mixed given\\.$#"
+			count: 1
+			path: src/FormElement/TermInput/TermSuggestions.php
+
+		-
+			message: "#^Parameter \\#1 \\$term of method ipl\\\\Web\\\\FormElement\\\\TermInput\\\\TermSuggestions\\:\\:setSearchTerm\\(\\) expects string, mixed given\\.$#"
+			count: 1
+			path: src/FormElement/TermInput/TermSuggestions.php
+
+		-
+			message: "#^Parameter \\#1 \\$terms of method ipl\\\\Web\\\\FormElement\\\\TermInput\\\\TermSuggestions\\:\\:setExcludeTerms\\(\\) expects array\\<string\\>, mixed given\\.$#"
+			count: 1
+			path: src/FormElement/TermInput/TermSuggestions.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\FormElement\\\\TermInput\\\\TermSuggestions\\:\\:\\$provider type has no value type specified in iterable type Traversable\\.$#"
+			count: 1
+			path: src/FormElement/TermInput/TermSuggestions.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\FormElement\\\\TermInput\\\\ValidatedTerm\\:\\:toTermData\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/FormElement/TermInput/ValidatedTerm.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\Layout\\\\Content\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Layout/Content.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Layout\\\\Controls\\:\\:assemble\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Layout/Controls.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\Layout\\\\Controls\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Layout/Controls.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\Layout\\\\Footer\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Layout/Footer.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Widget\\\\ActionBar\\:\\:__construct\\(\\) has parameter \\$attributes with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Widget/ActionBar.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Widget\\\\ActionBar\\:\\:getBaseTarget\\(\\) should return string\\|null but returns array\\|bool\\|string\\|null\\.$#"
+			count: 1
+			path: src/Widget/ActionBar.php
+
+		-
+			message: "#^Parameter \\#1 \\$attribute of method ipl\\\\Html\\\\Attributes\\:\\:add\\(\\) expects array\\|ipl\\\\Html\\\\Attribute\\|ipl\\\\Html\\\\Attributes\\|string, array\\|ipl\\\\Html\\\\Attributes\\|null given\\.$#"
+			count: 1
+			path: src/Widget/ActionBar.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\Widget\\\\ActionBar\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Widget/ActionBar.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Widget\\\\ActionLink\\:\\:__construct\\(\\) has parameter \\$attributes with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Widget/ActionLink.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\Widget\\\\ActionLink\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Widget/ActionLink.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\Widget\\\\ButtonLink\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Widget/ButtonLink.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Widget\\\\ContinueWith\\:\\:__construct\\(\\) has parameter \\$filter with no type specified\\.$#"
+			count: 1
+			path: src/Widget/ContinueWith.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Widget\\\\ContinueWith\\:\\:assemble\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Widget/ContinueWith.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Widget\\\\ContinueWith\\:\\:getBaseTarget\\(\\) should return string\\|null but returns array\\|bool\\|string\\|null\\.$#"
+			count: 1
+			path: src/Widget/ContinueWith.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\Widget\\\\ContinueWith\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Widget/ContinueWith.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\Widget\\\\CopyToClipboard\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Widget/CopyToClipboard.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Widget\\\\Dropdown\\:\\:__construct\\(\\) has parameter \\$attributes with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Widget/Dropdown.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Widget\\\\Dropdown\\:\\:assemble\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Widget/Dropdown.php
+
+		-
+			message: "#^Parameter \\#1 \\$attribute of method ipl\\\\Html\\\\Attributes\\:\\:add\\(\\) expects array\\|ipl\\\\Html\\\\Attribute\\|ipl\\\\Html\\\\Attributes\\|string, array\\|ipl\\\\Html\\\\Attributes\\|null given\\.$#"
+			count: 1
+			path: src/Widget/Dropdown.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\Widget\\\\Dropdown\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Widget/Dropdown.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\Widget\\\\Dropdown\\:\\:\\$links type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Widget/Dropdown.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Widget\\\\HorizontalKeyValue\\:\\:__construct\\(\\) has parameter \\$key with no type specified\\.$#"
+			count: 1
+			path: src/Widget/HorizontalKeyValue.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Widget\\\\HorizontalKeyValue\\:\\:__construct\\(\\) has parameter \\$value with no type specified\\.$#"
+			count: 1
+			path: src/Widget/HorizontalKeyValue.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Widget\\\\HorizontalKeyValue\\:\\:assemble\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Widget/HorizontalKeyValue.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\Widget\\\\HorizontalKeyValue\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Widget/HorizontalKeyValue.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\Widget\\\\HorizontalKeyValue\\:\\:\\$key has no type specified\\.$#"
+			count: 1
+			path: src/Widget/HorizontalKeyValue.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\Widget\\\\HorizontalKeyValue\\:\\:\\$value has no type specified\\.$#"
+			count: 1
+			path: src/Widget/HorizontalKeyValue.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Widget\\\\IcingaIcon\\:\\:__construct\\(\\) has parameter \\$attributes with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Widget/IcingaIcon.php
+
+		-
+			message: "#^Parameter \\#1 \\$attribute of method ipl\\\\Html\\\\Attributes\\:\\:add\\(\\) expects array\\|ipl\\\\Html\\\\Attribute\\|ipl\\\\Html\\\\Attributes\\|string, array\\|ipl\\\\Html\\\\Attributes\\|null given\\.$#"
+			count: 1
+			path: src/Widget/IcingaIcon.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Widget\\\\Icon\\:\\:__construct\\(\\) has parameter \\$attributes with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Widget/Icon.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Widget\\\\Icon\\:\\:assemble\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Widget/Icon.php
+
+		-
+			message: "#^Parameter \\#1 \\$attribute of method ipl\\\\Html\\\\Attributes\\:\\:add\\(\\) expects array\\|ipl\\\\Html\\\\Attribute\\|ipl\\\\Html\\\\Attributes\\|string, array\\|ipl\\\\Html\\\\Attributes\\|null given\\.$#"
+			count: 1
+			path: src/Widget/Icon.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\Widget\\\\Icon\\:\\:\\$style \\(string\\) on left side of \\?\\? is not nullable\\.$#"
+			count: 1
+			path: src/Widget/Icon.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Widget\\\\Link\\:\\:__construct\\(\\) has parameter \\$attributes with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Widget/Link.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Widget\\\\Link\\:\\:getBaseTarget\\(\\) should return string\\|null but returns array\\|bool\\|string\\|null\\.$#"
+			count: 1
+			path: src/Widget/Link.php
+
+		-
+			message: "#^Parameter \\#1 \\$attribute of method ipl\\\\Html\\\\Attributes\\:\\:add\\(\\) expects array\\|ipl\\\\Html\\\\Attribute\\|ipl\\\\Html\\\\Attributes\\|string, array\\|ipl\\\\Html\\\\Attributes\\|null given\\.$#"
+			count: 1
+			path: src/Widget/Link.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\Widget\\\\Link\\:\\:\\$url \\(ipl\\\\Web\\\\Url\\) does not accept ipl\\\\Web\\\\Url\\|string\\.$#"
+			count: 1
+			path: src/Widget/Link.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Widget\\\\StateBadge\\:\\:assemble\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Widget/StateBadge.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\Widget\\\\StateBadge\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Widget/StateBadge.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Widget\\\\Tabs\\:\\:assemble\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Widget/Tabs.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Widget\\\\Tabs\\:\\:disableLegacyExtensions\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Widget/Tabs.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Widget\\\\Tabs\\:\\:enableDataExports\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Widget/Tabs.php
+
+		-
+			message: "#^Parameter \\#1 \\$content of static method ipl\\\\Html\\\\Text\\:\\:create\\(\\) expects string, string\\|null given\\.$#"
+			count: 1
+			path: src/Widget/Tabs.php
+
+		-
+			message: "#^Parameter \\#2 \\$tab of method Icinga\\\\Web\\\\Widget\\\\Tabs\\:\\:add\\(\\) expects array\\|Icinga\\\\Web\\\\Widget\\\\Tab, mixed given\\.$#"
+			count: 1
+			path: src/Widget/Tabs.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\Widget\\\\Tabs\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Widget/Tabs.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Widget\\\\TimeAgo\\:\\:__construct\\(\\) has parameter \\$ago with no type specified\\.$#"
+			count: 1
+			path: src/Widget/TimeAgo.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Widget\\\\TimeAgo\\:\\:assemble\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Widget/TimeAgo.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\Widget\\\\TimeAgo\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Widget/TimeAgo.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Widget\\\\TimeSince\\:\\:__construct\\(\\) has parameter \\$since with no type specified\\.$#"
+			count: 1
+			path: src/Widget/TimeSince.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Widget\\\\TimeSince\\:\\:assemble\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Widget/TimeSince.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\Widget\\\\TimeSince\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Widget/TimeSince.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Widget\\\\TimeUntil\\:\\:__construct\\(\\) has parameter \\$until with no type specified\\.$#"
+			count: 1
+			path: src/Widget/TimeUntil.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Widget\\\\TimeUntil\\:\\:assemble\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Widget/TimeUntil.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\Widget\\\\TimeUntil\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Widget/TimeUntil.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Widget\\\\VerticalKeyValue\\:\\:__construct\\(\\) has parameter \\$key with no type specified\\.$#"
+			count: 1
+			path: src/Widget/VerticalKeyValue.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Widget\\\\VerticalKeyValue\\:\\:__construct\\(\\) has parameter \\$value with no type specified\\.$#"
+			count: 1
+			path: src/Widget/VerticalKeyValue.php
+
+		-
+			message: "#^Method ipl\\\\Web\\\\Widget\\\\VerticalKeyValue\\:\\:assemble\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Widget/VerticalKeyValue.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\Widget\\\\VerticalKeyValue\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Widget/VerticalKeyValue.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\Widget\\\\VerticalKeyValue\\:\\:\\$key has no type specified\\.$#"
+			count: 1
+			path: src/Widget/VerticalKeyValue.php
+
+		-
+			message: "#^Property ipl\\\\Web\\\\Widget\\\\VerticalKeyValue\\:\\:\\$value has no type specified\\.$#"
+			count: 1
+			path: src/Widget/VerticalKeyValue.php
