@@ -18,11 +18,23 @@ class Style extends LessRuleset implements ValidHtml
     /** @var ?string */
     protected $nonce;
 
+    /**
+     * Get the used CSP nonce
+     *
+     * @return ?string
+     */
     public function getNonce(): ?string
     {
         return $this->nonce;
     }
 
+    /**
+     * Set the CSP nonce to use
+     *
+     * @param ?string $nonce
+     *
+     * @return $this
+     */
     public function setNonce(?string $nonce): self
     {
         $this->nonce = $nonce;
@@ -30,11 +42,23 @@ class Style extends LessRuleset implements ValidHtml
         return $this;
     }
 
+    /**
+     * Get the Icinga module name the ruleset is scoped to
+     *
+     * @return ?string
+     */
     public function getModule(): ?string
     {
         return $this->module;
     }
 
+    /**
+     * Set the Icinga module name to use as scope for the ruleset
+     *
+     * @param ?string $name
+     *
+     * @return $this
+     */
     public function setModule(?string $name): self
     {
         $this->module = $name;
@@ -43,15 +67,19 @@ class Style extends LessRuleset implements ValidHtml
     }
 
     /**
-     * Add given css properties for given element
+     * Add CSS properties for the given element
      *
-     * @param BaseHtmlElement $element Element for which the style is to apply
-     * @param array $properties Css properties
+     * The created ruleset will be applied by an `#ID` selector. If the given
+     * element does not have an ID set yet, one is automatically set.
+     *
+     * @param BaseHtmlElement $element Element to apply the properties to
+     * @param array<string, string> $properties CSS properties
      *
      * @return $this
      */
     public function addFor(BaseHtmlElement $element, array $properties): self
     {
+        /** @var ?string $id */
         $id = $element->getAttribute('id')->getValue();
 
         if ($id === null) {
@@ -80,7 +108,7 @@ class Style extends LessRuleset implements ValidHtml
     }
 
     /**
-     * Render style to HTML when treated like a string
+     * Render to HTML
      *
      * @return string
      */
