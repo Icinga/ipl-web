@@ -10,6 +10,8 @@ use ipl\I18n\Translation;
 use Psr\Http\Message\ServerRequestInterface;
 use Traversable;
 
+use function ipl\Stdlib\yield_groups;
+
 class TermSuggestions extends BaseHtmlElement
 {
     use Translation;
@@ -210,6 +212,7 @@ class TermSuggestions extends BaseHtmlElement
             return $this;
         }
 
+        /** @var array<string, array<int|string, string>> $requestData */
         $requestData = json_decode($request->getBody()->read(8192), true);
         if (empty($requestData)) {
             return $this;
@@ -225,44 +228,46 @@ class TermSuggestions extends BaseHtmlElement
     protected function assemble()
     {
         $groupingCallback = $this->getGroupingCallback();
+        if ($groupingCallback) {
+            $provider = yield_groups($this->provider, $groupingCallback);
+        } else {
+            $provider = [null => $this->provider];
+        }
 
-        $lastGroup = null;
-        foreach ($this->provider as $data) {
-            if ($groupingCallback !== null) {
-                $group = $groupingCallback($data);
-                if ($group && $group !== $lastGroup) {
-                    $lastGroup = $group;
-
-                    $this->addHtml(
-                        new HtmlElement(
-                            'li',
-                            Attributes::create([
-                                'class' => 'suggestion-title'
-                            ]),
-                            Text::create($group)
-                        )
-                    );
-                }
-            }
-
-            $attributes = [
-                'type' => 'button',
-                'value' => $data['label'] ?? $data['search']
-            ];
-            foreach ($data as $name => $value) {
-                $attributes["data-$name"] = $value;
-            }
-
-            $this->addHtml(
-                new HtmlElement(
-                    'li',
-                    null,
+        /** @var iterable<?string, array<array<string, string>>> $provider */
+        foreach ($provider as $group => $suggestions) {
+            if ($group) {
+                $this->addHtml(
                     new HtmlElement(
-                        'input',
-                        Attributes::create($attributes)
+                        'li',
+                        Attributes::create([
+                            'class' => 'suggestion-title'
+                        ]),
+                        Text::create($group)
                     )
-                )
-            );
+                );
+            }
+
+            foreach ($suggestions as $data) {
+                $attributes = [
+                    'type' => 'button',
+                    'value' => $data['label'] ?? $data['search']
+                ];
+                foreach ($data as $name => $value) {
+                    $attributes["data-$name"] = $value;
+                }
+
+                $this->addHtml(
+                    new HtmlElement(
+                        'li',
+                        null,
+                        new HtmlElement(
+                            'input',
+                            Attributes::create($attributes)
+                        )
+                    )
+                );
+            }
         }
 
         if ($this->isEmpty()) {
