@@ -370,6 +370,7 @@ define(["../notjQuery"], function ($) {
             let selected = input.classList.contains('selected');
             if (selected && ! this.isSelectionActive()) {
                 this.startSelection(input);
+                $(input).focus();
             }
 
             if (! selected && input === this.selectionStartInput) {
