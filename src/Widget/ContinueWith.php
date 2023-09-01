@@ -63,7 +63,7 @@ class ContinueWith extends BaseHtmlElement
         } else {
             $this->addHtml(new ActionLink(
                 null,
-                $this->url->setQueryString(QueryString::render($filter)),
+                $this->url->setFilter($filter),
                 'share',
                 ['class' => 'control-button', 'title' => $this->title]
             ));
