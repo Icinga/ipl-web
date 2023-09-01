@@ -127,17 +127,7 @@ trait SearchControls
             ->on(SearchBar::ON_SENT, function (SearchBar $form) {
                 /** @var Url $redirectUrl */
                 $redirectUrl = $form->getRedirectUrl();
-                $existingParams = $redirectUrl->getParams();
-                $redirectUrl->setQueryString(QueryString::render($form->getFilter()));
-                foreach ($existingParams->toArray(false) as $name => $value) {
-                    if (is_int($name)) {
-                        $name = $value;
-                        $value = true;
-                    }
-
-                    $redirectUrl->getParams()->addEncoded($name, $value);
-                }
-
+                $redirectUrl->setFilter($form->getFilter());
                 $form->setRedirectUrl($redirectUrl);
             })->on(SearchBar::ON_SUCCESS, function (SearchBar $form) {
                 $this->getResponse()->redirectAndExit($form->getRedirectUrl());
@@ -227,16 +217,7 @@ trait SearchControls
         })->on(SearchEditor::ON_SUCCESS, function (SearchEditor $form) {
             /** @var Url $redirectUrl */
             $redirectUrl = $form->getRedirectUrl();
-            $existingParams = $redirectUrl->getParams();
-            $redirectUrl->setQueryString(QueryString::render($form->getFilter()));
-            foreach ($existingParams->toArray(false) as $name => $value) {
-                if (is_int($name)) {
-                    $name = $value;
-                    $value = true;
-                }
-
-                $redirectUrl->getParams()->addEncoded($name, $value);
-            }
+            $redirectUrl->setFilter($form->getFilter());
 
             $this->getResponse()
                 ->setHeader('X-Icinga-Container', '_self')
