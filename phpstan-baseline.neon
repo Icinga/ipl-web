@@ -46,11 +46,6 @@ parameters:
 			path: src/Common/StateBadges.php
 
 		-
-			message: "#^Property ipl\\\\Web\\\\Common\\\\StateBadges\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Common/StateBadges.php
-
-		-
 			message: "#^Method ipl\\\\Web\\\\Compat\\\\CompatController\\:\\:createSortControl\\(\\) has parameter \\$columns with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Compat/CompatController.php
@@ -99,11 +94,6 @@ parameters:
 			message: "#^Return type \\(ipl\\\\Web\\\\Widget\\\\Tabs\\) of method ipl\\\\Web\\\\Compat\\\\CompatController\\:\\:getTabs\\(\\) should be compatible with return type \\(Icinga\\\\Web\\\\Widget\\\\Tabs\\) of method Icinga\\\\Web\\\\Controller\\\\ActionController\\:\\:getTabs\\(\\)$#"
 			count: 1
 			path: src/Compat/CompatController.php
-
-		-
-			message: "#^Property ipl\\\\Web\\\\Compat\\\\CompatForm\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Compat/CompatForm.php
 
 		-
 			message: "#^Method ipl\\\\Web\\\\Compat\\\\Multipart\\:\\:assemble\\(\\) has no return type specified\\.$#"
@@ -166,11 +156,6 @@ parameters:
 			path: src/Control/PaginationControl.php
 
 		-
-			message: "#^Property ipl\\\\Web\\\\Control\\\\PaginationControl\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Control/PaginationControl.php
-
-		-
 			message: "#^Access to an undefined property ipl\\\\Html\\\\Form\\:\\:\\$uidElementName\\.$#"
 			count: 3
 			path: src/Control/SearchBar.php
@@ -216,11 +201,6 @@ parameters:
 			path: src/Control/SearchBar.php
 
 		-
-			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchBar\\:\\:populate\\(\\) has parameter \\$values with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Control/SearchBar.php
-
-		-
 			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchBar\\:\\:protectId\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Control/SearchBar.php
@@ -257,11 +237,6 @@ parameters:
 
 		-
 			message: "#^Property ipl\\\\Web\\\\Control\\\\SearchBar\\:\\:\\$changes type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Control/SearchBar.php
-
-		-
-			message: "#^Property ipl\\\\Web\\\\Control\\\\SearchBar\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Control/SearchBar.php
 
@@ -526,11 +501,6 @@ parameters:
 			path: src/Control/SearchBar/Terms.php
 
 		-
-			message: "#^Property ipl\\\\Web\\\\Control\\\\SearchBar\\\\Terms\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Control/SearchBar/Terms.php
-
-		-
 			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchBar\\\\ValidatedColumn\\:\\:toTermData\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Control/SearchBar/ValidatedColumn.php
@@ -671,11 +641,6 @@ parameters:
 			path: src/Control/SearchEditor.php
 
 		-
-			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchEditor\\:\\:populate\\(\\) has parameter \\$values with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Control/SearchEditor.php
-
-		-
 			message: "#^Parameter \\#2 \\$value of static method ipl\\\\Stdlib\\\\Filter\\:\\:equal\\(\\) expects array\\|bool\\|float\\|int\\|string, mixed given\\.$#"
 			count: 1
 			path: src/Control/SearchEditor.php
@@ -712,11 +677,6 @@ parameters:
 
 		-
 			message: "#^Parameter \\#2 \\$value of static method ipl\\\\Stdlib\\\\Filter\\:\\:unlike\\(\\) expects array\\<string\\>\\|string, mixed given\\.$#"
-			count: 1
-			path: src/Control/SearchEditor.php
-
-		-
-			message: "#^Property ipl\\\\Web\\\\Control\\\\SearchEditor\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Control/SearchEditor.php
 
@@ -797,11 +757,6 @@ parameters:
 
 		-
 			message: "#^Property ipl\\\\Web\\\\Control\\\\SortControl\\:\\:\\$columns type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Control/SortControl.php
-
-		-
-			message: "#^Property ipl\\\\Web\\\\Control\\\\SortControl\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Control/SortControl.php
 
@@ -1111,11 +1066,6 @@ parameters:
 			path: src/FormElement/ScheduleElement.php
 
 		-
-			message: "#^Property ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/FormElement/ScheduleElement.php
-
-		-
 			message: "#^Property ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\:\\:\\$protector \\(callable\\(\\)\\: mixed\\) does not accept \\(callable\\(\\)\\: mixed\\)\\|null\\.$#"
 			count: 1
 			path: src/FormElement/ScheduleElement.php
@@ -1386,11 +1336,6 @@ parameters:
 			path: src/FormElement/ScheduleElement/Recurrence.php
 
 		-
-			message: "#^Property ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\\\Recurrence\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/FormElement/ScheduleElement/Recurrence.php
-
-		-
 			message: "#^Method ipl\\\\Web\\\\FormElement\\\\ScheduleElement\\\\WeeklyFields\\:\\:assemble\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/FormElement/ScheduleElement/WeeklyFields.php
@@ -1531,11 +1476,6 @@ parameters:
 			path: src/FormElement/TermInput/TermContainer.php
 
 		-
-			message: "#^Property ipl\\\\Web\\\\FormElement\\\\TermInput\\\\TermContainer\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/FormElement/TermInput/TermContainer.php
-
-		-
 			message: "#^Cannot access offset 'exclude' on mixed\\.$#"
 			count: 1
 			path: src/FormElement/TermInput/TermSuggestions.php
@@ -1591,24 +1531,9 @@ parameters:
 			path: src/FormElement/TermInput/ValidatedTerm.php
 
 		-
-			message: "#^Property ipl\\\\Web\\\\Layout\\\\Content\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Layout/Content.php
-
-		-
 			message: "#^Method ipl\\\\Web\\\\Layout\\\\Controls\\:\\:assemble\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Layout/Controls.php
-
-		-
-			message: "#^Property ipl\\\\Web\\\\Layout\\\\Controls\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Layout/Controls.php
-
-		-
-			message: "#^Property ipl\\\\Web\\\\Layout\\\\Footer\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Layout/Footer.php
 
 		-
 			message: "#^Method ipl\\\\Web\\\\Widget\\\\ActionBar\\:\\:__construct\\(\\) has parameter \\$attributes with no value type specified in iterable type array\\.$#"
@@ -1626,24 +1551,9 @@ parameters:
 			path: src/Widget/ActionBar.php
 
 		-
-			message: "#^Property ipl\\\\Web\\\\Widget\\\\ActionBar\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Widget/ActionBar.php
-
-		-
 			message: "#^Method ipl\\\\Web\\\\Widget\\\\ActionLink\\:\\:__construct\\(\\) has parameter \\$attributes with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Widget/ActionLink.php
-
-		-
-			message: "#^Property ipl\\\\Web\\\\Widget\\\\ActionLink\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Widget/ActionLink.php
-
-		-
-			message: "#^Property ipl\\\\Web\\\\Widget\\\\ButtonLink\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Widget/ButtonLink.php
 
 		-
 			message: "#^Method ipl\\\\Web\\\\Widget\\\\ContinueWith\\:\\:__construct\\(\\) has parameter \\$filter with no type specified\\.$#"
@@ -1661,16 +1571,6 @@ parameters:
 			path: src/Widget/ContinueWith.php
 
 		-
-			message: "#^Property ipl\\\\Web\\\\Widget\\\\ContinueWith\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Widget/ContinueWith.php
-
-		-
-			message: "#^Property ipl\\\\Web\\\\Widget\\\\CopyToClipboard\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Widget/CopyToClipboard.php
-
-		-
 			message: "#^Method ipl\\\\Web\\\\Widget\\\\Dropdown\\:\\:__construct\\(\\) has parameter \\$attributes with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Widget/Dropdown.php
@@ -1682,11 +1582,6 @@ parameters:
 
 		-
 			message: "#^Parameter \\#1 \\$attribute of method ipl\\\\Html\\\\Attributes\\:\\:add\\(\\) expects array\\|ipl\\\\Html\\\\Attribute\\|ipl\\\\Html\\\\Attributes\\|string, array\\|ipl\\\\Html\\\\Attributes\\|null given\\.$#"
-			count: 1
-			path: src/Widget/Dropdown.php
-
-		-
-			message: "#^Property ipl\\\\Web\\\\Widget\\\\Dropdown\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Widget/Dropdown.php
 
@@ -1707,11 +1602,6 @@ parameters:
 
 		-
 			message: "#^Method ipl\\\\Web\\\\Widget\\\\HorizontalKeyValue\\:\\:assemble\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Widget/HorizontalKeyValue.php
-
-		-
-			message: "#^Property ipl\\\\Web\\\\Widget\\\\HorizontalKeyValue\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Widget/HorizontalKeyValue.php
 
@@ -1781,11 +1671,6 @@ parameters:
 			path: src/Widget/StateBadge.php
 
 		-
-			message: "#^Property ipl\\\\Web\\\\Widget\\\\StateBadge\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Widget/StateBadge.php
-
-		-
 			message: "#^Method ipl\\\\Web\\\\Widget\\\\Tabs\\:\\:assemble\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Widget/Tabs.php
@@ -1811,22 +1696,12 @@ parameters:
 			path: src/Widget/Tabs.php
 
 		-
-			message: "#^Property ipl\\\\Web\\\\Widget\\\\Tabs\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Widget/Tabs.php
-
-		-
 			message: "#^Method ipl\\\\Web\\\\Widget\\\\TimeAgo\\:\\:__construct\\(\\) has parameter \\$ago with no type specified\\.$#"
 			count: 1
 			path: src/Widget/TimeAgo.php
 
 		-
 			message: "#^Method ipl\\\\Web\\\\Widget\\\\TimeAgo\\:\\:assemble\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Widget/TimeAgo.php
-
-		-
-			message: "#^Property ipl\\\\Web\\\\Widget\\\\TimeAgo\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Widget/TimeAgo.php
 
@@ -1841,22 +1716,12 @@ parameters:
 			path: src/Widget/TimeSince.php
 
 		-
-			message: "#^Property ipl\\\\Web\\\\Widget\\\\TimeSince\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Widget/TimeSince.php
-
-		-
 			message: "#^Method ipl\\\\Web\\\\Widget\\\\TimeUntil\\:\\:__construct\\(\\) has parameter \\$until with no type specified\\.$#"
 			count: 1
 			path: src/Widget/TimeUntil.php
 
 		-
 			message: "#^Method ipl\\\\Web\\\\Widget\\\\TimeUntil\\:\\:assemble\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Widget/TimeUntil.php
-
-		-
-			message: "#^Property ipl\\\\Web\\\\Widget\\\\TimeUntil\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Widget/TimeUntil.php
 
@@ -1872,11 +1737,6 @@ parameters:
 
 		-
 			message: "#^Method ipl\\\\Web\\\\Widget\\\\VerticalKeyValue\\:\\:assemble\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Widget/VerticalKeyValue.php
-
-		-
-			message: "#^Property ipl\\\\Web\\\\Widget\\\\VerticalKeyValue\\:\\:\\$defaultAttributes type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Widget/VerticalKeyValue.php
 
