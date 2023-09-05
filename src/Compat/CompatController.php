@@ -3,6 +3,7 @@
 namespace ipl\Web\Compat;
 
 use GuzzleHttp\Psr7\ServerRequest;
+use Icinga\Application\Version;
 use InvalidArgumentException;
 use Icinga\Web\Controller;
 use ipl\Html\BaseHtmlElement;
@@ -418,6 +419,70 @@ class CompatController extends Controller
         }
 
         $this->getResponse()->setHeader('X-Icinga-Extra-Updates', join(',', $extraUpdates));
+    }
+
+    /**
+     * Close the modal content and refresh the related view
+     *
+     * NOTE: If you use this with older Icinga Web versions (< 2.12), you will need to specify a valid redirect url,
+     * that will produce the same result as using the `__REFRESH__` redirect with the latest Icinga Web version.
+     *
+     * This is supposed to be used in combination with a modal view and closes only the modal,
+     * and refreshes the modal opener (regardless of whether it is col1 or col2).
+     *
+     * @param Url|string $url
+     * @param bool $refreshCol1 Whether to refresh col1 after the redirect. Is just for compatibility reasons and
+     *        won't be used with latest Icinga Web versions.
+     *
+     * @return never
+     */
+    public function closeModalAndRefreshRelatedView($url, bool $refreshCol1 = false)
+    {
+        if (version_compare(Version::VERSION, '2.12.0', '<')) {
+            if (! $url) {
+                throw new InvalidArgumentException('No redirect url provided');
+            }
+
+            if ($refreshCol1) {
+                $this->sendExtraUpdates(['#col1']);
+            }
+
+            $this->redirectNow($url);
+        } else {
+            $this->redirectNow('__REFRESH__');
+        }
+    }
+
+    /**
+     * Close the modal content and refresh all the remaining views
+     *
+     * NOTE: If you use this with older Icinga Web versions (< 2.12), you will need to specify a valid redirect url,
+     * that will produce the same result as using the `__REFRESH__` redirect with the latest Icinga Web version.
+     *
+     * This is supposed to be used in combination with a modal view and closes only the modal content. It refreshes
+     * the modal opener (expects to be always col2) and forces a refresh of col1.
+     *
+     * @param Url|string $url
+     *
+     * @return never
+     */
+    public function closeModalAndRefreshRemainingViews($url)
+    {
+        $this->sendExtraUpdates(['#col1']);
+
+        $this->closeModalAndRefreshRelatedView($url);
+    }
+
+    /**
+     * Redirect using `__CLOSE__`
+     *
+     * Change to a single column layout and refresh col1
+     *
+     * @return never
+     */
+    public function switchToSingleColumnLayout()
+    {
+        $this->redirectNow('__CLOSE__');
     }
 
     public function postDispatch()
