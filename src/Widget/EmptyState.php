@@ -13,12 +13,17 @@ class EmptyState extends BaseHtmlElement
 
     protected $defaultAttributes = ['class' => 'empty-state'];
 
+    /**
+     * Create an empty state
+     *
+     * @param mixed $content
+     */
     public function __construct($content)
     {
         $this->content = $content;
     }
 
-    protected function assemble()
+    protected function assemble(): void
     {
         $this->add($this->content);
     }

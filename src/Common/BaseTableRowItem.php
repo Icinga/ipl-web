@@ -10,6 +10,7 @@ use ipl\Html\HtmlElement;
 
 abstract class BaseTableRowItem extends BaseHtmlElement
 {
+    /** @var array<string, mixed> */
     protected $baseAttributes = ['class' => 'table-row'];
 
     /** @var object The associated list item */
@@ -40,16 +41,23 @@ abstract class BaseTableRowItem extends BaseHtmlElement
         $this->init();
     }
 
-    abstract protected function assembleTitle(BaseHtmlElement $title);
+    abstract protected function assembleTitle(BaseHtmlElement $title): void;
 
-    protected function assembleColumns(HtmlDocument $columns)
+    protected function assembleColumns(HtmlDocument $columns): void
     {
     }
 
-    protected function assembleVisual(BaseHtmlElement $visual)
+    protected function assembleVisual(BaseHtmlElement $visual): void
     {
     }
 
+    /**
+     * Create column
+     *
+     * @param mixed $content
+     *
+     * @return BaseHtmlElement
+     */
     protected function createColumn($content = null): BaseHtmlElement
     {
         return new HtmlElement(
@@ -83,10 +91,7 @@ abstract class BaseTableRowItem extends BaseHtmlElement
         return $title;
     }
 
-    /**
-     * @return ?BaseHtmlElement
-     */
-    protected function createVisual()
+    protected function createVisual(): ?BaseHtmlElement
     {
         $visual = new HtmlElement('div', Attributes::create(['class' => 'visual']));
 
@@ -100,11 +105,11 @@ abstract class BaseTableRowItem extends BaseHtmlElement
      *
      * If you want to adjust the list item after construction, override this method.
      */
-    protected function init()
+    protected function init(): void
     {
     }
 
-    protected function assemble()
+    protected function assemble(): void
     {
         $this->addHtml(
             $this->createTitle(),

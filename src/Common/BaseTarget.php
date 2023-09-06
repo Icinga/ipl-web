@@ -12,9 +12,12 @@ trait BaseTarget
      *
      * @return string|null
      */
-    public function getBaseTarget()
+    public function getBaseTarget(): ?string
     {
-        return $this->getAttributes()->get('data-base-target')->getValue();
+        /** @var ?string $baseTarget */
+        $baseTarget = $this->getAttributes()->get('data-base-target')->getValue();
+
+        return $baseTarget;
     }
 
     /**
@@ -24,7 +27,7 @@ trait BaseTarget
      *
      * @return $this
      */
-    public function setBaseTarget($target)
+    public function setBaseTarget(string $target): self
     {
         $this->getAttributes()->set('data-base-target', $target);
 

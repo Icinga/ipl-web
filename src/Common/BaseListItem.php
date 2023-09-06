@@ -11,6 +11,7 @@ use ipl\Html\HtmlElement;
  */
 abstract class BaseListItem extends BaseHtmlElement
 {
+    /** @var array<string, mixed> */
     protected $baseAttributes = ['class' => 'list-item'];
 
     /** @var object The associated list item */
@@ -37,23 +38,23 @@ abstract class BaseListItem extends BaseHtmlElement
         $this->init();
     }
 
-    abstract protected function assembleHeader(BaseHtmlElement $header);
+    abstract protected function assembleHeader(BaseHtmlElement $header): void;
 
-    abstract protected function assembleMain(BaseHtmlElement $main);
+    abstract protected function assembleMain(BaseHtmlElement $main): void;
 
-    protected function assembleFooter(BaseHtmlElement $footer)
+    protected function assembleFooter(BaseHtmlElement $footer): void
     {
     }
 
-    protected function assembleCaption(BaseHtmlElement $caption)
+    protected function assembleCaption(BaseHtmlElement $caption): void
     {
     }
 
-    protected function assembleTitle(BaseHtmlElement $title)
+    protected function assembleTitle(BaseHtmlElement $title): void
     {
     }
 
-    protected function assembleVisual(BaseHtmlElement $visual)
+    protected function assembleVisual(BaseHtmlElement $visual): void
     {
     }
 
@@ -93,8 +94,9 @@ abstract class BaseListItem extends BaseHtmlElement
         return $footer;
     }
 
-    protected function createTimestamp()
+    protected function createTimestamp(): ?BaseHtmlElement
     {
+        return null;
     }
 
     protected function createTitle(): BaseHtmlElement
@@ -109,7 +111,7 @@ abstract class BaseListItem extends BaseHtmlElement
     /**
      * @return ?BaseHtmlElement
      */
-    protected function createVisual()
+    protected function createVisual(): ?BaseHtmlElement
     {
         $visual = new HtmlElement('div', Attributes::create(['class' => 'visual']));
 
@@ -123,11 +125,11 @@ abstract class BaseListItem extends BaseHtmlElement
      *
      * If you want to adjust the list item after construction, override this method.
      */
-    protected function init()
+    protected function init(): void
     {
     }
 
-    protected function assemble()
+    protected function assemble(): void
     {
         $this->add([
             $this->createVisual(),

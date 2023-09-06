@@ -6,7 +6,7 @@ use LogicException;
 
 abstract class BaseOrderedListItem extends BaseListItem
 {
-    /** @var int This element's position */
+    /** @var ?int This element's position */
     protected $order;
 
     /**
@@ -28,7 +28,7 @@ abstract class BaseOrderedListItem extends BaseListItem
      *
      * @return int
      */
-    public function getOrder()
+    public function getOrder(): int
     {
         if ($this->order === null) {
             throw new LogicException(

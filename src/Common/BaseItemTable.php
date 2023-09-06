@@ -4,6 +4,7 @@ namespace ipl\Web\Common;
 
 use InvalidArgumentException;
 use ipl\Html\BaseHtmlElement;
+use ipl\Orm\ResultSet;
 use ipl\Stdlib\BaseFilter;
 use ipl\Web\Widget\EmptyState;
 
@@ -17,12 +18,13 @@ abstract class BaseItemTable extends BaseHtmlElement
     /** @var string Defines the layout used by this item */
     public const TABLE_LAYOUT = 'table-layout';
 
+    /** @var array<string, mixed> */
     protected $baseAttributes = [
         'class'            => 'item-table',
         'data-base-target' => '_next'
     ];
 
-    /** @var iterable */
+    /** @var ResultSet|iterable<object> */
     protected $data;
 
     protected $tag = 'ul';
@@ -30,7 +32,7 @@ abstract class BaseItemTable extends BaseHtmlElement
     /**
      * Create a new item table
      *
-     * @param iterable $data Data source of the table
+     * @param ResultSet|iterable<object> $data Data source of the table
      */
     public function __construct($data)
     {
@@ -50,7 +52,7 @@ abstract class BaseItemTable extends BaseHtmlElement
      *
      * If you want to adjust the item table after construction, override this method.
      */
-    protected function init()
+    protected function init(): void
     {
     }
 
@@ -66,7 +68,7 @@ abstract class BaseItemTable extends BaseHtmlElement
 
     abstract protected function getItemClass(): string;
 
-    protected function assemble()
+    protected function assemble(): void
     {
         $this->addAttributes(['class' => $this->getLayout()]);
 

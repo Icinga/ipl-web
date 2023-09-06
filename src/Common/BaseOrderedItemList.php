@@ -11,7 +11,7 @@ abstract class BaseOrderedItemList extends BaseItemList
 {
     protected $tag = 'ol';
 
-    protected function assemble()
+    protected function assemble(): void
     {
         $itemClass = $this->getItemClass();
 

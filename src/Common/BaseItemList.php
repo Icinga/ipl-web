@@ -4,6 +4,7 @@ namespace ipl\Web\Common;
 
 use InvalidArgumentException;
 use ipl\Html\BaseHtmlElement;
+use ipl\Orm\ResultSet;
 use ipl\Stdlib\BaseFilter;
 use ipl\Web\Widget\EmptyState;
 
@@ -14,13 +15,14 @@ abstract class BaseItemList extends BaseHtmlElement
 {
     use BaseFilter;
 
+    /** @var array<string, mixed> */
     protected $baseAttributes = [
         'class'                         => ['item-list', 'default-layout'],
         'data-base-target'              => '_next',
         'data-pdfexport-page-breaks-at' => '.list-item'
     ];
 
-    /** @var iterable */
+    /** @var ResultSet|iterable<object> */
     protected $data;
 
     protected $tag = 'ul';
@@ -28,7 +30,7 @@ abstract class BaseItemList extends BaseHtmlElement
     /**
      * Create a new item  list
      *
-     * @param iterable $data Data source of the list
+     * @param ResultSet|iterable<object> $data Data source of the list
      */
     public function __construct($data)
     {
@@ -50,11 +52,11 @@ abstract class BaseItemList extends BaseHtmlElement
      *
      * If you want to adjust the item list after construction, override this method.
      */
-    protected function init()
+    protected function init(): void
     {
     }
 
-    protected function assemble()
+    protected function assemble(): void
     {
         $itemClass = $this->getItemClass();
         foreach ($this->data as $data) {
