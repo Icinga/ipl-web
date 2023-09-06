@@ -80,4 +80,18 @@ class Link extends BaseHtmlElement
     {
         return new Attribute('href', (string) $this->getUrl());
     }
+
+    /**
+     * Open this link in a modal
+     *
+     * @return $this
+     */
+    public function openInModal(): self
+    {
+        $this->getAttributes()
+            ->set('data-icinga-modal', true)
+            ->set('data-no-icinga-ajax', true);
+
+        return $this;
+    }
 }
