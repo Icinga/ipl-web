@@ -1506,11 +1506,6 @@ parameters:
 			path: src/Widget/ActionBar.php
 
 		-
-			message: "#^Method ipl\\\\Web\\\\Widget\\\\ActionBar\\:\\:getBaseTarget\\(\\) should return string\\|null but returns array\\|bool\\|string\\|null\\.$#"
-			count: 1
-			path: src/Widget/ActionBar.php
-
-		-
 			message: "#^Parameter \\#1 \\$attribute of method ipl\\\\Html\\\\Attributes\\:\\:add\\(\\) expects array\\|ipl\\\\Html\\\\Attribute\\|ipl\\\\Html\\\\Attributes\\|string, array\\|ipl\\\\Html\\\\Attributes\\|null given\\.$#"
 			count: 1
 			path: src/Widget/ActionBar.php
@@ -1527,11 +1522,6 @@ parameters:
 
 		-
 			message: "#^Method ipl\\\\Web\\\\Widget\\\\ContinueWith\\:\\:assemble\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Widget/ContinueWith.php
-
-		-
-			message: "#^Method ipl\\\\Web\\\\Widget\\\\ContinueWith\\:\\:getBaseTarget\\(\\) should return string\\|null but returns array\\|bool\\|string\\|null\\.$#"
 			count: 1
 			path: src/Widget/ContinueWith.php
 
@@ -1612,11 +1602,6 @@ parameters:
 
 		-
 			message: "#^Method ipl\\\\Web\\\\Widget\\\\Link\\:\\:__construct\\(\\) has parameter \\$attributes with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Widget/Link.php
-
-		-
-			message: "#^Method ipl\\\\Web\\\\Widget\\\\Link\\:\\:getBaseTarget\\(\\) should return string\\|null but returns array\\|bool\\|string\\|null\\.$#"
 			count: 1
 			path: src/Widget/Link.php
 
