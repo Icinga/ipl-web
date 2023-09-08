@@ -27,6 +27,7 @@ abstract class BaseOrderedListItem extends BaseListItem
      * Get this element's position
      *
      * @return int
+     * @throws LogicException When calling this method without setting the `order` property
      */
     public function getOrder(): int
     {
