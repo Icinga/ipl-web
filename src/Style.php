@@ -102,7 +102,7 @@ class Style extends LessRuleset implements ValidHtml
 
         return (new HtmlElement(
             'style',
-            (new Attributes())->addAttribute(new Attribute('nonce', $this->nonce)),
+            (new Attributes())->addAttribute(new Attribute('nonce', $this->getNonce())),
             HtmlString::create($ruleset->renderCss())
         ))->render();
     }
