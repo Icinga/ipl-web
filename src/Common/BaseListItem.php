@@ -85,11 +85,14 @@ abstract class BaseListItem extends BaseHtmlElement
         return $main;
     }
 
-    protected function createFooter(): BaseHtmlElement
+    protected function createFooter(): ?BaseHtmlElement
     {
         $footer = new HtmlElement('footer');
 
         $this->assembleFooter($footer);
+        if ($footer->isEmpty()) {
+            return null;
+        }
 
         return $footer;
     }
