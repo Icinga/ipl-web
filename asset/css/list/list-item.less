@@ -1,10 +1,10 @@
 // Style
 
 .list-item {
-  color: @text-color-light;
+  color: @default-text-color-light;
 
   &:not(:first-child) > .main {
-    border-top: 1px solid @gray-light;
+    border-top: 1px solid @list-item-separation-bg;
   }
 
   &:not(:first-child) .visual {
@@ -17,21 +17,21 @@
     }
 
     a {
-      color: @text-color;
+      color: @default-text-color;
     }
   }
 
   .title {
     .subject {
-      color: @text-color;
+      color: @default-text-color;
     }
 
     a {
-      color: @text-color;
+      color: @default-text-color;
       font-weight: bold;
 
       &:hover {
-        color: @icinga-blue;
+        color: @list-item-title-hover-color;
         text-decoration: none;
       }
     }

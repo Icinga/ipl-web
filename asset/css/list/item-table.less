@@ -7,23 +7,23 @@ ul.item-table {
 div.item-table {
   > .empty-state {
     .rounded-corners();
-    background-color: @gray-lighter;
+    background-color: @empty-state-bg-in-lists;
   }
 }
 
 .table-row {
-  color: @text-color-light;
+  color: @default-text-color-light;
 
   .title {
     .subject {
-      color: @text-color;
+      color: @default-text-color;
     }
 
     a {
       font-weight: bold;
 
       &:hover {
-        color: @icinga-blue;
+        color: @list-item-title-hover-color;
         text-decoration: none;
       }
     }
