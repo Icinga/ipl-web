@@ -116,6 +116,9 @@ abstract class BaseListItem extends BaseHtmlElement
         $visual = new HtmlElement('div', Attributes::create(['class' => 'visual']));
 
         $this->assembleVisual($visual);
+        if ($visual->isEmpty()) {
+            return null;
+        }
 
         return $visual;
     }
