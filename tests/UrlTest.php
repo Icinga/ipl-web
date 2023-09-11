@@ -45,6 +45,34 @@ class UrlTest extends TestCase
         );
     }
 
+    /** @depends testSetFilterPreservesExistingParameters */
+    public function testSetFilterAcceptsNullAndStillPreservesExistingParameters()
+    {
+        $url = Url::fromPath('test', ['oof' => 'rab'], $this->createRequestMock());
+
+        $url->setFilter(Filter::equal('bar', 'foo'));
+        $url->setFilter(null);
+
+        $this->assertSame(
+            '/test?oof=rab',
+            $url->getAbsoluteUrl()
+        );
+    }
+
+    /** @depends testSetFilterPreservesExistingParameters */
+    public function testSetFilterOverridesCurrentFilterButKeepsOtherParameters()
+    {
+        $url = Url::fromPath('test', ['oof' => 'rab'], $this->createRequestMock());
+
+        $url->setFilter(Filter::equal('bar', 'foo'));
+        $url->setFilter(Filter::equal('foo', 'bar'));
+
+        $this->assertSame(
+            '/test?foo=bar&oof=rab',
+            $url->getAbsoluteUrl()
+        );
+    }
+
     protected function createRequestMock()
     {
         return $this->createConfiguredMock(Request::class, [

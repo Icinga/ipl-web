@@ -2,6 +2,7 @@
 
 namespace ipl\Web;
 
+use Icinga\Web\UrlParams;
 use ipl\Stdlib\Filter\Rule;
 use ipl\Web\Filter\QueryString;
 
@@ -10,27 +11,57 @@ use ipl\Web\Filter\QueryString;
  */
 class Url extends \Icinga\Web\Url
 {
+    /** @var ?Rule */
+    private $filter;
+
     /**
-     * Set the given filter and preserve existing query parameters
+     * Set the filter
      *
-     * @param Rule $filter
+     * @param ?Rule $filter
      *
      * @return $this
      */
-    public function setFilter(Rule $filter): self
+    public function setFilter(?Rule $filter): self
     {
-        $existingParams = $this->getParams();
-        $this->setQueryString(QueryString::render($filter));
-        foreach ($existingParams->toArray(false) as $name => $value) {
+        $this->filter = $filter;
+
+        return $this;
+    }
+
+    /**
+     * Get the filter
+     *
+     * @return ?Rule
+     */
+    public function getFilter(): ?Rule
+    {
+        return $this->filter;
+    }
+
+    /**
+     * Render and return the filter and parameters as query string
+     *
+     * @param ?string $separator
+     *
+     * @return string
+     */
+    public function getQueryString($separator = null)
+    {
+        if ($this->filter === null) {
+            return parent::getQueryString($separator);
+        }
+
+        $params = UrlParams::fromQueryString(QueryString::render($this->filter));
+        foreach ($this->getParams()->toArray(false) as $name => $value) {
             if (is_int($name)) {
                 $name = $value;
                 $value = true;
             }
 
-            $this->getParams()->addEncoded($name, $value);
+            $params->addEncoded($name, $value);
         }
 
-        return $this;
+        return $params->toString($separator);
     }
 
     public function __toString()
