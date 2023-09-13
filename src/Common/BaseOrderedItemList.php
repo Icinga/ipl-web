@@ -2,7 +2,7 @@
 
 namespace ipl\Web\Common;
 
-use ipl\Web\Widget\EmptyState;
+use ipl\Web\Widget\EmptyStateBar;
 
 /**
  * @method BaseOrderedListItem getItemClass()
@@ -25,7 +25,7 @@ abstract class BaseOrderedItemList extends BaseItemList
 
         if ($this->isEmpty()) {
             $this->setTag('div');
-            $this->addHtml(new EmptyState(t('No items found.')));
+            $this->addHtml(new EmptyStateBar(t('No items found.')));
         }
     }
 }

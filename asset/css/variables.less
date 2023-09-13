@@ -29,6 +29,7 @@
 @base-gray: #c4c4c4;
 @base-gray-light: #5c5c5c;
 @base-gray-lighter: #4b4b4b;
+@base-gray-semilight: #888;
 @base-disabled: #9a9a9a;
 
 @base-primary-color: #00C3ED;
@@ -121,7 +122,9 @@
 @schedule-element-fields-disabled-selected-bg: @base-gray-light;
 @schedule-element-keyboard-note-bg: @base-gray-light;
 
-@empty-state-bg-in-lists: @base-gray-lighter;
+@empty-state-color: @base-gray-semilight;
+@empty-state-bar-bg: @base-gray-lighter;
+
 @list-item-title-hover-color: @base-primary-color;
 @list-item-separation-bg: @base-gray-light;
 
@@ -130,6 +133,7 @@
     --base-gray: #819398;
     --base-gray-light: #d0d3da;
     --base-gray-lighter: #e8ecef;
+    --base-gray-semilight: #94a5a6;
     --base-disabled: var(--base-gray-light);
 
     --base-remove-bg: @state-critical;
@@ -204,7 +208,9 @@
     --schedule-element-fields-disabled-selected-bg: var(--base-gray-light);
     --schedule-element-keyboard-note-bg: var(--base-gray-light);
 
-    --empty-state-bg-in-lists: var(--base-gray-lighter);
+    --empty-state-color: var(--base-gray-semilight);
+    --empty-state-bar-bg: var(--base-gray-lighter);
+
     --list-item-title-hover-color: var(--base-primary-color);
     --list-item-separation-bg: var(--base-gray-light);
   }

@@ -6,7 +6,7 @@ use InvalidArgumentException;
 use ipl\Html\BaseHtmlElement;
 use ipl\Orm\ResultSet;
 use ipl\Stdlib\BaseFilter;
-use ipl\Web\Widget\EmptyState;
+use ipl\Web\Widget\EmptyStateBar;
 
 /**
  * Base class for item tables
@@ -82,7 +82,7 @@ abstract class BaseItemTable extends BaseHtmlElement
 
         if ($this->isEmpty()) {
             $this->setTag('div');
-            $this->addHtml(new EmptyState(t('No items found.')));
+            $this->addHtml(new EmptyStateBar(t('No items found.')));
         }
     }
 }

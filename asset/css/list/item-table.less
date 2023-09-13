@@ -4,13 +4,6 @@ ul.item-table {
   list-style-type: none;
 }
 
-div.item-table {
-  > .empty-state {
-    .rounded-corners();
-    background-color: @empty-state-bg-in-lists;
-  }
-}
-
 .table-row {
   color: @default-text-color-light;
 
@@ -87,10 +80,8 @@ ul.item-table {
 }
 
 div.item-table {
-  > .empty-state {
+  > .empty-state-bar {
     margin: 0 1em;
-    padding: 1em;
-    text-align: center;
   }
 }
 
