@@ -11,7 +11,7 @@ class EmptyStateBar extends BaseHtmlElement
 
     protected $tag = 'div';
 
-    protected $defaultAttributes = ['class' => ['empty-state', 'empty-state-bar']];
+    protected $defaultAttributes = ['class' => 'empty-state-bar'];
 
     /**
      * Create an empty list
