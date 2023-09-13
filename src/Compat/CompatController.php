@@ -381,7 +381,7 @@ class CompatController extends Controller
         }
 
         if ($redirectUrl !== null) {
-            $this->getResponse()->setHeader('X-Icinga-Location-Query', $redirectUrl->getParams()->toString());
+            $this->getResponse()->setHeader('X-Icinga-Location-Query', $redirectUrl->getQueryString());
         }
     }
 
