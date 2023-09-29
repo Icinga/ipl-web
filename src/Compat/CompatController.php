@@ -12,10 +12,12 @@ use ipl\Html\HtmlString;
 use ipl\Html\ValidHtml;
 use ipl\Orm\Query;
 use ipl\Stdlib\Contract\Paginatable;
+use ipl\Stdlib\Filter;
 use ipl\Web\Control\LimitControl;
 use ipl\Web\Control\PaginationControl;
 use ipl\Web\Control\SearchBar;
 use ipl\Web\Control\SortControl;
+use ipl\Web\Filter\QueryString;
 use ipl\Web\Layout\Content;
 use ipl\Web\Layout\Controls;
 use ipl\Web\Layout\Footer;
@@ -43,6 +45,9 @@ class CompatController extends Controller
 
     /** @var array */
     protected $parts;
+
+    /** @var Filter\Rule */
+    private $filter;
 
     protected function prepareInit()
     {
@@ -508,5 +513,19 @@ class CompatController extends Controller
         }
 
         parent::postDispatch();
+    }
+
+    /**
+     * Get the filter created from query string parameters
+     *
+     * @return Filter\Rule
+     */
+    public function getFilter(): Filter\Rule
+    {
+        if ($this->filter === null) {
+            $this->filter = QueryString::parse((string) $this->params);
+        }
+
+        return $this->filter;
     }
 }
