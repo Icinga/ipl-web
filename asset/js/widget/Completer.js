@@ -213,6 +213,7 @@ define(["../notjQuery"], function ($) {
             this.nextSuggestion = setTimeout(() => {
                 let req = new XMLHttpRequest();
                 req.open('POST', this.input.dataset.suggestUrl, true);
+                req.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
                 req.setRequestHeader('Content-Type', 'application/json');
 
                 if (typeof icinga !== 'undefined') {
