@@ -2,15 +2,19 @@
 
 namespace ipl\Tests\Web;
 
-use Icinga\Web\UrlParams;
 use ipl\Stdlib\Filter;
 use ipl\Web\Common\StateBadges;
+use ipl\Web\Filter\QueryString;
 use ipl\Web\Url;
 
 class StateBadgesTest extends TestCase
 {
     public function testCreateLinkRendersBaseFilterCorrectly()
     {
+        if (! class_exists('\Icinga\Web\Url')) {
+            $this->markTestSkipped('Icinga Web is required to run this test');
+        }
+
         $stateBadges = $this->createStateBadges()
             ->setBaseFilter(Filter::any(
                 Filter::equal('foo', 'bar'),
@@ -29,15 +33,10 @@ class StateBadgesTest extends TestCase
     {
         $queryString = null;
 
-        $urlMock = $this->createConfiguredMock(Url::class, [
-            'getBasePath' => 'test',
-            'getParams' => $this->createConfiguredMock(UrlParams::class, [
-                'toArray' => []
-            ])
-        ]);
-        $urlMock->method('setQueryString')->willReturnCallback(
-            function ($qs) use ($urlMock, &$queryString) {
-                $queryString = $qs;
+        $urlMock = $this->createMock(Url::class);
+        $urlMock->method('setFilter')->willReturnCallback(
+            function ($filter) use ($urlMock, &$queryString) {
+                $queryString = QueryString::render($filter);
 
                 return $urlMock;
             }
