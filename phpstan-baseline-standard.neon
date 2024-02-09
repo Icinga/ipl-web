@@ -81,11 +81,6 @@ parameters:
 			path: src/Compat/CompatController.php
 
 		-
-			message: "#^Parameter \\#2 \\$values of function vsprintf expects array\\<bool\\|float\\|int\\|string\\|null\\>, array\\<int\\|string, mixed\\> given\\.$#"
-			count: 1
-			path: src/Compat/CompatController.php
-
-		-
 			message: "#^Property ipl\\\\Web\\\\Compat\\\\CompatController\\:\\:\\$parts type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Compat/CompatController.php
@@ -99,11 +94,6 @@ parameters:
 			message: "#^Method ipl\\\\Web\\\\Compat\\\\Multipart\\:\\:assemble\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Compat/Multipart.php
-
-		-
-			message: "#^Access to an undefined property Zend_View_Interface\\:\\:\\$document\\.$#"
-			count: 2
-			path: src/Compat/ViewRenderer.php
 
 		-
 			message: "#^Method ipl\\\\Web\\\\Compat\\\\ViewRenderer\\:\\:inject\\(\\) has no return type specified\\.$#"
@@ -167,17 +157,12 @@ parameters:
 
 		-
 			message: "#^Cannot access offset 'terms' on mixed\\.$#"
-			count: 2
+			count: 1
 			path: src/Control/SearchBar.php
 
 		-
 			message: "#^Cannot access offset 'type' on mixed\\.$#"
 			count: 2
-			path: src/Control/SearchBar.php
-
-		-
-			message: "#^Cannot access offset mixed on array\\|object\\.$#"
-			count: 1
 			path: src/Control/SearchBar.php
 
 		-
@@ -247,7 +232,7 @@ parameters:
 
 		-
 			message: "#^Cannot access offset 'column' on mixed\\.$#"
-			count: 3
+			count: 1
 			path: src/Control/SearchBar/Suggestions.php
 
 		-
@@ -257,7 +242,7 @@ parameters:
 
 		-
 			message: "#^Cannot access offset 'operator' on mixed\\.$#"
-			count: 2
+			count: 1
 			path: src/Control/SearchBar/Suggestions.php
 
 		-
@@ -267,12 +252,12 @@ parameters:
 
 		-
 			message: "#^Cannot access offset 'searchFilter' on mixed\\.$#"
-			count: 2
+			count: 1
 			path: src/Control/SearchBar/Suggestions.php
 
 		-
 			message: "#^Cannot access offset 'showQuickSearch' on mixed\\.$#"
-			count: 2
+			count: 1
 			path: src/Control/SearchBar/Suggestions.php
 
 		-
@@ -416,11 +401,6 @@ parameters:
 			path: src/Control/SearchBar/Suggestions.php
 
 		-
-			message: "#^Parameter \\#3 \\$length of function substr expects int\\|null, int\\|false given\\.$#"
-			count: 1
-			path: src/Control/SearchBar/Suggestions.php
-
-		-
 			message: "#^Parameter \\#3 \\$searchFilter of method ipl\\\\Web\\\\Control\\\\SearchBar\\\\Suggestions\\:\\:fetchValueSuggestions\\(\\) expects ipl\\\\Stdlib\\\\Filter\\\\Chain, ipl\\\\Stdlib\\\\Filter\\\\Rule given\\.$#"
 			count: 1
 			path: src/Control/SearchBar/Suggestions.php
@@ -487,11 +467,6 @@ parameters:
 
 		-
 			message: "#^Method ipl\\\\Web\\\\Control\\\\SearchBar\\\\Terms\\:\\:setFilter\\(\\) has parameter \\$filter with no type specified\\.$#"
-			count: 1
-			path: src/Control/SearchBar/Terms.php
-
-		-
-			message: "#^Parameter \\#1 \\$string of function rawurlencode expects string, mixed given\\.$#"
 			count: 1
 			path: src/Control/SearchBar/Terms.php
 
@@ -686,11 +661,6 @@ parameters:
 			path: src/Control/SortControl.php
 
 		-
-			message: "#^Cannot access offset mixed on array\\|object\\.$#"
-			count: 1
-			path: src/Control/SortControl.php
-
-		-
 			message: "#^Cannot call method getParsedBody\\(\\) on Psr\\\\Http\\\\Message\\\\ServerRequestInterface\\|null\\.$#"
 			count: 1
 			path: src/Control/SortControl.php
@@ -731,17 +701,7 @@ parameters:
 			path: src/Control/SortControl.php
 
 		-
-			message: "#^Parameter \\#1 \\$string of function strtolower expects string, mixed given\\.$#"
-			count: 1
-			path: src/Control/SortControl.php
-
-		-
 			message: "#^Parameter \\#2 \\$start of static method ipl\\\\Stdlib\\\\Str\\:\\:startsWith\\(\\) expects string, mixed given\\.$#"
-			count: 1
-			path: src/Control/SortControl.php
-
-		-
-			message: "#^Parameter \\#2 \\$string of function explode expects string, int\\|string\\|null given\\.$#"
 			count: 1
 			path: src/Control/SortControl.php
 
@@ -816,11 +776,6 @@ parameters:
 			path: src/Filter/Parser.php
 
 		-
-			message: "#^Parameter \\#1 \\$column of method ipl\\\\Web\\\\Filter\\\\Parser\\:\\:createCondition\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Filter/Parser.php
-
-		-
 			message: "#^Parameter \\#1 \\$column of static method ipl\\\\Stdlib\\\\Filter\\:\\:equal\\(\\) expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Filter/Parser.php
@@ -884,11 +839,6 @@ parameters:
 			message: "#^Variable \\$chain might not be defined\\.$#"
 			count: 2
 			path: src/Filter/Parser.php
-
-		-
-			message: "#^Parameter \\#1 \\$string of function rawurlencode expects string, mixed given\\.$#"
-			count: 1
-			path: src/Filter/Renderer.php
 
 		-
 			message: "#^Binary operation \"\\.\" between 'desc_' and array\\|bool\\|string\\|null results in an error\\.$#"
@@ -1431,11 +1381,6 @@ parameters:
 			path: src/FormElement/TermInput.php
 
 		-
-			message: "#^Parameter \\#1 \\$array of function array_push expects array, mixed given\\.$#"
-			count: 1
-			path: src/FormElement/TermInput.php
-
-		-
 			message: "#^Parameter \\#1 \\$content of static method ipl\\\\Html\\\\Text\\:\\:create\\(\\) expects string, string\\|false given\\.$#"
 			count: 3
 			path: src/FormElement/TermInput.php
@@ -1452,7 +1397,7 @@ parameters:
 
 		-
 			message: "#^Parameter \\#1 \\$value of method ipl\\\\Web\\\\FormElement\\\\TermInput\\:\\:parseValue\\(\\) expects string, mixed given\\.$#"
-			count: 2
+			count: 1
 			path: src/FormElement/TermInput.php
 
 		-
@@ -1632,11 +1577,6 @@ parameters:
 
 		-
 			message: "#^Method ipl\\\\Web\\\\Widget\\\\Tabs\\:\\:enableDataExports\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Widget/Tabs.php
-
-		-
-			message: "#^Parameter \\#1 \\$content of static method ipl\\\\Html\\\\Text\\:\\:create\\(\\) expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Widget/Tabs.php
 
