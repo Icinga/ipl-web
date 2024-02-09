@@ -1,5 +1,6 @@
 includes:
-	- phpstan-baseline.neon
+    - phpstan-baseline-standard.neon
+    - phpstan-baseline-by-php-version.php
 
 parameters:
     level: max
@@ -14,6 +15,7 @@ parameters:
     scanDirectories:
         - /icingaweb2
         - /usr/share/icinga-php/vendor
+        - /usr/share/icinga-php/ipl
 
     ignoreErrors:
         -

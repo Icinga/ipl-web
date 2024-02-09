@@ -1,0 +1,41 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Parameter \\#2 \\$args of function vsprintf expects array\\<bool\\|float\\|int\\|string\\|null\\>, array\\<int, mixed\\> given\\.$#"
+			count: 1
+			path: src/Compat/CompatController.php
+
+		-
+			message: "#^Parameter \\#3 \\$length of function substr expects int, int\\<0, max\\>\\|false given\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Suggestions.php
+
+		-
+			message: "#^Parameter \\#1 \\$str of function rawurlencode expects string, mixed given\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Terms.php
+
+		-
+			message: "#^Parameter \\#1 \\$str of function strtolower expects string, mixed given\\.$#"
+			count: 1
+			path: src/Control/SortControl.php
+
+		-
+			message: "#^Parameter \\#2 \\$str of function explode expects string, int\\|string\\|null given\\.$#"
+			count: 1
+			path: src/Control/SortControl.php
+
+		-
+			message: "#^Parameter \\#1 \\$str of function rawurlencode expects string, mixed given\\.$#"
+			count: 1
+			path: src/Filter/Renderer.php
+
+		-
+			message: "#^Parameter \\#1 \\$stack of function array_push expects array, mixed given\\.$#"
+			count: 1
+			path: src/FormElement/TermInput.php
+
+		-
+			message: "#^Parameter \\#1 \\$content of static method ipl\\\\Html\\\\Text\\:\\:create\\(\\) expects string, string\\|false\\|null given\\.$#"
+			count: 1
+			path: src/Widget/Tabs.php

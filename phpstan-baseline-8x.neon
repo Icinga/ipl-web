@@ -1,0 +1,46 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Parameter \\#2 \\$values of function vsprintf expects array\\<bool\\|float\\|int\\|string\\|null\\>, array\\<int\\|string, mixed\\> given\\.$#"
+			count: 1
+			path: src/Compat/CompatController.php
+
+		-
+			message: "#^Parameter \\#3 \\$length of function substr expects int\\|null, int\\|false given\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Suggestions.php
+
+		-
+			message: "#^Parameter \\#1 \\$string of function rawurlencode expects string, mixed given\\.$#"
+			count: 1
+			path: src/Control/SearchBar/Terms.php
+
+		-
+			message: "#^Parameter \\#1 \\$string of function strtolower expects string, mixed given\\.$#"
+			count: 1
+			path: src/Control/SortControl.php
+
+		-
+			message: "#^Parameter \\#2 \\$string of function explode expects string, int\\|string\\|null given\\.$#"
+			count: 1
+			path: src/Control/SortControl.php
+
+		-
+			message: "#^Parameter \\#1 \\$column of method ipl\\\\Web\\\\Filter\\\\Parser\\:\\:createCondition\\(\\) expects string, string\\|false given\\.$#"
+			count: 1
+			path: src/Filter/Parser.php
+
+		-
+			message: "#^Parameter \\#1 \\$string of function rawurlencode expects string, mixed given\\.$#"
+			count: 1
+			path: src/Filter/Renderer.php
+
+		-
+			message: "#^Parameter \\#1 \\$array of function array_push expects array, mixed given\\.$#"
+			count: 1
+			path: src/FormElement/TermInput.php
+
+		-
+			message: "#^Parameter \\#1 \\$content of static method ipl\\\\Html\\\\Text\\:\\:create\\(\\) expects string, string\\|null given\\.$#"
+			count: 1
+			path: src/Widget/Tabs.php

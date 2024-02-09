@@ -34,6 +34,7 @@ jobs:
         run: |
           composer require -n --no-progress overtrue/phplint phpstan/phpstan
           sudo git clone --depth 1 https://github.com/Icinga/icingaweb2.git /icingaweb2
+          sudo git clone --depth 1 -b snapshot/nightly https://github.com/Icinga/icinga-php-library.git /usr/share/icinga-php/ipl
           sudo git clone --depth 1 -b snapshot/nightly https://github.com/Icinga/icinga-php-thirdparty.git /usr/share/icinga-php/vendor
 
       - name: PHP Lint
