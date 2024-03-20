@@ -15,6 +15,12 @@ abstract class BaseItemList extends BaseHtmlElement
 {
     use BaseFilter;
 
+    /** @var string Emitted while assembling the list after adding each list item */
+    public const ON_ITEM_ADD = 'item-added';
+
+    /** @var string Emitted while assembling the list before adding each list item */
+    public const BEFORE_ITEM_ADD = 'before-item-add';
+
     /** @var array<string, mixed> */
     protected $baseAttributes = [
         'class'                         => ['item-list', 'default-layout'],
@@ -62,7 +68,9 @@ abstract class BaseItemList extends BaseHtmlElement
         foreach ($this->data as $data) {
             /** @var BaseListItem|BaseTableRowItem $item */
             $item = new $itemClass($data, $this);
+            $this->emit(self::BEFORE_ITEM_ADD, [$item, $data]);
             $this->addHtml($item);
+            $this->emit(self::ON_ITEM_ADD, [$item, $data]);
         }
 
         if ($this->isEmpty()) {
