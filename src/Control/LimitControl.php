@@ -119,5 +119,11 @@ class LimitControl extends CompatForm
             'title'   => t('Change item count per page'),
             'value'   => $limit
         ]);
+
+        if ($this->url->hasParam(PaginationControl::DEFAULT_PAGE_PARAM)) {
+            $this->addElement('hidden', PaginationControl::DEFAULT_PAGE_PARAM, [
+                'value' => 1
+            ]);
+        }
     }
 }

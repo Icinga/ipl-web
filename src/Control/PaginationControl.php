@@ -17,6 +17,9 @@ use ipl\Web\Widget\Icon;
  */
 class PaginationControl extends BaseHtmlElement
 {
+    /** @var string Default page parameter */
+    public const DEFAULT_PAGE_PARAM = 'page';
+
     /** @var int Default maximum number of items which should be shown per page */
     protected $defaultPageSize;
 
