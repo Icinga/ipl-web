@@ -209,6 +209,34 @@
     outline-width: 3px;
     outline-offset: ~"calc(-@{labelPad} + 3px)";
   }
+
+  &.read-only {
+    [data-index] {
+      position: relative;
+
+      input {
+        padding-left: 1.5em;
+        text-align: center;
+        cursor: pointer;
+
+        &:disabled {
+          cursor: default;
+        }
+
+        + i {
+          position: absolute;
+          display: none;
+          top: .5em;
+          left: .5em;
+        }
+
+        &:not(:disabled):hover + i,
+        &:not(:disabled):focus + i {
+          display: revert;
+        }
+      }
+    }
+  }
 }
 
 .search-suggestions {

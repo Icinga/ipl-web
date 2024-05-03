@@ -99,7 +99,7 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
             const label = super.renderTerm(termData, termIndex);
 
             if (this.readOnly) {
-                label.firstChild.type = 'button';
+                label.firstChild.readOnly = true;
                 label.appendChild($.render('<i class="icon fa-trash fa"></i>'));
             }
 

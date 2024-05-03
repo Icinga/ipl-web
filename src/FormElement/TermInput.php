@@ -40,6 +40,9 @@ class TermInput extends FieldsetElement
     /** @var bool Whether term direction is vertical */
     protected $verticalTermDirection = false;
 
+    /** @var bool Whether registered terms are read-only */
+    protected $readOnly = false;
+
     /** @var array Changes to transmit to the client */
     protected $changes = [];
 
@@ -101,6 +104,30 @@ class TermInput extends FieldsetElement
     public function getTermDirection(): ?string
     {
         return $this->verticalTermDirection ? 'vertical' : null;
+    }
+
+    /**
+     * Set whether registered terms are read-only
+     *
+     * @param bool $state
+     *
+     * @return $this
+     */
+    public function setReadOnly(bool $state = true): self
+    {
+        $this->readOnly = $state;
+
+        return $this;
+    }
+
+    /**
+     * Get whether registered terms are read-only
+     *
+     * @return bool
+     */
+    public function getReadOnly(): bool
+    {
+        return $this->readOnly;
     }
 
     /**
@@ -415,6 +442,7 @@ class TermInput extends FieldsetElement
             'data-with-multi-completion' => true,
             'data-no-auto-submit-on-remove' => true,
             'data-term-direction' => $this->getTermDirection(),
+            'data-read-only-terms' => $this->getReadOnly(),
             'data-data-input' => '#' . $dataInputId,
             'data-term-input' => '#' . $termInputId,
             'data-term-container' => '#' . $termContainer->getAttribute('id')->getValue(),
@@ -436,7 +464,11 @@ class TermInput extends FieldsetElement
 
         $mainInput->prependWrapper((new HtmlElement(
             'div',
-            Attributes::create(['class' => ['term-input-area', $this->getTermDirection()]]),
+            Attributes::create(['class' => [
+                'term-input-area',
+                $this->getTermDirection(),
+                $this->getReadOnly() ? 'read-only' : null
+            ]]),
             $termContainer,
             new HtmlElement('label', null, $mainInput)
         )));
