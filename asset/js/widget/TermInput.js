@@ -7,11 +7,16 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
             super(input);
 
             this.separator = this.input.dataset.termSeparator || ' ';
+            this.readOnly = 'readOnlyTerms' in this.input.dataset;
             this.ignoreSpaceUntil = null;
         }
 
         bind() {
             super.bind();
+
+            if (this.readOnly) {
+                $(this.termContainer).on('click', '[data-index] > input', this.onTermClick, this);
+            }
 
             // TODO: Compatibility only. Remove as soon as possible once Web 2.12 (?) is out.
             //       Or upon any other update which lets Web trigger a real submit upon auto submit.
@@ -90,9 +95,26 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
             super.complete(input, data);
         }
 
+        renderTerm(termData, termIndex) {
+            const label = super.renderTerm(termData, termIndex);
+
+            if (this.readOnly) {
+                label.firstChild.type = 'button';
+                label.appendChild($.render('<i class="icon fa-trash fa"></i>'));
+            }
+
+            return label;
+        }
+
         /**
          * Event listeners
          */
+
+        onTermClick(event) {
+            let termIndex = Number(event.target.parentNode.dataset.index);
+            this.removeTerm(event.target.parentNode);
+            this.moveFocusForward(termIndex - 1);
+        }
 
         onSubmit(event) {
             super.onSubmit(event);
