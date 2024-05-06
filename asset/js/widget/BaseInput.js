@@ -310,7 +310,8 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
         }
 
         insertRenderedTerm(label) {
-            let next = this.termContainer.querySelector(`[data-index="${ label.dataset.index + 1 }"]`);
+            const termIndex = Number(label.dataset.index);
+            const next = this.termContainer.querySelector(`[data-index="${ termIndex + 1 }"]`);
             this.termContainer.insertBefore(label, next);
             return label;
         }
