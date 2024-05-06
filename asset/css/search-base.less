@@ -40,6 +40,22 @@
     color: var(--search-term-selected-color, @search-term-selected-color);
     font-style: italic;
   }
+
+  [data-drag-initiator] {
+    cursor: grab;
+  }
+
+  .sortable-drag > label {
+    border: 1px dashed var(--search-term-drag-border-color, @search-term-drag-border-color);
+  }
+
+  .sortable-ghost {
+    opacity: .5;
+  }
+}
+
+fieldset:disabled .term-input-area [data-drag-initiator] {
+  cursor: not-allowed;
 }
 
 .invalid-reason {
@@ -198,24 +214,53 @@
   display: flex;
   flex-direction: column-reverse;
 
+  @itemGap: 1px;
+
   > .terms {
-    @gap: 1px;
+    margin-top: @itemGap;
+
+    input {
+      text-overflow: ellipsis;
+    }
+  }
+
+  > div.terms {
     @termsPerRow: 2;
 
     display: flex;
     flex-wrap: wrap;
-    gap: @gap;
-    margin-top: @gap;
+    gap: @itemGap;
 
     label {
       @termWidth: 100%/@termsPerRow;
-      @totalGapWidthPerRow: (@termsPerRow - 1) * @gap;
+      @totalGapWidthPerRow: (@termsPerRow - 1) * @itemGap;
 
       min-width: ~"calc(@{termWidth} - (@{totalGapWidthPerRow} / @{termsPerRow}))";
       flex: 1 1 auto;
+    }
+  }
 
-      input {
-        text-overflow: ellipsis;
+  > ol.terms {
+    padding: 0;
+    margin-bottom: 0;
+    list-style-type: none;
+
+    li:not(:first-child) {
+      margin-top: @itemGap;
+    }
+
+    li {
+      display: flex;
+      align-items: center;
+      gap: .25em;
+
+      > label {
+        flex: 1 1 auto;
+      }
+
+      > [data-drag-initiator]::before {
+        font-size: 1.75em;
+        margin: 0;
       }
     }
   }

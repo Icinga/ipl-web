@@ -25,6 +25,10 @@ class TermContainer extends BaseHtmlElement
     public function __construct(TermInput $input)
     {
         $this->input = $input;
+
+        if ($input->getOrdered()) {
+            $this->tag = 'ol';
+        }
     }
 
     protected function assemble()
@@ -58,7 +62,16 @@ class TermContainer extends BaseHtmlElement
                 );
             }
 
-            $this->addHtml($label);
+            if ($this->tag === 'ol') {
+                $this->addHtml(new HtmlElement(
+                    'li',
+                    null,
+                    $label,
+                    new Icon('bars', ['data-drag-initiator' => true])
+                ));
+            } else {
+                $this->addHtml($label);
+            }
         }
     }
 }

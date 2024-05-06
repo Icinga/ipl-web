@@ -40,6 +40,9 @@ class TermInput extends FieldsetElement
     /** @var bool Whether term direction is vertical */
     protected $verticalTermDirection = false;
 
+    /** @var bool Whether term order is significant */
+    protected $ordered = false;
+
     /** @var bool Whether registered terms are read-only */
     protected $readOnly = false;
 
@@ -103,7 +106,31 @@ class TermInput extends FieldsetElement
      */
     public function getTermDirection(): ?string
     {
-        return $this->verticalTermDirection ? 'vertical' : null;
+        return $this->verticalTermDirection || $this->ordered ? 'vertical' : null;
+    }
+
+    /**
+     * Set whether term order is significant
+     *
+     * @param bool $state
+     *
+     * @return $this
+     */
+    public function setOrdered(bool $state = true): self
+    {
+        $this->ordered = $state;
+
+        return $this;
+    }
+
+    /**
+     * Get whether term order is significant
+     *
+     * @return bool
+     */
+    public function getOrdered(): bool
+    {
+        return $this->ordered;
     }
 
     /**
@@ -442,6 +469,7 @@ class TermInput extends FieldsetElement
             'data-with-multi-completion' => true,
             'data-no-auto-submit-on-remove' => true,
             'data-term-direction' => $this->getTermDirection(),
+            'data-maintain-term-order' => $this->getOrdered() && ! $this->getAttribute('disabled')->getValue(),
             'data-read-only-terms' => $this->getReadOnly(),
             'data-data-input' => '#' . $dataInputId,
             'data-term-input' => '#' . $termInputId,
