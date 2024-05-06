@@ -465,10 +465,10 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
             // Cut the term's data
             let [termData] = this.usedTerms.splice(termIndex, 1);
 
-            // Avoid saving the term, it's removed after all
-            label.firstChild.skipSaveOnBlur = true;
-
             if (updateDOM) {
+                // Avoid saving the term, it's removed after all
+                label.firstChild.skipSaveOnBlur = true;
+
                 // Remove it from the DOM
                 this.removeRenderedTerm(label);
             }
