@@ -52,7 +52,10 @@ class TermContainer extends BaseHtmlElement
                 )
             );
             if ($this->input->getReadOnly()) {
-                $label->addHtml(new Icon('trash'));
+                $label->addHtml(
+                    new Icon('trash'),
+                    new HtmlElement('span', Attributes::create(['class' => 'invalid-reason']))
+                );
             }
 
             $this->addHtml($label);

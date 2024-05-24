@@ -32,6 +32,21 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
             this.ignoreSpaceUntil = null;
         }
 
+        registerTerm(termData, termIndex = null) {
+            termIndex = super.registerTerm(termData, termIndex);
+
+            if (this.readOnly) {
+                const label = this.termContainer.querySelector(`[data-index="${ termIndex }"]`);
+                if (label) {
+                    // The label only exists in DOM at this time if it was transmitted
+                    // by the server. So it's safe to assume that it needs validation
+                    this.validate(label.firstChild);
+                }
+            }
+
+            return termIndex;
+        }
+
         readPartialTerm(input) {
             let value = super.readPartialTerm(input);
             if (value && this.ignoreSpaceUntil && value[0] === this.ignoreSpaceUntil) {
@@ -75,6 +90,33 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
             return super.hasSyntaxError(input);
         }
 
+        checkValidity(input) {
+            if (! this.readOnly) {
+                return super.checkValidity(input);
+            }
+
+            // Readonly terms don't participate in constraint validation, so we have to do it ourselves
+            return ! (input.pattern && ! input.value.match(input.pattern));
+        }
+
+        reportValidity(element) {
+            if (! this.readOnly) {
+                return super.reportValidity(element);
+            }
+
+            // Once invalid, it stays invalid since it's readonly
+            element.classList.add('invalid');
+            if (element.dataset.invalidMsg) {
+                const reason = element.parentNode.querySelector(':scope > .invalid-reason');
+                if (! reason.matches('.visible')) {
+                    element.title = element.dataset.invalidMsg;
+                    reason.textContent = element.dataset.invalidMsg;
+                    reason.classList.add('visible');
+                    setTimeout(() => reason.classList.remove('visible'), 5000);
+                }
+            }
+        }
+
         termsToQueryString(terms) {
             let quoted = [];
             for (const termData of terms) {
@@ -101,6 +143,7 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
             if (this.readOnly) {
                 label.firstChild.readOnly = true;
                 label.appendChild($.render('<i class="icon fa-trash fa"></i>'));
+                label.appendChild($.render('<span class="invalid-reason"></span>'));
             }
 
             return label;

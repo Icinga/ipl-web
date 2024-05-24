@@ -25,7 +25,8 @@
 
 .search-bar,
 .term-input-area {
-  [data-index] input:invalid {
+  [data-index] input:invalid,
+  [data-index] input.invalid {
     background-color: var(--search-term-invalid-bg, @search-term-invalid-bg);
     color: var(--search-term-invalid-color, @search-term-invalid-color);
   }
@@ -38,6 +39,23 @@
     background-color: var(--search-term-selected-bg, @search-term-selected-bg);
     color: var(--search-term-selected-color, @search-term-selected-color);
     font-style: italic;
+  }
+}
+
+.invalid-reason {
+  padding: .25em;
+  .rounded-corners(.25em);
+  border: 1px solid black;
+  font-weight: bold;
+  background: var(--search-term-invalid-reason-bg, @search-term-invalid-reason-bg);
+
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 2s, visibility 2s;
+  &.visible {
+    opacity: 1;
+    visibility: visible;
+    transition: none;
   }
 }
 
@@ -234,6 +252,13 @@
         &:not(:disabled):focus + i {
           display: revert;
         }
+      }
+
+      .invalid-reason {
+        position: absolute;
+        z-index: 1;
+        top: 85%;
+        left: .5em;
       }
     }
   }
