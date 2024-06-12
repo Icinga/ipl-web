@@ -7,11 +7,16 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
             super(input);
 
             this.separator = this.input.dataset.termSeparator || ' ';
+            this.readOnly = 'readOnlyTerms' in this.input.dataset;
             this.ignoreSpaceUntil = null;
         }
 
         bind() {
             super.bind();
+
+            if (this.readOnly) {
+                $(this.termContainer).on('click', '[data-index] > input', this.onTermClick, this);
+            }
 
             // TODO: Compatibility only. Remove as soon as possible once Web 2.12 (?) is out.
             //       Or upon any other update which lets Web trigger a real submit upon auto submit.
@@ -25,6 +30,21 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
             super.reset();
 
             this.ignoreSpaceUntil = null;
+        }
+
+        registerTerm(termData, termIndex = null) {
+            termIndex = super.registerTerm(termData, termIndex);
+
+            if (this.readOnly) {
+                const label = this.termContainer.querySelector(`[data-index="${ termIndex }"]`);
+                if (label) {
+                    // The label only exists in DOM at this time if it was transmitted
+                    // by the server. So it's safe to assume that it needs validation
+                    this.validate(label.firstChild);
+                }
+            }
+
+            return termIndex;
         }
 
         readPartialTerm(input) {
@@ -70,6 +90,33 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
             return super.hasSyntaxError(input);
         }
 
+        checkValidity(input) {
+            if (! this.readOnly) {
+                return super.checkValidity(input);
+            }
+
+            // Readonly terms don't participate in constraint validation, so we have to do it ourselves
+            return ! (input.pattern && ! input.value.match(input.pattern));
+        }
+
+        reportValidity(element) {
+            if (! this.readOnly) {
+                return super.reportValidity(element);
+            }
+
+            // Once invalid, it stays invalid since it's readonly
+            element.classList.add('invalid');
+            if (element.dataset.invalidMsg) {
+                const reason = element.parentNode.querySelector(':scope > .invalid-reason');
+                if (! reason.matches('.visible')) {
+                    element.title = element.dataset.invalidMsg;
+                    reason.textContent = element.dataset.invalidMsg;
+                    reason.classList.add('visible');
+                    setTimeout(() => reason.classList.remove('visible'), 5000);
+                }
+            }
+        }
+
         termsToQueryString(terms) {
             let quoted = [];
             for (const termData of terms) {
@@ -90,9 +137,27 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
             super.complete(input, data);
         }
 
+        renderTerm(termData, termIndex) {
+            const label = super.renderTerm(termData, termIndex);
+
+            if (this.readOnly) {
+                label.firstChild.readOnly = true;
+                label.appendChild($.render('<i class="icon fa-trash fa"></i>'));
+                label.appendChild($.render('<span class="invalid-reason"></span>'));
+            }
+
+            return label;
+        }
+
         /**
          * Event listeners
          */
+
+        onTermClick(event) {
+            let termIndex = Number(event.target.parentNode.dataset.index);
+            this.removeTerm(event.target.parentNode);
+            this.moveFocusForward(termIndex - 1);
+        }
 
         onSubmit(event) {
             super.onSubmit(event);
