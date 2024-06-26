@@ -1,20 +1,8 @@
-;(function (Icinga) {
+define(["../notjQuery"], function (notjQuery) {
 
     "use strict";
-
-    try {
-        var notjQuery = require('icinga/icinga-php-library/notjQuery');
-    } catch (e) {
-        console.warn('Unable to provide input enrichments. Libraries not available:', e);
-        return;
-    }
-
-    Icinga.Behaviors = Icinga.Behaviors || {};
-
-    class ActionList extends Icinga.EventListener {
-        constructor(icinga) {
-            super(icinga);
-
+    class ActionList {
+        constructor() {
             this.on('click', '.action-list [data-action-item]:not(.page-separator), .action-list [data-action-item] a[href]', this.onClick, this);
             this.on('close-column', '#main > #col2', this.onColumnClose, this);
             this.on('column-moved', this.onColumnMoved, this);
@@ -821,6 +809,5 @@
         }
     }
 
-    Icinga.Behaviors.ActionList = ActionList;
-
-}(Icinga));
+    return ActionList;
+});
