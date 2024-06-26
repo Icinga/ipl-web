@@ -2,21 +2,41 @@ define(["../notjQuery"], function (notjQuery) {
 
     "use strict";
     class ActionList {
-        constructor() {
-            this.on('click', '.action-list [data-action-item]:not(.page-separator), .action-list [data-action-item] a[href]', this.onClick, this);
-            this.on('close-column', '#main > #col2', this.onColumnClose, this);
-            this.on('column-moved', this.onColumnMoved, this);
-
-            this.on('rendered', '#main .container', this.onRendered, this);
-            this.on('keydown', '#body', this.onKeyDown, this);
-
-            this.on('click', '.load-more[data-no-icinga-ajax] a', this.onLoadMoreClick, this);
-            this.on('keypress', '.load-more[data-no-icinga-ajax] a', this.onKeyPress, this);
+        constructor(list) {
+            this.list = list;
 
             this.lastActivatedItemUrl = null;
             this.lastTimeoutId = null;
             this.isProcessingLoadMore = false;
             this.activeRequests = {};
+        }
+
+        bind() {
+            notjQuery(this.list).on('click', '.action-list [data-action-item]:not(.page-separator), .action-list [data-action-item] a[href]', this.onClick, this);
+            /*this.on('close-column', '#main > #col2', this.onColumnClose, this);
+            this.on('column-moved', this.onColumnMoved, this);*/
+
+            notjQuery(this.list).on('rendered', this.onRendered, this);
+           /* this.on('keydown', '#body', this.onKeyDown, this);
+
+            this.on('click', '.load-more[data-no-icinga-ajax] a', this.onLoadMoreClick, this);
+            this.on('keypress', '.load-more[data-no-icinga-ajax] a', this.onKeyPress, this);*/
+
+           // this.onRendered(this.list);
+        }
+
+        refresh(list) {
+            if (list === this.list) {
+                // If the DOM node is still the same, nothing has changed
+                return;
+            }
+
+            this.list = list;
+            this.bind();
+        }
+
+        destroy() {
+            this.list = null;
         }
 
         /**
@@ -54,7 +74,7 @@ define(["../notjQuery"], function (notjQuery) {
         }
 
         onClick(event) {
-            let _this = event.data.self;
+            let _this = this;//event.data.self;
             let target = event.currentTarget;
 
             if (target.matches('a') && (! target.matches('.subject') || event.ctrlKey || event.metaKey)) {
@@ -66,7 +86,7 @@ define(["../notjQuery"], function (notjQuery) {
             event.stopPropagation();
 
             let item = target.closest('[data-action-item]');
-            let list = target.closest('.action-list');
+            let list = _this.list;//target.closest('.action-list');
             let activeItems = _this.getActiveItems(list);
             let toActiveItems = [],
                 toDeactivateItems = [];
@@ -111,6 +131,7 @@ define(["../notjQuery"], function (notjQuery) {
                 && toActiveItems.length === 0
                 && _this.icinga.loader.getLinkTargetFor($(target)).attr('id') === 'col2'
             ) {
+                //add event 'deselect-all'
                 _this.icinga.ui.layout1col();
                 _this.icinga.history.pushCurrentState();
                 _this.enableAutoRefresh('col1');
@@ -704,6 +725,7 @@ define(["../notjQuery"], function (notjQuery) {
         }
 
         onRendered(event, isAutoRefresh) {
+            console.log('onRendered');
             let _this = event.data.self;
             let container = event.target;
             let isTopLevelContainer = container.matches('#main > :scope');
