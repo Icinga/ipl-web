@@ -15,7 +15,7 @@ define(["../notjQuery"], function (notjQuery) {
         }
 
         bind() {
-            notjQuery(this.list).on('click', `${this.listIdentifier} ${this.listItemIdentifier}:not(.page-separator), ${this.listIdentifier} ${this.listItemIdentifier} a[href]`, this.onClick, this);
+            notjQuery(this.list).on('click', `${this.listIdentifier} ${this.listItemIdentifier}, ${this.listIdentifier} ${this.listItemIdentifier} a[href]`, this.onClick, this);
             /*this.on('close-column', '#main > #col2', this.onColumnClose, this);
             this.on('column-moved', this.onColumnMoved, this);*/
 
