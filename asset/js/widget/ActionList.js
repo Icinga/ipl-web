@@ -62,14 +62,12 @@ define(["../notjQuery"], function (notjQuery) {
         }
 
         /**
-         * Suspend auto refresh for the given item's container
-         *
-         * @param {Element} item
+         * Suspend auto refresh for the list's container
          *
          * @return {string} The container's id
          */
-        suspendAutoRefresh(item) {
-            const container = item.closest('.container');
+        suspendAutoRefresh() {
+            const container = this.list.closest('.container');
             container.dataset.suspendAutorefresh = '';
 
             return container.id;
@@ -85,7 +83,6 @@ define(["../notjQuery"], function (notjQuery) {
         }
 
         onClick(event) {
-            let _this = this;//event.data.self;
             let target = event.currentTarget;
 
             if (target.matches('a') && (! target.matches('.subject') || event.ctrlKey || event.metaKey)) {
@@ -97,12 +94,11 @@ define(["../notjQuery"], function (notjQuery) {
             event.stopPropagation();
 
             let item = target.closest(LIST_ITEM_IDENTIFIER);
-            let list = _this.list;//target.closest('.action-list');
-            let activeItems = _this.getActiveItems(list);
+            let activeItems = this.getActiveItems();
             let toActiveItems = [],
                 toDeactivateItems = [];
 
-            const isBeingMultiSelected = list.matches('[data-icinga-multiselect-url]')
+            const isBeingMultiSelected = this.list.matches('[data-icinga-multiselect-url]')
                 && (event.ctrlKey || event.metaKey || event.shiftKey);
 
             if (isBeingMultiSelected) {
@@ -115,7 +111,7 @@ define(["../notjQuery"], function (notjQuery) {
                 } else {
                     document.getSelection().removeAllRanges();
 
-                    let allItems = _this.getAllItems(list);
+                    let allItems = this.getAllItems();
 
                     let startIndex = allItems.indexOf(item);
                     if(startIndex < 0) {
@@ -141,18 +137,18 @@ define(["../notjQuery"], function (notjQuery) {
             if (activeItems.length === 1
                 && toActiveItems.length === 0
             ) {
-                notjQuery(list).trigger('all-deselected', {target: target, actionList: _this});
+                notjQuery(this.list).trigger('all-deselected', {target: target, actionList: this});
 
-                _this.clearSelection(toDeactivateItems);
-                _this.addSelectionCountToFooter(list);
+                this.clearSelection(toDeactivateItems);
+                this.addSelectionCountToFooter();
                 return;
             }
 
-            let dashboard = list.closest('.dashboard');
+            let dashboard = this.list.closest('.dashboard');
             if (dashboard) {
-                dashboard.querySelectorAll('.action-list').forEach(otherList => {
-                    if (otherList !== list) {
-                        toDeactivateItems.push(..._this.getAllItems(otherList));
+                dashboard.querySelectorAll(LIST_IDENTIFIER).forEach(otherList => {
+                    if (otherList !== this.list) {
+                        toDeactivateItems.push(...this.getAllItems(otherList));
                     }
                 })
             }
@@ -166,29 +162,28 @@ define(["../notjQuery"], function (notjQuery) {
                     : activeItems[activeItems.length - 1].dataset.icingaDetailFilter;
             }
 
-            _this.clearSelection(toDeactivateItems);
-            _this.setActive(toActiveItems);
+            this.clearSelection(toDeactivateItems);
+            this.setActive(toActiveItems);
 
             if (! dashboard) {
-                _this.addSelectionCountToFooter(list);
+                this.addSelectionCountToFooter();
             }
 
-            _this.setLastActivatedItemUrl(lastActivatedUrl);
-            _this.loadDetailUrl(list, target.matches('a') ? target.getAttribute('href') : null);
+            this.setLastActivatedItemUrl(lastActivatedUrl);
+            this.loadDetailUrl(target.matches('a') ? target.getAttribute('href') : null);
         }
 
         /**
          * Add the selection count to footer if list allow multi selection
          *
-         * @param list
          */
-        addSelectionCountToFooter(list) {
-            if (! list.matches('[data-icinga-multiselect-url]')) {
+        addSelectionCountToFooter() {
+            if (! this.list.matches('[data-icinga-multiselect-url]')) {
                 return;
             }
 
-            let activeItemCount = this.getActiveItems(list).length;
-            let footer = list.closest('.container').querySelector('.footer');
+            let activeItemCount = this.getActiveItems().length;
+            let footer = this.list.closest('.container').querySelector('.footer');
 
             // For items that do not have a bottom status bar like Downtimes, Comments...
             if (footer === null) {
@@ -198,7 +193,7 @@ define(["../notjQuery"], function (notjQuery) {
                         '</div>'
                 )
 
-                list.closest('.container').appendChild(footer);
+                this.list.closest('.container').appendChild(footer);
             }
 
             let selectionCount = footer.querySelector('.selection-count');
@@ -212,8 +207,8 @@ define(["../notjQuery"], function (notjQuery) {
 
             let selectedItems = selectionCount.querySelector('.selected-items');
             selectedItems.innerText = activeItemCount
-                ? list.dataset.icingaMultiselectCountLabel.replace('%d', activeItemCount)
-                : list.dataset.icingaMultiselectHintLabel;
+                ? this.list.dataset.icingaMultiselectCountLabel.replace('%d', activeItemCount)
+                : this.list.dataset.icingaMultiselectHintLabel;
 
             if (activeItemCount === 0) {
                 selectedItems.classList.add('hint');
@@ -223,7 +218,7 @@ define(["../notjQuery"], function (notjQuery) {
         }
 
         /**
-         * Key navigation for .action-list
+         * Key navigation
          *
          * - `Shift + ArrowUp|ArrowDown` = Multiselect
          * - `ArrowUp|ArrowDown` = Select next/previous
@@ -232,7 +227,6 @@ define(["../notjQuery"], function (notjQuery) {
          * @param event
          */
         onKeyDown(event) {
-            let _this = this;//event.data.self;
             let list = null;
             let pressedArrowDownKey = event.key === 'ArrowDown';
             let pressedArrowUpKey = event.key === 'ArrowUp';
@@ -273,33 +267,33 @@ define(["../notjQuery"], function (notjQuery) {
                 }
 
                 event.preventDefault();
-                _this.selectAll(list);
+                this.selectAll();
                 return;
             }
 
             event.preventDefault();
 
-            let allItems = _this.getAllItems(list);
+            let allItems = this.getAllItems();
             let firstListItem = allItems[0];
             let lastListItem = allItems[allItems.length -1];
-            let activeItems = _this.getActiveItems(list);
+            let activeItems = this.getActiveItems();
             let markAsLastActive = null; // initialized only if it is different from toActiveItem
             let toActiveItem = null;
             let wasAllSelected = activeItems.length === allItems.length;
             let lastActivatedItem = list.querySelector(
-                `[data-icinga-detail-filter="${ _this.lastActivatedItemUrl }"]`
+                `[data-icinga-detail-filter="${ this.lastActivatedItemUrl }"]`
             );
 
             if (! lastActivatedItem && activeItems.length) {
                 lastActivatedItem = activeItems[activeItems.length - 1];
             }
 
-            let directionalNextItem = _this.getDirectionalNext(lastActivatedItem, event.key);
+            let directionalNextItem = this.getDirectionalNext(lastActivatedItem, event.key);
 
             if (activeItems.length === 0) {
                 toActiveItem = pressedArrowDownKey ? firstListItem : lastListItem;
                 // reset all on manual page refresh
-                _this.clearSelection(activeItems);
+                this.clearSelection(activeItems);
             } else if (isMultiSelectableList && event.shiftKey) {
                 if (activeItems.length === 1) {
                     toActiveItem = directionalNextItem;
@@ -315,20 +309,20 @@ define(["../notjQuery"], function (notjQuery) {
 
                 } else if (directionalNextItem && directionalNextItem.classList.contains('active')) {
                     // deactivate last activated by down to up select
-                    _this.clearSelection([lastActivatedItem]);
+                    this.clearSelection([lastActivatedItem]);
                     if (wasAllSelected) {
-                        _this.scrollItemIntoView(lastActivatedItem, event.key);
+                        this.scrollItemIntoView(lastActivatedItem, event.key);
                     }
 
                     toActiveItem = directionalNextItem;
                 } else {
-                    [toActiveItem, markAsLastActive] = _this.findToActiveItem(lastActivatedItem, event.key);
+                    [toActiveItem, markAsLastActive] = this.findToActiveItem(lastActivatedItem, event.key);
                 }
             } else {
                 toActiveItem = directionalNextItem;
 
                 if (toActiveItem) {
-                    _this.clearSelection(activeItems);
+                    this.clearSelection(activeItems);
                 }
             }
 
@@ -336,13 +330,13 @@ define(["../notjQuery"], function (notjQuery) {
                 return;
             }
 
-            _this.setActive(toActiveItem);
-            _this.setLastActivatedItemUrl(
+            this.setActive(toActiveItem);
+            this.setLastActivatedItemUrl(
                 markAsLastActive ? markAsLastActive.dataset.icingaDetailFilter : toActiveItem.dataset.icingaDetailFilter
             );
-            _this.scrollItemIntoView(toActiveItem, event.key);
-            _this.addSelectionCountToFooter(list);
-            _this.loadDetailUrl(list);
+            this.scrollItemIntoView(toActiveItem, event.key);
+            this.addSelectionCountToFooter();
+            this.loadDetailUrl();
         }
 
         /**
@@ -380,15 +374,10 @@ define(["../notjQuery"], function (notjQuery) {
             let toActiveItem;
             let markAsLastActive;
 
-            toActiveItem = this.getDirectionalNext(lastActivatedItem, eventKey);
-
-            while (toActiveItem) {
-                if (! toActiveItem.classList.contains('active')) {
-                    break;
-                }
-
-                toActiveItem = this.getDirectionalNext(toActiveItem, eventKey);
-            }
+            do {
+                toActiveItem = this.getDirectionalNext(lastActivatedItem, eventKey);
+                lastActivatedItem = toActiveItem;
+            } while (toActiveItem && toActiveItem.classList.contains('active'))
 
             markAsLastActive = toActiveItem;
             // if the next/previous sibling element is already active,
@@ -406,16 +395,14 @@ define(["../notjQuery"], function (notjQuery) {
 
         /**
          * Select All list items
-         *
-         * @param list The action list
          */
-        selectAll(list) {
-            let allItems = this.getAllItems(list);
-            let activeItems = this.getActiveItems(list);
+        selectAll() {
+            let allItems = this.getAllItems();
+            let activeItems = this.getActiveItems();
             this.setActive(allItems.filter(item => ! activeItems.includes(item)));
             this.setLastActivatedItemUrl(allItems[allItems.length -1].dataset.icingaDetailFilter);
-            this.addSelectionCountToFooter(list);
-            this.loadDetailUrl(list);
+            this.addSelectionCountToFooter();
+            this.loadDetailUrl();
         }
 
         /**
@@ -454,12 +441,11 @@ define(["../notjQuery"], function (notjQuery) {
         /**
          * Load the detail url with selected items
          *
-         * @param list The action list
          * @param anchorUrl If any anchor is clicked (e.g. host in service list)
          */
-        loadDetailUrl(list, anchorUrl = null) {
+        loadDetailUrl(anchorUrl = null) {
             let url = anchorUrl;
-            let activeItems = this.getActiveItems(list);
+            let activeItems = this.getActiveItems();
 
             if (url === null) {
                 if (activeItems.length > 1) {
@@ -474,7 +460,7 @@ define(["../notjQuery"], function (notjQuery) {
                 return;
             }
 
-            const suspendedContainer = this.suspendAutoRefresh(list);
+            const suspendedContainer = this.suspendAutoRefresh();
 
             clearTimeout(this.lastTimeoutId);
             this.lastTimeoutId = setTimeout(() => {
@@ -512,38 +498,36 @@ define(["../notjQuery"], function (notjQuery) {
         }
 
         /**
-         * Get the active items from given list
-         *
-         * @param list The action list
+         * Get the active items
          *
          * @return array
          */
-        getActiveItems(list)
+        getActiveItems()
         {
             let items;
-            if (list.tagName.toLowerCase() === 'table') {
-                items = list.querySelectorAll(`:scope > tbody > ${LIST_ITEM_IDENTIFIER}.active`);
+
+            if (this.list.tagName.toLowerCase() === 'table') {
+                items = this.list.querySelectorAll(`:scope > tbody > ${LIST_ITEM_IDENTIFIER}.active`);
             } else {
-                items = list.querySelectorAll(`:scope > ${LIST_ITEM_IDENTIFIER}.active`);
+                items = this.list.querySelectorAll(`:scope > ${LIST_ITEM_IDENTIFIER}.active`);
             }
 
             return Array.from(items);
         }
 
         /**
-         * Get all available items from given list
-         *
-         * @param list The action list
+         * Get all available items
          *
          * @return array
          */
-        getAllItems(list)
+        getAllItems()
         {
             let items;
-            if (list.tagName.toLowerCase() === 'table') {
-                items = list.querySelectorAll(`:scope > tbody > ${LIST_ITEM_IDENTIFIER}`);
+
+            if (this.list.tagName.toLowerCase() === 'table') {
+                items = this.list.querySelectorAll(`:scope > tbody > ${LIST_ITEM_IDENTIFIER}`);
             } else {
-                items = list.querySelectorAll(`:scope > ${LIST_ITEM_IDENTIFIER}`);
+                items = this.list.querySelectorAll(`:scope > ${LIST_ITEM_IDENTIFIER}`);
             }
 
             return Array.from(items);
@@ -613,7 +597,7 @@ define(["../notjQuery"], function (notjQuery) {
             let _this = event.data.self;
 
             if (event.target.id === 'col2' && sourceId === 'col1') { // only for browser-back (col1 shifted to col2)
-                _this.clearSelection(event.target.querySelectorAll('.action-list .active'));
+                _this.clearSelection(event.target.querySelectorAll(`${LIST_IDENTIFIER} .active`));
             } else if (event.target.id === 'col1' && sourceId === 'col2') {
                 for (const requestNo of Object.keys(_this.activeRequests)) {
                     if (_this.activeRequests[requestNo] === sourceId) {
@@ -677,7 +661,7 @@ define(["../notjQuery"], function (notjQuery) {
             if (isTopLevelContainer) {
                 let footerList = list ?? container.querySelector(LIST_IDENTIFIER);
                 if (footerList) {
-                    _this.addSelectionCountToFooter(footerList);
+                    _this.addSelectionCountToFooter();
                 }
             }
         }
