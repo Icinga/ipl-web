@@ -9,15 +9,19 @@ define(["../notjQuery"], function (notjQuery) {
             this.lastTimeoutId = null;
             this.isProcessingLoadMore = false;
             this.activeRequests = {};
+
+            this.listIdentifier = '[data-interactable-action-list]';
+            this.listItemIdentifier = '[data-action-item]';
         }
 
         bind() {
-            notjQuery(this.list).on('click', '.action-list [data-action-item]:not(.page-separator), .action-list [data-action-item] a[href]', this.onClick, this);
+            notjQuery(this.list).on('click', `${this.listIdentifier} ${this.listItemIdentifier}:not(.page-separator), ${this.listIdentifier} ${this.listItemIdentifier} a[href]`, this.onClick, this);
             /*this.on('close-column', '#main > #col2', this.onColumnClose, this);
             this.on('column-moved', this.onColumnMoved, this);*/
 
-            notjQuery(this.list).on('rendered', this.onRendered, this);
-           /* this.on('keydown', '#body', this.onKeyDown, this);
+            notjQuery(document).on('keydown','body', this.onKeyDown, this);
+            /*notjQuery(this.list).on('rendered', this.onRendered, this);
+
 
             this.on('click', '.load-more[data-no-icinga-ajax] a', this.onLoadMoreClick, this);
             this.on('keypress', '.load-more[data-no-icinga-ajax] a', this.onKeyPress, this);*/
@@ -85,7 +89,7 @@ define(["../notjQuery"], function (notjQuery) {
             event.stopImmediatePropagation();
             event.stopPropagation();
 
-            let item = target.closest('[data-action-item]');
+            let item = target.closest(this.listItemIdentifier);
             let list = _this.list;//target.closest('.action-list');
             let activeItems = _this.getActiveItems(list);
             let toActiveItems = [],
@@ -129,12 +133,11 @@ define(["../notjQuery"], function (notjQuery) {
 
             if (activeItems.length === 1
                 && toActiveItems.length === 0
-                && _this.icinga.loader.getLinkTargetFor($(target)).attr('id') === 'col2'
             ) {
-                //add event 'deselect-all'
-                _this.icinga.ui.layout1col();
-                _this.icinga.history.pushCurrentState();
-                _this.enableAutoRefresh('col1');
+                notjQuery(list).trigger('all-deselected', {target: target, actionList: _this});
+
+                _this.clearSelection(toDeactivateItems);
+                _this.addSelectionCountToFooter(list);
                 return;
             }
 
@@ -222,7 +225,7 @@ define(["../notjQuery"], function (notjQuery) {
          * @param event
          */
         onKeyDown(event) {
-            let _this = event.data.self;
+            let _this = this;//event.data.self;
             let list = null;
             let pressedArrowDownKey = event.key === 'ArrowDown';
             let pressedArrowUpKey = event.key === 'ArrowUp';
@@ -237,22 +240,22 @@ define(["../notjQuery"], function (notjQuery) {
             }
 
             if (focusedElement && (
-                focusedElement.matches('#main > :scope')
-                || focusedElement.matches('#body'))
+                focusedElement.matches('#main > :scope') // add #main as data-attr via php
+                || focusedElement.matches('body'))
             ) {
-                let activeItem = document.querySelector(
-                    '#main > .container > .content > .action-list [data-action-item].active'
+                let activeItem = this.list.querySelector(
+                    `:scope > ${this.listItemIdentifier}.active`
                 );
                 if (activeItem) {
-                    list = activeItem.closest('.action-list');
+                    list = this.list;
                 } else {
-                    list = focusedElement.querySelector('#main > .container > .content > .action-list');
+                    list = focusedElement.querySelector(this.listIdentifier);
                 }
             } else if (focusedElement) {
-                list = focusedElement.closest('.content > .action-list');
+                list = focusedElement.closest(this.listIdentifier);
             }
 
-            if (! list) {
+            if (list !== this.list) {
                 return;
             }
 
@@ -478,19 +481,20 @@ define(["../notjQuery"], function (notjQuery) {
                 this.activeRequests[requestNo] = suspendedContainer;
                 this.lastTimeoutId = null;
 
-                let req = this.icinga.loader.loadUrl(
-                    url,
-                    this.icinga.loader.getLinkTargetFor($(activeItems[0]))
+                notjQuery(this.list).trigger(
+                    'load-selection',
+                    {url: url, getTargetFor: activeItems[0], actionList: this, requestNo: requestNo}
                 );
-
-                req.always((_, __, errorThrown) => {
-                    if (errorThrown !== 'abort') {
-                        this.enableAutoRefresh(this.activeRequests[requestNo]);
-                    }
-
-                    delete this.activeRequests[requestNo];
-                });
             }, 250);
+        }
+
+        requestFinished(requestNo, isAborted = false)
+        {
+            if (! isAborted) {
+                this.enableAutoRefresh(this.activeRequests[requestNo]);
+            }
+
+            delete this.activeRequests[requestNo];
         }
 
         /**
@@ -517,9 +521,9 @@ define(["../notjQuery"], function (notjQuery) {
         {
             let items;
             if (list.tagName.toLowerCase() === 'table') {
-                items = list.querySelectorAll(':scope > tbody > [data-action-item].active');
+                items = list.querySelectorAll(`:scope > tbody > ${this.listItemIdentifier}.active`);
             } else {
-                items = list.querySelectorAll(':scope > [data-action-item].active');
+                items = list.querySelectorAll(`:scope > ${this.listItemIdentifier}.active`);
             }
 
             return Array.from(items);
@@ -536,9 +540,9 @@ define(["../notjQuery"], function (notjQuery) {
         {
             let items;
             if (list.tagName.toLowerCase() === 'table') {
-                items = list.querySelectorAll(':scope > tbody > [data-action-item]');
+                items = list.querySelectorAll(`:scope > tbody > ${this.listItemIdentifier}`);
             } else {
-                items = list.querySelectorAll(':scope > [data-action-item]');
+                items = list.querySelectorAll(`:scope > ${this.listItemIdentifier}`);
             }
 
             return Array.from(items);
@@ -559,7 +563,7 @@ define(["../notjQuery"], function (notjQuery) {
                 // list has now new items, so select the lastActivatedItem and then move forward
                 let toActiveItem = lastActivatedItem.nextElementSibling;
                 while (toActiveItem) {
-                    if (toActiveItem.hasAttribute('data-action-item')) {
+                    if (toActiveItem.hasAttribute(this.listItemIdentifier.replaceAll(/[\[\]]/g, ''))) {
                         this.clearSelection([lastActivatedItem]);
                         this.setActive(toActiveItem);
                         this.setLastActivatedItemUrl(toActiveItem.dataset.icingaDetailFilter);
@@ -666,7 +670,7 @@ define(["../notjQuery"], function (notjQuery) {
             let url = '?' + filters.join('|');
 
             if (withBaseUrl) {
-                return items[0].closest('.action-list').getAttribute('data-icinga-multiselect-url') + url;
+                return items[0].closest(this.listIdentifier).getAttribute('data-icinga-multiselect-url') + url;
             }
 
             return url;
@@ -775,7 +779,7 @@ define(["../notjQuery"], function (notjQuery) {
             }
 
             if (isTopLevelContainer) {
-                let footerList = list ?? container.querySelector('.content > .action-list');
+                let footerList = list ?? container.querySelector(this.listIdentifier);
                 if (footerList) {
                     _this.addSelectionCountToFooter(footerList);
                 }
