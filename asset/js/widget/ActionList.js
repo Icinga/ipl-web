@@ -1,6 +1,10 @@
 define(["../notjQuery"], function (notjQuery) {
 
     "use strict";
+
+    const LIST_IDENTIFIER = '[data-interactable-action-list]';
+    const LIST_ITEM_IDENTIFIER = '[data-action-item]';
+
     class ActionList {
         constructor(list) {
             this.list = list;
@@ -8,13 +12,10 @@ define(["../notjQuery"], function (notjQuery) {
             this.lastActivatedItemUrl = null;
             this.lastTimeoutId = null;
             this.activeRequests = {};
-
-            this.listIdentifier = '[data-interactable-action-list]';
-            this.listItemIdentifier = '[data-action-item]';
         }
 
         bind() {
-            notjQuery(this.list).on('click', `${this.listIdentifier} ${this.listItemIdentifier}, ${this.listIdentifier} ${this.listItemIdentifier} a[href]`, this.onClick, this);
+            notjQuery(this.list).on('click', `${LIST_IDENTIFIER} ${LIST_ITEM_IDENTIFIER}, ${LIST_IDENTIFIER} ${LIST_ITEM_IDENTIFIER} a[href]`, this.onClick, this);
             /*this.on('close-column', '#main > #col2', this.onColumnClose, this);
             this.on('column-moved', this.onColumnMoved, this);*/
 
@@ -93,7 +94,7 @@ define(["../notjQuery"], function (notjQuery) {
             event.stopImmediatePropagation();
             event.stopPropagation();
 
-            let item = target.closest(this.listItemIdentifier);
+            let item = target.closest(LIST_ITEM_IDENTIFIER);
             let list = _this.list;//target.closest('.action-list');
             let activeItems = _this.getActiveItems(list);
             let toActiveItems = [],
@@ -246,16 +247,16 @@ define(["../notjQuery"], function (notjQuery) {
                 focusedElement.matches('#main > :scope') // add #main as data-attr via php
                 || focusedElement.matches('body'))
             ) {
-                list = focusedElement.querySelector(this.listIdentifier);
+                list = focusedElement.querySelector(LIST_IDENTIFIER);
                 if (! list) {
-                    let activeItem = this.list.querySelector(`:scope > ${this.listItemIdentifier}.active`);
+                    let activeItem = this.list.querySelector(`:scope > ${LIST_ITEM_IDENTIFIER}.active`);
                     if (activeItem) {
                         list = this.list;
                     }
                 }
 
             } else if (focusedElement) {
-                list = focusedElement.closest(this.listIdentifier);
+                list = focusedElement.closest(LIST_IDENTIFIER);
             }
 
             if (list !== this.list) {
@@ -323,14 +324,9 @@ define(["../notjQuery"], function (notjQuery) {
                 }
             } else {
                 toActiveItem = directionalNextItem;
-                while (toActiveItem) {
-                    if (toActiveItem.hasAttribute(this.removeBrackets(this.listItemIdentifier))) {
-                        _this.clearSelection(activeItems);
 
-                        break;
-                    }
-
-                    toActiveItem = _this.getDirectionalNext(toActiveItem, event.key);
+                if (toActiveItem) {
+                    _this.clearSelection(activeItems);
                 }
             }
 
@@ -353,14 +349,21 @@ define(["../notjQuery"], function (notjQuery) {
          * @param item The list item from which we want the next item
          * @param eventKey Pressed key (`ArrowUp` or `ArrowDown`)
          *
-         * @returns {Element|null}
+         * @returns {Element|null} Returns the next selectable list item or null if none found (list ends)
          */
         getDirectionalNext(item, eventKey) {
             if (! item) {
                 return null;
             }
 
-            return eventKey === 'ArrowUp' ? item.previousElementSibling : item.nextElementSibling;
+            let nextItem = null;
+
+            do {
+                nextItem = eventKey === 'ArrowUp' ? item.previousElementSibling : item.nextElementSibling;
+                item = nextItem;
+            } while (nextItem && ! nextItem.hasAttribute(this.removeBrackets(LIST_ITEM_IDENTIFIER)))
+
+            return nextItem;
         }
 
         /**
@@ -517,9 +520,9 @@ define(["../notjQuery"], function (notjQuery) {
         {
             let items;
             if (list.tagName.toLowerCase() === 'table') {
-                items = list.querySelectorAll(`:scope > tbody > ${this.listItemIdentifier}.active`);
+                items = list.querySelectorAll(`:scope > tbody > ${LIST_ITEM_IDENTIFIER}.active`);
             } else {
-                items = list.querySelectorAll(`:scope > ${this.listItemIdentifier}.active`);
+                items = list.querySelectorAll(`:scope > ${LIST_ITEM_IDENTIFIER}.active`);
             }
 
             return Array.from(items);
@@ -536,9 +539,9 @@ define(["../notjQuery"], function (notjQuery) {
         {
             let items;
             if (list.tagName.toLowerCase() === 'table') {
-                items = list.querySelectorAll(`:scope > tbody > ${this.listItemIdentifier}`);
+                items = list.querySelectorAll(`:scope > tbody > ${LIST_ITEM_IDENTIFIER}`);
             } else {
-                items = list.querySelectorAll(`:scope > ${this.listItemIdentifier}`);
+                items = list.querySelectorAll(`:scope > ${LIST_ITEM_IDENTIFIER}`);
             }
 
             return Array.from(items);
@@ -561,7 +564,7 @@ define(["../notjQuery"], function (notjQuery) {
             let url = '?' + filters.join('|');
 
             if (withBaseUrl) {
-                return items[0].closest(this.listIdentifier).getAttribute('data-icinga-multiselect-url') + url;
+                return items[0].closest(LIST_IDENTIFIER).getAttribute('data-icinga-multiselect-url') + url;
             }
 
             return url;
@@ -670,7 +673,7 @@ define(["../notjQuery"], function (notjQuery) {
             }
 
             if (isTopLevelContainer) {
-                let footerList = list ?? container.querySelector(this.listIdentifier);
+                let footerList = list ?? container.querySelector(LIST_IDENTIFIER);
                 if (footerList) {
                     _this.addSelectionCountToFooter(footerList);
                 }
