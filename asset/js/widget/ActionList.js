@@ -245,14 +245,14 @@ define(["../notjQuery"], function (notjQuery) {
                 focusedElement.matches('#main > :scope') // add #main as data-attr via php
                 || focusedElement.matches('body'))
             ) {
-                let activeItem = this.list.querySelector(
-                    `:scope > ${this.listItemIdentifier}.active`
-                );
-                if (activeItem) {
-                    list = this.list;
-                } else {
-                    list = focusedElement.querySelector(this.listIdentifier);
+                list = focusedElement.querySelector(this.listIdentifier);
+                if (! list) {
+                    let activeItem = this.list.querySelector(`:scope > ${this.listItemIdentifier}.active`);
+                    if (activeItem) {
+                        list = this.list;
+                    }
                 }
+
             } else if (focusedElement) {
                 list = focusedElement.closest(this.listIdentifier);
             }
