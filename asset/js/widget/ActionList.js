@@ -333,7 +333,7 @@ define(["../notjQuery"], function (notjQuery) {
                     [toActiveItem, markAsLastActive] = _this.findToActiveItem(lastActivatedItem, event.key);
                 }
             } else {
-                toActiveItem = directionalNextItem ?? lastActivatedItem;
+                toActiveItem = directionalNextItem;
 
                 if (toActiveItem) {
                     if (toActiveItem.classList.contains('load-more')) {
