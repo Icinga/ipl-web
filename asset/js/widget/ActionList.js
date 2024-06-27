@@ -57,6 +57,15 @@ define(["../notjQuery"], function (notjQuery) {
         }
 
         /**
+         * Remove the `[ ]`brackets from the given identifier
+         * @param identifier
+         * @return {*}
+         */
+        removeBrackets(identifier) {
+            return identifier.replaceAll(/[\[\]]/g, '');
+        }
+
+        /**
          * Suspend auto refresh for the given item's container
          *
          * @param {Element} item
@@ -332,11 +341,16 @@ define(["../notjQuery"], function (notjQuery) {
                         _this.handleLoadMoreNavigate(toActiveItem, lastActivatedItem, event.key);
                         return;
                     }
+                }
 
-                    _this.clearSelection(activeItems);
-                    if (toActiveItem.classList.contains('page-separator')) {
-                        toActiveItem = _this.getDirectionalNext(toActiveItem, event.key);
+                while (toActiveItem) {
+                    if (toActiveItem.hasAttribute(this.removeBrackets(this.listItemIdentifier))) {
+                        _this.clearSelection(activeItems);
+
+                        break;
                     }
+
+                    toActiveItem = _this.getDirectionalNext(toActiveItem, event.key);
                 }
             }
 
@@ -565,7 +579,7 @@ define(["../notjQuery"], function (notjQuery) {
                 // list has now new items, so select the lastActivatedItem and then move forward
                 let toActiveItem = lastActivatedItem.nextElementSibling;
                 while (toActiveItem) {
-                    if (toActiveItem.hasAttribute(this.listItemIdentifier.replaceAll(/[\[\]]/g, ''))) {
+                    if (toActiveItem.hasAttribute(this.removeBrackets(this.listItemIdentifier))) {
                         this.clearSelection([lastActivatedItem]);
                         this.setActive(toActiveItem);
                         this.setLastActivatedItemUrl(toActiveItem.dataset.icingaDetailFilter);
