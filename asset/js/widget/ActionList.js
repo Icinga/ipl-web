@@ -11,7 +11,6 @@ define(["../notjQuery"], function (notjQuery) {
 
             this.lastActivatedItemUrl = null;
             this.lastTimeoutId = null;
-            this.activeRequests = {};
         }
 
         bind() {
@@ -57,27 +56,6 @@ define(["../notjQuery"], function (notjQuery) {
          */
         removeBrackets(identifier) {
             return identifier.replaceAll(/[\[\]]/g, '');
-        }
-
-        /**
-         * Suspend auto refresh for the list's container
-         *
-         * @return {string} The container's id
-         */
-        suspendAutoRefresh() {
-            const container = this.list.closest('.container');
-            container.dataset.suspendAutorefresh = '';
-
-            return container.id;
-        }
-
-        /**
-         * Enable auto refresh on the given container
-         *
-         * @param {string} containerId
-         */
-        enableAutoRefresh(containerId) {
-            delete document.getElementById(containerId).dataset.suspendAutorefresh;
         }
 
         onClick(event) {
@@ -458,28 +436,17 @@ define(["../notjQuery"], function (notjQuery) {
                 return;
             }
 
-            const suspendedContainer = this.suspendAutoRefresh();
-
             clearTimeout(this.lastTimeoutId);
             this.lastTimeoutId = setTimeout(() => {
-                const requestNo = this.lastTimeoutId;
-                this.activeRequests[requestNo] = suspendedContainer;
                 this.lastTimeoutId = null;
+
+                // TODO: maybe we need a property to know if a req is in process
 
                 notjQuery(this.list).trigger(
                     'load-selection',
-                    {url: url, getTargetFor: activeItems[0], actionList: this, requestNo: requestNo}
+                    {url: url, firstActiveItem: activeItems[0]}
                 );
             }, 250);
-        }
-
-        requestFinished(requestNo, isAborted = false)
-        {
-            if (! isAborted) {
-                this.enableAutoRefresh(this.activeRequests[requestNo]);
-            }
-
-            delete this.activeRequests[requestNo];
         }
 
         /**
@@ -554,66 +521,13 @@ define(["../notjQuery"], function (notjQuery) {
             return url;
         }
 
-        onColumnClose(event) {
-            let _this = event.data.self;
-            let list = _this.findDetailUrlActionList(document.getElementById('col1'));
-            if (list && list.matches('[data-icinga-multiselect-url], [data-icinga-detail-url]')) {
-                _this.clearSelection(_this.getActiveItems(list));
-                _this.addSelectionCountToFooter(list);
-            }
-        }
-
-        /**
-         * Find the action list using the detail url
-         *
-         * @param {Element} container
-         *
-         * @return Element|null
-         */
-        findDetailUrlActionList(container) {
-            let detailUrl = this.icinga.utils.parseUrl(
-                this.icinga.history.getCol2State().replace(/^#!/, '')
-            );
-
-            let detailItem = container.querySelector(
-                '[data-icinga-detail-filter="'
-                + detailUrl.query.replace('?', '') + '"],' +
-                '[data-icinga-multiselect-filter="'
-                + detailUrl.query.split('|', 1).toString().replace('?', '') + '"]'
-            );
-
-            return detailItem ? detailItem.parentElement : null;
-        }
-
-        /**
-         * Triggers when column is moved to left or right
-         *
-         * @param event
-         * @param sourceId The content is moved from
-         */
-        onColumnMoved(event, sourceId) {
-            let _this = event.data.self;
-
-            if (event.target.id === 'col2' && sourceId === 'col1') { // only for browser-back (col1 shifted to col2)
-                _this.clearSelection(event.target.querySelectorAll(`${LIST_IDENTIFIER} .active`));
-            } else if (event.target.id === 'col1' && sourceId === 'col2') {
-                for (const requestNo of Object.keys(_this.activeRequests)) {
-                    if (_this.activeRequests[requestNo] === sourceId) {
-                        _this.enableAutoRefresh(_this.activeRequests[requestNo]);
-                        _this.activeRequests[requestNo] = _this.suspendAutoRefresh(event.target);
-                    }
-                }
-            }
-        }
-
         onRendered(event, isAutoRefresh) {
-            console.log('onRendered');
             let _this = event.data.self;
             let container = event.target;
             let isTopLevelContainer = container.matches('#main > :scope');
 
             let list;
-            if (event.currentTarget !== container || Object.keys(_this.activeRequests).length) {
+            if (event.currentTarget !== container || 0 /*TODO: check if a req is in process*/) {
                 // Nested containers are not processed multiple times || still processing selection/navigation request
                 return;
             } else if (isTopLevelContainer && container.id !== 'col1') {
