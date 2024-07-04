@@ -120,7 +120,7 @@ define(["../notjQuery"], function (notjQuery) {
             if (activeItems.length === 1
                 && toActiveItems.length === 0
             ) {
-                notjQuery(this.list).trigger('all-deselected', {target: target, actionList: this});
+                notjQuery(this.list).trigger('all-deselected');
 
                 this.clearSelection(toDeactivateItems);
                 this.addSelectionCountToFooter();
@@ -443,16 +443,17 @@ define(["../notjQuery"], function (notjQuery) {
                 return;
             }
 
+            if (this.lastTimeoutId === null) { // trigger once, when just started selecting list items
+                notjQuery(this.list).trigger('selection-start');
+            }
+
             clearTimeout(this.lastTimeoutId);
             this.lastTimeoutId = setTimeout(() => {
                 this.lastTimeoutId = null;
 
                 // TODO: maybe we need a property to know if a req is in process
 
-                notjQuery(this.list).trigger(
-                    'load-selection',
-                    {url: url, firstActiveItem: activeItems[0]}
-                );
+                notjQuery(this.list).trigger('selection-end', {url: url});
             }, 250);
         }
 
