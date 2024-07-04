@@ -16,7 +16,15 @@ define(["../notjQuery"], function (notjQuery) {
         bind() {
             notjQuery(this.list).on('click', `${LIST_IDENTIFIER} ${LIST_ITEM_IDENTIFIER}, ${LIST_IDENTIFIER} ${LIST_ITEM_IDENTIFIER} a[href]`, this.onClick, this);
 
+            this.bindedKeyDown = this.onKeyDown.bind(this)
+            document.body.addEventListener('keydown', this.bindedKeyDown);
+
             return this;
+        }
+
+        unbind() {
+            document.body.removeEventListener('keydown', this.bindedKeyDown);
+            this.bindedKeyDown = null;
         }
 
         refresh(list, detailUrl = null) {
@@ -24,6 +32,8 @@ define(["../notjQuery"], function (notjQuery) {
                 // If the DOM node is still the same, nothing has changed
                 return;
             }
+
+            this.unbind();
 
             this.list = list;
             this.bind();
