@@ -551,6 +551,12 @@ define(["../notjQuery"], function (notjQuery) {
          */
         load(detailUrl = null) {
             if (! detailUrl) {
+                let activeItems = this.getActiveItems();
+                if (activeItems.length) {
+                    this.clearSelection(activeItems);
+                    this.addSelectionCountToFooter();
+                }
+
                 return;
             }
 
