@@ -1,4 +1,4 @@
-define(["../notjQuery"], function (notjQuery) {
+define(["../notjQuery"], function ($) {
 
     "use strict";
 
@@ -14,7 +14,7 @@ define(["../notjQuery"], function (notjQuery) {
         }
 
         bind() {
-            notjQuery(this.list).on('click', `${LIST_IDENTIFIER} ${LIST_ITEM_IDENTIFIER}, ${LIST_IDENTIFIER} ${LIST_ITEM_IDENTIFIER} a[href]`, this.onClick, this);
+            $(this.list).on('click', `${LIST_IDENTIFIER} ${LIST_ITEM_IDENTIFIER}, ${LIST_IDENTIFIER} ${LIST_ITEM_IDENTIFIER} a[href]`, this.onClick, this);
 
             this.bindedKeyDown = this.onKeyDown.bind(this)
             document.body.addEventListener('keydown', this.bindedKeyDown);
@@ -120,7 +120,7 @@ define(["../notjQuery"], function (notjQuery) {
             if (activeItems.length === 1
                 && toActiveItems.length === 0
             ) {
-                notjQuery(this.list).trigger('all-deselected');
+                $(this.list).trigger('all-deselected');
 
                 this.clearSelection(toDeactivateItems);
                 this.addSelectionCountToFooter();
@@ -166,7 +166,7 @@ define(["../notjQuery"], function (notjQuery) {
 
             // For items that do not have a bottom status bar like Downtimes, Comments...
             if (footer === null) {
-                footer = notjQuery.render(
+                footer = $.render(
                     '<div class="footer" data-action-list-automatically-added>' +
                     '<div class="selection-count"><span class="selected-items"></span></div>' +
                     '</div>'
@@ -177,7 +177,7 @@ define(["../notjQuery"], function (notjQuery) {
 
             let selectionCount = footer.querySelector('.selection-count');
             if (selectionCount === null) {
-                selectionCount = notjQuery.render(
+                selectionCount = $.render(
                     '<div class="selection-count"><span class="selected-items"></span></div>'
                 );
 
@@ -456,7 +456,7 @@ define(["../notjQuery"], function (notjQuery) {
             }
 
             if (this.lastTimeoutId === null) { // trigger once, when just started selecting list items
-                notjQuery(this.list).trigger('selection-start');
+                $(this.list).trigger('selection-start');
             }
 
             clearTimeout(this.lastTimeoutId);
@@ -465,7 +465,7 @@ define(["../notjQuery"], function (notjQuery) {
 
                 // TODO: maybe we need a property to know if a req is in process
 
-                notjQuery(this.list).trigger('selection-end', {url: url});
+                $(this.list).trigger('selection-end', {url: url});
             }, 250);
         }
 
