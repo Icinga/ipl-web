@@ -98,8 +98,8 @@ define(["../widget/ActionList", "Icinga"],function (ActionList, Icinga) {
             lists.forEach(list => {
                 let actionList = _this._actionLists.get(list);
                 if (! actionList) {
-
-                    actionList = (new ActionList(list)).bind();
+                    let isPrimary = list.parentElement.matches('#main > #col1 > .content');
+                    actionList = (new ActionList(list, isPrimary)).bind();
                     actionList.load(detailUrl);
 
                     _this._actionLists.set(list, actionList);
