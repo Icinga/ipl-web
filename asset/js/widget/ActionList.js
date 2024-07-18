@@ -11,6 +11,7 @@ define(["../notjQuery"], function ($) {
 
             this.lastActivatedItemUrl = null;
             this.lastTimeoutId = null;
+            this.processing = false;
         }
 
         bind() {
@@ -43,6 +44,24 @@ define(["../notjQuery"], function ($) {
 
         destroy() {
             this.list = null;
+        }
+
+        /**
+         * Whether the list selection is processing
+         *
+         * @return {boolean}
+         */
+        isProcessing() {
+            return this.processing;
+        }
+
+        /**
+         * Set whether the list selection is being loaded
+         *
+         * @param isProcessing True as default
+         */
+        setProcessing(isProcessing = true) {
+            this.processing = isProcessing;
         }
 
         /**
@@ -451,9 +470,9 @@ define(["../notjQuery"], function ($) {
             this.lastTimeoutId = setTimeout(() => {
                 this.lastTimeoutId = null;
 
-                // TODO: maybe we need a property to know if a req is in process
+                this.setProcessing();
 
-                $(this.list).trigger('selection-end', {url: url});
+                $(this.list).trigger('selection-end', {url: url, actionList: this});
             }, 250);
         }
 
@@ -535,6 +554,10 @@ define(["../notjQuery"], function ($) {
          * @param detailUrl
          */
         load(detailUrl = null) {
+            if (this.isProcessing()) {
+                return;
+            }
+
             if (! detailUrl) {
                 let activeItems = this.getActiveItems();
                 if (activeItems.length) {
