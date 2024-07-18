@@ -6,8 +6,9 @@ define(["../notjQuery"], function ($) {
     const LIST_ITEM_IDENTIFIER = '[data-action-item]';
 
     class ActionList {
-        constructor(list) {
+        constructor(list, isPrimaryList) {
             this.list = list;
+            this.isPrimaryList = isPrimaryList;
 
             this.lastActivatedItemUrl = null;
             this.lastTimeoutId = null;
@@ -217,6 +218,11 @@ define(["../notjQuery"], function ($) {
          * @param event
          */
         onKeyDown(event) {
+            let activeItems = this.getActiveItems();
+            if (! this.isPrimaryList && activeItems.length === 0) {
+                return;
+            }
+
             let list = null;
             let pressedArrowDownKey = event.key === 'ArrowDown';
             let pressedArrowUpKey = event.key === 'ArrowUp';
@@ -229,18 +235,13 @@ define(["../notjQuery"], function ($) {
                 return;
             }
 
-            if (focusedElement && (
+            if (activeItems.length) {
+                list = this.list;
+            } else if (focusedElement && (
                 focusedElement.matches('#main > :scope') // add #main as data-attr via php
                 || focusedElement.matches('body'))
             ) {
                 list = focusedElement.querySelector(LIST_IDENTIFIER);
-                if (! list) {
-                    let activeItem = this.list.querySelector(`:scope > ${LIST_ITEM_IDENTIFIER}.active`);
-                    if (activeItem) {
-                        list = this.list;
-                    }
-                }
-
             } else if (focusedElement) {
                 list = focusedElement.closest(LIST_IDENTIFIER);
             }
@@ -266,7 +267,6 @@ define(["../notjQuery"], function ($) {
             let allItems = this.getAllItems();
             let firstListItem = allItems[0];
             let lastListItem = allItems[allItems.length -1];
-            let activeItems = this.getActiveItems();
             let markAsLastActive = null; // initialized only if it is different from toActiveItem
             let toActiveItem = null;
             let wasAllSelected = activeItems.length === allItems.length;
