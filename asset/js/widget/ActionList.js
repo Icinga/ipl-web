@@ -146,11 +146,6 @@ define(["../notjQuery"], function ($) {
                 return;
             }
 
-            let dashboard = this.list.closest('.dashboard');
-            if (dashboard) {
-                this.clearDashboardSelections(dashboard);
-            }
-
             let lastActivatedUrl = null;
             if (toActiveItems.includes(item)) {
                 lastActivatedUrl = item.dataset.icingaDetailFilter;
@@ -162,12 +157,8 @@ define(["../notjQuery"], function ($) {
 
             this.clearSelection(toDeactivateItems);
             this.setActive(toActiveItems);
-
-            if (! dashboard) {
-                this.addSelectionCountToFooter();
-            }
-
             this.setLastActivatedItemUrl(lastActivatedUrl);
+            this.addSelectionCountToFooter();
             this.loadDetailUrl(target.matches('a') ? target.getAttribute('href') : null);
         }
 
