@@ -687,4 +687,86 @@ class FilterTest extends TestCase
             "Filter\Parser doesn't respect group operator for empty nested OR chains with non-empty siblings"
         );
     }
+
+    /* Non-Strict mode tests */
+
+    public function testRendererDoesNotDrawRedundantCharsInNonStrictMode()
+    {
+        $this->assertEquals(
+            '',
+            (new Renderer(Filter::all()))->render(),
+            "Filter\Renderer draws redundant parentheses for an empty root chain"
+        );
+        $this->assertEquals(
+            'foo=bar',
+            (new Renderer(Filter::equal('foo', 'bar')))->render(),
+            "Filter\Renderer draws redundant parentheses for a root chain with a single condition"
+        );
+        $this->assertEquals(
+            'foo=bar&bar=foo',
+            (new Renderer(Filter::all(
+                Filter::equal('foo', 'bar'),
+                Filter::equal('bar', 'foo')
+            )))->render(),
+            "Filter\Renderer draws redundant parentheses for a root chain with multiple conditions"
+        );
+        $this->assertEquals(
+            'foo=bar&bar=foo',
+            (new Renderer(Filter::all(
+                Filter::equal('foo', 'bar'),
+                Filter::all(
+                    Filter::equal('bar', 'foo')
+                )
+            )))->render(),
+            "Filter\Renderer draws redundant parentheses for nested chains with a single condition"
+        );
+        $this->assertEquals(
+            'foo=bar&bar=foo',
+            (new Renderer(Filter::all(
+                Filter::equal('foo', 'bar'),
+                Filter::any(
+                    Filter::equal('bar', 'foo')
+                )
+            )))->render(),
+            "Filter\Renderer draws redundant group operator for nested OR chains with a single condition"
+        );
+        $this->assertEquals(
+            'foo=bar',
+            (new Renderer(Filter::all(
+                Filter::equal('foo', 'bar'),
+                Filter::all()
+            )))->render(),
+            "Filter\Renderer draws redundant parentheses for empty nested chains"
+        );
+        $this->assertEquals(
+            'foo=bar&(bar=foo)',
+            (new Renderer(Filter::all(
+                Filter::equal('foo', 'bar'),
+                Filter::all(
+                    Filter::all(),
+                    Filter::equal('bar', 'foo')
+                )
+            )))->render(),
+            "Filter\Renderer draws redundant parentheses for empty nested chains with non-empty siblings"
+        );
+        $this->assertEquals(
+            'foo=bar',
+            (new Renderer(Filter::all(
+                Filter::equal('foo', 'bar'),
+                Filter::any()
+            )))->render(),
+            "Filter\Renderer draws redundant group operator for empty nested OR chains"
+        );
+        $this->assertEquals(
+            'foo=bar&(bar=foo)',
+            (new Renderer(Filter::all(
+                Filter::equal('foo', 'bar'),
+                Filter::any(
+                    Filter::any(),
+                    Filter::equal('bar', 'foo')
+                )
+            )))->render(),
+            "Filter\Renderer draws redundant group operator for empty nested OR chains with non-empty siblings"
+        );
+    }
 }

@@ -32,9 +32,9 @@ class Renderer
      *
      * @return $this
      */
-    public function setStrict($strict = true)
+    public function setStrict(bool $strict = true): self
     {
-        $this->strict = (bool) $strict;
+        $this->strict = $strict;
 
         return $this;
     }
@@ -44,7 +44,7 @@ class Renderer
      *
      * @return string
      */
-    public function render()
+    public function render(): string
     {
         if ($this->string !== null) {
             return $this->string;
@@ -54,7 +54,9 @@ class Renderer
         $filter = $this->filter;
 
         if ($filter instanceof Filter\Chain) {
-            $this->renderChain($filter, $this->strict);
+            if ($this->strict || ! $filter->isEmpty()) {
+                $this->renderChain($filter, $this->strict);
+            }
         } else {
             /** @var Filter\Condition $filter */
             $this->renderCondition($filter);
@@ -71,12 +73,8 @@ class Renderer
      *
      * @return void
      */
-    protected function renderChain(Filter\Chain $chain, $wrap = false)
+    protected function renderChain(Filter\Chain $chain, bool $wrap = false): void
     {
-        if (! $this->strict && $chain->isEmpty()) {
-            return;
-        }
-
         $chainOperator = null;
         switch (true) {
             case $chain instanceof Filter\All:
@@ -107,13 +105,15 @@ class Renderer
 
         foreach ($chain as $rule) {
             if ($rule instanceof Filter\Chain) {
-                $this->renderChain($rule, $this->strict || $rule->count() > 1);
+                if ($this->strict || ! $rule->isEmpty()) {
+                    $this->renderChain($rule, $this->strict || $rule->count() > 1);
+                    $this->string .= $chainOperator;
+                }
             } else {
                 /** @var Filter\Condition $rule */
                 $this->renderCondition($rule);
+                $this->string .= $chainOperator;
             }
-
-            $this->string .= $chainOperator;
         }
 
         if (! $chain->isEmpty() && (! $this->strict || ! ($chain instanceof Filter\Any && $chain->count() === 1))) {
@@ -137,7 +137,7 @@ class Renderer
      *
      * @return void
      */
-    protected function renderCondition(Filter\Condition $condition)
+    protected function renderCondition(Filter\Condition $condition): void
     {
         $value = $condition->getValue();
         if (is_bool($value) && ! $value) {
