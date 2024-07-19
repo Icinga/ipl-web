@@ -188,7 +188,7 @@ define(["../widget/ActionList", "Icinga"],function (ActionList, Icinga) {
         /**
          * Get action lists from the given element
          *
-         * If element is not provided, all action lists will be returned
+         * If element is not provided, all action lists from col1 will be returned
          *
          * @param element
          *
@@ -196,7 +196,7 @@ define(["../widget/ActionList", "Icinga"],function (ActionList, Icinga) {
          */
         getActionLists(element = null) {
             if (element === null) {
-                return document.querySelectorAll('[data-interactable-action-list]');
+                return document.querySelectorAll('#col1 [data-interactable-action-list]');
             }
 
             return element.querySelectorAll('[data-interactable-action-list]');
