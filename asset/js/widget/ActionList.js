@@ -226,11 +226,9 @@ define(["../notjQuery"], function ($) {
             let pressedArrowDownKey = event.key === 'ArrowDown';
             let pressedArrowUpKey = event.key === 'ArrowUp';
             let focusedElement = document.activeElement;
+            let isSelectAll = (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'a' && this.isMultiSelectable;
 
-            if (
-                ! event.key // input auto-completion is triggered
-                || (event.key.toLowerCase() !== 'a' && ! pressedArrowDownKey && ! pressedArrowUpKey)
-            ) {
+            if (! isSelectAll && ! pressedArrowDownKey && ! pressedArrowUpKey) {
                 return;
             }
 
@@ -249,17 +247,11 @@ define(["../notjQuery"], function ($) {
                 return;
             }
 
-            if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'a') {
-                if (! this.isMultiSelectable) {
-                    return;
-                }
-
-                event.preventDefault();
+            event.preventDefault();
+            if (isSelectAll) {
                 this.selectAll();
                 return;
             }
-
-            event.preventDefault();
 
             let allItems = this.getAllItems();
             let firstListItem = allItems[0];
