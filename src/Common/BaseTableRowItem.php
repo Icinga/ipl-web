@@ -65,7 +65,7 @@ abstract class BaseTableRowItem extends BaseHtmlElement
             Attributes::create(['class' => 'col']),
             new HtmlElement(
                 'div',
-                Attributes::create(['class' => 'content']),
+                Attributes::create(['class' => 'column-content']),
                 ...Html::wantHtmlList($content)
             )
         );
