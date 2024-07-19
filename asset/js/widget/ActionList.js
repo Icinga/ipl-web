@@ -165,11 +165,10 @@ define(["../notjQuery"], function ($) {
         }
 
         /**
-         * Add the selection count to footer if list allow multi selection
-         *
+         * Add selection count to the footer if list is multi selectable and primary
          */
         addSelectionCountToFooter() {
-            if (! this.isMultiSelectable) {
+            if (! this.isMultiSelectable || ! this.isPrimary) {
                 return;
             }
 
