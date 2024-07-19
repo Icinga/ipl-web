@@ -32,9 +32,9 @@ class Renderer
      *
      * @return $this
      */
-    public function setStrict($strict = true)
+    public function setStrict(bool $strict = true): self
     {
-        $this->strict = (bool) $strict;
+        $this->strict = $strict;
 
         return $this;
     }
@@ -44,7 +44,7 @@ class Renderer
      *
      * @return string
      */
-    public function render()
+    public function render(): string
     {
         if ($this->string !== null) {
             return $this->string;
@@ -71,7 +71,7 @@ class Renderer
      *
      * @return void
      */
-    protected function renderChain(Filter\Chain $chain, $wrap = false)
+    protected function renderChain(Filter\Chain $chain, bool $wrap = false): void
     {
         if (! $this->strict && $chain->isEmpty()) {
             return;
@@ -137,7 +137,7 @@ class Renderer
      *
      * @return void
      */
-    protected function renderCondition(Filter\Condition $condition)
+    protected function renderCondition(Filter\Condition $condition): void
     {
         $value = $condition->getValue();
         if (is_bool($value) && ! $value) {
