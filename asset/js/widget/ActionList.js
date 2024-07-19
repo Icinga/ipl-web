@@ -6,9 +6,10 @@ define(["../notjQuery"], function ($) {
     const LIST_ITEM_IDENTIFIER = '[data-action-item]';
 
     class ActionList {
-        constructor(list, isPrimaryList) {
+        constructor(list, isPrimary) {
             this.list = list;
-            this.isPrimaryList = isPrimaryList;
+            this.isPrimary = isPrimary;
+            this.isMultiSelectable = this.list.matches('[data-icinga-multiselect-url]');
 
             this.lastActivatedItemUrl = null;
             this.lastTimeoutId = null;
@@ -101,8 +102,7 @@ define(["../notjQuery"], function ($) {
             let toActiveItems = [],
                 toDeactivateItems = [];
 
-            const isBeingMultiSelected = this.list.matches('[data-icinga-multiselect-url]')
-                && (event.ctrlKey || event.metaKey || event.shiftKey);
+            const isBeingMultiSelected = this.isMultiSelectable && (event.ctrlKey || event.metaKey || event.shiftKey);
 
             if (isBeingMultiSelected) {
                 if (event.ctrlKey || event.metaKey) {
@@ -169,7 +169,7 @@ define(["../notjQuery"], function ($) {
          *
          */
         addSelectionCountToFooter() {
-            if (! this.list.matches('[data-icinga-multiselect-url]')) {
+            if (! this.isMultiSelectable) {
                 return;
             }
 
@@ -219,7 +219,7 @@ define(["../notjQuery"], function ($) {
          */
         onKeyDown(event) {
             let activeItems = this.getActiveItems();
-            if (! this.isPrimaryList && activeItems.length === 0) {
+            if (! this.isPrimary && activeItems.length === 0) {
                 return;
             }
 
@@ -250,10 +250,8 @@ define(["../notjQuery"], function ($) {
                 return;
             }
 
-            let isMultiSelectableList = list.matches('[data-icinga-multiselect-url]');
-
             if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'a') {
-                if (! isMultiSelectableList) {
+                if (! this.isMultiSelectable) {
                     return;
                 }
 
@@ -270,7 +268,7 @@ define(["../notjQuery"], function ($) {
             let markAsLastActive = null; // initialized only if it is different from toActiveItem
             let toActiveItem = null;
             let wasAllSelected = activeItems.length === allItems.length;
-            let lastActivatedItem = list.querySelector(
+            let lastActivatedItem = this.list.querySelector(
                 `[data-icinga-detail-filter="${ this.lastActivatedItemUrl }"]`
             );
 
@@ -284,7 +282,7 @@ define(["../notjQuery"], function ($) {
                 toActiveItem = pressedArrowDownKey ? firstListItem : lastListItem;
                 // reset all on manual page refresh
                 this.clearSelection(activeItems);
-            } else if (isMultiSelectableList && event.shiftKey) {
+            } else if (this.isMultiSelectable && event.shiftKey) {
                 if (activeItems.length === 1) {
                     toActiveItem = directionalNextItem;
                 } else if (wasAllSelected && (
