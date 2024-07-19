@@ -81,17 +81,6 @@ define(["../widget/ActionList", "Icinga"],function (ActionList, Icinga) {
 
                     delete _this._cachedActionLists[listPath];
                 }
-            } else if (event.target.id === 'col2') {
-                let lists = _this.getActionLists();
-                lists.forEach(list => {
-                    let actionList = _this._actionLists.get(list);
-
-                    if (actionList) {
-                        actionList.load(detailUrl); // navigated back/forward and the detail url is changed
-                    }
-                });
-
-                return;
             }
 
             let lists = _this.getActionLists(event.currentTarget);
@@ -107,6 +96,17 @@ define(["../widget/ActionList", "Icinga"],function (ActionList, Icinga) {
                     actionList.load(detailUrl); // navigated back to the same page
                 }
             });
+
+            if (event.target.id === 'col2') { // navigated back/forward and the detail url is changed
+                let lists = _this.getActionLists();
+                lists.forEach(list => {
+                    let actionList = _this._actionLists.get(list);
+
+                    if (actionList) {
+                        actionList.load(detailUrl);
+                    }
+                });
+            }
         }
 
         onColumnClose(event)
