@@ -163,6 +163,7 @@ define(["../widget/ActionList", "Icinga"],function (ActionList, Icinga) {
             );
 
             req.always((_, __, errorThrown) => {
+
                 if (errorThrown !== 'abort') {
                     delete event.target.closest('.container').dataset.suspendAutorefresh;
                     event.detail.actionList.setProcessing(false);
