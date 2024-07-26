@@ -2,13 +2,14 @@
 
 namespace ipl\Web\Common;
 
+use Error;
 use ipl\Html\Contract\FormElement;
-use ipl\Html\Form;
+use ipl\Html\FormElement\HiddenElement;
 
 trait CsrfCounterMeasure
 {
     /**
-     * Create a form element to counter measure CSRF attacks
+     * Create a form element to countermeasure CSRF attacks
      *
      * @param string $uniqueId A unique ID that persists through different requests
      *
@@ -21,28 +22,35 @@ trait CsrfCounterMeasure
         $seed = random_bytes(16);
         $token = base64_encode($seed) . '|' . hash($hashAlgo, $uniqueId . $seed);
 
-        /** @var Form $this */
-        return $this->createElement(
-            'hidden',
-            'CSRFToken',
-            [
-                'ignore'        => true,
-                'required'      => true,
-                'value'         => $token,
-                'validators'    => ['Callback' => function ($token) use ($uniqueId, $hashAlgo) {
-                    if (strpos($token, '|') === false) {
-                        die('Invalid CSRF token provided');
-                    }
+        $options = [
+            'ignore'        => true,
+            'required'      => true,
+            'validators'    => ['Callback' => function ($token) use ($uniqueId, $hashAlgo) {
+                if (empty($token) || strpos($token, '|') === false) {
+                    throw new Error('Invalid CSRF token provided');
+                }
 
-                    list($seed, $hash) = explode('|', $token);
+                list($seed, $hash) = explode('|', $token);
 
-                    if ($hash !== hash($hashAlgo, $uniqueId . base64_decode($seed))) {
-                        die('Invalid CSRF token provided');
-                    }
+                if ($hash !== hash($hashAlgo, $uniqueId . base64_decode($seed))) {
+                    throw new Error('Invalid CSRF token provided');
+                }
 
-                    return true;
-                }]
-            ]
-        );
+                return true;
+            }]
+        ];
+
+        $element = new class ('CSRFToken', $options) extends HiddenElement {
+            public function hasValue(): bool
+            {
+                return true; // The validator must run even if the value is empty
+            }
+        };
+
+        $element->getAttributes()->registerAttributeCallback('value', function () use ($token) {
+            return $token;
+        });
+
+        return $element;
     }
 }
