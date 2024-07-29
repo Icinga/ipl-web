@@ -137,9 +137,7 @@ define(["../notjQuery"], function ($) {
                 toActiveItems.push(item);
             }
 
-            if (activeItems.length === 1
-                && toActiveItems.length === 0
-            ) {
+            if (activeItems.length === 1 && toActiveItems.length === 0) {
                 $(this.list).trigger('all-deselected');
 
                 this.clearSelection(toDeactivateItems);
@@ -459,10 +457,10 @@ define(["../notjQuery"], function ($) {
          */
         setActive(toActiveItem) {
             if (toActiveItem instanceof HTMLElement) {
-                toActiveItem.classList.add('active');
-            } else {
-                toActiveItem.forEach(item => item.classList.add('active'));
+                toActiveItem = [toActiveItem]
             }
+
+            toActiveItem.forEach(item => item.classList.add('active'));
         }
 
         /**
@@ -472,15 +470,7 @@ define(["../notjQuery"], function ($) {
          */
         getActiveItems()
         {
-            let items;
-
-            if (this.list.tagName.toLowerCase() === 'table') {
-                items = this.list.querySelectorAll(`:scope > tbody > ${LIST_ITEM_IDENTIFIER}.active`);
-            } else {
-                items = this.list.querySelectorAll(`:scope > ${LIST_ITEM_IDENTIFIER}.active`);
-            }
-
-            return Array.from(items);
+            return Array.from(this.list.querySelectorAll(`${LIST_ITEM_IDENTIFIER}.active`));
         }
 
         /**
@@ -490,15 +480,7 @@ define(["../notjQuery"], function ($) {
          */
         getAllItems()
         {
-            let items;
-
-            if (this.list.tagName.toLowerCase() === 'table') {
-                items = this.list.querySelectorAll(`:scope > tbody > ${LIST_ITEM_IDENTIFIER}`);
-            } else {
-                items = this.list.querySelectorAll(`:scope > ${LIST_ITEM_IDENTIFIER}`);
-            }
-
-            return Array.from(items);
+            return Array.from(this.list.querySelectorAll(LIST_ITEM_IDENTIFIER));
         }
 
         /**
