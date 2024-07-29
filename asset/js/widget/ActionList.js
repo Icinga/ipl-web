@@ -270,22 +270,14 @@ define(["../notjQuery"], function ($) {
             let directionalNextItem = this.getDirectionalNext(lastActivatedItem, event.key);
 
             if (activeItems.length === 0) {
-                toActiveItem = pressedArrowDownKey ? firstListItem : lastListItem;
+                toActiveItem = directionalNextItem;
                 // reset all on manual page refresh
                 this.clearSelection(activeItems);
             } else if (this.isMultiSelectable && event.shiftKey) {
                 if (activeItems.length === 1) {
                     toActiveItem = directionalNextItem;
-                } else if (wasAllSelected && (
-                    (lastActivatedItem !== firstListItem && pressedArrowDownKey)
-                    || (lastActivatedItem !== lastListItem && pressedArrowUpKey)
-                )) {
-                    if (pressedArrowDownKey) {
-                        toActiveItem = lastActivatedItem === lastListItem ? null : lastListItem;
-                    } else {
-                        toActiveItem = lastActivatedItem === firstListItem ? null : lastListItem;
-                    }
-
+                } else if (wasAllSelected && (lastActivatedItem !== firstListItem && pressedArrowDownKey)) {
+                    toActiveItem = lastActivatedItem === lastListItem ? null : lastListItem;
                 } else if (directionalNextItem && directionalNextItem.classList.contains('active')) {
                     // deactivate last activated by down to up select
                     this.clearSelection([lastActivatedItem]);
@@ -328,7 +320,15 @@ define(["../notjQuery"], function ($) {
          */
         getDirectionalNext(item, eventKey) {
             if (! item) {
-                return null;
+                item = eventKey === 'ArrowUp' ? this.list.lastChild : this.list.firstChild;
+
+                if (! item) {
+                    return null;
+                }
+
+                if (item.hasAttribute(this.removeBrackets(LIST_ITEM_IDENTIFIER))) {
+                    return item;
+                }
             }
 
             let nextItem = null;
