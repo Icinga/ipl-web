@@ -14,6 +14,14 @@ define(["../notjQuery"], function ($) {
             this.lastActivatedItemUrl = null;
             this.lastTimeoutId = null;
             this.processing = false;
+            this.isDisplayContents = false;
+
+            let firstItem = this.getDirectionalNext(null, false);
+            if (firstItem
+                && (! firstItem.checkVisibility() && firstItem.firstChild && firstItem.firstChild.checkVisibility())
+            ) {
+                this.isDisplayContents = true;
+            }
         }
 
         bind() {
@@ -409,13 +417,13 @@ define(["../notjQuery"], function ($) {
          */
         scrollItemIntoView(item, isArrowUp) {
             let directionalNext = this.getDirectionalNext(item, isArrowUp);
-            if ("isDisplayContents" in item.parentElement.dataset) {
+            if (this.isDisplayContents) {
                 item = item.firstChild;
                 directionalNext = directionalNext ? directionalNext.firstChild : null;
             }
+
             // required when ArrowUp is pressed in new list OR after selecting all items with ctrl+A
             item.scrollIntoView({block: "nearest"});
-
             if (directionalNext) {
                 directionalNext.scrollIntoView({block: "nearest"});
             }
