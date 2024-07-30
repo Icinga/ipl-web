@@ -265,7 +265,7 @@ define(["../notjQuery"], function ($) {
                 lastActivatedItem = activeItems[activeItems.length - 1];
             }
 
-            let directionalNextItem = this.getDirectionalNext(lastActivatedItem, event.key);
+            let directionalNextItem = this.getDirectionalNext(lastActivatedItem, pressedArrowUpKey);
 
             if (activeItems.length === 0) {
                 toActiveItem = directionalNextItem;
@@ -280,12 +280,12 @@ define(["../notjQuery"], function ($) {
                     // deactivate last activated by down to up select
                     this.clearSelection([lastActivatedItem]);
                     if (wasAllSelected) {
-                        this.scrollItemIntoView(lastActivatedItem, event.key);
+                        this.scrollItemIntoView(lastActivatedItem, pressedArrowUpKey);
                     }
 
                     toActiveItem = directionalNextItem;
                 } else {
-                    [toActiveItem, markAsLastActive] = this.findToActiveItem(lastActivatedItem, event.key);
+                    [toActiveItem, markAsLastActive] = this.findToActiveItem(lastActivatedItem, pressedArrowUpKey);
                 }
             } else {
                 toActiveItem = directionalNextItem;
@@ -303,7 +303,7 @@ define(["../notjQuery"], function ($) {
             this.setLastActivatedItemUrl(
                 markAsLastActive ? markAsLastActive.dataset.icingaDetailFilter : toActiveItem.dataset.icingaDetailFilter
             );
-            this.scrollItemIntoView(toActiveItem, event.key);
+            this.scrollItemIntoView(toActiveItem, pressedArrowUpKey);
             this.addSelectionCountToFooter();
             this.loadDetailUrl();
         }
@@ -312,13 +312,13 @@ define(["../notjQuery"], function ($) {
          * Get the next list item according to the pressed key (`ArrowUp` or `ArrowDown`)
          *
          * @param item The list item from which we want the next item
-         * @param eventKey Pressed key (`ArrowUp` or `ArrowDown`)
+         * @param isArrowUp Whether the arrow up key is pressed, if not, arrow down key is assumed
          *
          * @returns {Element|null} Returns the next selectable list item or null if none found (list ends)
          */
-        getDirectionalNext(item, eventKey) {
+        getDirectionalNext(item, isArrowUp) {
             if (! item) {
-                item = eventKey === 'ArrowUp' ? this.list.lastChild : this.list.firstChild;
+                item = isArrowUp ? this.list.lastChild : this.list.firstChild;
 
                 if (! item) {
                     return null;
@@ -332,7 +332,7 @@ define(["../notjQuery"], function ($) {
             let nextItem = null;
 
             do {
-                nextItem = eventKey === 'ArrowUp' ? item.previousElementSibling : item.nextElementSibling;
+                nextItem = isArrowUp ? item.previousElementSibling : item.nextElementSibling;
                 item = nextItem;
             } while (nextItem && ! nextItem.hasAttribute(this.removeBrackets(LIST_ITEM_IDENTIFIER)))
 
@@ -343,28 +343,28 @@ define(["../notjQuery"], function ($) {
          * Find the list item that should be activated next
          *
          * @param lastActivatedItem
-         * @param eventKey Pressed key (`ArrowUp` or `ArrowDown`)
+         * @param isArrowUp Whether the arrow up key is pressed, if not, arrow down key is assumed
          *
          * @returns {Element[]}
          */
-        findToActiveItem(lastActivatedItem, eventKey) {
+        findToActiveItem(lastActivatedItem, isArrowUp) {
             let toActiveItem;
             let markAsLastActive;
 
             do {
-                toActiveItem = this.getDirectionalNext(lastActivatedItem, eventKey);
+                toActiveItem = this.getDirectionalNext(lastActivatedItem, isArrowUp);
                 lastActivatedItem = toActiveItem;
             } while (toActiveItem && toActiveItem.classList.contains('active'))
 
             markAsLastActive = toActiveItem;
             // if the next/previous sibling element is already active,
             // mark the last/first active element in list as last active
-            while (markAsLastActive && this.getDirectionalNext(markAsLastActive, eventKey)) {
-                if (! this.getDirectionalNext(markAsLastActive, eventKey).classList.contains('active')) {
+            while (markAsLastActive && this.getDirectionalNext(markAsLastActive, isArrowUp)) {
+                if (! this.getDirectionalNext(markAsLastActive, isArrowUp).classList.contains('active')) {
                     break;
                 }
 
-                markAsLastActive = this.getDirectionalNext(markAsLastActive, eventKey);
+                markAsLastActive = this.getDirectionalNext(markAsLastActive, isArrowUp);
             }
 
             return [toActiveItem, markAsLastActive];
@@ -404,11 +404,11 @@ define(["../notjQuery"], function ($) {
          * Scroll the given item into view
          *
          * @param item Item to scroll into view
-         * @param pressedKey Pressed key (`ArrowUp` or `ArrowDown`)
+         * @param isArrowUp Whether the arrow up key is pressed, if not, arrow down key is assumed
          */
-        scrollItemIntoView(item, pressedKey) {
+        scrollItemIntoView(item, isArrowUp) {
             item.scrollIntoView({block: "nearest"});
-            let directionalNext = this.getDirectionalNext(item, pressedKey);
+            let directionalNext = this.getDirectionalNext(item, isArrowUp);
 
             if (directionalNext) {
                 directionalNext.scrollIntoView({block: "nearest"});
