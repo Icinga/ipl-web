@@ -562,6 +562,10 @@ define(["../notjQuery"], function ($) {
             this.clearSelection(this.getAllItems().filter(item => ! toActiveItems.includes(item)));
             this.setActive(toActiveItems);
             this.addSelectionCountToFooter();
+
+            if (toActiveItems.length) {
+                this.scrollItemIntoView(toActiveItems[toActiveItems.length - 1], false);
+            }
         }
     }
 
