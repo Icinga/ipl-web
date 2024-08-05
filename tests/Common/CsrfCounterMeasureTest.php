@@ -15,7 +15,7 @@ class CsrfCounterMeasureTest extends TestCase
         $token = $this->createElement();
 
         $this->assertInstanceOf(HiddenElement::class, $token);
-        $this->assertMatchesRegularExpression(
+        $this->assertRegExp(
             '/ value="[^"]+\|[^"]+"/',
             (string) $token,
             'The value is not rendered or does not contain a seed and a hash'
