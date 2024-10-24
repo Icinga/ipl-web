@@ -33,6 +33,9 @@ abstract class BaseItemList extends BaseHtmlElement
 
     protected $tag = 'ul';
 
+    /** @var ?string Message to show if the list is empty */
+    protected $emptyStateMessage;
+
     /**
      * Create a new item  list
      *
@@ -76,6 +79,34 @@ abstract class BaseItemList extends BaseHtmlElement
         return new $className($data, $this);
     }
 
+    /**
+     * Get message to show if the list is empty
+     *
+     * @return string
+     */
+    public function getEmptyStateMessage(): string
+    {
+        if ($this->emptyStateMessage === null) {
+            return t('No items found.');
+        }
+
+        return $this->emptyStateMessage;
+    }
+
+    /**
+     * Set message to show if the list is empty
+     *
+     * @param string $message
+     *
+     * @return $this
+     */
+    public function setEmptyStateMessage(string $message): self
+    {
+        $this->emptyStateMessage = $message;
+
+        return $this;
+    }
+
     protected function assemble(): void
     {
         foreach ($this->data as $data) {
@@ -87,7 +118,7 @@ abstract class BaseItemList extends BaseHtmlElement
 
         if ($this->isEmpty()) {
             $this->setTag('div');
-            $this->addHtml(new EmptyStateBar(t('No items found.')));
+            $this->addHtml(new EmptyStateBar($this->getEmptyStateMessage()));
         }
     }
 }
