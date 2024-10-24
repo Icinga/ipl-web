@@ -58,10 +58,13 @@ trait SearchControls
         $preserveParams = array_pop($params) ?? [];
         $redirectUrl = array_pop($params);
 
+        $paramsToAdd = $requestUrl->onlyWith($preserveParams)->getParams()->toArray(false);
+
         if ($redirectUrl !== null) {
-            $redirectUrl->addParams($requestUrl->onlyWith($preserveParams)->getParams()->toArray(false));
+            $redirectUrl->addParams($paramsToAdd);
         } else {
-            $redirectUrl = $requestUrl->onlyWith($preserveParams);
+            $redirectUrl = clone $requestUrl;
+            $redirectUrl->setParams($paramsToAdd);
         }
 
         $filter = QueryString::fromString((string) $this->params)
@@ -83,7 +86,7 @@ trait SearchControls
         if (method_exists($this, 'completeAction')) {
             $searchBar->setSuggestionUrl(Url::fromPath(
                 "$moduleName/$controllerName/complete",
-                ['_disableLayout' => true, 'showCompact' => true]
+                array_merge($paramsToAdd, ['_disableLayout' => true, 'showCompact' => true])
             ));
         }
 
@@ -156,13 +159,14 @@ trait SearchControls
         $redirectUrl = array_pop($params);
         $moduleName = $this->getRequest()->getModuleName();
         $controllerName = $this->getRequest()->getControllerName();
+        $paramsToAdd = $requestUrl->onlyWith($preserveParams)->getParams()->toArray(false);
 
         if ($redirectUrl !== null) {
-            $redirectUrl->addParams($requestUrl->onlyWith($preserveParams)->getParams()->toArray(false));
+            $redirectUrl->addParams($paramsToAdd);
         } else {
             $redirectUrl = Url::fromPath("$moduleName/$controllerName");
-            if (! empty($preserveParams)) {
-                $redirectUrl->setParams($requestUrl->onlyWith($preserveParams)->getParams());
+            if (! empty($paramsToAdd)) {
+                $redirectUrl->setParams($paramsToAdd);
             }
         }
 
@@ -174,7 +178,7 @@ trait SearchControls
         if (method_exists($this, 'completeAction')) {
             $editor->setSuggestionUrl(Url::fromPath(
                 "$moduleName/$controllerName/complete",
-                ['_disableLayout' => true, 'showCompact' => true]
+                array_merge($paramsToAdd, ['_disableLayout' => true, 'showCompact' => true])
             ));
         }
 
