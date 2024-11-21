@@ -93,7 +93,7 @@ trait SearchControls
         if (method_exists($this, 'searchEditorAction')) {
             $searchBar->setEditorUrl(Url::fromPath(
                 "$moduleName/$controllerName/search-editor"
-            )->setParams($redirectUrl->getParams()));
+            )->setParams(clone $redirectUrl->getParams()));
         }
 
         $filterColumns = $this->fetchFilterColumns($query);
