@@ -57,14 +57,12 @@ trait SearchControls
         $requestUrl = Url::fromRequest();
         $preserveParams = array_pop($params) ?? [];
         $redirectUrl = array_pop($params);
-
-        $requestUrlClone = $requestUrl->onlyWith($preserveParams);
-        $paramsToAdd = $requestUrlClone->getParams()->toArray(false);
+        $paramsToAdd = $this->decodedParamValues($preserveParams, $requestUrl);
 
         if ($redirectUrl !== null) {
             $redirectUrl->addParams($paramsToAdd);
         } else {
-            $redirectUrl = $requestUrlClone;
+            $redirectUrl = $requestUrl->onlyWith($preserveParams);
         }
 
         $filter = QueryString::fromString((string) $this->params)
@@ -159,7 +157,7 @@ trait SearchControls
         $redirectUrl = array_pop($params);
         $moduleName = $this->getRequest()->getModuleName();
         $controllerName = $this->getRequest()->getControllerName();
-        $paramsToAdd = $requestUrl->onlyWith($preserveParams)->getParams()->toArray(false);
+        $paramsToAdd = $this->decodedParamValues($preserveParams, $requestUrl);
 
         if ($redirectUrl !== null) {
             $redirectUrl->addParams($paramsToAdd);
@@ -258,5 +256,24 @@ trait SearchControls
         if (isset($label)) {
             $condition->metaData()->set('columnLabel', $label);
         }
+    }
+
+    /**
+     * Decode the given param names from the given Url
+     *
+     * @return array<string, mixed> decoded key => value pairs
+     */
+    protected function decodedParamValues(array $paramNames, Url $url): array
+    {
+        $params = [];
+        foreach ($paramNames as $param) {
+            $val = $url->getParam($param);
+
+            if ($val !== null) {
+                $params[$param] = $val;
+            }
+        }
+
+        return $params;
     }
 }
