@@ -11,7 +11,7 @@ use Zend_Controller_Response_Abstract;
 use Zend_Controller_Request_Abstract;
 
 /**
- * @runTestsInSeparateProcesses
+ * @aarunTestsInSeparateProcesses
  */
 class CompatControllerTest extends TestCase
 {
@@ -21,6 +21,10 @@ class CompatControllerTest extends TestCase
 
     public function setUp(): void
     {
+        if (! class_exists('\Icinga\Web\Controller')) {
+            $this->markTestSkipped('CompatControllerTest only runs locally');
+        }
+
         class_alias('ipl\Tests\Web\SortControl', 'ipl\Web\Control\SortControl');
 
         $this->controller = new class extends CompatController {
