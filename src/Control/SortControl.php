@@ -197,21 +197,15 @@ class SortControl extends Form
      * Sort the given query according to the request
      *
      * @param Query $query
-     * @param ?array|string $defaultSort
      *
      * @return $this
      */
-    public function apply(Query $query, $defaultSort = null): self
+    public function apply(Query $query): self
     {
         if ($this->getRequest() === null) {
             // handleRequest() has not been called yet
             // TODO: Remove this once everything using this requires ipl v0.12.0
             $this->handleRequest(ServerRequest::fromGlobals());
-        }
-
-        $default = $defaultSort ?? (array) $query->getModel()->getDefaultSort();
-        if (! empty($default)) {
-            $this->setDefault(SortUtil::normalizeSortSpec($default));
         }
 
         $sort = $this->getSort();

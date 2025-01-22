@@ -10,6 +10,7 @@ use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlString;
 use ipl\Html\ValidHtml;
+use ipl\Orm\Common\SortUtil;
 use ipl\Orm\Query;
 use ipl\Stdlib\Contract\Paginatable;
 use ipl\Web\Control\LimitControl;
@@ -294,15 +295,25 @@ class CompatController extends Controller
 
         $this->params->shift($sortControl->getSortParam());
 
-        $sortControl->handleRequest($this->getServerRequest());
-
         $defaultSort = null;
-
         if (func_num_args() === 3) {
             $defaultSort = func_get_args()[2];
         }
 
-        return $sortControl->apply($query, $defaultSort);
+        $default = $defaultSort ?? $query->getModel()->getDefaultSort();
+        if (! empty($default)) {
+            $sortControl->setDefault(SortUtil::normalizeSortSpec($default));
+
+            $columns = $sortControl->getColumns();
+            $default = $sortControl->getDefault();
+            if (! empty($defaultSort) && ! isset($columns[$default])) {
+                throw new InvalidArgumentException(sprintf('Invalid default sort "%s" given', $default));
+            }
+        }
+
+        $sortControl->handleRequest($this->getServerRequest());
+
+        return $sortControl->apply($query);
     }
 
     /**
