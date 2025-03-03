@@ -38,6 +38,11 @@ class TermContainer extends BaseHtmlElement
 
     protected function assemble()
     {
+        if ($this->input->getReadOnly()) {
+            // bind remove translation to DOM, this allows the JS part to make use of it
+            $this->setAttribute('remove-action-label', $this->translate('Remove'));
+        }
+
         foreach ($this->input->getTerms() as $i => $term) {
             $value = $term->getLabel() ?: $term->getSearchValue();
 
