@@ -69,25 +69,15 @@ class TermContainer extends BaseHtmlElement
                 $label->addHtml(
                     new HtmlElement(
                         'div',
-                        Attributes::create([
-                            'class' => 'delete-action'
-                        ]),
-                        new HtmlElement(
-                            'div',
-                            Attributes::create([
-                                'class' => 'delete-action-content'
-                            ]),
-                            ...Html::wantHtmlList([
-                                new Icon('trash'),
-                                new HtmlElement(
-                                    'span',
-                                    Attributes::create([
-                                        'class' => 'delete-action-label'
-                                    ]),
-                                    new Text($this->getAttribute('delete-action-label')->getValue())
-                                )
-                            ])
-                        )
+                        Attributes::create(['class' => 'remove-action']),
+                        ...Html::wantHtmlList([
+                            new Icon('trash'),
+                            new HtmlElement(
+                                'span',
+                                Attributes::create(['class' => 'remove-action-label']),
+                                new Text($this->getAttribute('remove-action-label')->getValue())
+                            )
+                        ])
                     )
                 );
                 $label->addHtml(new HtmlElement('span', Attributes::create(['class' => 'invalid-reason'])));

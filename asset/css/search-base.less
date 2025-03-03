@@ -75,7 +75,7 @@ fieldset:disabled .term-input-area [data-drag-initiator] {
   }
 }
 
-.delete-action > .delete-action-content {
+.remove-action {
   display: flex;
   text-align: center;
   justify-content: center;
@@ -275,6 +275,10 @@ fieldset:disabled .term-input-area [data-drag-initiator] {
       }
     }
   }
+
+  &.read-only [data-index] > .remove-action {
+    height: 100%;
+  }
 }
 
 .term-input-area {
@@ -284,15 +288,11 @@ fieldset:disabled .term-input-area [data-drag-initiator] {
     outline-offset: ~"calc(-@{labelPad} + 3px)";
   }
 
-  &:not(.vertical) {
-    --delete-action-height: ~"calc(2em + 1.75px)";
-  }
-
   &.read-only {
     [data-index] {
       position: relative;
 
-      &:not(:hover) > .delete-action {
+      &:not(:hover) > .remove-action {
         visibility: hidden;
       }
 
@@ -324,26 +324,18 @@ fieldset:disabled .term-input-area [data-drag-initiator] {
         left: .5em;
       }
 
-      .delete-action {
+      .remove-action {
         visibility: visible;
-        display: inline-flex;
         position: absolute;
         z-index: 1;
         width: 100%;
         top: 0;
         left: 0;
         height: var(--delete-action-height, 100%);
+        cursor: pointer;
 
-        > .delete-action-content {
-          height: 100%;
-          flex-grow: 1;
-          min-width: 0;
-
-          > span.delete-action-label {
-            text-overflow: ellipsis;
-            overflow: hidden;
-            white-space: nowrap;
-          }
+        > span.remove-action-label {
+          .text-ellipsis();
         }
       }
     }

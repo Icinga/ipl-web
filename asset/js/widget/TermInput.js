@@ -190,11 +190,9 @@ define(["../notjQuery", "../vendor/Sortable", "BaseInput"], function ($, Sortabl
                 label.firstChild.readOnly = true;
                 label.appendChild(
                     $.render(
-                        '<div class="delete-action">' +
-                            '<div class="delete-action-content">' +
-                                '<i class="icon fa-trash fa"></i>' +
-                                '<span class="delete-action-label">' + this.termContainer.getAttribute('delete-action-label') + '</span>' +
-                            '</div>' +
+                        '<div class="remove-action">' +
+                            '<i class="icon fa-trash fa"></i>' +
+                            '<span class="remove-action-label">' + this.termContainer.getAttribute('remove-action-label') + '</span>' +
                         '</div>'
                     )
                 );
