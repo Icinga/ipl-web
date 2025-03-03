@@ -4,12 +4,17 @@ namespace ipl\Web\FormElement\TermInput;
 
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
+use ipl\Html\Html;
 use ipl\Html\HtmlElement;
+use ipl\Html\Text;
+use ipl\I18n\Translation;
 use ipl\Web\FormElement\TermInput;
 use ipl\Web\Widget\Icon;
 
 class TermContainer extends BaseHtmlElement
 {
+    use Translation;
+
     protected $tag = 'div';
 
     protected $defaultAttributes = ['class' => 'terms'];
@@ -57,9 +62,30 @@ class TermContainer extends BaseHtmlElement
             );
             if ($this->input->getReadOnly()) {
                 $label->addHtml(
-                    new Icon('trash'),
-                    new HtmlElement('span', Attributes::create(['class' => 'invalid-reason']))
+                    new HtmlElement(
+                        'div',
+                        Attributes::create([
+                            'class' => 'delete-action'
+                        ]),
+                        new HtmlElement(
+                            'div',
+                            Attributes::create([
+                                'class' => 'delete-action-content'
+                            ]),
+                            ...Html::wantHtmlList([
+                                new Icon('trash'),
+                                new HtmlElement(
+                                    'span',
+                                    Attributes::create([
+                                        'class' => 'delete-action-label'
+                                    ]),
+                                    new Text($this->getAttribute('delete-action-label')->getValue())
+                                )
+                            ])
+                        )
+                    )
                 );
+                $label->addHtml(new HtmlElement('span', Attributes::create(['class' => 'invalid-reason'])));
             }
 
             if ($this->tag === 'ol') {

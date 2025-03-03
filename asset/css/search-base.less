@@ -75,6 +75,17 @@ fieldset:disabled .term-input-area [data-drag-initiator] {
   }
 }
 
+.delete-action > .delete-action-content {
+  display: flex;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  background: var(--search-term-delete-action-bg, @search-term-delete-action-bg);
+  color: var(--search-term-delete-action-color, @search-term-delete-action-color);
+  border: none;
+  border-radius: 0.25em;
+}
+
 .search-suggestions {
   background: var(--suggestions-bg, @suggestions-bg);
   color: var(--suggestions-color, @suggestions-color);
@@ -164,7 +175,7 @@ fieldset:disabled .term-input-area [data-drag-initiator] {
   label {
     position: relative;
     display: inline-block;
-    min-width: 2em;
+    min-width: 6em;
     height: 100%;
 
     &::after,
@@ -273,12 +284,19 @@ fieldset:disabled .term-input-area [data-drag-initiator] {
     outline-offset: ~"calc(-@{labelPad} + 3px)";
   }
 
+  &:not(.vertical) {
+    --delete-action-height: ~"calc(2em + 1.75px)";
+  }
+
   &.read-only {
     [data-index] {
       position: relative;
 
+      &:not(:hover) > .delete-action {
+        visibility: hidden;
+      }
+
       input {
-        padding-left: 1.5em;
         text-align: center;
         cursor: pointer;
 
@@ -304,6 +322,29 @@ fieldset:disabled .term-input-area [data-drag-initiator] {
         z-index: 1;
         top: 85%;
         left: .5em;
+      }
+
+      .delete-action {
+        visibility: visible;
+        display: inline-flex;
+        position: absolute;
+        z-index: 1;
+        width: 100%;
+        top: 0;
+        left: 0;
+        height: var(--delete-action-height, 100%);
+
+        > .delete-action-content {
+          height: 100%;
+          flex-grow: 1;
+          min-width: 0;
+
+          > span.delete-action-label {
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
+          }
+        }
       }
     }
   }

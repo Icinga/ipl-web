@@ -384,7 +384,8 @@ class TermInput extends FieldsetElement
     {
         if ($this->termContainer === null) {
             $this->termContainer = (new TermContainer($this))
-                ->setAttribute('id', $this->getName() . '-terms');
+                ->setAttribute('id', $this->getName() . '-terms')
+                ->setAttribute('delete-action-label', $this->translate('Remove'));
         }
 
         return $this->termContainer;
