@@ -84,6 +84,7 @@ fieldset:disabled .term-input-area [data-drag-initiator] {
   color: var(--search-term-remove-action-color, @search-term-remove-action-color);
   border: none;
   border-radius: 0.25em;
+  padding: 0.25em 0.5em 0.25em 0.5em;
 }
 
 .search-suggestions {
@@ -331,7 +332,7 @@ fieldset:disabled .term-input-area [data-drag-initiator] {
         width: 100%;
         top: 0;
         left: 0;
-        height: var(--delete-action-height, 100%);
+        height: ~"calc(2em + 2px)"; // respect the additional scrollbar in horizontal (default) mode
         cursor: pointer;
 
         > span.remove-action-label {
