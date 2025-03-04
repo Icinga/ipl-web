@@ -4,12 +4,17 @@ namespace ipl\Web\FormElement\TermInput;
 
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
+use ipl\Html\Html;
 use ipl\Html\HtmlElement;
+use ipl\Html\Text;
+use ipl\I18n\Translation;
 use ipl\Web\FormElement\TermInput;
 use ipl\Web\Widget\Icon;
 
 class TermContainer extends BaseHtmlElement
 {
+    use Translation;
+
     protected $tag = 'div';
 
     protected $defaultAttributes = ['class' => 'terms'];
@@ -33,6 +38,12 @@ class TermContainer extends BaseHtmlElement
 
     protected function assemble()
     {
+        if ($this->input->getReadOnly()) {
+            $removeLabel = $this->translate('Remove');
+            // bind remove translation to DOM, this allows the JS part to make use of it
+            $this->setAttribute('remove-action-label', $removeLabel);
+        }
+
         foreach ($this->input->getTerms() as $i => $term) {
             $value = $term->getLabel() ?: $term->getSearchValue();
 
@@ -57,9 +68,20 @@ class TermContainer extends BaseHtmlElement
             );
             if ($this->input->getReadOnly()) {
                 $label->addHtml(
-                    new Icon('trash'),
-                    new HtmlElement('span', Attributes::create(['class' => 'invalid-reason']))
+                    new HtmlElement(
+                        'div',
+                        Attributes::create(['class' => 'remove-action']),
+                        ...Html::wantHtmlList([
+                            new Icon('trash'),
+                            new HtmlElement(
+                                'span',
+                                Attributes::create(['class' => 'remove-action-label']),
+                                new Text($removeLabel)
+                            )
+                        ])
+                    )
                 );
+                $label->addHtml(new HtmlElement('span', Attributes::create(['class' => 'invalid-reason'])));
             }
 
             if ($this->tag === 'ol') {
