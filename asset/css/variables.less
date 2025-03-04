@@ -36,16 +36,14 @@
 @base-primary-bg: #00C3ED;
 @base-primary-dark: #0081a6;
 @base-primary-light: fade(@base-primary-bg, 50%);
-@base-remove-bg: @state-critical;
-@base-delete-bg: @base-remove-bg;
 
 @default-text-color: #fff;
 @default-text-color-light: fade(@default-text-color, 75%);
 @default-text-color-inverted: @default-bg;
 @default-input-bg: #404d72;
-@default-remove-bg: @base-remove-bg;
+@default-remove-bg: @state-critical;
 @default-remove-color: @default-text-color-inverted;
-@default-delete-bg: @base-delete-bg;
+@default-delete-bg: @state-critical;
 @default-delete-color: @default-text-color-inverted;
 
 @state-ok: #44bb77;
@@ -146,7 +144,6 @@
     --base-disabled: var(--base-gray-light);
 
     --base-remove-bg: @state-critical;
-    --base-delete-bg: var(--base-remove-bg);
 
     --default-text-color: #535353;
     --default-text-color-light: fade(#535353, 75%); // --default-text-color
@@ -154,7 +151,7 @@
     --default-input-bg: #DEECF1;
     --default-remove-bg: var(--base-remove-bg);
     --default-remove-color: var(--default-text-color-inverted);
-    --default-delete-bg: var(--base-delete-bg);
+    --default-delete-bg: var(--base-remove-bg);
     --default-delete-color: var(--default-text-color-inverted);
 
     --primary-button-color: var(--default-text-color-inverted);
