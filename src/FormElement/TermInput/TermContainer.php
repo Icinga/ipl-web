@@ -39,8 +39,9 @@ class TermContainer extends BaseHtmlElement
     protected function assemble()
     {
         if ($this->input->getReadOnly()) {
+            $removeLabel = $this->translate('Remove');
             // bind remove translation to DOM, this allows the JS part to make use of it
-            $this->setAttribute('remove-action-label', $this->translate('Remove'));
+            $this->setAttribute('remove-action-label', $removeLabel);
         }
 
         foreach ($this->input->getTerms() as $i => $term) {
@@ -75,7 +76,7 @@ class TermContainer extends BaseHtmlElement
                             new HtmlElement(
                                 'span',
                                 Attributes::create(['class' => 'remove-action-label']),
-                                new Text($this->getAttribute('remove-action-label')->getValue())
+                                new Text($removeLabel)
                             )
                         ])
                     )
