@@ -77,14 +77,12 @@ fieldset:disabled .term-input-area [data-drag-initiator] {
 
 .remove-action {
   display: flex;
-  text-align: center;
   justify-content: center;
   align-items: center;
   background: var(--search-term-remove-action-bg, @search-term-remove-action-bg);
   color: var(--search-term-remove-action-color, @search-term-remove-action-color);
-  border: none;
-  border-radius: 0.25em;
   padding: 0.25em 0.5em 0.25em 0.5em;
+  .rounded-corners(0.25em);
 }
 
 .search-suggestions {
@@ -277,7 +275,7 @@ fieldset:disabled .term-input-area [data-drag-initiator] {
     }
   }
 
-  &.read-only [data-index] > .remove-action {
+  &.read-only [data-index] .remove-action {
     height: 100%;
   }
 }
@@ -292,10 +290,6 @@ fieldset:disabled .term-input-area [data-drag-initiator] {
   &.read-only {
     [data-index] {
       position: relative;
-
-      &:not(:hover) > .remove-action {
-        visibility: hidden;
-      }
 
       input {
         text-align: center;
@@ -335,9 +329,13 @@ fieldset:disabled .term-input-area [data-drag-initiator] {
         height: ~"calc(2em + 2px)"; // respect the additional scrollbar in horizontal (default) mode
         cursor: pointer;
 
-        > span.remove-action-label {
+        span.remove-action-label {
           .text-ellipsis();
         }
+      }
+
+      &:not(:hover) .remove-action {
+        visibility: hidden;
       }
     }
   }
