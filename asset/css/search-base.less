@@ -153,12 +153,15 @@ fieldset:disabled .term-input-area [data-drag-initiator] {
 // Layout
 .search-bar .filter-input-area,
 .term-input-area:not(.vertical) {
+  --term-padding-v: .25em;
+  --term-padding-h: .5em;
+
   overflow: auto hidden;
-  overflow-x: overlay; // Not invalid, but proprietary feature by chrome/webkit
   display: flex;
   flex-wrap: nowrap;
   width: 100%;
-  height: ~"calc(2em + 10px)"; // Search bar height + approximate scrollbar height
+  // input line-height + (input vertical padding * 2) + approximate scrollbar height
+  height: ~"calc(20px + calc(var(--term-padding-v) * 2) + 10px)";
 
   // Lets inputs grow based on their contents, Inspired by https://css-tricks.com/auto-growing-inputs-textareas/
   label {
@@ -170,7 +173,7 @@ fieldset:disabled .term-input-area [data-drag-initiator] {
     &::after,
     input {
       width: auto;
-      padding: .25em .5em;
+      padding: var(--term-padding-v) var(--term-padding-h);
       resize: none;
     }
 
