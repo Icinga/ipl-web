@@ -5,14 +5,17 @@ namespace ipl\Web\Common;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
+use ipl\Web\Widget\ItemList;
 
 /**
  * Base class for list items
+ *
+ * @deprecated Use a {@see ItemList} with a dedicated {@see ItemRenderer} instead.
  */
 abstract class BaseListItem extends BaseHtmlElement
 {
     /** @var array<string, mixed> */
-    protected $baseAttributes = ['class' => 'list-item'];
+    protected $baseAttributes = ['class' => ['list-item', 'item-layout', 'default-item-layout']];
 
     /** @var object The associated list item */
     protected $item;

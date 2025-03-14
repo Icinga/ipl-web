@@ -6,6 +6,7 @@ use ipl\Web\Widget\EmptyStateBar;
 
 /**
  * @method BaseOrderedListItem getItemClass()
+ * @deprecated Use your own implementation instead
  */
 abstract class BaseOrderedItemList extends BaseItemList
 {
