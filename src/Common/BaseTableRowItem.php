@@ -16,7 +16,7 @@ abstract class BaseTableRowItem extends BaseHtmlElement
     /** @var object The associated list item */
     protected $item;
 
-    /** @var ?BaseItemTable The list where the item is part of */
+    /** @var BaseItemTable The list where the item is part of */
     protected $table;
 
     protected $tag = 'li';
@@ -25,16 +25,12 @@ abstract class BaseTableRowItem extends BaseHtmlElement
      * Create a new table row item
      *
      * @param object $item
-     * @param BaseItemTable|null $table
+     * @param BaseItemTable $table
      */
-    public function __construct($item, BaseItemTable $table = null)
+    public function __construct($item, BaseItemTable $table)
     {
         $this->item = $item;
         $this->table = $table;
-
-        if ($table === null) {
-            $this->setTag('div');
-        }
 
         $this->addAttributes($this->baseAttributes);
 
