@@ -83,3 +83,14 @@
 .controls .list-item:not(:last-child) {
   margin-bottom: .5em;
 }
+
+:not(.dashboard) > .container > .content:has(> .item-list), // compat only, for Icinga Web
+.content:has(> .item-list) {
+  padding-left: 0;
+  padding-right: 0;
+
+  > .item-list > .list-item {
+    padding-left: 1em;
+    padding-right: 1em;
+  }
+}
