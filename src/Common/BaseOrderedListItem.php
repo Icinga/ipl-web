@@ -4,6 +4,7 @@ namespace ipl\Web\Common;
 
 use LogicException;
 
+/** @deprecated Use your own implementation instead */
 abstract class BaseOrderedListItem extends BaseListItem
 {
     /** @var ?int This element's position */
