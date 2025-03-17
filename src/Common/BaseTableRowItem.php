@@ -7,7 +7,9 @@ use ipl\Html\BaseHtmlElement;
 use ipl\Html\Html;
 use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
+use ipl\Web\Widget\ItemTable;
 
+/** @deprecated Use a {@see ItemTable} with a dedicated {@see ItemRenderer} instead. */
 abstract class BaseTableRowItem extends BaseHtmlElement
 {
     /** @var array<string, mixed> */
