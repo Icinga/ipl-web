@@ -7,9 +7,12 @@ use ipl\Html\BaseHtmlElement;
 use ipl\Orm\ResultSet;
 use ipl\Stdlib\BaseFilter;
 use ipl\Web\Widget\EmptyStateBar;
+use ipl\Web\Widget\ItemTable;
 
 /**
  * Base class for item tables
+ *
+ * @deprecated Use {@see ItemTable} instead
  */
 abstract class BaseItemTable extends BaseHtmlElement
 {
