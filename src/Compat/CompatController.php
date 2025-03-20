@@ -355,7 +355,7 @@ class CompatController extends Controller
                 $oldPathInfo = $this->getRequest()->getPathInfo();
                 $oldQuery = $_SERVER['QUERY_STRING'];
                 $this->getRequest()->setPathInfo('/' . $redirectUrl->getPath());
-                $_SERVER['QUERY_STRING'] = $redirectUrl->getParams()->toString();
+                $_SERVER['QUERY_STRING'] = $redirectUrl->getQueryString();
                 $this->tabs->ensureAssembled();
                 $this->getRequest()->setPathInfo($oldPathInfo);
                 $_SERVER['QUERY_STRING'] = $oldQuery;
