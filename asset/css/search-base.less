@@ -58,30 +58,33 @@ fieldset:disabled .term-input-area [data-drag-initiator] {
   cursor: not-allowed;
 }
 
-.invalid-reason {
-  padding: .25em;
-  .rounded-corners(.25em);
-  border: 1px solid black;
-  font-weight: bold;
-  background: var(--search-term-invalid-reason-bg, @search-term-invalid-reason-bg);
+.term-input-area {
+  .invalid-reason {
+    padding: .25em;
+    .rounded-corners(.25em);
+    border: 1px solid black;
+    font-weight: bold;
+    background: var(--search-term-invalid-reason-bg, @search-term-invalid-reason-bg);
 
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 2s, visibility 2s;
-  &.visible {
-    opacity: 1;
-    visibility: visible;
-    transition: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 2s, visibility 2s;
+
+    &.visible {
+      opacity: 1;
+      visibility: visible;
+      transition: none;
+    }
   }
-}
 
-.remove-action {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: @search-term-remove-action-bg;
-  color: @search-term-remove-action-color;
-  .rounded-corners(0.25em);
+  .remove-action {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: @search-term-remove-action-bg;
+    color: @search-term-remove-action-color;
+    .rounded-corners(0.25em);
+  }
 }
 
 .search-suggestions {
