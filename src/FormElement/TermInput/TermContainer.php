@@ -69,7 +69,7 @@ class TermContainer extends BaseHtmlElement
                 $label->addHtml(
                     new HtmlElement(
                         'div',
-                        Attributes::create(['class' => 'remove-action']),
+                        Attributes::create(['class' => 'remove-action', 'title' => $removeLabel]),
                         new Icon('trash'),
                         new HtmlElement(
                             'span',
