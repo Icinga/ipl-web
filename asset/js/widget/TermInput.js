@@ -187,14 +187,13 @@ define(["../notjQuery", "../vendor/Sortable", "BaseInput"], function ($, Sortabl
             const label = super.renderTerm(termData, termIndex);
 
             if (this.readOnly) {
+                const removeLabel = this.termContainer.dataset.removeActionLabel;
                 label.firstChild.readOnly = true;
                 label.appendChild(
                     $.render(
-                        '<div class="remove-action">' +
+                        `<div class="remove-action" title="${ removeLabel }">` +
                             '<i class="icon fa-trash fa"></i>' +
-                            '<span class="remove-action-label">' +
-                                this.termContainer.dataset.removeActionLabel +
-                            '</span>' +
+                            `<span class="remove-action-label">${ removeLabel }</span>` +
                         '</div>'
                     )
                 );
