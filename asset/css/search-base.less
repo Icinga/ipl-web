@@ -58,20 +58,32 @@ fieldset:disabled .term-input-area [data-drag-initiator] {
   cursor: not-allowed;
 }
 
-.invalid-reason {
-  padding: .25em;
-  .rounded-corners(.25em);
-  border: 1px solid black;
-  font-weight: bold;
-  background: var(--search-term-invalid-reason-bg, @search-term-invalid-reason-bg);
+.term-input-area {
+  .invalid-reason {
+    padding: .25em;
+    .rounded-corners(.25em);
+    border: 1px solid black;
+    font-weight: bold;
+    background: var(--search-term-invalid-reason-bg, @search-term-invalid-reason-bg);
 
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 2s, visibility 2s;
-  &.visible {
-    opacity: 1;
-    visibility: visible;
-    transition: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 2s, visibility 2s;
+
+    &.visible {
+      opacity: 1;
+      visibility: visible;
+      transition: none;
+    }
+  }
+
+  .remove-action {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: @search-term-remove-action-bg;
+    color: @search-term-remove-action-color;
+    .rounded-corners(0.25em);
   }
 }
 
@@ -167,7 +179,7 @@ fieldset:disabled .term-input-area [data-drag-initiator] {
   label {
     position: relative;
     display: inline-block;
-    min-width: 2em;
+    min-width: 6em;
     height: 100%;
 
     &::after,
@@ -210,6 +222,11 @@ fieldset:disabled .term-input-area [data-drag-initiator] {
     label {
       margin-right: 1px;
     }
+  }
+
+  &.read-only [data-index] .remove-action {
+    line-height: 20/12;
+    padding: var(--term-padding-v) var(--term-padding-h);
   }
 }
 
@@ -281,7 +298,6 @@ fieldset:disabled .term-input-area [data-drag-initiator] {
       position: relative;
 
       input {
-        padding-left: 1.5em;
         text-align: center;
         cursor: pointer;
 
@@ -307,6 +323,24 @@ fieldset:disabled .term-input-area [data-drag-initiator] {
         z-index: 1;
         top: 85%;
         left: .5em;
+      }
+
+      .remove-action {
+        visibility: visible;
+        position: absolute;
+        width: 100%;
+        top: 0;
+        line-height: normal;
+        padding: 0.5em;
+        pointer-events: none;
+
+        .remove-action-label {
+          .text-ellipsis();
+        }
+      }
+
+      &:not(:hover) .remove-action {
+        visibility: hidden;
       }
     }
   }

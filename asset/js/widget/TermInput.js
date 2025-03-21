@@ -188,7 +188,16 @@ define(["../notjQuery", "../vendor/Sortable", "BaseInput"], function ($, Sortabl
 
             if (this.readOnly) {
                 label.firstChild.readOnly = true;
-                label.appendChild($.render('<i class="icon fa-trash fa"></i>'));
+                label.appendChild(
+                    $.render(
+                        '<div class="remove-action">' +
+                            '<i class="icon fa-trash fa"></i>' +
+                            '<span class="remove-action-label">' +
+                                this.termContainer.dataset.removeActionLabel +
+                            '</span>' +
+                        '</div>'
+                    )
+                );
                 label.appendChild($.render('<span class="invalid-reason"></span>'));
             }
 

@@ -41,6 +41,10 @@
 @default-text-color-light: fade(@default-text-color, 75%);
 @default-text-color-inverted: @default-bg;
 @default-input-bg: #404d72;
+@default-remove-bg: @state-critical;
+@default-remove-color: @default-text-color-inverted;
+@default-delete-bg: @state-critical;
+@default-delete-color: @default-text-color-inverted;
 
 @state-ok: #44bb77;
 @state-up: @state-ok;
@@ -66,6 +70,8 @@
 @search-term-highlighted-bg: @base-primary-bg;
 @search-term-highlighted-color: @default-text-color-inverted;
 @search-term-drag-border-color: @base-gray;
+@search-term-remove-action-bg: @default-remove-bg;
+@search-term-remove-action-color: @default-remove-color;
 
 @search-condition-remove-bg: @state-critical;
 @search-condition-remove-color: @default-text-color-inverted;
@@ -143,6 +149,10 @@
     --default-text-color-light: fade(#535353, 75%); // --default-text-color
     --default-text-color-inverted: #F5F9FA;
     --default-input-bg: #DEECF1;
+    --default-remove-bg: var(--base-remove-bg);
+    --default-remove-color: var(--default-text-color-inverted);
+    --default-delete-bg: var(--base-remove-bg);
+    --default-delete-color: var(--default-text-color-inverted);
 
     --primary-button-color: var(--default-text-color-inverted);
     --primary-button-bg: @primary-button-bg;
@@ -162,6 +172,8 @@
     --search-term-highlighted-bg: var(--primary-button-bg);
     --search-term-highlighted-color: var(--default-text-color-inverted);
     --search-term-drag-border-color: var(--base-gray);
+    --search-term-remove-action-bg: var(--default-remove-bg);
+    --search-term-remove-action-color: var(--default-remove-color);
 
     --search-condition-remove-bg: var(--base-remove-bg);
     --search-condition-remove-color: var(--default-text-color-inverted);
