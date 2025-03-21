@@ -78,9 +78,6 @@ fieldset:disabled .term-input-area [data-drag-initiator] {
   }
 
   .remove-action {
-    display: flex;
-    justify-content: center;
-    align-items: center;
     background: @search-term-remove-action-bg;
     color: @search-term-remove-action-color;
     .rounded-corners(0.25em);
@@ -179,7 +176,7 @@ fieldset:disabled .term-input-area [data-drag-initiator] {
   label {
     position: relative;
     display: inline-block;
-    min-width: 6em;
+    min-width: 2em;
     height: 100%;
 
     &::after,
@@ -326,17 +323,29 @@ fieldset:disabled .term-input-area [data-drag-initiator] {
       }
 
       .remove-action {
+        display: flex;
+        align-items: center;
         visibility: visible;
         position: absolute;
         width: 100%;
         top: 0;
         line-height: normal;
         padding: 0.5em;
-        pointer-events: none;
+        cursor: pointer;
+
+        i.icon {
+          margin-left: auto;
+        }
 
         .remove-action-label {
+          margin-right: auto;
           .text-ellipsis();
         }
+      }
+
+      input:invalid ~ .remove-action,
+      input.invalid ~ .remove-action {
+        pointer-events: none;
       }
 
       &:not(:hover) .remove-action {
