@@ -4,79 +4,99 @@ ul.item-table {
   list-style-type: none;
 }
 
-.table-row {
-  color: @default-text-color-light;
-
-  .title {
-    .subject {
-      color: @default-text-color;
-    }
-
-    a {
-      font-weight: bold;
-
-      &:hover {
-        color: @list-item-title-hover-color;
-        text-decoration: none;
-      }
-    }
-  }
-}
-
-@media print {
-  .item-table li.page-break-follows:not(:last-of-type) {
-    .col {
-      border-bottom: none;
-    }
-
-    .visual {
-      margin-bottom: 0;
-    }
-  }
-}
-
 // Layout
 
-.table-row {
-  .title {
-    display: flex;
+ul.item-table {
+  // Grid specific rules
+  display: grid;
+  grid-template-columns: 1fr repeat(var(--columns), auto);
+  &:has(> li > .visual) {
+    grid-template-columns: auto 1fr repeat(var(--columns), auto);
+  }
 
-    .visual {
-      width: 2.5em;
-      padding: .5em 0;
-      margin-top: -.5em;
-      margin-bottom: -.5em;
+  > li {
+    display: contents;
+
+    &.item-layout .main {
+      // Usually, the parent is flex, but here it's contents and hence main itself must be flex.
+      display: flex;
+      width: auto;
+
+      .column-content {
+        flex: 1 1 auto;
+        width: 0;
+      }
     }
 
-    .column-content {
-      flex: 1 1 auto;
-      width: 0;
+    .col, &::before, &::after {
+      // The li might get a background on hover. Though, this won't be visible
+      // as it has no box model since we apply display:contents to it.
+      background-color: inherit;
+    }
+  }
+}
 
-      > * {
-        .text-ellipsis();
+// compat only, full-width is a Icinga DB Web class
+.content.full-width ul.item-table {
+  // Again, since the li has no box model, it cannot have padding. So the first
+  // and last child need to get the left and right padding respectively.
+  // But we don't want to have a border that spans to the very right or left,
+  // so pseudo elements are required. We could add empty cells instead, but
+  // that would require hard coding the width here, which I'd like to avoid.
+
+  grid-template-columns: ~"auto 1fr repeat(var(--columns), auto) auto";
+  &:has(> li > .visual) {
+    grid-template-columns: ~"auto auto 1fr repeat(var(--columns), auto) auto";
+  }
+
+  > li.table-row {
+    &::before, &::after {
+      display: inline-block;
+      content: '\00a0';
+      width: 0;
+      margin-bottom: 1px;
+    }
+
+    &::before {
+      padding-left: inherit;
+    }
+
+    &::after {
+      padding-right: inherit;
+    }
+
+    .col:not(:last-child) {
+      // Children cannot have a margin as well, use padding instead.
+      padding-right: 1em;
+      margin-right: 0;
+    }
+  }
+}
+
+ul.item-table {
+  // General rules
+  padding: 0;
+  margin: 0;
+
+  .table-row {
+    .col {
+      padding: .5em 0;
+
+      .title {
+        margin-right: 0;
+      }
+    }
+
+    &:not(:last-of-type) {
+      .col {
+        border-bottom: 1px solid @list-item-separation-bg;
+
+        &.visual {
+          border-color: @default-bg;
+        }
       }
     }
   }
-
-  .col {
-    white-space: nowrap;
-  }
-}
-
-ul.item-table {
-  display: grid;
-
-  > .table-row {
-    .col:not(.title) {
-      display: grid;
-      align-items: center;
-    }
-  }
-}
-
-ul.item-table {
-  padding: 0;
-  margin: 0;
 }
 
 div.item-table {
@@ -85,11 +105,10 @@ div.item-table {
   }
 }
 
-div.table-row {
-  display: flex;
-  column-gap: 1em;
-
-  .title {
-    flex: 1 1 auto;
+@media print {
+  .item-table li.page-break-follows:not(:last-of-type) {
+    .col {
+      border-bottom: none;
+    }
   }
 }
