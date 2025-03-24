@@ -9,11 +9,19 @@
 .ball-size-xs {
   height: 1/3em;
   width: 1/3em;
+
+  i.icon, span {
+    display: none;
+  }
 }
 
 .ball-size-s {
   height: 0.5em;
   width: 0.5em;
+
+  i.icon, span {
+    display: none;
+  }
 }
 
 .ball-size-m {
@@ -24,6 +32,10 @@
   i.icon:before {
     font-size: .75 - @ball-pad * 2;
     line-height: 1em;
+  }
+
+  span {
+    display: none;
   }
 }
 
@@ -40,6 +52,10 @@
       line-height: 1 - @ball-pad * 2;
     }
   }
+
+  span {
+    display: none;
+  }
 }
 
 .ball-size-l {
@@ -47,7 +63,7 @@
   width: 1.5em;
   line-height: 1em;
 
-  i.icon:before {
+  i.icon:before, span {
     font-size: 1 - @ball-pad * 2;
     line-height: 1.5 - @ball-pad * 2;
   }
@@ -57,7 +73,7 @@
   width: 2em;
   height: 2em;
 
-  i.icon:before {
+  i.icon:before, span {
     line-height: 2 - @ball-pad * 2;
   }
 }
