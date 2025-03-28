@@ -58,6 +58,7 @@
 @primary-button-color: @default-text-color-inverted;
 @primary-button-bg: @base-primary-bg;
 @primary-button-hover-bg: @base-primary-dark;
+@link-hover-color: @base-primary-color;
 
 @search-term-bg: @base-gray;
 @search-term-color: @default-text-color-inverted;
@@ -132,7 +133,7 @@
 @empty-state-color: @base-gray-semilight;
 @empty-state-bar-bg: @base-gray-lighter;
 
-@list-item-title-hover-color: @base-primary-color;
+@list-item-title-hover-color: @link-hover-color;
 @list-item-separation-bg: @base-gray-light;
 
 @iplWebLightRules: {
@@ -157,6 +158,7 @@
     --primary-button-color: var(--default-text-color-inverted);
     --primary-button-bg: @primary-button-bg;
     --primary-button-hover-bg: @primary-button-hover-bg;
+    --link-hover-color: var(--base-primary-color);
 
     --searchbar-bg: var(--default-input-bg);
     --searchbar-scrollbar-bg: var(--base-gray-light);
@@ -226,7 +228,7 @@
     --empty-state-color: var(--base-gray-semilight);
     --empty-state-bar-bg: var(--base-gray-lighter);
 
-    --list-item-title-hover-color: var(--base-primary-color);
+    --list-item-title-hover-color: var(--link-hover-color);
     --list-item-separation-bg: var(--base-gray-light);
   }
 };
