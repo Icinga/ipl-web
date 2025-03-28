@@ -2,42 +2,62 @@
 
 namespace ipl\Web\Widget;
 
-use ipl\Html\BaseHtmlElement;
-
 /**
  * State ball element that supports different sizes and colors
+ *
+ * @phpstan-import-type SIZE from Ball
+ * @phpstan-type STATE 'none'|'pending'|'up'|'down'|'ok'|'critical'|'warning'|'unknown'|'unreachable'
  */
-class StateBall extends BaseHtmlElement
+class StateBall extends Ball
 {
-    const SIZE_TINY = 'xs';
-    const SIZE_SMALL = 's';
-    const SIZE_MEDIUM = 'm';
-    const SIZE_MEDIUM_LARGE = 'ml';
-    const SIZE_BIG = 'l';
-    const SIZE_LARGE = 'xl';
+    protected $defaultAttributes = ['class' => 'state-ball'];
 
-    protected $tag = 'span';
+    /** @var STATE */
+    protected $state = 'none';
+
+    /** @var bool */
+    protected $handled = false;
 
     /**
      * Create a new state ball element
      *
-     * @param string $state
-     * @param string $size
+     * @param STATE $state
+     * @param SIZE $size
      */
-    public function __construct($state = 'none', $size = self::SIZE_SMALL)
+    public function __construct(string $state = 'none', string $size = self::SIZE_SMALL)
     {
         $state = trim($state);
-
         if (empty($state)) {
             $state = 'none';
         }
 
-        $size = trim($size);
+        $this->state = $state;
 
-        if (empty($size)) {
-            $size = self::SIZE_MEDIUM;
+        parent::__construct($size);
+    }
+
+    /**
+     * Show the handled state instead
+     *
+     * @param bool $handled
+     *
+     * @return $this
+     */
+    public function setHandled(bool $handled): self
+    {
+        $this->handled = $handled;
+
+        return $this;
+    }
+
+    protected function assembleCssClasses(): array
+    {
+        $classes = parent::assembleCssClasses();
+        $classes[] = 'state-' . $this->state;
+        if ($this->handled) {
+            $classes[] = 'handled';
         }
 
-        $this->defaultAttributes = ['class' => "state-ball state-$state ball-size-$size"];
+        return $classes;
     }
 }
