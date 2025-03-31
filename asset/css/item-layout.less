@@ -6,27 +6,21 @@
   // already the case in Icinga DB Web with the last comment flyout.
 
   .flowing-content(@layout) when (@layout = "default") {
-    & {
-      display: inline-flex;
-      align-items: baseline;
-      white-space: nowrap;
-      min-width: 0;
-      column-gap: .28125em; // calculated &nbsp; width
+    display: inline-flex;
+    align-items: baseline;
+    white-space: nowrap;
+    min-width: 0;
+    column-gap: .28125em; // calculated &nbsp; width
 
-      > .ellipsize, > .subject { // .subject is compat only, Icinga DB Web used it thoroughly
-        .text-ellipsis();
-      }
+    > .ellipsize, > .subject { // .subject is compat only, Icinga DB Web used it thoroughly
+      .text-ellipsis();
     }
   }
   .flowing-content(@layout) when (@layout = "detailed") {
-    word-break: break-word;
-    -webkit-hyphens: auto;
-    -ms-hyphens: auto;
-    hyphens: auto;
-
-    > * + * {
-      margin-left: .28125em; // calculated &nbsp; width
-    }
+    display: inline-flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    column-gap: .28125em; // calculated &nbsp; width
   }
 
   display: flex;
@@ -107,6 +101,11 @@
   }
   &.detailed-item-layout > .main > header > .title {
     .flowing-content("detailed");
+
+    word-break: break-word;
+    -webkit-hyphens: auto;
+    -ms-hyphens: auto;
+    hyphens: auto;
   }
 
   &.default-item-layout > .main > header > .extended-info {
