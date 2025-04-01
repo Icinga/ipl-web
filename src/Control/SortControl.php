@@ -222,7 +222,16 @@ class SortControl extends Form
         return $this;
     }
 
-    protected function assemble()
+    /**
+     * Prepare the visual representation of the sort control
+     *
+     * This is called just before rendering happens. What is being done here, doesn't influence validity in any way.
+     * So there is no need to have the result already at hand during validation. Instead, delaying it allows
+     * to influence the visual result as long as possible.
+     *
+     * @return void
+     */
+    protected function prepareContent(): void
     {
         $columns = $this->getColumns();
         $sort = $this->getSort();
@@ -285,9 +294,19 @@ class SortControl extends Form
         $toggleButton->add(new Icon($toggleIcon));
 
         $this->addHtml($toggleButton);
+    }
 
+    protected function assemble()
+    {
         if ($this->getMethod() === 'POST' && $this->hasAttribute('name')) {
             $this->addElement($this->createUidElement());
         }
+    }
+
+    public function renderUnwrapped()
+    {
+        $this->prepareContent();
+
+        return parent::renderUnwrapped();
     }
 }
