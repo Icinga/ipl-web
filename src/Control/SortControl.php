@@ -7,6 +7,7 @@ use ipl\Html\Form;
 use ipl\Html\FormDecorator\DivDecorator;
 use ipl\Html\FormElement\ButtonElement;
 use ipl\Html\HtmlElement;
+use ipl\I18n\Translation;
 use ipl\Orm\Common\SortUtil;
 use ipl\Orm\Query;
 use ipl\Stdlib\Str;
@@ -20,6 +21,7 @@ use Psr\Http\Message\ServerRequestInterface;
 class SortControl extends Form
 {
     use FormUid;
+    use Translation;
 
     /** @var string Default sort param */
     public const DEFAULT_SORT_PARAM = 'sort';
@@ -254,7 +256,7 @@ class SortControl extends Form
 
         $this->addElement('select', $this->getSortParam(), [
             'class'   => 'autosubmit',
-            'label'   => 'Sort By',
+            'label'   => $this->translate('Sort By'),
             'options' => $columns,
             'value'   => $value
         ]);
@@ -266,7 +268,7 @@ class SortControl extends Form
 
         $toggleButton = new ButtonElement($this->getSortParam(), [
             'class' => 'control-button spinner',
-            'title' => t('Change sort direction'),
+            'title' => $this->translate('Change sort direction'),
             'type'  => 'submit',
             'value' => implode(',', array_merge(["{$column} {$toggleDirection}"], $sort))
         ]);
