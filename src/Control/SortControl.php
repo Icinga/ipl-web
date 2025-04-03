@@ -7,11 +7,11 @@ use ipl\Html\Form;
 use ipl\Html\FormDecorator\DivDecorator;
 use ipl\Html\FormElement\ButtonElement;
 use ipl\Html\HtmlElement;
+use ipl\I18n\Translation;
 use ipl\Orm\Common\SortUtil;
 use ipl\Orm\Query;
 use ipl\Stdlib\Str;
 use ipl\Web\Common\FormUid;
-use ipl\Web\Url;
 use ipl\Web\Widget\Icon;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -21,6 +21,7 @@ use Psr\Http\Message\ServerRequestInterface;
 class SortControl extends Form
 {
     use FormUid;
+    use Translation;
 
     /** @var string Default sort param */
     public const DEFAULT_SORT_PARAM = 'sort';
@@ -29,13 +30,6 @@ class SortControl extends Form
 
     /** @var string Name of the URL parameter which stores the sort column */
     protected $sortParam = self::DEFAULT_SORT_PARAM;
-
-    /**
-     * @var Url Request URL
-     * @deprecated Access {@see self::getRequest()} instead.
-     * @todo Remove once cube calls {@see self::handleRequest()}.
-     */
-    protected $url;
 
     /** @var array Possible sort columns as sort string-value pairs */
     private $columns;
@@ -49,14 +43,12 @@ class SortControl extends Form
      * Create a new sort control
      *
      * @param array $columns Possible sort columns
-     * @param Url $url Request URL
      *
      * @internal Use {@see self::create()} instead.
      */
-    private function __construct(array $columns, Url $url)
+    private function __construct(array $columns)
     {
         $this->setColumns($columns);
-        $this->url = $url;
     }
 
     /**
@@ -73,7 +65,7 @@ class SortControl extends Form
             $normalized[SortUtil::normalizeSortSpec($spec)] = $label;
         }
 
-        $self = new static($normalized, Url::fromRequest());
+        $self = new static($normalized);
 
         $self->on(self::ON_REQUEST, function (ServerRequestInterface $request) use ($self) {
             if (! $self->hasBeenSent()) {
@@ -168,12 +160,7 @@ class SortControl extends Form
      */
     public function getSort(): ?string
     {
-        if ($this->getRequest() === null) {
-            $sort = $this->url->getParam($this->getSortParam(), $this->getDefault());
-        } else {
-            $sort = $this->getPopulatedValue($this->getSortParam(), $this->getDefault());
-        }
-
+        $sort = $this->getPopulatedValue($this->getSortParam(), $this->getDefault());
         if (! empty($sort)) {
             $columns = $this->getColumns();
 
@@ -203,12 +190,6 @@ class SortControl extends Form
      */
     public function apply(Query $query, $defaultSort = null): self
     {
-        if ($this->getRequest() === null) {
-            // handleRequest() has not been called yet
-            // TODO: Remove this once everything using this requires ipl v0.12.0
-            $this->handleRequest(ServerRequest::fromGlobals());
-        }
-
         $default = $defaultSort ?? (array) $query->getModel()->getDefaultSort();
         if (! empty($default)) {
             $this->setDefault(SortUtil::normalizeSortSpec($default));
@@ -222,7 +203,16 @@ class SortControl extends Form
         return $this;
     }
 
-    protected function assemble()
+    /**
+     * Prepare the visual representation of the sort control
+     *
+     * This is called just before rendering happens. What is being done here, doesn't influence validity in any way.
+     * So there is no need to have the result already at hand during validation. Instead, delaying it allows
+     * to influence the visual result as long as possible.
+     *
+     * @return void
+     */
+    protected function prepareContent(): void
     {
         $columns = $this->getColumns();
         $sort = $this->getSort();
@@ -266,7 +256,7 @@ class SortControl extends Form
 
         $this->addElement('select', $this->getSortParam(), [
             'class'   => 'autosubmit',
-            'label'   => 'Sort By',
+            'label'   => $this->translate('Sort By'),
             'options' => $columns,
             'value'   => $value
         ]);
@@ -278,16 +268,26 @@ class SortControl extends Form
 
         $toggleButton = new ButtonElement($this->getSortParam(), [
             'class' => 'control-button spinner',
-            'title' => t('Change sort direction'),
+            'title' => $this->translate('Change sort direction'),
             'type'  => 'submit',
             'value' => implode(',', array_merge(["{$column} {$toggleDirection}"], $sort))
         ]);
         $toggleButton->add(new Icon($toggleIcon));
 
         $this->addHtml($toggleButton);
+    }
 
+    protected function assemble()
+    {
         if ($this->getMethod() === 'POST' && $this->hasAttribute('name')) {
             $this->addElement($this->createUidElement());
         }
+    }
+
+    public function renderUnwrapped()
+    {
+        $this->prepareContent();
+
+        return parent::renderUnwrapped();
     }
 }
