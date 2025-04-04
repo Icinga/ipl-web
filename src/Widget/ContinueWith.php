@@ -54,6 +54,11 @@ class ContinueWith extends BaseHtmlElement
             $filter = $filter(); /** @var Filter\Rule $filter */
         }
 
+        $baseFilter = $this->url->getFilter();
+        if ($baseFilter && ((! $baseFilter instanceof Filter\Chain) || ! $baseFilter->isEmpty())) {
+            $filter = Filter::all($baseFilter, $filter);
+        }
+
         if ($filter instanceof Filter\Chain && $filter->isEmpty()) {
             $this->addHtml(new HtmlElement(
                 'span',
