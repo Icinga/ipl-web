@@ -128,7 +128,15 @@ trait SearchControls
             ->on(SearchBar::ON_SENT, function (SearchBar $form) {
                 /** @var Url $redirectUrl */
                 $redirectUrl = $form->getRedirectUrl();
-                $redirectUrl->setFilter($form->getFilter());
+
+                $baseFilter = $redirectUrl->getFilter();
+                if ($baseFilter && ((! $baseFilter instanceof Filter\Chain) || ! $baseFilter->isEmpty())) {
+                    $filter = Filter::all($baseFilter, $form->getFilter());
+                } else {
+                    $filter = $form->getFilter();
+                }
+
+                $redirectUrl->setFilter($filter);
                 $form->setRedirectUrl($redirectUrl);
             })->on(SearchBar::ON_SUCCESS, function (SearchBar $form) {
                 $this->getResponse()->redirectAndExit($form->getRedirectUrl());
@@ -217,7 +225,15 @@ trait SearchControls
         })->on(SearchEditor::ON_SUCCESS, function (SearchEditor $form) {
             /** @var Url $redirectUrl */
             $redirectUrl = $form->getRedirectUrl();
-            $redirectUrl->setFilter($form->getFilter());
+
+            $baseFilter = $redirectUrl->getFilter();
+            if ($baseFilter && ((! $baseFilter instanceof Filter\Chain) || ! $baseFilter->isEmpty())) {
+                $filter = Filter::all($baseFilter, $form->getFilter());
+            } else {
+                $filter = $form->getFilter();
+            }
+
+            $redirectUrl->setFilter($filter);
 
             $this->getResponse()
                 ->setHeader('X-Icinga-Container', '_self')
