@@ -486,6 +486,14 @@ class PaginationControl extends BaseHtmlElement
             $select->add($option);
         }
 
+        if ($currentPageNumber > $this->getPageCount()) {
+            $select->add(Html::tag('option', [
+                'value' => $currentPageNumber,
+                'selected' => '',
+                'disabled' => ''
+            ], $currentPageNumber));
+        }
+
         $form->add($select);
 
         $pageSelectorItem = Html::tag('li', $form);
