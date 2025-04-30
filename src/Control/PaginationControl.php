@@ -474,16 +474,18 @@ class PaginationControl extends BaseHtmlElement
             $select->add(Html::tag('option', ['disabled' => '', 'selected' => ''], '…'));
         }
 
-        foreach (range(2, $this->getPageCount() - 1) as $page) {
-            $option = Html::tag('option', [
-                'value' => $page
-            ], $page);
+        if (2 <= $this->getPageCount() - 1) {
+            foreach (range(2, $this->getPageCount() - 1) as $page) {
+                $option = Html::tag('option', [
+                    'value' => $page
+                ], $page);
 
-            if ($page == $currentPageNumber) {
-                $option->addAttributes(['selected' => '']);
+                if ($page == $currentPageNumber) {
+                    $option->addAttributes(['selected' => '']);
+                }
+
+                $select->add($option);
             }
-
-            $select->add($option);
         }
 
         if ($currentPageNumber > $this->getPageCount()) {
