@@ -4,9 +4,12 @@ namespace ipl\Web\Control;
 
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\Html;
+use ipl\Html\TemplateString;
+use ipl\Html\ValidHtml;
 use ipl\Stdlib\Contract\Paginatable;
 use ipl\Web\Compat\CompatForm;
 use ipl\Web\Url;
+use ipl\Web\Widget\ButtonLink;
 use ipl\Web\Widget\Icon;
 
 /**
@@ -120,6 +123,26 @@ class PaginationControl extends BaseHtmlElement
         $this->pageParam = $pageParam;
 
         return $this;
+    }
+
+    /**
+     * Get message content to show when the list is empty
+     *
+     * @return ?ValidHtml Content is returned when given page is out of range, null otherwise
+     */
+    public function getEmptyStateMessage(): ?ValidHtml
+    {
+        $currentPage = $this->getCurrentPageNumber();
+        $pageCount = $this->getPageCount();
+        if ($pageCount && $pageCount < $currentPage) {
+            return TemplateString::create(
+                $this->translate('Page %d is out of range. {{#button}}Navigate to first page{{/button}}'),
+                $currentPage,
+                ['button' => new ButtonLink(null, $this->url->without('page'))]
+            );
+        }
+
+        return null;
     }
 
     /**
