@@ -470,12 +470,14 @@ class PaginationControl extends BaseHtmlElement
             'title' => t('Go to page …')
         ]);
 
-        if ($currentPageNumber === 1 || $currentPageNumber === $this->getPageCount()) {
+        $pageCount = $this->getPageCount();
+
+        if ($currentPageNumber === 1 || $currentPageNumber === $pageCount) {
             $select->add(Html::tag('option', ['disabled' => '', 'selected' => ''], '…'));
         }
 
-        if (2 <= $this->getPageCount() - 1) {
-            foreach (range(2, $this->getPageCount() - 1) as $page) {
+        if (2 <= $pageCount - 1) {
+            foreach (range(2, $pageCount - 1) as $page) {
                 $option = Html::tag('option', [
                     'value' => $page
                 ], $page);
@@ -488,7 +490,7 @@ class PaginationControl extends BaseHtmlElement
             }
         }
 
-        if ($currentPageNumber > $this->getPageCount()) {
+        if ($currentPageNumber > $pageCount) {
             $select->add(Html::tag('option', [
                 'value' => $currentPageNumber,
                 'selected' => '',
