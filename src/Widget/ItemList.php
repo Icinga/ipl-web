@@ -4,6 +4,9 @@ namespace ipl\Web\Widget;
 
 use InvalidArgumentException;
 use ipl\Html\BaseHtmlElement;
+use ipl\Html\Html;
+use ipl\Html\Text;
+use ipl\Html\ValidHtml;
 use ipl\Orm\ResultSet;
 use ipl\Web\Common\ItemRenderer;
 use ipl\Web\Layout\ItemLayout;
@@ -31,7 +34,7 @@ class ItemList extends BaseHtmlElement
     /** @var string */
     private $itemLayoutClass = ItemLayout::class;
 
-    /** @var ?string Message to show if the list is empty */
+    /** @var ?ValidHtml Message to show if the list is empty */
     protected $emptyStateMessage;
 
     /** @var array<string, mixed> */
@@ -108,12 +111,12 @@ class ItemList extends BaseHtmlElement
     /**
      * Get message to show if the list is empty
      *
-     * @return string
+     * @return ValidHtml
      */
-    public function getEmptyStateMessage(): string
+    public function getEmptyStateMessage(): ValidHtml
     {
         if ($this->emptyStateMessage === null) {
-            return t('No items found.');
+            return new Text(t('No items found.'));
         }
 
         return $this->emptyStateMessage;
@@ -122,13 +125,13 @@ class ItemList extends BaseHtmlElement
     /**
      * Set message to show if the list is empty
      *
-     * @param string $message
+     * @param mixed $message
      *
      * @return $this
      */
-    public function setEmptyStateMessage(string $message): self
+    public function setEmptyStateMessage(mixed $message): self
     {
-        $this->emptyStateMessage = $message;
+        $this->emptyStateMessage = Html::wantHtml($message);
 
         return $this;
     }
