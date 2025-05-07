@@ -1,37 +1,11 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg width="100%" height="100%" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
-    <g transform="matrix(1,0,0,1,-40,-134)">
-        <g transform="matrix(0.25,0,0,0.25,40,134)">
-            <rect id="list-view-default" x="0" y="0" width="64" height="64" style="fill:none;"/>
-            <clipPath id="_clip1">
-                <rect id="list-view-default1" serif:id="list-view-default" x="0" y="0" width="64" height="64"/>
-            </clipPath>
-            <g clip-path="url(#_clip1)">
-                <g id="_16-list-view-default" serif:id="16/list-view-default" transform="matrix(1.02005,0,0,1.02005,-2.30518,-1.16359)">
-                    <g transform="matrix(3.92139,0,0,3.92139,2.25988,-492.954)">
-                        <rect x="0" y="126" width="16" height="16" style="fill:none;"/>
-                    </g>
-                    <g transform="matrix(5.76344,0,0,5.76344,-25.17,-51.3628)">
-                        <circle cx="6.46" cy="11.151" r="1.021"/>
-                    </g>
-                    <g transform="matrix(0.802102,0,0,0.961081,-54.422,-3.54908)">
-                        <rect x="100" y="11" width="44" height="12.241"/>
-                    </g>
-                    <g transform="matrix(0.802102,0,0,0.961081,-54.422,16.0579)">
-                        <rect x="100" y="11" width="44" height="12.241"/>
-                    </g>
-                    <g transform="matrix(0.802102,0,0,0.961081,-54.422,35.6648)">
-                        <rect x="100" y="11" width="44" height="12.241"/>
-                    </g>
-                    <g transform="matrix(5.76344,0,0,5.76344,-25.17,-31.7558)">
-                        <circle cx="6.46" cy="11.151" r="1.021"/>
-                    </g>
-                    <g transform="matrix(5.76344,0,0,5.76344,-25.17,-12.1489)">
-                        <circle cx="6.46" cy="11.151" r="1.021"/>
-                    </g>
-                </g>
-            </g>
-        </g>
-    </g>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <defs>
+    <style>
+      .cls-1 {
+        fill-rule: evenodd;
+      }
+    </style>
+  </defs>
+  <path class="cls-1" d="M2.5,1.5c-.83,0-1.5.67-1.5,1.5s.67,1.5,1.5,1.5,1.5-.67,1.5-1.5-.67-1.5-1.5-1.5ZM6,1.5v3h9V1.5H6ZM6,9.5h9v-3H6v3ZM6,14.5h9v-3H6v3ZM2.5,6.5c-.83,0-1.5.67-1.5,1.5s.67,1.5,1.5,1.5,1.5-.67,1.5-1.5-.67-1.5-1.5-1.5ZM2.5,11.5c-.83,0-1.5.67-1.5,1.5s.67,1.5,1.5,1.5,1.5-.67,1.5-1.5-.67-1.5-1.5-1.5Z"/>
 </svg>
