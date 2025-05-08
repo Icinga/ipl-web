@@ -7,6 +7,7 @@ use ipl\Html\BaseHtmlElement;
 use ipl\Html\Html;
 use ipl\Html\Text;
 use ipl\Html\ValidHtml;
+use ipl\I18n\Translation;
 use ipl\Orm\ResultSet;
 use ipl\Web\Common\ItemRenderer;
 use ipl\Web\Layout\ItemLayout;
@@ -19,6 +20,8 @@ use ipl\Web\Layout\ItemLayout;
  */
 class ItemList extends BaseHtmlElement
 {
+    use Translation;
+
     /** @var string Emitted while assembling the list after adding each list item */
     public const ON_ITEM_ADD = 'item-added';
 
@@ -116,7 +119,7 @@ class ItemList extends BaseHtmlElement
     public function getEmptyStateMessage(): ValidHtml
     {
         if ($this->emptyStateMessage === null) {
-            return new Text(t('No items found.'));
+            return new Text($this->translate('No items found.'));
         }
 
         return $this->emptyStateMessage;
