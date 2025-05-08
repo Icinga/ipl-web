@@ -4,9 +4,13 @@ namespace ipl\Web\Control;
 
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\Html;
+use ipl\Html\TemplateString;
+use ipl\Html\ValidHtml;
+use ipl\I18n\Translation;
 use ipl\Stdlib\Contract\Paginatable;
 use ipl\Web\Compat\CompatForm;
 use ipl\Web\Url;
+use ipl\Web\Widget\ButtonLink;
 use ipl\Web\Widget\Icon;
 
 /**
@@ -17,6 +21,8 @@ use ipl\Web\Widget\Icon;
  */
 class PaginationControl extends BaseHtmlElement
 {
+    use Translation;
+
     /** @var string Default page parameter */
     public const DEFAULT_PAGE_PARAM = 'page';
 
@@ -28,9 +34,6 @@ class PaginationControl extends BaseHtmlElement
 
     /** @var string Name of the URL parameter which holds the page size. If given, overrides {@link $defaultPageSize} */
     protected $pageSizeParam = 'limit';
-
-    /** @var string */
-    protected $pageSpacer = '…';
 
     /** @var Paginatable The pagination adapter which handles the underlying data source */
     protected $paginatable;
@@ -120,6 +123,26 @@ class PaginationControl extends BaseHtmlElement
         $this->pageParam = $pageParam;
 
         return $this;
+    }
+
+    /**
+     * Get message content to show when the list is empty
+     *
+     * @return ?ValidHtml Content is returned when given page is out of range, null otherwise
+     */
+    public function getEmptyStateMessage(): ?ValidHtml
+    {
+        $currentPage = $this->getCurrentPageNumber();
+        $pageCount = $this->getPageCount();
+        if ($pageCount && $pageCount < $currentPage) {
+            return TemplateString::create(
+                $this->translate('Page %d is out of range. {{#button}}Navigate to first page{{/button}}'),
+                $currentPage,
+                ['button' => new ButtonLink(null, $this->url->without('page'))]
+            );
+        }
+
+        return null;
     }
 
     /**
@@ -378,12 +401,6 @@ class PaginationControl extends BaseHtmlElement
         return $nextItem;
     }
 
-    /** @TODO(el): Use ipl-translation when it's ready instead */
-    private function translate($message)
-    {
-        return $message;
-    }
-
     /**
      * Create and return the first page item
      *
@@ -460,14 +477,14 @@ class PaginationControl extends BaseHtmlElement
     {
         $currentPageNumber = $this->getCurrentPageNumber();
 
-        $form = new CompatForm($this->url);
+        $form = new CompatForm();
         $form->addAttributes(['class' => 'inline']);
         $form->setMethod('GET');
 
         $select = Html::tag('select', [
             'name' => $this->getPageParam(),
             'class' => 'autosubmit',
-            'title' => t('Go to page …')
+            'title' => $this->translate('Go to page …')
         ]);
 
         $pageCount = $this->getPageCount();
