@@ -134,7 +134,9 @@ class ItemList extends BaseHtmlElement
      */
     public function setEmptyStateMessage(mixed $message): self
     {
-        $this->emptyStateMessage = Html::wantHtml($message);
+        if ($message !== null) {
+            $this->emptyStateMessage = Html::wantHtml($message);
+        }
 
         return $this;
     }
