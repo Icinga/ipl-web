@@ -128,13 +128,17 @@ class ItemList extends BaseHtmlElement
     /**
      * Set message to show if the list is empty
      *
-     * @param mixed $message
+     * @param mixed $message If empty, the default message is used
      *
      * @return $this
      */
     public function setEmptyStateMessage(mixed $message): self
     {
-        $this->emptyStateMessage = Html::wantHtml($message);
+        if (empty($message)) {
+            $this->emptyStateMessage = null;
+        } else {
+            $this->emptyStateMessage = Html::wantHtml($message);
+        }
 
         return $this;
     }
