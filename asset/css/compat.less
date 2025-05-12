@@ -86,3 +86,42 @@ form.icinga-form .control-group {
     }
   }
 }
+
+.module-icingadb {
+  // Icinga DB Web (legacy) table header layout (e.g. in group details)
+  > .controls {
+    > .table-row {
+      display: flex;
+      gap: .5em;
+
+      > .col.title {
+        margin-right: auto;
+      }
+    }
+  }
+
+  // Icinga DB Web (legacy) object grid layout
+  > .content > .item-table.group-grid:has(.col.title) {
+    grid-template-columns: repeat(auto-fit, 15em) !important;
+
+    > .group-grid-cell {
+      display: revert;
+
+      &::before, &::after {
+        display: none !important;
+      }
+
+      > .col.title {
+        border: none;
+
+        > .column-content {
+          overflow: hidden;
+
+          > * {
+            .text-ellipsis();
+          }
+        }
+      }
+    }
+  }
+}
