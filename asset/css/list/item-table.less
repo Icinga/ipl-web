@@ -4,6 +4,10 @@ ul.item-table {
   list-style-type: none;
 }
 
+.content:has(> .item-table) > .item-table > .empty-state {
+  .empty-state-bar();
+}
+
 // Layout
 
 ul.item-table {
