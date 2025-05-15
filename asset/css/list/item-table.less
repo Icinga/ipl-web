@@ -36,6 +36,7 @@ ul.item-table {
   }
 }
 
+:not(.dashboard) > .container > .content:has(> .item-table), // compat only, for Icinga Web
 .content:has(> .item-table) {
   padding-left: 0;
   padding-right: 0;
