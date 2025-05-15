@@ -89,6 +89,16 @@ ul.item-table {
       }
     }
 
+    // This is for the legacy layout only
+    // TODO: Drop this together with BaseTableRowItem
+    .col.title:has(> .visual) {
+      display: flex;
+
+      > .visual {
+        padding-right: .5em;
+      }
+    }
+
     &:not(:last-of-type) {
       .col {
         border-bottom: 1px solid @list-item-separation-bg;
