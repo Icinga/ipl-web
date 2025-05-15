@@ -14,4 +14,10 @@
     background: var(--default-input-hover-bg, @default-input-hover-bg);
     text-decoration: none;
   }
+
+  &[aria-disabled="true"] {
+    background: var(--control-hover-bg, @control-hover-bg);
+    color: var(--control-disabled-color, @control-disabled-color);
+    cursor: not-allowed;
+  }
 }
