@@ -185,7 +185,7 @@ class ItemList extends BaseHtmlElement
 
         if ($this->isEmpty()) {
             $this->setTag('div');
-            $this->addHtml(new EmptyStateBar($this->getEmptyStateMessage()));
+            $this->addHtml(new EmptyState($this->getEmptyStateMessage()));
         }
     }
 }
