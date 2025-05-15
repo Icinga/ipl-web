@@ -319,7 +319,12 @@ define(["../notjQuery", "../vendor/Sortable", "BaseInput"], function ($, Sortabl
         }
 
         onButtonClick(event) {
-            if (! this.hasSyntaxError()) {
+            // Exchange terms only when an Enter key is pressed while not in the term input.
+            // If the pointerType is not empty, the click event is triggered by clicking the Submit button in the form,
+            // and the default submit event should not be prevented.
+            // The below solution does not work if the click event is triggered by pressing Space while on the Submit button.
+            // In which case the Submit button needs to be clicked again to trigger the form submission.
+            if (! this.hasSyntaxError() && event.pointerType === '') {
                 let addedTerms = this.exchangeTerm();
                 if (Object.keys(addedTerms).length) {
                     this.togglePlaceholder();
