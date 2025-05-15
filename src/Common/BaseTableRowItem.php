@@ -13,7 +13,7 @@ use ipl\Web\Widget\ItemTable;
 abstract class BaseTableRowItem extends BaseHtmlElement
 {
     /** @var array<string, mixed> */
-    protected $baseAttributes = ['class' => 'table-row'];
+    protected $baseAttributes = ['class' => ['table-row', 'item-layout', 'default-item-layout']];
 
     /** @var object The associated list item */
     protected $item;
