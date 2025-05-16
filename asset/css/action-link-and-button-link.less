@@ -1,0 +1,23 @@
+.action-link {
+  color: @link-hover-color;
+}
+
+.button-link {
+  .action-link();
+  .rounded-corners(3px);
+
+  background: @default-action-button-bg;
+  display: inline-block;
+  padding: 0.25em 0.5em;
+
+  &:hover {
+    background: @default-action-button-hover-bg;
+    text-decoration: none;
+  }
+
+  &[disabled] {
+    background: @gray-light;
+    color: @disabled-gray;
+    cursor: not-allowed;
+  }
+}
