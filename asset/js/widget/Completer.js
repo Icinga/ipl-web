@@ -9,6 +9,7 @@ define(["../notjQuery"], function ($) {
             this.selectionStartInput = null;
             this.selectionActive = false;
             this.mouseSelectionActive = false;
+            this.scrolling = false;
             this.nextSuggestion = null;
             this.activeSuggestion = null;
             this.suggestionKiller = null;
@@ -34,6 +35,8 @@ define(["../notjQuery"], function ($) {
             $(this.termSuggestions).on('focusout', '[type="button"]', this.onFocusOut, this);
             $(this.termSuggestions).on('click', '[type="button"]', this.onSuggestionClick, this);
             $(this.termSuggestions).on('keydown', '[type="button"]', this.onSuggestionKeyDown, this);
+            $(this.termSuggestions).on('scroll', e => this.scrolling = true);
+            $(this.termSuggestions).on('scrollend', e => this.scrolling = false);
 
             if (this.selectionEnabled()) {
                 $(this.termSuggestions).on('keyup', '[type="button"]', this.onSuggestionKeyUp, this);
@@ -472,6 +475,10 @@ define(["../notjQuery"], function ($) {
                 // If there are multiple instances of Completer bound to the same suggestion container
                 // all of them try to handle the event. Though, only one of them is responsible and
                 // that's the one which has a completed input set.
+                return;
+            }
+
+            if (this.scrolling) {
                 return;
             }
 
