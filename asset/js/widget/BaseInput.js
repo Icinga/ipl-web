@@ -632,7 +632,11 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
             let eventData = { submittedBy: input };
             if (changeType === 'paste') {
                 // Ensure that what's pasted is also transmitted as value
-                eventData['terms'] = this.termsToQueryString(data['terms']) + this.separator + data['input'];
+                if (data['terms'].length === 0) {
+                    eventData['terms'] = data['input'];
+                } else {
+                    eventData['terms'] = this.termsToQueryString(data['terms']) + this.separator + data['input'];
+                }
             }
 
             $(this.input.form).trigger('submit', eventData);
@@ -713,7 +717,14 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
             this.input.name = '';
 
             // Set the hidden input's value, it's what's sent
-            if (event.detail && 'terms' in event.detail) {
+            if (
+                event.detail
+                && 'terms' in event.detail
+                && (
+                    ! ('submittedBy' in event.detail)
+                    || event.detail.submittedBy === this.input
+                )
+            ) {
                 this.termInput.value = event.detail.terms;
             } else {
                 let renderedTerms = this.termsToQueryString(this.usedTerms);
