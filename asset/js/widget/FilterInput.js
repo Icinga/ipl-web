@@ -1256,11 +1256,11 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
             let label = event.currentTarget;
 
             if (['column', 'operator', 'value'].includes(label.dataset.type)) {
-                // This adds a class to delay the remove button. If it's shown instantly upon hover
+                // This adds an attr to delay the remove button. If it's shown instantly upon hover
                 // it's too easy to accidentally click it instead of the desired grouping operator.
-                label.parentNode.classList.add('_hover_delay');
+                label.parentNode.dataset.hoverDelay = "";
                 setTimeout(function () {
-                    label.parentNode.classList.remove('_hover_delay');
+                    delete label.parentNode.dataset.hoverDelay;
                 }, 500);
             }
 
