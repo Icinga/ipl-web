@@ -1,7 +1,12 @@
+import noLessColorRule from './.stylelint/no-less-color-without-css-fallback.mjs';
+
 /** @type {import('stylelint').Config} */
 export default {
     extends: ["stylelint-config-standard-less"],
+    plugins: [noLessColorRule],
     rules: {
+        'custom/no-less-color-without-css-fallback': true,
+
         "at-rule-empty-line-before": null,
         "comment-empty-line-before": null,
         "custom-property-empty-line-before": null,
