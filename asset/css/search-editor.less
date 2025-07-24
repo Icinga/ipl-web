@@ -28,7 +28,7 @@
     .rounded-corners(0);
   }
 
-  i.icon:before {
+  i.icon::before {
     color: var(--search-editor-control-color, @search-editor-control-color);
   }
 
@@ -110,7 +110,7 @@
         border-top-right-radius: 0;
       }
 
-      &:before {
+      &::before {
         // The left pointing arrow
         border-bottom: 1px solid var(--search-editor-context-menu-border-color, @search-editor-context-menu-border-color);
         border-left: 1px solid var(--search-editor-context-menu-border-color, @search-editor-context-menu-border-color);
@@ -118,7 +118,7 @@
       }
     }
 
-    &:hover i.icon:before {
+    &:hover i.icon::before {
       .rounded-corners();
       background: var(--primary-button-bg, @primary-button-bg);
       color: var(--primary-button-color, @primary-button-color);
@@ -202,7 +202,7 @@
     margin-left: .5em;
   }
 
-  i.icon:before {
+  i.icon::before {
     margin: 0;
     font-size: 1.5em;
     line-height: 1.5;
@@ -227,7 +227,7 @@
         white-space: nowrap;
       }
 
-      &:before {
+      &::before {
         // The left pointing arrow
         content: "";
         display: block;
@@ -246,7 +246,7 @@
       display: block;
     }
 
-    i.icon:before {
+    i.icon::before {
       padding: ((28/18)-1)/2em; // (Container pixels / default font size) - line height / (padding-top,padding-bottom)
       line-height: 1;
     }

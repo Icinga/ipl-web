@@ -11,8 +11,8 @@
   }
 
   // Submit button styles
-  input[type=submit],
-  button[type=submit],
+  input[type="submit"],
+  button[type="submit"],
   button:not([type]) {
     background: var(--primary-button-bg, @primary-button-bg);
     color: var(--primary-button-color, @primary-button-color);
@@ -26,20 +26,20 @@
   }
 
   // Hide the submit button, it must exist, but shouldn't be shown to the user
-  input[type=submit][value="hidden"] {
+  input[type="submit"][value="hidden"] {
     display: none;
   }
 
   // Left-most search dropdown style
   button.search-options {
-    i.icon:before {
+    i.icon::before {
       font-size: 1.2em;
       margin-right: 0;
       color: var(--control-color, @control-color);
     }
 
     &:disabled {
-      i.icon:before {
+      i.icon::before {
         color: var(--control-disabled-color, @control-disabled-color);
       }
     }
@@ -52,7 +52,7 @@
       background-color: var(--search-condition-remove-bg, @search-condition-remove-bg);
       color: var(--search-condition-remove-color, @search-condition-remove-color);
 
-      &:after {
+      &::after {
         content: "";
         position: absolute;
         width: .4em;
@@ -77,7 +77,7 @@
   .terms > .filter-condition:first-child button {
     border-radius: 0 .4em .4em 0;
 
-    &:before {
+    &::before {
       content: "";
       position: absolute;
       width: .4em;
@@ -92,7 +92,7 @@
       border-bottom-right-radius: .4em;
     }
 
-    &:after {
+    &::after {
       content: none;
     }
   }
@@ -153,7 +153,7 @@
     li {
       display: inline;
 
-      &:not(:first-of-type):before {
+      &:not(:first-of-type)::before {
         display: inline;
         content: ', ';
       }
@@ -193,7 +193,7 @@
         left: ~"calc(-2em - 2px)"; // That's min-width + margin-right of an operator
         line-height: 16/12; // 16 (px) desired / default font size (px)
 
-        i:before {
+        i::before {
           margin-right: 0;
         }
       }
