@@ -1,0 +1,28 @@
+name: css
+
+on:
+  push:
+    branches:
+      - main
+      - release/*
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  lint:
+    name: Static analysis for CSS
+    runs-on: 'ubuntu-latest'
+
+    steps:
+      - name: Checkout code base
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+
+      - name: Setup stylelint
+        run: npm install --save-dev stylelint stylelint-config-standard-less
+
+      - name: Run stylelint
+        run: npx stylelint "asset/css/*"

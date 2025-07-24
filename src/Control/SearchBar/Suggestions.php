@@ -125,7 +125,7 @@ abstract class Suggestions extends BaseHtmlElement
         $logicalSep = [
             'label'     => QueryString::getRuleSymbol($filter),
             'search'    => QueryString::getRuleSymbol($filter),
-            'class'     => 'logical_operator',
+            'class'     => 'logical-operator',
             'type'      => 'logical_operator'
         ];
 
@@ -136,14 +136,14 @@ abstract class Suggestions extends BaseHtmlElement
                     'search'    => '(',
                     'label'     => '(',
                     'type'      => 'grouping_operator',
-                    'class'     => 'grouping_operator_open'
+                    'class'     => 'grouping-operator-open'
                 ];
                 $terms = array_merge($terms, $this->filterToTerms($child));
                 $terms[] = [
                     'search'    => ')',
                     'label'     => ')',
                     'type'      => 'grouping_operator',
-                    'class'     => 'grouping_operator_close'
+                    'class'     => 'grouping-operator-close'
                 ];
             } else {
                 /** @var Filter\Condition $child */

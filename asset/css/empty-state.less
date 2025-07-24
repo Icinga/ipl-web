@@ -1,5 +1,5 @@
 .empty-state {
-  color: @empty-state-color;
+  color: var(--empty-state-color, @empty-state-color);
 }
 
 .empty-state-bar {
@@ -7,6 +7,6 @@
   text-align: center;
 
   .rounded-corners();
-  background-color: @empty-state-bar-bg;
-  color: @default-text-color;
+  background-color: var(--empty-state-bar-bg, @empty-state-bar-bg);
+  color: var(--default-text-color, @default-text-color);
 }

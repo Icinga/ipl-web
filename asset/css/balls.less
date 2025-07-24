@@ -30,7 +30,7 @@
   width: 0.75em;
   line-height: 0;
 
-  i.icon:before {
+  i.icon::before {
     font-size: .75 - @ball-pad * 2;
     line-height: 1em;
   }
@@ -48,7 +48,7 @@
   i.icon {
     line-height: 0.3;
 
-    &:before {
+    &::before {
       font-size: 0.8 - @ball-pad * 2;
       line-height: 1 - @ball-pad * 2;
     }
@@ -64,7 +64,7 @@
   width: 1.5em;
   line-height: 1em;
 
-  i.icon:before, span {
+  i.icon::before, span {
     font-size: 1 - @ball-pad * 2;
     line-height: 1.5 - @ball-pad * 2;
   }
@@ -74,7 +74,7 @@
   width: 2em;
   height: 2em;
 
-  i.icon:before, span {
+  i.icon::before, span {
     line-height: 2 - @ball-pad * 2;
   }
 }
@@ -92,7 +92,7 @@
 .state-ball {
   .ball();
 
-  &.state-pending:not(.ball-size-l):not(.ball-size-xl) {
+  &.state-pending:not(.ball-size-l, .ball-size-xl) {
     .ball-solid(var(--state-pending, @state-pending));
   }
 
@@ -101,7 +101,7 @@
     .ball-outline(var(--state-pending, @state-pending));
   }
 
-  &.state-up:not(.ball-size-l):not(.ball-size-xl) {
+  &.state-up:not(.ball-size-l, .ball-size-xl) {
     .ball-solid(var(--state-up, @state-up));
   }
 
@@ -114,7 +114,7 @@
     .ball-solid(var(--state-down, @state-down));
   }
 
-  &.state-ok:not(.ball-size-l):not(.ball-size-xl) {
+  &.state-ok:not(.ball-size-l, .ball-size-xl) {
     .ball-solid(var(--state-ok, @state-ok));
   }
 
@@ -149,13 +149,13 @@
 
   // Specific icon styles
   &.ball-size-l i {
-    &.fa-sitemap:before {
+    &.fa-sitemap::before {
       font-size: 8px; // px to ignore browser min font-size
     }
   }
 
   &.ball-size-xl i {
-    &.fa-sitemap:before {
+    &.fa-sitemap::before {
       font-size: .857em;
       line-height: (2 - @ball-pad * 2) / .857;
     }
