@@ -19,7 +19,7 @@
       }
 
       &:disabled {
-        color: @schedule-element-fields-disabled-color;
+        color: var(--schedule-element-fields-disabled-color, @schedule-element-fields-disabled-color);
       }
     }
   }
@@ -39,7 +39,7 @@
   .monthly, .ordinal:not(.annually) {
     padding: .5em;
     margin-left: -.5em;
-    border: 1px solid @schedule-element-fields-border-color;
+    border: 1px solid var(--schedule-element-fields-border-color, @schedule-element-fields-border-color);
     .rounded-corners(.75em);
   }
 
@@ -56,13 +56,13 @@
       pointer-events: none;
 
       label {
-        color: @schedule-element-fields-disabled-color;
-        background-color: @schedule-element-fields-disabled-bg;
+        color: var(--schedule-element-fields-disabled-color, @schedule-element-fields-disabled-color);
+        background-color: var(--schedule-element-fields-disabled-bg, @schedule-element-fields-disabled-bg);
       }
 
       input:checked + label {
-        background: @schedule-element-fields-disabled-selected-bg;
-        color: @schedule-element-fields-disabled-color;
+        background: var(--schedule-element-fields-disabled-selected-bg, @schedule-element-fields-disabled-selected-bg);
+        color: var(--schedule-element-fields-disabled-color, @schedule-element-fields-disabled-color);
       }
     }
 
@@ -75,11 +75,11 @@
         cursor: pointer;
         text-align: center;
         padding: .75em 0;
-        background: @schedule-element-fields-bg;
-        color: @schedule-element-fields-color;
+        background: var(--schedule-element-fields-bg, @schedule-element-fields-bg);
+        color: var(--schedule-element-fields-color, @schedule-element-fields-color);
 
         &:hover {
-          background-color: @schedule-element-fields-hover-bg;
+          background-color: var(--schedule-element-fields-hover-bg, @schedule-element-fields-hover-bg);
         }
 
         &:focus {
@@ -88,19 +88,19 @@
       }
 
       input:checked + label {
-        background-color: @schedule-element-fields-selected-bg;
-        color: @schedule-element-fields-selected-color;
+        background-color: var(--schedule-element-fields-selected-bg, @schedule-element-fields-selected-bg);
+        color: var(--schedule-element-fields-selected-color, @schedule-element-fields-selected-color);
       }
 
       input:checked + label:hover {
-        background-color: @schedule-element-fields-selected-hover-bg;
-        border-color: @schedule-element-fields-selected-hover-bg;
+        background-color: var(--schedule-element-fields-selected-hover-bg, @schedule-element-fields-selected-hover-bg);
+        border-color: var(--schedule-element-fields-selected-hover-bg, @schedule-element-fields-selected-hover-bg);
       }
     }
 
     &.multiple-fields {
       li:not(:last-child) label {
-        border-right: 1px solid @schedule-element-fields-border-color;
+        border-right: 1px solid var(--schedule-element-fields-border-color, @schedule-element-fields-border-color);
       }
 
       input:focus + label {
@@ -128,7 +128,7 @@
       }
 
       &:focus-within {
-        outline: 3px solid @schedule-element-fields-outline-color;
+        outline: 3px solid var(--schedule-element-fields-outline-color, @schedule-element-fields-outline-color);
         outline-offset: 2px;
       }
 
@@ -137,7 +137,7 @@
       }
 
       input:checked + label:hover {
-        background-color: @schedule-element-fields-selected-bg;
+        background-color: var(--schedule-element-fields-selected-bg, @schedule-element-fields-selected-bg);
       }
     }
   }
@@ -145,7 +145,7 @@
   .note {
     display: none;
     padding: .5em;
-    background: @schedule-element-keyboard-note-bg;
+    background: var(--schedule-element-keyboard-note-bg, @schedule-element-keyboard-note-bg);
     .rounded-corners(.25em);
     text-align: center;
     margin-top: 1em;
@@ -155,7 +155,7 @@
   /* .monthly styles */
   .monthly {
     li label {
-      border-top: 1px solid @schedule-element-fields-border-color;
+      border-top: 1px solid var(--schedule-element-fields-border-color, @schedule-element-fields-border-color);
     }
 
     li:first-child,
@@ -202,6 +202,6 @@
   padding-top: 0.5625em;
 
   p {
-    color: @schedule-element-fields-disabled-color;
+    color: var(--schedule-element-fields-disabled-color, @schedule-element-fields-disabled-color);
   }
 }

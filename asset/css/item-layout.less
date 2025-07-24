@@ -124,7 +124,7 @@
 // Style
 
 .item-layout {
-  color: @default-text-color-light;
+  color: var(--default-text-color-light, @default-text-color-light);
 
   .caption {
     i {
@@ -132,25 +132,25 @@
     }
 
     a {
-      color: @default-text-color;
+      color: var(--default-text-color, @default-text-color);
     }
   }
 
   .title {
     .subject {
-      color: @default-text-color;
+      color: var(--default-text-color, @default-text-color);
     }
 
     a {
-      color: @default-text-color;
+      color: var(--default-text-color, @default-text-color);
       font-weight: bold;
 
       &:hover {
-        color: @link-hover-color;
+        color: var(--link-hover-color, @link-hover-color);
         text-decoration: none;
 
         .subject {
-          color: @link-hover-color;
+          color: var(--link-hover-color, @link-hover-color);
         }
       }
     }
