@@ -13,7 +13,7 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
              *
              * @type {{}}
              */
-            this.negationOperator = { label: '!', search: '!', class: 'logical_operator', type: 'negation_operator' };
+            this.negationOperator = { label: '!', search: '!', class: 'logical-operator', type: 'negation_operator' };
 
             /**
              * Supported grouping operators
@@ -21,8 +21,8 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
              * @type {{close: {}, open: {}}}
              */
             this.grouping_operators = {
-                open: { label: '(', search: '(', class: 'grouping_operator_open', type: 'grouping_operator' },
-                close: { label: ')', search: ')', class: 'grouping_operator_close', type: 'grouping_operator' }
+                open: { label: '(', search: '(', class: 'grouping-operator-open', type: 'grouping_operator' },
+                close: { label: ')', search: ')', class: 'grouping-operator-close', type: 'grouping_operator' }
             };
 
             /**
@@ -33,8 +33,8 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
              * @type {{}[]}
              */
             this.logical_operators = [
-                { label: '&', search: '&', class: 'logical_operator', type: 'logical_operator', default: true },
-                { label: '|', search: '|', class: 'logical_operator', type: 'logical_operator' },
+                { label: '&', search: '&', class: 'logical-operator', type: 'logical_operator', default: true },
+                { label: '|', search: '|', class: 'logical-operator', type: 'logical_operator' },
             ];
 
             /**
@@ -958,7 +958,7 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
             label.dataset.type = termData.type;
 
             if (! termData.class) {
-                label.classList.add(termData.type);
+                label.classList.add(termData.type.replace('_', '-'));
             }
 
             if (termData.counterpart >= 0) {

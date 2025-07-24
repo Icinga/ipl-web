@@ -81,7 +81,7 @@ class Terms extends BaseHtmlElement
             if ($i > 0) {
                 $logicalOperator = QueryString::getRuleSymbol($filters);
                 $this->assembleTerm([
-                    'class'  => 'logical_operator',
+                    'class'  => 'logical-operator',
                     'type'   => 'logical_operator',
                     'search' => $logicalOperator,
                     'label'  => $logicalOperator
@@ -110,7 +110,7 @@ class Terms extends BaseHtmlElement
 
         if ($chain instanceof Filter\None) {
             $this->assembleTerm([
-                'class'  => 'logical_operator',
+                'class'  => 'logical-operator',
                 'type'   => 'negation_operator',
                 'search' => '!',
                 'label'  => '!'
@@ -119,7 +119,7 @@ class Terms extends BaseHtmlElement
 
         if ($wrap) {
             $opening = $this->assembleTerm([
-                'class'  => 'grouping_operator_open',
+                'class'  => 'grouping-operator-open',
                 'type'   => 'grouping_operator',
                 'search' => '(',
                 'label'  => '('
@@ -130,7 +130,7 @@ class Terms extends BaseHtmlElement
 
         if ($wrap) {
             $closing = $this->assembleTerm([
-                'class'  => 'grouping_operator_close',
+                'class'  => 'grouping-operator-close',
                 'type'   => 'grouping_operator',
                 'search' => ')',
                 'label'  => ')'
