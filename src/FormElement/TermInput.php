@@ -61,6 +61,9 @@ class TermInput extends FieldsetElement
     /** @var TermContainer The term container */
     protected $termContainer;
 
+    /** @var string Term container Unique ID */
+    protected $termContainerUniqueId;
+
     /**
      * Set the suggestion url
      *
@@ -83,6 +86,18 @@ class TermInput extends FieldsetElement
     public function getSuggestionUrl(): ?Url
     {
         return $this->suggestionUrl;
+    }
+
+    /**
+     * @return string
+     */
+    private function getTermContainerUniqueId(): string
+    {
+        if ($this->termContainerUniqueId === null) {
+            $this->termContainerUniqueId = bin2hex(random_bytes(16));
+        }
+
+        return $this->termContainerUniqueId;
     }
 
     /**
@@ -265,22 +280,29 @@ class TermInput extends FieldsetElement
     public function prepareMultipartUpdate(ServerRequestInterface $request): array
     {
         $updates = [];
+        $termContainerUniqueId = $this->getTermContainerUniqueId();
         if ($this->valueHasBeenPasted()) {
             $updates[] = $this->termContainer();
             $updates[] = [
-                HtmlString::create(json_encode(['#' . $this->getName() . '-search-input', []])),
+                HtmlString::create(json_encode(
+                    ['#' . $this->getName() . '-' . $termContainerUniqueId . '-search-input', []]
+                )),
                 'Behavior:InputEnrichment'
             ];
         } elseif (! empty($this->changes)) {
             $updates[] = [
-                HtmlString::create(json_encode(['#' . $this->getName() . '-search-input', $this->changes])),
+                HtmlString::create(json_encode(
+                    ['#' . $this->getName() . '-' . $termContainerUniqueId . '-search-input', $this->changes]
+                )),
                 'Behavior:InputEnrichment'
             ];
         }
 
         if (empty($updates) && $this->hasBeenAutoSubmitted()) {
             $updates[] = $updates[] = [
-                HtmlString::create(json_encode(['#' . $this->getName() . '-search-input', 'bogus'])),
+                HtmlString::create(json_encode(
+                    ['#' . $this->getName() . '-' . $termContainerUniqueId . '-search-input', 'bogus']
+                )),
                 'Behavior:InputEnrichment'
             ];
         }
@@ -314,12 +336,13 @@ class TermInput extends FieldsetElement
 
     public function onRegistered(Form $form)
     {
-        $termContainerId = $this->getName() . '-terms';
-        $mainInputId = $this->getName() . '-search-input';
+        $termContainerUniqueId = $this->getTermContainerUniqueId();
+        $termContainerUniqueId = $this->getName() . '-' . $termContainerUniqueId . '-terms';
+        $mainInputId = $this->getName() . '-' . $termContainerUniqueId . '-search-input';
         $autoSubmittedBy = $form->getRequest()->getHeader('X-Icinga-Autosubmittedby');
 
         $this->hasBeenAutoSubmitted = in_array($mainInputId, $autoSubmittedBy, true)
-            || in_array($termContainerId, $autoSubmittedBy, true);
+            || in_array($termContainerUniqueId, $autoSubmittedBy, true);
 
         parent::onRegistered($form);
     }
@@ -384,7 +407,7 @@ class TermInput extends FieldsetElement
     {
         if ($this->termContainer === null) {
             $this->termContainer = (new TermContainer($this))
-                ->setAttribute('id', $this->getName() . '-terms');
+                ->setAttribute('id', $this->getName() . '-' . $this->getTermContainerUniqueId() . '-terms');
         }
 
         return $this->termContainer;
@@ -393,11 +416,12 @@ class TermInput extends FieldsetElement
     protected function assemble()
     {
         $myName = $this->getName();
+        $termContainerUniqueId = $this->getTermContainerUniqueId();
 
-        $termInputId = $myName . '-term-input';
-        $dataInputId = $myName . '-data-input';
-        $searchInputId = $myName . '-search-input';
-        $suggestionsId = $myName . '-suggestions';
+        $termInputId = $myName . '-' . $termContainerUniqueId . '-term-input';
+        $dataInputId = $myName . '-' . $termContainerUniqueId . '-data-input';
+        $searchInputId = $myName . '-' . $termContainerUniqueId . '-search-input';
+        $suggestionsId = $myName . '-' . $termContainerUniqueId . '-suggestions';
 
         $termContainer = $this->termContainer();
 
