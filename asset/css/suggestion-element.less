@@ -1,0 +1,18 @@
+form {
+  input[type="text"].suggestion-element {
+    border: none;
+    border-radius: 0 0.25em 0.25em 0;
+    background-color: var(--default-input-bg, @default-input-bg);
+    color: var(--default-text-color, @default-text-color);
+    padding: 0.5em;
+    vertical-align: middle;
+  }
+
+  .suggestion-element-icon {
+    border-radius: 0.25em 0 0 0.25em;
+    background-color: var(--default-input-bg, @default-input-bg);
+    color: var(--default-text-color, @default-text-color);
+    vertical-align: middle;
+    padding: ~"calc(0.5em + 1px) 0.5em"; // +1px to match the height of the input field
+  }
+}
