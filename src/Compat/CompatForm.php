@@ -5,6 +5,8 @@ namespace ipl\Web\Compat;
 use http\Exception\InvalidArgumentException;
 use ipl\Html\Contract\FormSubmitElement;
 use ipl\Html\Form;
+use ipl\Html\FormDecorator\DivDecorator;
+use ipl\Html\FormElement\FieldsetElement;
 use ipl\Html\FormElement\SubmitButtonElement;
 use ipl\Html\FormElement\SubmitElement;
 use ipl\Html\HtmlDocument;
@@ -17,6 +19,22 @@ class CompatForm extends Form
     use Translation;
 
     protected $defaultAttributes = ['class' => 'icinga-form icinga-controls'];
+
+    protected array $elementDecoratorLoaderPaths = [
+        ['Decorator' => 'ipl\\Web\\Compat\\FormDecorator']
+    ];
+
+    protected ?array $defaultElementDecorators = [
+        'Fieldset',
+        'Label' => ['class' => 'control-label-group'],
+
+        // registerAttributeCallback()'s setter callback is only called, when at least one attribute is set/add
+        // TODO: should be fixed with: https://github.com/Icinga/ipl-html/pull/3
+        'Checkbox' => ['class' => 'toggle-switch'], // require because of the comment above
+        'Description' => ['class' => 'control-info'], // require because of the comment above
+
+        'HtmlTag' => ['tag' => 'div', 'class' => 'control-group', 'placement' => 'wrap', 'ignore' => [FieldsetElement::class]],
+    ];
 
     /**
      * Render the content of the element to HTML
