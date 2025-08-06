@@ -1,5 +1,7 @@
-form {
-  input[type="text"].suggestion-element,
+.suggestion-element-group {
+  display: inline-flex;
+
+  .suggestion-element,
   .suggestion-element-icon {
     line-height: normal;
     height: 2.25em;
@@ -8,12 +10,20 @@ form {
     color: var(--default-text-color, @default-text-color);
   }
 
-  input[type="text"].suggestion-element {
+  .suggestion-element {
     border: none;
+    outline: none;
     border-radius: 0 0.25em 0.25em 0;
   }
 
   .suggestion-element-icon {
+    padding-right: 0;
     border-radius: 0.25em 0 0 0.25em;
+  }
+
+  &:focus-within {
+    border-radius: 0.25em;
+    outline: 3px solid var(--default-input-outline-color, @default-input-outline-color);
+    outline-offset: 1px;
   }
 }

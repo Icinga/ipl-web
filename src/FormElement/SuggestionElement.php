@@ -71,11 +71,12 @@ class SuggestionElement extends TextElement
         $suggestionsId = uniqid('search-suggestions-');
 
         $this->prependWrapper(
-            (new HtmlDocument())
-                ->addHtml(
-                    new HtmlElement('div', new Attributes(['id' => $suggestionsId, 'class' => 'search-suggestions'])),
-                    new HtmlElement('span', new Attributes(['class' => 'suggestion-element-icon']), new Icon('search'))
-                )
+            new HtmlElement(
+                'div',
+                new Attributes(['class' => 'suggestion-element-group']),
+                new HtmlElement('div', new Attributes(['id' => $suggestionsId, 'class' => 'search-suggestions'])),
+                new HtmlElement('span', new Attributes(['class' => 'suggestion-element-icon']), new Icon('search'))
+            )
         );
 
         $this->getAttributes()->add([

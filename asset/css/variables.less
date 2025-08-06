@@ -42,6 +42,7 @@
 @default-text-color-inverted: @default-bg;
 @default-input-bg: #404d72;
 @default-input-hover-bg: #434374;
+@default-input-outline-color: @base-primary-light;
 @default-remove-bg: @state-critical;
 @default-remove-color: @default-text-color-inverted;
 @default-delete-bg: @state-critical;
@@ -123,7 +124,7 @@
 @schedule-element-fields-selected-bg: @primary-button-bg;
 @schedule-element-fields-selected-color: @default-text-color-inverted;
 @schedule-element-fields-hover-bg: @base-primary-light;
-@schedule-element-fields-outline-color: fade(@base-primary-bg, 50%);
+@schedule-element-fields-outline-color: @default-input-outline-color;
 @schedule-element-fields-selected-outline-color: fade(#fff, 50%);
 @schedule-element-fields-selected-hover-bg: @primary-button-hover-bg;
 @schedule-element-fields-disabled-color: @base-gray;
@@ -152,6 +153,7 @@
     --default-text-color-inverted: #F5F9FA;
     --default-input-bg: #DEECF1;
     --default-input-hover-bg: #C0CCCD;
+    --default-input-outline-color: @base-primary-light;
     --default-remove-bg: var(--base-remove-bg);
     --default-remove-color: var(--default-text-color-inverted);
     --default-delete-bg: var(--base-remove-bg);
@@ -219,7 +221,7 @@
     --schedule-element-fields-selected-bg: var(--primary-button-bg);
     --schedule-element-fields-selected-color: var(--default-text-color-inverted);
     --schedule-element-fields-hover-bg: @base-primary-light;
-    --schedule-element-fields-outline-color: fade(@base-primary-bg, 50%);
+    --schedule-element-fields-outline-color: @default-input-outline-color;
     --schedule-element-fields-selected-outline-color: fade(#fff, 50%);
     --schedule-element-fields-selected-hover-bg: var(--primary-button-hover-bg);
     --schedule-element-fields-disabled-color: var(--base-gray);
