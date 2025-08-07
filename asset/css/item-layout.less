@@ -52,15 +52,12 @@
     display: flex;
     align-items: baseline;
     justify-content: space-between;
-  }
-  &.minimal-item-layout > .main > header {
-    max-width: 100%;
-    height: 1.5em;
+
+    > .extended-info {
+      flex-shrink: 0;
+    }
   }
 
-  &.default-item-layout > .main > header {
-    height: 1.5em;
-  }
   .caption {
     p {
       display: inline-block;
@@ -69,29 +66,6 @@
     img {
       max-height: 1em;
     }
-  }
-  &.default-item-layout > .main > .caption {
-    height: 1.5em;
-
-    .text-ellipsis();
-  }
-  &.minimal-item-layout > .main > header > .caption {
-    flex: 1 1 auto;
-    height: 1.5em;
-    width: 0;
-
-    &:not(:empty) {
-      margin-right: 1em;
-    }
-
-    .text-ellipsis();
-  }
-  &.detailed-item-layout > .main > .caption {
-    display: block;
-    overflow: hidden;
-    position: relative;
-
-    .line-clamp(5);
   }
 
   footer {
@@ -104,24 +78,65 @@
   .title {
     margin-right: 1em;
   }
-  &.default-item-layout > .main > header > .title {
-    .flowing-content("default");
-  }
-  &.detailed-item-layout > .main > header > .title {
-    .flowing-content("detailed");
 
-    word-break: break-word;
-    hyphens: auto;
+  &.minimal-item-layout > .main > header {
+    max-width: 100%;
+    height: 1.5em;
+
+    > .caption {
+      flex: 1 1 auto;
+      height: 1.5em;
+      width: 0;
+
+      &:not(:empty) {
+        margin-right: 1em;
+      }
+
+      .text-ellipsis();
+    }
   }
 
-  header > .extended-info {
-    flex-shrink: 0;
+  &.default-item-layout > .main {
+    > header {
+      height: 1.5em;
+
+      > .title {
+        .flowing-content("default");
+      }
+
+      > .extended-info {
+        .flowing-content("default");
+      }
+    }
+
+    > .caption {
+      height: 1.5em;
+
+      .text-ellipsis();
+    }
   }
-  &.default-item-layout > .main > header > .extended-info {
-    .flowing-content("default");
-  }
-  &.detailed-item-layout > .main > header > .extended-info {
-    .flowing-content("detailed");
+
+  &.detailed-item-layout > .main {
+    > header {
+      > .title {
+        .flowing-content("detailed");
+
+        word-break: break-word;
+        hyphens: auto;
+      }
+
+      > .extended-info {
+        .flowing-content("detailed");
+      }
+    }
+
+    > .caption {
+      display: block;
+      overflow: hidden;
+      position: relative;
+
+      .line-clamp(5);
+    }
   }
 }
 
