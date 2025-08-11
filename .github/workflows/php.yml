@@ -46,7 +46,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     env:
-      phpunit-version: 8.5
+      phpunit-version: 9.5
 
     strategy:
       fail-fast: false
