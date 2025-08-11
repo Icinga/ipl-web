@@ -15,7 +15,7 @@ class CsrfCounterMeasureTest extends TestCase
         $token = $this->createElement();
 
         $this->assertInstanceOf(HiddenElement::class, $token);
-        $this->assertRegExp(
+        $this->assertMatchesRegularExpression(
             '/ value="[^"]+\|[^"]+"/',
             (string) $token,
             'The value is not rendered or does not contain a seed and a hash'
@@ -59,11 +59,16 @@ class CsrfCounterMeasureTest extends TestCase
     private function createElement(): FormElement
     {
         $form = new class extends Form {
-            use CsrfCounterMeasure {
-                createCsrfCounterMeasure as public;
+            use CsrfCounterMeasure;
+
+            protected function assemble()
+            {
+                $this->addCsrfCounterMeasure();
             }
         };
 
-        return $form->createCsrfCounterMeasure('uniqueId');
+        return $form->setCsrfCounterMeasureId('uniqueId')
+            ->ensureAssembled()
+            ->getElement('CSRFToken');
     }
 }
