@@ -268,19 +268,19 @@ class TermInput extends FieldsetElement
         if ($this->valueHasBeenPasted()) {
             $updates[] = $this->termContainer();
             $updates[] = [
-                HtmlString::create(json_encode(['#' . $this->getName() . '-search-input', []])),
+                HtmlString::create(json_encode(['#' . $this->getSanitizedName() . '-search-input', []])),
                 'Behavior:InputEnrichment'
             ];
         } elseif (! empty($this->changes)) {
             $updates[] = [
-                HtmlString::create(json_encode(['#' . $this->getName() . '-search-input', $this->changes])),
+                HtmlString::create(json_encode(['#' . $this->getSanitizedName() . '-search-input', $this->changes])),
                 'Behavior:InputEnrichment'
             ];
         }
 
         if (empty($updates) && $this->hasBeenAutoSubmitted()) {
             $updates[] = $updates[] = [
-                HtmlString::create(json_encode(['#' . $this->getName() . '-search-input', 'bogus'])),
+                HtmlString::create(json_encode(['#' . $this->getSanitizedName() . '-search-input', 'bogus'])),
                 'Behavior:InputEnrichment'
             ];
         }
@@ -314,8 +314,8 @@ class TermInput extends FieldsetElement
 
     public function onRegistered(Form $form)
     {
-        $termContainerId = $this->getName() . '-terms';
-        $mainInputId = $this->getName() . '-search-input';
+        $termContainerId = $this->getSanitizedName() . '-terms';
+        $mainInputId = $this->getSanitizedName() . '-search-input';
         $autoSubmittedBy = $form->getRequest()->getHeader('X-Icinga-Autosubmittedby');
 
         $this->hasBeenAutoSubmitted = in_array($mainInputId, $autoSubmittedBy, true)
@@ -384,7 +384,7 @@ class TermInput extends FieldsetElement
     {
         if ($this->termContainer === null) {
             $this->termContainer = (new TermContainer($this))
-                ->setAttribute('id', $this->getName() . '-terms');
+                ->setAttribute('id', $this->getSanitizedName() . '-terms');
         }
 
         return $this->termContainer;
@@ -392,7 +392,7 @@ class TermInput extends FieldsetElement
 
     protected function assemble()
     {
-        $myName = $this->getName();
+        $myName = $this->getSanitizedName();
 
         $termInputId = $myName . '-term-input';
         $dataInputId = $myName . '-data-input';
