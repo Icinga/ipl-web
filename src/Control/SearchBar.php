@@ -389,6 +389,7 @@ class SearchBar extends Form
             'data-incomplete-group' => t('Please close or remove this group.'),
             'data-choose-template'  => t('Please type one of: %s', '..<comma separated list>'),
             'data-choose-column'    => t('Please enter a valid column.'),
+            'data-complete-active'  => t('Searching...'),
             'validators'            => [
                 new CallbackValidator(function ($q, CallbackValidator $validator) use ($searchInputId) {
                     $submitted = $this->hasBeenSubmitted();
