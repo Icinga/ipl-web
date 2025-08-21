@@ -3,6 +3,10 @@
 namespace ipl\Web\Compat;
 
 use http\Exception\InvalidArgumentException;
+use ipl\Html\Attribute;
+use ipl\Html\Attributes;
+use ipl\Html\BaseHtmlElement;
+use ipl\Html\Contract\FormElement;
 use ipl\Html\Contract\FormSubmitElement;
 use ipl\Html\Form;
 use ipl\Html\FormDecorator\DivDecorator;
@@ -21,20 +25,35 @@ class CompatForm extends Form
     protected $defaultAttributes = ['class' => 'icinga-form icinga-controls'];
 
     protected array $elementDecoratorLoaderPaths = [
-        ['Decorator' => 'ipl\\Web\\Compat\\FormDecorator']
+        ['ipl\\Web\\Compat\\FormDecorator', 'Decorator']
     ];
 
-    protected ?array $defaultElementDecorators = [
-        'Fieldset',
-        'Label' => ['class' => 'control-label-group'],
+    public function __construct()
+    {
+        $this->setDefaultElementDecorators([
+            'Fieldset',
+            ['name' => 'Label', 'class' => 'control-label-group'],
 
-        // registerAttributeCallback()'s setter callback is only called, when at least one attribute is set/add
-        // TODO: should be fixed with: https://github.com/Icinga/ipl-html/pull/3
-        'Checkbox' => ['class' => 'toggle-switch'], // require because of the comment above
-        'Description' => ['class' => 'control-info'], // require because of the comment above
-
-        'HtmlTag' => ['tag' => 'div', 'class' => 'control-group', 'placement' => 'wrap', 'ignore' => [FieldsetElement::class]],
-    ];
+            // registerAttributeCallback()'s setter callback is only called, when at least one attribute is set/add
+            // TODO: should be fixed with: https://github.com/Icinga/ipl-html/pull/3
+            ['name' => 'Checkbox', 'class' => 'toggle-switch'], // require because of the comment above
+            ['name' => 'Description', 'class' => 'control-info'], // require because of the comment above
+            [
+                'name' => 'HtmlTag',
+                'tag' => 'div',
+                'class' => 'control-group',
+                'condition' => function(FormElement $element): bool {
+                    return ! $element instanceof FormSubmitElement && $element->getTag() !== 'fieldset';
+                }
+            ],
+            [
+                'name' => 'HtmlTag',
+                'tag' => 'div',
+                'class' => 'control-group form-controls',
+                'condition' => fn(FormElement $element): bool => $element instanceof FormSubmitElement
+            ],
+        ]);
+    }
 
     /**
      * Render the content of the element to HTML

@@ -4,14 +4,14 @@ namespace ipl\Web\Compat\FormDecorator;
 
 use ipl\Html\Attributes;
 use ipl\Html\Contract\Decorator;
+use ipl\Html\Contract\DecoratorOptions;
 use ipl\Html\Contract\FormElement;
 use ipl\Html\FormDecorator\DecorationResults;
-use ipl\Html\FormDecorator\DecoratorOptions;
 use ipl\Html\FormElement\CheckboxElement;
 use ipl\Html\HtmlElement;
 
 /**
- * Checkbox element decorator
+ * Decorates the checkbox element
  */
 class CheckboxDecorator implements Decorator
 {
@@ -52,13 +52,6 @@ class CheckboxDecorator implements Decorator
 
     protected function registerAttributeCallbacks(Attributes $attributes): void
     {
-        $attributes
-            ->registerAttributeCallback(
-                'class',
-                null,
-                function ($value) {
-                    $this->class = $value;
-                }
-            );
+        $attributes->registerAttributeCallback('class', null, fn(string|array $value) => $this->class = $value);
     }
 }
