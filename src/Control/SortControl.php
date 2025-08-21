@@ -68,11 +68,9 @@ class SortControl extends Form
         $self = new static($normalized);
 
         $self->on(self::ON_REQUEST, function (ServerRequestInterface $request) use ($self) {
-            if (! $self->hasBeenSent()) {
-                // If the form is submitted by POST, handleRequest() won't access the URL, so we have to
-                if (($sort = $request->getQueryParams()[$self->getSortParam()] ?? null)) {
-                    $self->populate([$self->getSortParam() => $sort]);
-                }
+            // If the form is submitted by POST, handleRequest() won't access the URL, so we have to
+            if (($sort = $request->getQueryParams()[$self->getSortParam()] ?? null)) {
+                $self->populate([$self->getSortParam() => $sort]);
             }
         });
 
