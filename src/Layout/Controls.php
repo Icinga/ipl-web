@@ -43,7 +43,7 @@ class Controls extends BaseHtmlElement
         return $this;
     }
 
-    public function isEmpty()
+    public function isEmpty(): bool
     {
         if (! parent::isEmpty()) {
             return false;
