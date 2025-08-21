@@ -91,7 +91,7 @@ class Ball extends BaseHtmlElement
      *
      * @return $this
      */
-    public function addHtml(ValidHtml ...$content): Ball
+    public function addHtml(ValidHtml ...$content): static
     {
         if (count($content) === 1 && $content[0] instanceof Text) {
             $content[0] = new HtmlElement('span', null, $content[0]);
