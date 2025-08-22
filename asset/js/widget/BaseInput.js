@@ -629,7 +629,7 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
                 ...data
             });
 
-            let eventData = { submittedBy: input, assignTo: this.input.name};
+            let eventData = {submittedBy: input};
             if (changeType === 'paste') {
                 // Ensure that what's pasted is also transmitted as value
                 if (data['terms'].length === 0) {
@@ -718,10 +718,11 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
 
             // Set the hidden input's value, it's what's sent
             if (
-                event.detail && 'terms' in event.detail
+                event.detail
+                && 'terms' in event.detail
                 && (
-                    event.detail.assignTo === this.termInput.name
-                    || (this.termInput.parentNode && this.termInput.parentNode.name === 'searchbar')
+                    ! ('submittedBy' in event.detail)
+                    || event.detail.submittedBy === this.input
                 )
             ) {
                 this.termInput.value = event.detail.terms;
