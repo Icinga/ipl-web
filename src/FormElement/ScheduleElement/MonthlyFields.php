@@ -153,7 +153,7 @@ class MonthlyFields extends FieldsetElement
         $ordinalWrapper->addHtml($enumerations, $selectableDays);
     }
 
-    protected function registerAttributeCallbacks(Attributes $attributes)
+    protected function registerAttributeCallbacks(Attributes $attributes): void
     {
         parent::registerAttributeCallbacks($attributes);
 

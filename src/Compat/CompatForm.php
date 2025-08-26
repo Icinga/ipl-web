@@ -50,7 +50,7 @@ class CompatForm extends Form
         return true;
     }
 
-    protected function ensureDefaultElementLoaderRegistered()
+    protected function ensureDefaultElementLoaderRegistered(): static
     {
         if (! $this->defaultElementLoaderRegistered) {
             $this->addPluginLoader(

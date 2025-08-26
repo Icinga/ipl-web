@@ -147,7 +147,7 @@ class SearchEditor extends Form
         return $this->cleared;
     }
 
-    public function validate()
+    public function validate(): static
     {
         if ($this->cleared) {
             $this->isValid = true;

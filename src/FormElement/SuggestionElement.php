@@ -27,7 +27,7 @@ class SuggestionElement extends TextElement
      * @param Url $suggestionsUrl URL to fetch suggestions from
      * @param ?(array|Attributes) $attributes Attributes of the form element
      */
-    public function __construct(string $name, Url $suggestionsUrl, array|Attributes $attributes = null)
+    public function __construct(string $name, Url $suggestionsUrl, null|array|Attributes $attributes = null)
     {
         parent::__construct($name, $attributes);
 

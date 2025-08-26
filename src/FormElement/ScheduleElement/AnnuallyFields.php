@@ -22,7 +22,7 @@ class AnnuallyFields extends FieldsetElement
     /** @var string A month to preselect by default */
     protected $default = 'JAN';
 
-    public function __construct($name, $attributes = null)
+    public function __construct(string $name, null|array|Attributes $attributes = null)
     {
         $this->months = [
             'JAN' => $this->translate('Jan'),
@@ -122,7 +122,7 @@ class AnnuallyFields extends FieldsetElement
         $ordinalWrapper->addHtml($enumerations, $selectableDays);
     }
 
-    protected function registerAttributeCallbacks(Attributes $attributes)
+    protected function registerAttributeCallbacks(Attributes $attributes): void
     {
         parent::registerAttributeCallbacks($attributes);
 

@@ -48,7 +48,7 @@ class FieldsRadio extends RadioElement
         $this->addHtml($listItems);
     }
 
-    protected function registerAttributeCallbacks(Attributes $attributes)
+    protected function registerAttributeCallbacks(Attributes $attributes): void
     {
         parent::registerAttributeCallbacks($attributes);
 

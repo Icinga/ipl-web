@@ -203,7 +203,7 @@ class TermInput extends FieldsetElement
         return implode(',', $terms);
     }
 
-    public function setValue($value)
+    public function setValue($value): static
     {
         $separatedTerms = $value;
         if (is_array($value)) {
@@ -312,7 +312,7 @@ class TermInput extends FieldsetElement
         return $this->valueHasBeenPasted;
     }
 
-    public function onRegistered(Form $form)
+    public function onRegistered(Form $form): void
     {
         $termContainerId = $this->getName() . '-terms';
         $mainInputId = $this->getName() . '-search-input';
@@ -434,7 +434,7 @@ class TermInput extends FieldsetElement
                 $this->parent = $parent;
             }
 
-            public function setValue($value)
+            public function setValue($value): static
             {
                 $data = json_decode($value, true);
                 if (($data['type'] ?? null) === 'paste') {
@@ -446,7 +446,7 @@ class TermInput extends FieldsetElement
                 return parent::setValue($data);
             }
 
-            public function getValueAttribute()
+            public function getValueAttribute(): null
             {
                 return null;
             }

@@ -316,7 +316,7 @@ class ScheduleElement extends FieldsetElement
         return $rule;
     }
 
-    public function setValue($value)
+    public function setValue($value): static
     {
         $values = $value;
         $rule = $value;
@@ -627,7 +627,7 @@ class ScheduleElement extends FieldsetElement
         return $partUpdates;
     }
 
-    protected function registerAttributeCallbacks(Attributes $attributes)
+    protected function registerAttributeCallbacks(Attributes $attributes): void
     {
         parent::registerAttributeCallbacks($attributes);
 

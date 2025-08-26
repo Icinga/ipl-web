@@ -20,7 +20,7 @@ class WeeklyFields extends FieldsetElement
     /** @var string A valid weekday to be selected by default */
     protected $default = 'MO';
 
-    public function __construct($name, $attributes = null)
+    public function __construct(string $name, null|array|Attributes $attributes = null)
     {
         $this->weekdays = [
             'MO' => $this->translate('Mon'),
@@ -118,7 +118,7 @@ class WeeklyFields extends FieldsetElement
         $this->addHtml($fieldsWrapper);
     }
 
-    protected function registerAttributeCallbacks(Attributes $attributes)
+    protected function registerAttributeCallbacks(Attributes $attributes): void
     {
         parent::registerAttributeCallbacks($attributes);
 
