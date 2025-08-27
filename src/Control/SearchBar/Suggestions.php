@@ -435,7 +435,7 @@ abstract class Suggestions extends BaseHtmlElement
         return fnmatch($searchTerm, $label, FNM_CASEFOLD) || fnmatch($searchTerm, $path, FNM_CASEFOLD);
     }
 
-    public function renderUnwrapped()
+    public function renderUnwrapped(): string
     {
         $this->ensureAssembled();
 

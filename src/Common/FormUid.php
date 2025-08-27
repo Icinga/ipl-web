@@ -37,7 +37,7 @@ trait FormUid
      *
      * @return bool
      */
-    public function hasBeenSent()
+    public function hasBeenSent(): bool
     {
         if (! parent::hasBeenSent()) {
             return false;

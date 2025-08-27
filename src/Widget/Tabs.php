@@ -132,7 +132,7 @@ class Tabs extends BaseHtmlElement
      *
      * @throws InvalidArgumentException
      */
-    public function add($name, $tab = null)
+    public function add($name, $tab = null): static
     {
         if ($tab === null) {
             throw new InvalidArgumentException('Argument $tab is required');

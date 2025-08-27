@@ -282,7 +282,7 @@ class SortControl extends Form
         }
     }
 
-    public function renderUnwrapped()
+    public function renderUnwrapped(): string
     {
         $this->prepareContent();
 
