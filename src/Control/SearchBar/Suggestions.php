@@ -190,7 +190,7 @@ abstract class Suggestions extends BaseHtmlElement
             $attributes['data-type'] = $this->type;
         }
 
-        $button = new ButtonElement(null, $attributes);
+        $button = new ButtonElement('', $attributes);
         if (isset($this->default['type']) && $this->default['type'] === 'terms') {
             $terms = $this->filterToTerms($this->default['terms']);
             $list = new HtmlElement('ul', Attributes::create(['class' => 'comma-separated']));
@@ -275,7 +275,7 @@ abstract class Suggestions extends BaseHtmlElement
                 $attributes['data-label'] = $meta;
             }
 
-            $button = (new ButtonElement(null, $attributes))
+            $button = (new ButtonElement('', $attributes))
                 ->setAttribute('value', $label)
                 ->addHtml(Text::create($label));
             if ($this->type === 'column' && $this->shouldShowRelationFor($term)) {
