@@ -16,7 +16,6 @@ use ipl\Validator\CallbackValidator;
 use ipl\Web\FormElement\ScheduleElement\AnnuallyFields;
 use ipl\Web\FormElement\ScheduleElement\Common\FieldsProtector;
 use ipl\Web\FormElement\ScheduleElement\MonthlyFields;
-use ipl\Web\FormElement\ScheduleElement\Recurrence;
 use ipl\Web\FormElement\ScheduleElement\WeeklyFields;
 use LogicException;
 use Psr\Http\Message\RequestInterface;
@@ -65,29 +64,9 @@ class ScheduleElement extends FieldsetElement
 
     protected function init(): void
     {
+        $this->addDefaultPluginLoader('element', 'ipl\\Web\\FormElement\\ScheduleElement', '');
+
         $this->start = new DateTime();
-        $this->weeklyField = new WeeklyFields('weekly-fields', [
-            'default'   => $this->start->format('D'),
-            'protector' => function (string $day) {
-                return $this->protectId($day);
-            },
-        ]);
-
-        $this->monthlyFields = new MonthlyFields('monthly-fields', [
-            'default'         => $this->start->format('j'),
-            'availableFields' => (int) $this->start->format('t'),
-            'protector'       => function ($day) {
-                return $this->protectId($day);
-            }
-        ]);
-
-        $this->annuallyFields = new AnnuallyFields('annually-fields', [
-            'default'   => $this->start->format('M'),
-            'protector' => function ($month) {
-                return $this->protectId($month);
-            }
-        ]);
-
 
         $this->regulars = [
             RRule::MINUTELY  => $this->translate('Minutely'),
@@ -106,6 +85,64 @@ class ScheduleElement extends FieldsetElement
             static::CUSTOM_EXPR => $this->translate('Custom…'),
             static::CRON_EXPR   => $this->translate('Cron Expression…')
         ];
+    }
+
+    /**
+     * Create and return the weekly fields element
+     *
+     * @return WeeklyFields
+     */
+    protected function weeklyField(): WeeklyFields
+    {
+        if ($this->weeklyField === null) {
+            $this->weeklyField = $this->createElement('weeklyFields', 'weekly-fields', [
+                'default'   => $this->start->format('D'),
+                'protector' => function (string $day) {
+                    return $this->protectId($day);
+                },
+            ]);
+        }
+
+        return $this->weeklyField;
+    }
+
+    /**
+     * Create and return the monthly fields element
+     *
+     * @return MonthlyFields
+     */
+    protected function monthlyFields(): MonthlyFields
+    {
+        if ($this->monthlyFields === null) {
+            $this->monthlyFields = $this->createElement('monthlyFields', 'monthly-fields', [
+                'default'         => $this->start->format('j'),
+                'availableFields' => (int) $this->start->format('t'),
+                'protector'       => function ($day) {
+                    return $this->protectId($day);
+                }
+            ]);
+        }
+
+        return $this->monthlyFields;
+    }
+
+    /**
+     * Create and return the annually fields element
+     *
+     * @return AnnuallyFields
+     */
+    protected function annuallyFields(): AnnuallyFields
+    {
+        if ($this->annuallyFields === null) {
+            $this->annuallyFields = $this->createElement('annuallyFields', 'annually-fields', [
+                'default'   => $this->start->format('M'),
+                'protector' => function ($month) {
+                    return $this->protectId($month);
+                }
+            ]);
+        }
+
+        return $this->annuallyFields;
     }
 
     /**
@@ -190,9 +227,9 @@ class ScheduleElement extends FieldsetElement
         $this->start = $start;
 
         // Forward the start time update to the sub elements as well!
-        $this->weeklyField->setDefault($start->format('D'));
-        $this->annuallyFields->setDefault($start->format('M'));
-        $this->monthlyFields
+        $this->weeklyField()->setDefault($start->format('D'));
+        $this->annuallyFields()->setDefault($start->format('M'));
+        $this->monthlyFields()
             ->setDefault((int) $start->format('j'))
             ->setAvailableFields((int) $start->format('t'));
 
@@ -237,16 +274,16 @@ class ScheduleElement extends FieldsetElement
 
                         break;
                     case RRule::WEEKLY:
-                        $byDay = implode(',', $this->weeklyField->getSelectedWeekDays());
+                        $byDay = implode(',', $this->weeklyField()->getSelectedWeekDays());
 
                         $rule = new RRule("FREQ=WEEKLY;INTERVAL=$interval;BYDAY=$byDay");
 
                         break;
                     /** @noinspection PhpMissingBreakStatementInspection */
                     case RRule::MONTHLY:
-                        $runsOn = $this->monthlyFields->getValue('runsOn', MonthlyFields::RUNS_EACH);
+                        $runsOn = $this->monthlyFields()->getValue('runsOn', MonthlyFields::RUNS_EACH);
                         if ($runsOn === MonthlyFields::RUNS_EACH) {
-                            $byMonth = implode(',', $this->monthlyFields->getSelectedDays());
+                            $byMonth = implode(',', $this->monthlyFields()->getSelectedDays());
 
                             $rule = new RRule("FREQ=MONTHLY;INTERVAL=$interval;BYMONTHDAY=$byMonth");
 
@@ -256,8 +293,8 @@ class ScheduleElement extends FieldsetElement
                     case RRule::YEARLY:
                         $rule = "FREQ=MONTHLY;INTERVAL=$interval;";
                         if ($customFrequency === RRule::YEARLY) {
-                            $runsOn = $this->annuallyFields->getValue('runsOnThe', 'n');
-                            $month = $this->annuallyFields->getValue('month', (int) $this->start->format('m'));
+                            $runsOn = $this->annuallyFields()->getValue('runsOnThe', 'n');
+                            $month = $this->annuallyFields()->getValue('month', (int) $this->start->format('m'));
                             if (is_string($month)) {
                                 $datetime = DateTime::createFromFormat('!M', $month);
                                 if (! $datetime) {
@@ -275,9 +312,9 @@ class ScheduleElement extends FieldsetElement
                             }
                         }
 
-                        $element = $this->monthlyFields;
+                        $element = $this->monthlyFields();
                         if ($customFrequency === RRule::YEARLY) {
-                            $element = $this->annuallyFields;
+                            $element = $this->annuallyFields();
                         }
 
                         $runDay = $element->getValue('day', $element::$everyDay);
@@ -355,7 +392,7 @@ class ScheduleElement extends FieldsetElement
                         if (! $rule->getByDay() || empty($rule->getByDay())) {
                             $this->setFrequency(RRule::WEEKLY);
                         } else {
-                            $values['weekly-fields'] = $this->weeklyField->loadWeekDays($rule->getByDay());
+                            $values['weekly-fields'] = $this->weeklyField()->loadWeekDays($rule->getByDay());
                             $this
                                 ->setFrequency(static::CUSTOM_EXPR)
                                 ->setCustomFrequency(RRule::WEEKLY);
@@ -369,10 +406,10 @@ class ScheduleElement extends FieldsetElement
                             $this->setFrequency(static::CUSTOM_EXPR);
 
                             if ($isMonthly) {
-                                $values['monthly-fields'] = $this->monthlyFields->loadRRule($rule);
+                                $values['monthly-fields'] = $this->monthlyFields()->loadRRule($rule);
                                 $this->setCustomFrequency(RRule::MONTHLY);
                             } else {
-                                $values['annually-fields'] = $this->annuallyFields->loadRRule($rule);
+                                $values['annually-fields'] = $this->annuallyFields()->loadRRule($rule);
                                 $this->setCustomFrequency(RRule::YEARLY);
                             }
                         } elseif ($isMonthly && $rule->getInterval() === 3) {
@@ -463,16 +500,16 @@ class ScheduleElement extends FieldsetElement
                     break;
                 case RRule::WEEKLY:
                     $this->assembleCommonElements();
-                    $this->addElement($this->weeklyField);
+                    $this->addElement($this->weeklyField());
 
                     break;
                 case RRule::MONTHLY:
                     $this->assembleCommonElements();
-                    $this->addElement($this->monthlyFields);
+                    $this->addElement($this->monthlyFields());
 
                     break;
                 case RRule::YEARLY:
-                    $this->addElement($this->annuallyFields);
+                    $this->addElement($this->annuallyFields());
             }
         } elseif ($this->hasCronExpression()) {
             $this->addElement('text', 'cron_expression', [
@@ -495,7 +532,9 @@ class ScheduleElement extends FieldsetElement
 
         if ($this->getFrequency() !== static::NO_REPEAT && ! $this->hasCronExpression()) {
             $this->addElement(
-                new Recurrence('schedule-recurrences', [
+                'recurrence',
+                'schedule-recurrences',
+                [
                     'id'        => $this->protectId('schedule-recurrences'),
                     'label'     => $this->translate('Next occurrences'),
                     'validate'  => function (): array {
@@ -511,15 +550,15 @@ class ScheduleElement extends FieldsetElement
                                 $frequency = $this->getCustomFrequency();
                                 switch ($frequency) {
                                     case RRule::WEEKLY:
-                                        $reason = current($this->weeklyField->getMessages());
+                                        $reason = current($this->weeklyField()->getMessages());
 
                                         break;
                                     case RRule::MONTHLY:
-                                        $reason = current($this->monthlyFields->getMessages());
+                                        $reason = current($this->monthlyFields()->getMessages());
 
                                         break;
                                     default: // annually
-                                        $reason = current($this->annuallyFields->getMessages());
+                                        $reason = current($this->annuallyFields()->getMessages());
 
                                         break;
                                 }
@@ -549,7 +588,7 @@ class ScheduleElement extends FieldsetElement
 
                         return $rule;
                     }
-                ])
+                ]
             );
         }
     }
@@ -620,7 +659,7 @@ class ScheduleElement extends FieldsetElement
                 && $matches[1] === 'start'
             ) {
                 // To update the available fields/days based on the provided start time
-                $partUpdates[] = $this->monthlyFields;
+                $partUpdates[] = $this->monthlyFields();
             }
         }
 

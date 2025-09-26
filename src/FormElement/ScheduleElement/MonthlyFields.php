@@ -108,7 +108,8 @@ class MonthlyFields extends FieldsetElement
         foreach (range(1, $this->availableFields) as $day) {
             $checkbox = $this->createElement('checkbox', "day$day", [
                 'class' => ['autosubmit', 'sr-only'],
-                'value' => $day === $this->default && $runsOn === static::RUNS_EACH
+                'value' => $day === $this->default && $runsOn === static::RUNS_EACH,
+                'decorators' => []
             ]);
             $this->registerElement($checkbox);
 

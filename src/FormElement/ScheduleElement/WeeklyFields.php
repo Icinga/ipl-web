@@ -102,7 +102,8 @@ class WeeklyFields extends FieldsetElement
         foreach ($this->weekdays as $day => $value) {
             $checkbox = $this->createElement('checkbox', $day, [
                 'class' => ['autosubmit', 'sr-only'],
-                'value' => $day === $this->default
+                'value' => $day === $this->default,
+                'decorators' => []
             ]);
             $this->registerElement($checkbox);
 

@@ -46,6 +46,8 @@ class AnnuallyFields extends FieldsetElement
     {
         parent::init();
         $this->initUtils();
+
+        $this->addDefaultPluginLoader('element', 'ipl\\Web\\FormElement\\ScheduleElement', '');
     }
 
     /**
@@ -70,7 +72,7 @@ class AnnuallyFields extends FieldsetElement
     {
         $this->getAttributes()->set('id', $this->protectId('annually-fields'));
 
-        $fieldsSelector = new FieldsRadio('month', [
+        $fieldsSelector = $this->createElement('fieldsRadio', 'month', [
             'class'     => ['autosubmit', 'sr-only'],
             'value'     => $this->default,
             'options'   => $this->months,
@@ -79,21 +81,19 @@ class AnnuallyFields extends FieldsetElement
             }
         ]);
         $this->registerElement($fieldsSelector);
+        $this->decorate($fieldsSelector);
 
         $runsOnThe = $this->getPopulatedValue('runsOnThe', 'n');
-        $this->addElement('checkbox', 'runsOnThe', [
+        $checkbox = $this->createElement('checkbox', 'runsOnThe', [
             'class' => 'autosubmit',
             'value' => $runsOnThe
         ]);
+        $this->registerElement($checkbox);
+        $this->decorate($checkbox);
 
         $checkboxControls = HtmlElement::create('div', ['class' => 'toggle-slider-controls']);
-        $checkbox = $this->getElement('runsOnThe');
         $checkbox->prependWrapper($checkboxControls);
         $checkboxControls->addHtml($checkbox, HtmlElement::create('span', null, $this->translate('On the')));
-
-        $annuallyWrapper = HtmlElement::create('div', ['class' => 'annually']);
-        $checkboxControls->prependWrapper($annuallyWrapper);
-        $annuallyWrapper->addHtml($fieldsSelector);
 
         $notes = HtmlElement::create('div', ['class' => 'note']);
         $notes->addHtml(
@@ -103,23 +103,26 @@ class AnnuallyFields extends FieldsetElement
                 new Icon('arrow-right')
             )
         );
-        $annuallyWrapper->addHtml($notes);
+        $annuallyWrapper = HtmlElement::create('div', ['class' => 'annually']);
+        $fieldsSelector->prependWrapper($annuallyWrapper);
+        $annuallyWrapper->addHtml($fieldsSelector, $notes);
+
+        $this->addHtml($fieldsSelector, $checkbox);
 
         $enumerations = $this->createOrdinalElement();
         $enumerations->getAttributes()->set('disabled', $runsOnThe === 'n');
         $this->registerElement($enumerations);
+        $this->decorate($enumerations);
 
         $selectableDays = $this->createOrdinalSelectableDays();
         $selectableDays->getAttributes()->set('disabled', $runsOnThe === 'n');
         $this->registerElement($selectableDays);
 
         $ordinalWrapper = HtmlElement::create('div', ['class' => ['ordinal', 'annually']]);
-        $this
-            ->decorate($enumerations)
-            ->addHtml($enumerations);
-
         $enumerations->prependWrapper($ordinalWrapper);
         $ordinalWrapper->addHtml($enumerations, $selectableDays);
+
+        $this->addHtml($enumerations);
     }
 
     protected function registerAttributeCallbacks(Attributes $attributes)
