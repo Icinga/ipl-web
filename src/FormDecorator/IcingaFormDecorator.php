@@ -4,6 +4,7 @@ namespace ipl\Web\FormDecorator;
 
 use Icinga\Web\Window;
 use ipl\Html\Attributes;
+use ipl\Html\Contract\FormElementDecoration;
 use ipl\Html\Contract\FormSubmitElement;
 use ipl\Html\FormDecorator\DivDecorator;
 use ipl\Html\FormElement\CheckboxElement;
@@ -12,8 +13,13 @@ use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\HtmlString;
 use ipl\Html\Text;
+use ipl\Web\Compat\CompatForm;
 use ipl\Web\Widget\Icon;
 
+/**
+ * @deprecated Use {@see FormElementDecoration} decorators by calling {@see CompatForm::applyDefaultElementDecorators()}
+ * instead.
+ */
 class IcingaFormDecorator extends DivDecorator
 {
     const SUBMIT_ELEMENT_CLASS = 'form-controls';
