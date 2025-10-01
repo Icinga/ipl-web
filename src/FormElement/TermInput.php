@@ -275,6 +275,8 @@ class TermInput extends FieldsetElement
      */
     public function prepareMultipartUpdate(ServerRequestInterface $request): array
     {
+        $this->ensureAssembled();
+
         $updates = [];
         if ($this->valueHasBeenPasted()) {
             $updates[] = $this->termContainer();
@@ -294,7 +296,7 @@ class TermInput extends FieldsetElement
         }
 
         if (empty($updates) && $this->hasBeenAutoSubmitted()) {
-            $updates[] = $updates[] = [
+            $updates[] = [
                 HtmlString::create(json_encode(
                     ['#' . Attribute::sanitizeId($this->getValueOfNameAttribute()) . '-search-input', 'bogus']
                 )),
