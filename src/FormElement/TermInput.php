@@ -190,6 +190,16 @@ class TermInput extends FieldsetElement
         return parent::getElements();
     }
 
+    /**
+     * Will always return null as the label is passed to the main input
+     *
+     * @return null
+     */
+    public function getLabel(): null
+    {
+        return null;
+    }
+
     public function getValue($name = null, $default = null)
     {
         if ($name !== null) {
@@ -460,13 +470,10 @@ class TermInput extends FieldsetElement
         };
         $dataInput->setParent($this);
 
-        $label = $this->getLabel();
-        $this->setLabel(null);
-
         // TODO: Separator customization
         $mainInput = $this->createElement('text', 'value', [
             'id' => $searchInputId,
-            'label' => $label,
+            'label' => $this->label,
             'required' => $this->isRequired(),
             'placeholder' => $this->translate('Type to search. Separate multiple terms by comma.'),
             'class' => 'term-input',
