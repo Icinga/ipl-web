@@ -16,7 +16,7 @@ use ipl\Web\FormElement\TermInput\ValidatedTerm;
 use ipl\Web\Url;
 use Psr\Http\Message\ServerRequestInterface;
 
-class TermInput extends FieldsetElement
+class TermInputElement extends FieldsetElement
 {
     use Events;
 
@@ -445,10 +445,9 @@ class TermInput extends FieldsetElement
                 return ! $invalid;
             }]
         ]) extends HiddenElement {
-            /** @var TermInput */
-            private $parent;
+            private ?TermInputElement $parent;
 
-            public function setParent(TermInput $parent): void
+            public function setParent(TermInputElement $parent): void
             {
                 $this->parent = $parent;
             }
