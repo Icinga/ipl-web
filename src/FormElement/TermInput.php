@@ -303,6 +303,8 @@ class TermInput extends FieldsetElement
      */
     public function prepareMultipartUpdate(ServerRequestInterface $request): array
     {
+        $this->ensureAssembled();
+
         $updates = [];
         if ($this->valueHasBeenPasted()) {
             $updates[] = [$this->termContainer(), null];
