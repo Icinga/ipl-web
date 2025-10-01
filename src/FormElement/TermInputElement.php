@@ -333,6 +333,11 @@ class TermInputElement extends FieldsetElement
 
     public function onRegistered(Form $form)
     {
+        // TODO: In case the form is assembled "by hand", outside of "assemble()", this runs too early
+        //       and no request is set yet. Additionally, this won't ever run in case the input is part
+        //       of a fieldset as there is no "onRegistered()" call for fieldsets. There is clearly too
+        //       much wrong here, so this needs to be properly fixed.
+
         $termContainerId = Attribute::sanitizeId($this->getValueOfNameAttribute()) . '-terms';
         $mainInputId = Attribute::sanitizeId($this->getValueOfNameAttribute()) . '-search-input';
         $autoSubmittedBy = $form->getRequest()->getHeader('X-Icinga-Autosubmittedby');
