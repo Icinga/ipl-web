@@ -77,9 +77,7 @@ class CompatForm extends Form
                 ]
             ],
         ]);
-        //ensure decorators is not null
-        $this->getDecorators();
-        $this->decorators->addDecorator($labelDecorator);
+        $this->getDecorators()->addDecorator($labelDecorator);
 
         return $this;
     }

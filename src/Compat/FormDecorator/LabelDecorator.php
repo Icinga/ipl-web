@@ -19,26 +19,30 @@ class LabelDecorator extends IplHtmlLabelDecorator implements FormDecoration
 {
     use Translation;
 
-    protected $requiredExplanationNeeded = false;
+    protected bool $requiredExplanationNeeded = false;
 
     /**
      * Decorates the label of the form element and adds a tooltip if it is required
      */
     protected function getElementLabel(FormElement $formElement): ?ValidHtml
     {
-        $result = parent::getElementLabel($formElement) ?? HtmlString::create('&nbsp;');
-        if ($formElement->isRequired()) {
-            $requiredHint = new HtmlElement(
-                'span',
-                Attributes::create([
-                    'class' => 'required-hint',
-                    'aria-hidden' => true,
-                    'title' => $this->translate('Required')
-                ]),
-                Text::create(" *")
-            );
-            $this->requiredExplanationNeeded = true;
-            $result->addWrapper(new HtmlDocument())->addHtml($requiredHint);
+        $result = parent::getElementLabel($formElement);
+        if ($result === null) {
+            $result = HtmlString::create('&nbsp;');
+        } else {
+            if ($formElement->isRequired()) {
+                $requiredHint = new HtmlElement(
+                    'span',
+                    Attributes::create([
+                        'class' => 'required-hint',
+                        'aria-hidden' => 'true',
+                        'title' => $this->translate('Required')
+                    ]),
+                    Text::create(" *")
+                );
+                $this->requiredExplanationNeeded = true;
+                $result->addHtml($requiredHint);
+            }
         }
         return $result;
     }
@@ -58,7 +62,6 @@ class LabelDecorator extends IplHtmlLabelDecorator implements FormDecoration
                     Text::create(sprintf($this->translate('%s Required field'), '*'))
                 )
             );
-            $form->setAttribute('required-explanation-added', true);
             $result->append($requiredExplanation);
         }
     }
