@@ -6,6 +6,7 @@ use ipl\Html\Contract\DecorationResult;
 use ipl\Html\Contract\Form;
 use ipl\Html\Contract\FormElement;
 use ipl\Html\Contract\FormDecoration;
+use ipl\Html\Contract\MutableHtml;
 use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlString;
 use ipl\Html\FormDecoration\LabelDecorator as IplHtmlLabelDecorator;
@@ -19,6 +20,9 @@ class LabelDecorator extends IplHtmlLabelDecorator implements FormDecoration
 {
     use Translation;
 
+    /**
+     * @var bool Whether an explanation for the asterisk of required fields needs to be added
+     */
     protected bool $requiredExplanationNeeded = false;
 
     /**
@@ -29,7 +33,7 @@ class LabelDecorator extends IplHtmlLabelDecorator implements FormDecoration
         $result = parent::getElementLabel($formElement);
         if ($result === null) {
             $result = HtmlString::create('&nbsp;');
-        } else {
+        } elseif ($result instanceof MutableHtml) {
             if ($formElement->isRequired()) {
                 $requiredHint = new HtmlElement(
                     'span',
@@ -44,11 +48,12 @@ class LabelDecorator extends IplHtmlLabelDecorator implements FormDecoration
                 $result->addHtml($requiredHint);
             }
         }
+
         return $result;
     }
 
     /**
-     * appends an explanation of the asterisk for required fields if at least one such field exists
+     * Appends an explanation of the asterisk for required fields if at least one such field exists
      */
     public function decorateForm(DecorationResult $result, Form $form): void
     {
