@@ -42,18 +42,12 @@ class LabelDecoratorTest extends IplHtmlTestCase
         $renderedResults = $results->assemble()->render();
 
         $this->assertStringContainsString(
-            sprintf(
-                '<span class="required-hint" aria-hidden="true" title="%s"> *</span>',
-                $this->translate("Required")
-            ),
+            '<span class="required-hint" aria-hidden="true" title="Required"> *</span>',
             $renderedResults
         );
 
         $this->assertStringContainsString(
-            sprintf(
-                '<ul class="form-info"><li>* %s</li></ul>',
-                $this->translate("Required field")
-            ),
+            '<ul class="form-info"><li>* Required field</li></ul>',
             $renderedResults
         );
     }
@@ -72,18 +66,12 @@ class LabelDecoratorTest extends IplHtmlTestCase
         $renderedResults = $results->assemble()->render();
 
         $this->assertStringNotContainsString(
-            sprintf(
-                '<span class="required-hint" aria-hidden="true" title="%s"> *</span>',
-                $this->translate("Required")
-            ),
+            '<span class="required-hint" aria-hidden="true" title="Required"> *</span>',
             $renderedResults
         );
 
         $this->assertStringNotContainsString(
-            sprintf(
-                '<ul class="form-info"><li>* %s</li></ul>',
-                $this->translate("Required field")
-            ),
+            '<ul class="form-info"><li>* Required field</li></ul>',
             $renderedResults
         );
     }
