@@ -42,9 +42,9 @@ class CompatForm extends Form
         $this->addElementDecoratorLoaderPaths([
             ['ipl\\Web\\Compat\\FormDecorator', 'Decorator']
         ]);
-
+        $labelDecorator = new LabelDecorator();
         $this->setDefaultElementDecorators([
-            'Label',
+            $labelDecorator,
             [
                 'name' => 'HtmlTag',
                 'options' => [
@@ -77,10 +77,9 @@ class CompatForm extends Form
                 ]
             ],
         ]);
-        if ($this->decorators === null) {
-            $this->decorators = new DecoratorChain(FormDecoration::class);
-        }
-        $this->decorators->addDecorator(new LabelDecorator());
+        //ensure decorators is not null
+        $this->getDecorators();
+        $this->decorators->addDecorator($labelDecorator);
 
         return $this;
     }

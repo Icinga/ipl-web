@@ -25,6 +25,15 @@ form.icinga-form {
   }
 }
 
+.icinga-controls {
+  .required-hint {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: @text-color-light;
+  }
+}
+
+
 // Button styles
 
 // The `form` selector is only required to overrule the hover effect applied by Icinga Web.
@@ -81,6 +90,7 @@ form.icinga-form .control-group {
     flex: 1 1 auto;
 
     width: auto;
+
     &.vertical {
       width: 0;
     }
