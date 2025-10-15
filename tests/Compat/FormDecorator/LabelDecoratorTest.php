@@ -7,12 +7,9 @@ use ipl\Html\FormElement\TextElement;
 use ipl\Tests\Html\TestCase as IplHtmlTestCase;
 use ipl\Web\Compat\FormDecorator\LabelDecorator;
 use ipl\Web\Compat\CompatForm;
-use ipl\I18n\Translation;
 
 class LabelDecoratorTest extends IplHtmlTestCase
 {
-    use Translation;
-
     protected LabelDecorator $decorator;
 
     public function setUp(): void
