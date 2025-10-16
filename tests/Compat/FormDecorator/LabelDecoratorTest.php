@@ -46,7 +46,7 @@ class LabelDecoratorTest extends IplHtmlTestCase
             $renderedResults
         );
 
-        $this->assertStringContainsString(
+        $this->assertStringEndsWith(
             '<ul class="form-info"><li>* Required field</li></ul>',
             $renderedResults
         );
