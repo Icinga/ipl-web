@@ -2,12 +2,11 @@
 
 namespace ipl\Tests\Web\Compat;
 
-use ipl\Html\FormDecoration\FormElementDecorationResult;
 use ipl\Html\FormElement\SubmitElement;
-use ipl\Html\FormElement\TextElement;
+use ipl\I18n\NoopTranslator;
+use ipl\I18n\StaticTranslator;
 use ipl\Tests\Html\TestCase;
 use ipl\Web\Compat\CompatForm;
-use ipl\Web\Compat\FormDecorator\LabelDecorator;
 
 class CompatFormTest extends TestCase
 {
@@ -17,6 +16,7 @@ class CompatFormTest extends TestCase
     protected function setUp(): void
     {
         $this->form = new CompatForm();
+        StaticTranslator::$instance = new NoopTranslator();
     }
 
     public function testDuplicateSubmitButtonApplied(): void
