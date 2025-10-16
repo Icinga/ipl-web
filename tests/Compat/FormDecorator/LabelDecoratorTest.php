@@ -2,6 +2,7 @@
 
 namespace ipl\Tests\Web\Compat\FormDecorator;
 
+use ipl\Html\Form;
 use ipl\Html\FormDecoration\FormElementDecorationResult;
 use ipl\Html\FormElement\TextElement;
 use ipl\I18n\NoopTranslator;
@@ -28,7 +29,7 @@ class LabelDecoratorTest extends IplHtmlTestCase
         $this->assertSame('&nbsp;', $results->assemble()->render());
     }
 
-    public function testWithRequiredField(): void
+    public function testRequiredElement(): void
     {
         $formElement = new TextElement('test', [
             'required' => true,
@@ -36,23 +37,15 @@ class LabelDecoratorTest extends IplHtmlTestCase
         ]);
 
         $results = new FormElementDecorationResult();
-        $form = (new CompatForm())->addElement($formElement);
         $this->decorator->decorateFormElement($results, $formElement);
-        $this->decorator->decorateForm($results, $form);
-        $renderedResults = $results->assemble()->render();
 
         $this->assertStringContainsString(
             '<span class="required-hint" aria-hidden="true" title="Required"> *</span>',
-            $renderedResults
-        );
-
-        $this->assertStringEndsWith(
-            '<ul class="form-info"><li>* Required field</li></ul>',
-            $renderedResults
+            $results->assemble()->render()
         );
     }
 
-    public function testWithoutRequiredField(): void
+    public function testNonRequiredElement(): void
     {
         $formElement = new TextElement('test', [
             'required' => false,
@@ -60,19 +53,49 @@ class LabelDecoratorTest extends IplHtmlTestCase
         ]);
 
         $results = new FormElementDecorationResult();
-        $form = (new CompatForm())->addElement($formElement);
         $this->decorator->decorateFormElement($results, $formElement);
-        $this->decorator->decorateForm($results, $form);
-        $renderedResults = $results->assemble()->render();
 
         $this->assertStringNotContainsString(
             '<span class="required-hint" aria-hidden="true" title="Required"> *</span>',
-            $renderedResults
+            $results->assemble()->render()
         );
+    }
+
+    public function testFormWithRequiredElement(): void
+    {
+        $formElement = new TextElement('test', [
+            'required' => true,
+            'label' => 'test-label'
+        ]);
+
+        $results = new FormElementDecorationResult();
+        $formStub = $this->createStub(Form::class);
+
+        $this->decorator->decorateFormElement($results, $formElement);
+        $this->decorator->decorateForm($results, $formStub);
+
+        $this->assertStringEndsWith(
+            '<ul class="form-info"><li>* Required field</li></ul>',
+            $results->assemble()->render()
+        );
+    }
+
+    public function testFormWithoutRequiredElements(): void
+    {
+        $formElement = new TextElement('test', [
+            'required' => false,
+            'label' => 'test-label'
+        ]);
+
+        $results = new FormElementDecorationResult();
+        $formStub = $this->createStub(Form::class);
+
+        $this->decorator->decorateFormElement($results, $formElement);
+        $this->decorator->decorateForm($results, $formStub);
 
         $this->assertStringNotContainsString(
             '<ul class="form-info"><li>* Required field</li></ul>',
-            $renderedResults
+            $results->assemble()->render()
         );
     }
 }

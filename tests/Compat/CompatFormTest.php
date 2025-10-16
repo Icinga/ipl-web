@@ -2,9 +2,12 @@
 
 namespace ipl\Tests\Web\Compat;
 
+use ipl\Html\FormDecoration\FormElementDecorationResult;
 use ipl\Html\FormElement\SubmitElement;
+use ipl\Html\FormElement\TextElement;
 use ipl\Tests\Html\TestCase;
 use ipl\Web\Compat\CompatForm;
+use ipl\Web\Compat\FormDecorator\LabelDecorator;
 
 class CompatFormTest extends TestCase
 {
@@ -149,5 +152,58 @@ HTML;
         // Class attribute should change to `primary-submit-btn-duplicate`
         $this->assertSame($submitButton->getAttributes()->get('class')->getValue(), 'autosubmit');
         $this->assertSame($prefixButton->getAttributes()->get('class')->getValue(), 'primary-submit-btn-duplicate');
+    }
+
+    public function testDefaultElementDecoratorsWithRequiredField(): void
+    {
+        $this->form->applyDefaultElementDecorators()
+            ->addElement('text', 'test_text', ['required' => true, 'label' => 'test'])->render();
+
+        $this->assertStringContainsString(
+            '<span class="required-hint" aria-hidden="true" title="Required"> *</span>',
+            $this->form->render()
+        );
+
+        $this->assertStringEndsWith(
+            '<ul class="form-info"><li>* Required field</li></ul></form>',
+            $this->form->render()
+        );
+    }
+
+    public function testDefaultElementDecoratorsWithNonRequiredField(): void
+    {
+        $this->form->applyDefaultElementDecorators()
+            ->addElement('text', 'test_text', ['required' => false, 'label' => 'test'])->render();
+
+        $this->assertStringNotContainsString(
+            '<span class="required-hint" aria-hidden="true" title="Required"> *</span>',
+            $this->form->render()
+        );
+
+        $this->assertStringNotContainsString(
+            '<ul class="form-info"><li>* Required field</li></ul>',
+            $this->form->render()
+        );
+    }
+
+    public function testDefaultElementDecoratorsWithoutLabels(): void
+    {
+        $this->form->applyDefaultElementDecorators()
+            ->addElement('text', 'test_text')->render();
+
+        $this->assertStringNotContainsString(
+            "\&nbsp;",
+            $this->form->render()
+        );
+
+        $this->assertStringNotContainsString(
+            '<span class="required-hint" aria-hidden="true" title="Required"> *</span>',
+            $this->form->render()
+        );
+
+        $this->assertStringNotContainsString(
+            '<ul class="form-info"><li>* Required field</li></ul>',
+            $this->form->render()
+        );
     }
 }
