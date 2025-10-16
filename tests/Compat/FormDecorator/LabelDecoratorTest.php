@@ -4,6 +4,8 @@ namespace ipl\Tests\Web\Compat\FormDecorator;
 
 use ipl\Html\FormDecoration\FormElementDecorationResult;
 use ipl\Html\FormElement\TextElement;
+use ipl\I18n\NoopTranslator;
+use ipl\I18n\StaticTranslator;
 use ipl\Tests\Html\TestCase as IplHtmlTestCase;
 use ipl\Web\Compat\FormDecorator\LabelDecorator;
 use ipl\Web\Compat\CompatForm;
@@ -15,6 +17,7 @@ class LabelDecoratorTest extends IplHtmlTestCase
     public function setUp(): void
     {
         $this->decorator = new LabelDecorator();
+        StaticTranslator::$instance = new NoopTranslator();
     }
 
     public function testWithoutLabelAttribute(): void
