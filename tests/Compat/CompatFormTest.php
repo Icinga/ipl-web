@@ -157,20 +157,27 @@ HTML;
     public function testLabelDecoration(): void
     {
         $this->form->applyDefaultElementDecorators()
-            ->addElement('text', 'test_text_non_required', ['required' => false, 'label' => 'test_non_required'])
+            ->addElement(
+                'text',
+                'test_text_non_required',
+                ['required' => false, 'label' => 'test_non_required', 'id' => 'test-id-required']
+            )
             ->addElement('text', 'test_text_no_label')
-            ->addElement('text', 'test_text_required', ['required' => true, 'label' => 'test_required'])->render();
+            ->addElement(
+                'text',
+                'test_text_required',
+                ['required' => true, 'label' => 'test_required', 'id' => 'test-id-non-required']
+            );
 
-        $expected = sprintf(
-            <<<'HTML'
+        $expected = <<<'HTML'
     <form class="icinga-form icinga-controls" method="POST">
         <div class="control-group">
             <div class="control-label-group">
-                <label class="form-element-label" for="%s">
+                <label class="form-element-label" for="test-id-required">
                     test_non_required
                 </label>
             </div>
-            <input name="test_text_non_required" type="text" id="%s"/>
+            <input name="test_text_non_required" type="text" id="test-id-required"/>
         </div>
         <div class="control-group">
             <div class="control-label-group">
@@ -180,12 +187,12 @@ HTML;
         </div>
         <div class="control-group">
             <div class="control-label-group">
-                <label class="form-element-label" for="%s">
+                <label class="form-element-label" for="test-id-non-required">
                     test_required
                     <span class="required-hint" aria-hidden="true" title="Required"> *</span>
                 </label>
             </div>
-            <input required aria-required="true" name="test_text_required" type="text" id="%s"/>
+            <input required aria-required="true" name="test_text_required" type="text" id="test-id-non-required"/>
         </div>
         <ul class="form-info">
             <li>
@@ -193,12 +200,7 @@ HTML;
             </li>
         </ul>
     </form>
-HTML,
-            $this->form->getElement('test_text_non_required')->getAttribute('id')->getValue(),
-            $this->form->getElement('test_text_non_required')->getAttribute('id')->getValue(),
-            $this->form->getElement('test_text_required')->getAttribute('id')->getValue(),
-            $this->form->getElement('test_text_required')->getAttribute('id')->getValue(),
-        );
+HTML;
 
         $this->assertHtml($expected, $this->form);
     }

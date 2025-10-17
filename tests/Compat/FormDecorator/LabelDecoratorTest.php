@@ -32,19 +32,17 @@ class LabelDecoratorTest extends IplHtmlTestCase
     {
         $formElement = new TextElement('test', [
             'required' => true,
-            'label' => 'test-label'
+            'label' => 'test-label',
+            'id' => 'test-id'
         ]);
 
         $results = new FormElementDecorationResult();
         $this->decorator->decorateFormElement($results, $formElement);
 
-        $html = sprintf(
-            <<<'HTML'
-        <label class="form-element-label" for="%s">test-label
+        $html = <<<'HTML'
+        <label class="form-element-label" for="test-id">test-label
         <span class="required-hint" aria-hidden="true" title="Required"> *</span></label>
-        HTML,
-            $formElement->getAttribute('id')->getValue(),
-        );
+        HTML;
 
         $this->assertHtml($html, $results->assemble());
         $this->assertSame($formElement->getAttribute('aria-required')->getValue(), 'true');
@@ -64,8 +62,7 @@ class LabelDecoratorTest extends IplHtmlTestCase
             '<span class="required-hint" aria-hidden="true" title="Required"> *</span>',
             $results->assemble()->render()
         );
-        $this->assertTrue(! $formElement->hasAttribute('aria-required')
-            || $formElement->getAttribute('aria-required')->getValue() !== "true");
+        $this->assertFalse($formElement->hasAttribute('aria-required'));
     }
 
     public function testFormDecoration(): void
