@@ -154,56 +154,52 @@ HTML;
         $this->assertSame($prefixButton->getAttributes()->get('class')->getValue(), 'primary-submit-btn-duplicate');
     }
 
-    public function testDefaultElementDecoratorsWithRequiredField(): void
+    public function testLabelDecoration(): void
     {
         $this->form->applyDefaultElementDecorators()
-            ->addElement('text', 'test_text', ['required' => true, 'label' => 'test'])->render();
+            ->addElement('text', 'test_text_non_required', ['required' => false, 'label' => 'test_non_required'])
+            ->addElement('text', 'test_text_no_label')
+            ->addElement('text', 'test_text_required', ['required' => true, 'label' => 'test_required'])->render();
 
-        $this->assertStringContainsString(
-            '<span class="required-hint" aria-hidden="true" title="Required"> *</span>',
-            $this->form->render()
+        $expected = sprintf(
+            <<<'HTML'
+    <form class="icinga-form icinga-controls" method="POST">
+        <div class="control-group">
+            <div class="control-label-group">
+                <label class="form-element-label" for="%s">
+                    test_non_required
+                </label>
+            </div>
+            <input name="test_text_non_required" type="text" id="%s"/>
+        </div>
+        <div class="control-group">
+            <div class="control-label-group">
+                &nbsp;
+            </div>
+            <input name="test_text_no_label" type="text"/>
+        </div>
+        <div class="control-group">
+            <div class="control-label-group">
+                <label class="form-element-label" for="%s">
+                    test_required
+                    <span class="required-hint" aria-hidden="true" title="Required"> *</span>
+                </label>
+            </div>
+            <input required aria-required="true" name="test_text_required" type="text" id="%s"/>
+        </div>
+        <ul class="form-info">
+            <li>
+                * Required field
+            </li>
+        </ul>
+    </form>
+HTML,
+            $this->form->getElement('test_text_non_required')->getAttribute('id')->getValue(),
+            $this->form->getElement('test_text_non_required')->getAttribute('id')->getValue(),
+            $this->form->getElement('test_text_required')->getAttribute('id')->getValue(),
+            $this->form->getElement('test_text_required')->getAttribute('id')->getValue(),
         );
 
-        $this->assertStringEndsWith(
-            '<ul class="form-info"><li>* Required field</li></ul></form>',
-            $this->form->render()
-        );
-    }
-
-    public function testDefaultElementDecoratorsWithNonRequiredField(): void
-    {
-        $this->form->applyDefaultElementDecorators()
-            ->addElement('text', 'test_text', ['required' => false, 'label' => 'test'])->render();
-
-        $this->assertStringNotContainsString(
-            '<span class="required-hint" aria-hidden="true" title="Required"> *</span>',
-            $this->form->render()
-        );
-
-        $this->assertStringNotContainsString(
-            '<ul class="form-info"><li>* Required field</li></ul>',
-            $this->form->render()
-        );
-    }
-
-    public function testDefaultElementDecoratorsWithoutLabels(): void
-    {
-        $this->form->applyDefaultElementDecorators()
-            ->addElement('text', 'test_text')->render();
-
-        $this->assertStringNotContainsString(
-            "\&nbsp;",
-            $this->form->render()
-        );
-
-        $this->assertStringNotContainsString(
-            '<span class="required-hint" aria-hidden="true" title="Required"> *</span>',
-            $this->form->render()
-        );
-
-        $this->assertStringNotContainsString(
-            '<ul class="form-info"><li>* Required field</li></ul>',
-            $this->form->render()
-        );
+        $this->assertHtml($expected, $this->form);
     }
 }
