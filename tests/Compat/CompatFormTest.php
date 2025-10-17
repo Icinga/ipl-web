@@ -3,6 +3,8 @@
 namespace ipl\Tests\Web\Compat;
 
 use ipl\Html\FormElement\SubmitElement;
+use ipl\I18n\NoopTranslator;
+use ipl\I18n\StaticTranslator;
 use ipl\Tests\Html\TestCase;
 use ipl\Web\Compat\CompatForm;
 
@@ -14,6 +16,7 @@ class CompatFormTest extends TestCase
     protected function setUp(): void
     {
         $this->form = new CompatForm();
+        StaticTranslator::$instance = new NoopTranslator();
     }
 
     public function testDuplicateSubmitButtonApplied(): void
@@ -149,5 +152,56 @@ HTML;
         // Class attribute should change to `primary-submit-btn-duplicate`
         $this->assertSame($submitButton->getAttributes()->get('class')->getValue(), 'autosubmit');
         $this->assertSame($prefixButton->getAttributes()->get('class')->getValue(), 'primary-submit-btn-duplicate');
+    }
+
+    public function testLabelDecoration(): void
+    {
+        $this->form->applyDefaultElementDecorators()
+            ->addElement(
+                'text',
+                'test_text_non_required',
+                ['required' => false, 'label' => 'test_non_required', 'id' => 'test-id-required']
+            )
+            ->addElement('text', 'test_text_no_label')
+            ->addElement(
+                'text',
+                'test_text_required',
+                ['required' => true, 'label' => 'test_required', 'id' => 'test-id-non-required']
+            );
+
+        $expected = <<<'HTML'
+    <form class="icinga-form icinga-controls" method="POST">
+        <div class="control-group">
+            <div class="control-label-group">
+                <label class="form-element-label" for="test-id-required">
+                    test_non_required
+                </label>
+            </div>
+            <input name="test_text_non_required" type="text" id="test-id-required"/>
+        </div>
+        <div class="control-group">
+            <div class="control-label-group">
+                &nbsp;
+            </div>
+            <input name="test_text_no_label" type="text"/>
+        </div>
+        <div class="control-group">
+            <div class="control-label-group">
+                <label class="form-element-label" for="test-id-non-required">
+                    test_required
+                    <span class="required-hint" aria-hidden="true" title="Required"> *</span>
+                </label>
+            </div>
+            <input required aria-required="true" name="test_text_required" type="text" id="test-id-non-required"/>
+        </div>
+        <ul class="form-info">
+            <li>
+                * Required field
+            </li>
+        </ul>
+    </form>
+HTML;
+
+        $this->assertHtml($expected, $this->form);
     }
 }
