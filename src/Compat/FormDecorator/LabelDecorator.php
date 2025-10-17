@@ -35,6 +35,7 @@ class LabelDecorator extends IplHtmlLabelDecorator implements FormDecoration
             $result = HtmlString::create('&nbsp;');
         } elseif ($result instanceof MutableHtml) {
             if ($formElement->isRequired()) {
+                $formElement->setAttribute('aria-required', 'true');
                 $requiredHint = new HtmlElement(
                     'span',
                     Attributes::create([
