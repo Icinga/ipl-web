@@ -44,8 +44,8 @@ class CompatForm extends Form
         ]);
         $labelDecorator = new LabelDecorator();
         $this->setDefaultElementDecorators([
-            $labelDecorator,
-            [
+            'Label' => $labelDecorator,
+            'LabelGroup' => [
                 'name' => 'HtmlTag',
                 'options' => [
                     'tag' => 'div',
@@ -60,7 +60,7 @@ class CompatForm extends Form
             'Checkbox',
             'RenderElement',
             'Description',
-            [
+            'ControlGroup' => [
                 'name' => 'HtmlTag',
                 'options' => [
                     'tag' => 'div',
@@ -68,7 +68,7 @@ class CompatForm extends Form
                     'condition' => fn(FormElement $element): bool => ! $element instanceof FormSubmitElement
                 ]
             ],
-            [
+            'FormControls' => [
                 'name' => 'HtmlTag',
                 'options' => [
                     'tag' => 'div',
@@ -77,7 +77,7 @@ class CompatForm extends Form
                 ]
             ],
         ]);
-        $this->getDecorators()->addDecorator($labelDecorator);
+        $this->getDecorators()->addDecorator('Required', $labelDecorator);
 
         return $this;
     }
