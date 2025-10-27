@@ -204,4 +204,180 @@ HTML;
 
         $this->assertHtml($expected, $this->form);
     }
+
+    public function testFieldsetDecoration(): void
+    {
+        $this->form
+            ->applyDefaultElementDecorators()
+            ->addElement('fieldset', 'foo', [
+                'label'     => 'Legend here',
+                'description' => 'Description here',
+                'id' => 'foo-id'
+            ]);
+
+        $expected = <<<'HTML'
+    <form class="icinga-form icinga-controls" method="POST">
+        <div class="control-group">
+            <fieldset name="foo" id="foo-id" aria-describedby="desc_foo-id">
+                <legend>Legend here</legend>
+                <p id="desc_foo-id">Description here</p>
+            </fieldset>
+        </div>
+    </form>
+HTML;
+
+        $this->assertHtml($expected, $this->form);
+    }
+
+    public function testCheckboxDecoration(): void
+    {
+        $this->form
+            ->applyDefaultElementDecorators()
+            ->addElement('checkbox', 'foo', ['label' => 'Label here', 'id' => 'foo-id']);
+
+        $expected = <<<'HTML'
+    <form class="icinga-form icinga-controls" method="POST">
+        <div class="control-group">
+            <div class="control-label-group">
+                <label class="form-element-label" for="foo-id">Label here</label>
+            </div>
+            <input name="foo" type="hidden" value="n"/>
+            <input class="sr-only" id="foo-id" name="foo" type="checkbox" value="y"/>
+            <label class="toggle-switch" aria-hidden="true" for="foo-id">
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+    </form>
+HTML;
+
+        $this->assertHtml($expected, $this->form);
+    }
+
+    public function testDescriptionDecoration(): void
+    {
+        $this->form
+            ->applyDefaultElementDecorators()
+            ->addElement('text', 'foo', ['description' => 'Description here', 'id' => 'foo-id']);
+
+        $expected = <<<'HTML'
+    <form class="icinga-form icinga-controls" method="POST">
+        <div class="control-group">
+            <div class="control-label-group">&nbsp;</div>
+            <input name="foo" type="text" id="foo-id" aria-describedby="desc_foo-id"/>
+             <i aria-hidden="true" class="icon fa-info-circle control-info fa" role="img" title="Description here"/>
+            <span class="sr-only" id="desc_foo-id">Description here</span>
+        </div>
+    </form>
+HTML;
+
+        $this->assertHtml($expected, $this->form);
+    }
+
+    public function testErrorsDecoration(): void
+    {
+        $this->form
+            ->applyDefaultElementDecorators()
+            ->addElement('text', 'foo');
+
+        $el = $this->form->getElement('foo');
+        $el->addMessage('First error');
+        $el->addMessage('Second error');
+
+        $expected = <<<'HTML'
+    <form class="icinga-form icinga-controls" method="POST">
+        <div class="control-group">
+            <div class="control-label-group">&nbsp;</div>
+            <input name="foo" type="text"/>
+            <ul class="errors">
+                <li>First error</li>
+                <li>Second error</li>
+            </ul>
+        </div>
+    </form>
+HTML;
+
+        $this->assertHtml($expected, $this->form);
+    }
+
+    public function testFormControlsDecoration(): void
+    {
+        $this->form
+            ->applyDefaultElementDecorators()
+            ->addElement('submit', 'foo', ['label' => 'Submit Form']);
+
+        $expected = <<<'HTML'
+    <form class="icinga-form icinga-controls" method="POST">
+        <div class="control-group form-controls">
+            <input name="foo" type="submit" value="Submit Form"/>
+        </div>
+    </form>
+HTML;
+
+        $this->assertHtml($expected, $this->form);
+    }
+
+    public function testMethodApplyDefaultElementDecorators(): void
+    {
+        // A fieldset, a text element, a required checkbox, and a submit button should cover
+        // all default element decorators.
+
+        $this->form->applyDefaultElementDecorators();
+
+        $fieldset = $this->form->createElement('fieldset', 'foo', [
+            'label' => 'Fieldset Label',
+            'description' => 'Fieldset Description',
+            'id' => 'foo-id'
+        ]);
+
+        $fieldset->addElement('text', 'bar', [
+            'label' => 'Legend here',
+            'description' => 'Description here',
+            'id' => 'bar-id'
+        ]);
+
+        $this->form
+            ->addElement($fieldset)
+            ->addElement('checkbox', 'fooBar', [
+                'label' => 'Fieldset Label',
+                'description' => 'Fieldset Description',
+                'id' => 'fooBar-id'
+            ])
+            ->addElement('submit', 'submit_form', ['label' => 'Submit Form']);
+
+        $expected = <<<'HTML'
+    <form class="icinga-form icinga-controls" method="POST">
+      <div class="control-group">
+        <fieldset aria-describedby="desc_foo-id" id="foo-id" name="foo">
+          <legend>Fieldset Label</legend>
+          <p id="desc_foo-id">Fieldset Description</p>
+          <div class="control-group">
+            <div class="control-label-group">
+              <label class="form-element-label" for="bar-id">Legend here</label>
+            </div>
+            <input aria-describedby="desc_bar-id" id="bar-id" name="foo[bar]" type="text"/>
+            <i aria-hidden="true" class="icon fa-info-circle control-info fa" role="img" title="Description here"/>
+            <span class="sr-only" id="desc_bar-id">Description here</span>
+          </div>
+        </fieldset>
+      </div>
+      <div class="control-group">
+        <div class="control-label-group">
+          <label class="form-element-label" for="fooBar-id">Fieldset Label</label>
+        </div>
+        <input name="fooBar" type="hidden" value="n"/>
+        <input aria-describedby="desc_fooBar-id" class="sr-only" id="fooBar-id" name="fooBar" type="checkbox" value="y"/>
+        <label aria-hidden="true" class="toggle-switch" for="fooBar-id">
+          <span class="toggle-slider"/>
+        </label>
+        <i aria-hidden="true" class="icon fa-info-circle control-info fa" role="img" title="Fieldset Description"/>
+        <span class="sr-only" id="desc_fooBar-id">Fieldset Description</span>
+      </div>
+      <div class="control-group form-controls">
+        <input name="submit_form" type="submit" value="Submit Form"/>
+      </div>
+    </form>
+HTML;
+
+        $this->assertHtml($expected, $this->form);
+    }
 }
