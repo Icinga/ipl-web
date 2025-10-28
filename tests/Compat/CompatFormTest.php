@@ -10,19 +10,16 @@ use ipl\Web\Compat\CompatForm;
 
 class CompatFormTest extends TestCase
 {
-    /** @var CompatForm */
-    private $form;
-
     protected function setUp(): void
     {
-        $this->form = new CompatForm();
         StaticTranslator::$instance = new NoopTranslator();
     }
 
     public function testDuplicateSubmitButtonApplied(): void
     {
-        $this->form->addElement('submit', 'submitCreate');
-        $this->form->addElement('submit', 'submitDelete');
+        $form = new CompatForm();
+        $form->addElement('submit', 'submitCreate');
+        $form->addElement('submit', 'submitDelete');
 
         $expected = <<<'HTML'
     <form class="icinga-form icinga-controls" method="POST">
@@ -36,20 +33,21 @@ class CompatFormTest extends TestCase
     </form>
 HTML;
 
-        $this->assertHtml($expected, $this->form);
+        $this->assertHtml($expected, $form);
     }
 
     public function testSubmitElementDuplication(): void
     {
-        $this->form->addElement('submit', 'submit', [
+        $form = new CompatForm();
+        $form->addElement('submit', 'submit', [
             'label' => 'Submit label',
             'class' => 'btn-primary'
         ]);
-        $this->form->addElement('submit', 'delete', [
+        $form->addElement('submit', 'delete', [
             'label' => 'Delete label',
             'class' => 'btn-danger'
         ]);
-        $this->form->setSubmitButton($this->form->getElement('submit'));
+        $form->setSubmitButton($form->getElement('submit'));
 
         $expected = <<<'HTML'
     <form class="icinga-form icinga-controls" method="POST">
@@ -63,22 +61,23 @@ HTML;
     </form>
 HTML;
 
-        $this->assertHtml($expected, $this->form);
+        $this->assertHtml($expected, $form);
     }
 
 
     public function testSubmitButtonElementDuplication(): void
     {
-        $this->form->addElement('submitButton', 'submit', [
+        $form = new CompatForm();
+        $form->addElement('submitButton', 'submit', [
             'label' => 'Submit label',
             'class' => 'btn-primary',
             'value' => 'submit_value'
         ]);
-        $this->form->addElement('submitButton', 'delete', [
+        $form->addElement('submitButton', 'delete', [
             'label' => 'Delete label',
             'class' => 'btn-danger'
         ]);
-        $this->form->setSubmitButton($this->form->getElement('submit'));
+        $form->setSubmitButton($form->getElement('submit'));
 
         $expected = <<<'HTML'
     <form class="icinga-form icinga-controls" method="POST">
@@ -92,12 +91,13 @@ HTML;
     </form>
 HTML;
 
-        $this->assertHtml($expected, $this->form);
+        $this->assertHtml($expected, $form);
     }
 
     public function testDuplicateSubmitButtonOmitted(): void
     {
-        $this->form->addElement('submit', 'submitCreate');
+        $form = new CompatForm();
+        $form->addElement('submit', 'submitCreate');
 
         $expected = <<<'HTML'
     <form class="icinga-form icinga-controls" method="POST">
@@ -107,13 +107,14 @@ HTML;
     </form>
 HTML;
 
-        $this->assertHtml($expected, $this->form);
+        $this->assertHtml($expected, $form);
     }
 
     public function testDuplicateSubmitButtonAddedOnlyOnce(): void
     {
-        $this->form->addElement('submit', 'submitCreate', ['id' => 'submit_id']);
-        $this->form->addElement('submit', 'submitDelete');
+        $form = new CompatForm();
+        $form->addElement('submit', 'submitCreate', ['id' => 'submit_id']);
+        $form->addElement('submit', 'submitDelete');
 
         $expected = <<<'HTML'
     <form class="icinga-form icinga-controls" method="POST">
@@ -128,8 +129,8 @@ HTML;
 HTML;
 
         // Call render twice to ensure that the submit button is only prepended once.
-        $this->form->render();
-        $this->assertHtml($expected, $this->form);
+        $form->render();
+        $this->assertHtml($expected, $form);
     }
 
     public function testDuplicateSubmitButtonRespectsOriginalAttributes(): void
@@ -139,7 +140,7 @@ HTML;
             'formnovalidate' => true
         ]);
 
-        $prefixButton = $this->form->duplicateSubmitButton($submitButton);
+        $prefixButton = (new CompatForm())->duplicateSubmitButton($submitButton);
 
         // Name should stay the same
         $this->assertSame($submitButton->getName(), 'test_submit');
@@ -156,7 +157,8 @@ HTML;
 
     public function testLabelDecoration(): void
     {
-        $this->form->applyDefaultElementDecorators()
+        $form = new CompatForm();
+        $form->applyDefaultElementDecorators()
             ->addElement(
                 'text',
                 'test_text_non_required',
@@ -202,6 +204,187 @@ HTML;
     </form>
 HTML;
 
-        $this->assertHtml($expected, $this->form);
+        $this->assertHtml($expected, $form);
+    }
+
+    public function testFieldsetDecoration(): void
+    {
+        $form = new CompatForm();
+        $form
+            ->applyDefaultElementDecorators()
+            ->addElement('fieldset', 'foo', [
+                'label'     => 'Legend here',
+                'description' => 'Description here',
+                'id' => 'foo-id'
+            ]);
+
+        $expected = <<<'HTML'
+    <form class="icinga-form icinga-controls" method="POST">
+        <div class="control-group">
+            <fieldset name="foo" id="foo-id" aria-describedby="desc_foo-id">
+                <legend>Legend here</legend>
+                <p id="desc_foo-id">Description here</p>
+            </fieldset>
+        </div>
+    </form>
+HTML;
+
+        $this->assertHtml($expected, $form);
+    }
+
+    public function testCheckboxDecoration(): void
+    {
+        $form = new CompatForm();
+        $form
+            ->applyDefaultElementDecorators()
+            ->addElement('checkbox', 'foo', ['label' => 'Label here', 'id' => 'foo-id']);
+
+        $expected = <<<'HTML'
+    <form class="icinga-form icinga-controls" method="POST">
+        <div class="control-group">
+            <div class="control-label-group">
+                <label class="form-element-label" for="foo-id">Label here</label>
+            </div>
+            <input name="foo" type="hidden" value="n"/>
+            <input class="sr-only" id="foo-id" name="foo" type="checkbox" value="y"/>
+            <label class="toggle-switch" aria-hidden="true" for="foo-id">
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+    </form>
+HTML;
+
+        $this->assertHtml($expected, $form);
+    }
+
+    public function testDescriptionDecoration(): void
+    {
+        $form = new CompatForm();
+        $form
+            ->applyDefaultElementDecorators()
+            ->addElement('text', 'foo', ['description' => 'Description here', 'id' => 'foo-id']);
+
+        $expected = <<<'HTML'
+    <form class="icinga-form icinga-controls" method="POST">
+        <div class="control-group">
+            <div class="control-label-group">&nbsp;</div>
+            <input name="foo" type="text" id="foo-id" aria-describedby="desc_foo-id"/>
+             <i aria-hidden="true" class="icon fa-info-circle control-info fa" role="img" title="Description here"/>
+            <span class="sr-only" id="desc_foo-id">Description here</span>
+        </div>
+    </form>
+HTML;
+
+        $this->assertHtml($expected, $form);
+    }
+
+    public function testErrorsDecoration(): void
+    {
+        $form = new CompatForm();
+        $form
+            ->applyDefaultElementDecorators()
+            ->addElement('text', 'foo');
+
+        $el = $form->getElement('foo');
+        $el->addMessage('First error');
+        $el->addMessage('Second error');
+
+        $expected = <<<'HTML'
+    <form class="icinga-form icinga-controls" method="POST">
+        <div class="control-group">
+            <div class="control-label-group">&nbsp;</div>
+            <input name="foo" type="text"/>
+            <ul class="errors">
+                <li>First error</li>
+                <li>Second error</li>
+            </ul>
+        </div>
+    </form>
+HTML;
+
+        $this->assertHtml($expected, $form);
+    }
+
+    public function testFormControlsDecoration(): void
+    {
+        $form = new CompatForm();
+        $form
+            ->applyDefaultElementDecorators()
+            ->addElement('submit', 'foo', ['label' => 'Submit Form']);
+
+        $expected = <<<'HTML'
+    <form class="icinga-form icinga-controls" method="POST">
+        <div class="control-group form-controls">
+            <input name="foo" type="submit" value="Submit Form"/>
+        </div>
+    </form>
+HTML;
+
+        $this->assertHtml($expected, $form);
+    }
+
+    public function testMethodApplyDefaultElementDecorators(): void
+    {
+        // A fieldset, a text element, a required checkbox, and a submit button should cover
+        // all default element decorators.
+        $form = new CompatForm();
+        $form->applyDefaultElementDecorators();
+
+        $fieldset = $form->createElement('fieldset', 'foo', [
+            'label' => 'Fieldset Label',
+            'description' => 'Fieldset Description',
+            'id' => 'foo-id'
+        ]);
+
+        $fieldset->addElement('text', 'bar', [
+            'label' => 'Legend here',
+            'description' => 'Description here',
+            'id' => 'bar-id'
+        ]);
+
+        $form
+            ->addElement($fieldset)
+            ->addElement('checkbox', 'fooBar', [
+                'label' => 'Fieldset Label',
+                'description' => 'Fieldset Description',
+                'id' => 'fooBar-id'
+            ])
+            ->addElement('submit', 'submit_form', ['label' => 'Submit Form']);
+
+        $expected = <<<'HTML'
+    <form class="icinga-form icinga-controls" method="POST">
+      <div class="control-group">
+        <fieldset aria-describedby="desc_foo-id" id="foo-id" name="foo">
+          <legend>Fieldset Label</legend>
+          <p id="desc_foo-id">Fieldset Description</p>
+          <div class="control-group">
+            <div class="control-label-group">
+              <label class="form-element-label" for="bar-id">Legend here</label>
+            </div>
+            <input aria-describedby="desc_bar-id" id="bar-id" name="foo[bar]" type="text"/>
+            <i aria-hidden="true" class="icon fa-info-circle control-info fa" role="img" title="Description here"/>
+            <span class="sr-only" id="desc_bar-id">Description here</span>
+          </div>
+        </fieldset>
+      </div>
+      <div class="control-group">
+        <div class="control-label-group">
+          <label class="form-element-label" for="fooBar-id">Fieldset Label</label>
+        </div>
+        <input name="fooBar" type="hidden" value="n"/>
+        <input aria-describedby="desc_fooBar-id" class="sr-only" id="fooBar-id" name="fooBar" type="checkbox" value="y"/>
+        <label aria-hidden="true" class="toggle-switch" for="fooBar-id">
+          <span class="toggle-slider"/>
+        </label>
+        <i aria-hidden="true" class="icon fa-info-circle control-info fa" role="img" title="Fieldset Description"/>
+        <span class="sr-only" id="desc_fooBar-id">Fieldset Description</span>
+      </div>
+      <div class="control-group form-controls">
+        <input name="submit_form" type="submit" value="Submit Form"/>
+      </div>
+    </form>
+HTML;
+
+        $this->assertHtml($expected, $form);
     }
 }

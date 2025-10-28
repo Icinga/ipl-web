@@ -7,14 +7,12 @@ use ipl\Html\Contract\FormElement;
 use ipl\Html\Contract\FormSubmitElement;
 use ipl\Html\Contract\HtmlElementInterface;
 use ipl\Html\Form;
-use ipl\Html\FormDecoration\DecoratorChain;
 use ipl\Html\FormElement\SubmitButtonElement;
 use ipl\Html\FormElement\SubmitElement;
 use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlString;
 use ipl\I18n\Translation;
 use ipl\Web\FormDecorator\IcingaFormDecorator;
-use ipl\Html\Contract\FormDecoration;
 use ipl\Web\Compat\FormDecorator\LabelDecorator;
 
 class CompatForm extends Form
@@ -42,6 +40,7 @@ class CompatForm extends Form
         $this->addElementDecoratorLoaderPaths([
             ['ipl\\Web\\Compat\\FormDecorator', 'Decorator']
         ]);
+
         $labelDecorator = new LabelDecorator();
         $this->setDefaultElementDecorators([
             'Label' => $labelDecorator,
@@ -60,6 +59,7 @@ class CompatForm extends Form
             'Checkbox',
             'RenderElement',
             'Description',
+            'Errors' => ['name' => 'Errors', 'options' => ['class' => 'errors']],
             'ControlGroup' => [
                 'name' => 'HtmlTag',
                 'options' => [
@@ -77,6 +77,7 @@ class CompatForm extends Form
                 ]
             ],
         ]);
+
         $this->getDecorators()->addDecorator('Required', $labelDecorator);
 
         return $this;
