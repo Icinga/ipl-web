@@ -10,19 +10,16 @@ use ipl\Web\Compat\CompatForm;
 
 class CompatFormTest extends TestCase
 {
-    /** @var CompatForm */
-    private $form;
-
     protected function setUp(): void
     {
-        $this->form = new CompatForm();
         StaticTranslator::$instance = new NoopTranslator();
     }
 
     public function testDuplicateSubmitButtonApplied(): void
     {
-        $this->form->addElement('submit', 'submitCreate');
-        $this->form->addElement('submit', 'submitDelete');
+        $form = new CompatForm();
+        $form->addElement('submit', 'submitCreate');
+        $form->addElement('submit', 'submitDelete');
 
         $expected = <<<'HTML'
     <form class="icinga-form icinga-controls" method="POST">
@@ -36,20 +33,21 @@ class CompatFormTest extends TestCase
     </form>
 HTML;
 
-        $this->assertHtml($expected, $this->form);
+        $this->assertHtml($expected, $form);
     }
 
     public function testSubmitElementDuplication(): void
     {
-        $this->form->addElement('submit', 'submit', [
+        $form = new CompatForm();
+        $form->addElement('submit', 'submit', [
             'label' => 'Submit label',
             'class' => 'btn-primary'
         ]);
-        $this->form->addElement('submit', 'delete', [
+        $form->addElement('submit', 'delete', [
             'label' => 'Delete label',
             'class' => 'btn-danger'
         ]);
-        $this->form->setSubmitButton($this->form->getElement('submit'));
+        $form->setSubmitButton($form->getElement('submit'));
 
         $expected = <<<'HTML'
     <form class="icinga-form icinga-controls" method="POST">
@@ -63,22 +61,23 @@ HTML;
     </form>
 HTML;
 
-        $this->assertHtml($expected, $this->form);
+        $this->assertHtml($expected, $form);
     }
 
 
     public function testSubmitButtonElementDuplication(): void
     {
-        $this->form->addElement('submitButton', 'submit', [
+        $form = new CompatForm();
+        $form->addElement('submitButton', 'submit', [
             'label' => 'Submit label',
             'class' => 'btn-primary',
             'value' => 'submit_value'
         ]);
-        $this->form->addElement('submitButton', 'delete', [
+        $form->addElement('submitButton', 'delete', [
             'label' => 'Delete label',
             'class' => 'btn-danger'
         ]);
-        $this->form->setSubmitButton($this->form->getElement('submit'));
+        $form->setSubmitButton($form->getElement('submit'));
 
         $expected = <<<'HTML'
     <form class="icinga-form icinga-controls" method="POST">
@@ -92,12 +91,13 @@ HTML;
     </form>
 HTML;
 
-        $this->assertHtml($expected, $this->form);
+        $this->assertHtml($expected, $form);
     }
 
     public function testDuplicateSubmitButtonOmitted(): void
     {
-        $this->form->addElement('submit', 'submitCreate');
+        $form = new CompatForm();
+        $form->addElement('submit', 'submitCreate');
 
         $expected = <<<'HTML'
     <form class="icinga-form icinga-controls" method="POST">
@@ -107,13 +107,14 @@ HTML;
     </form>
 HTML;
 
-        $this->assertHtml($expected, $this->form);
+        $this->assertHtml($expected, $form);
     }
 
     public function testDuplicateSubmitButtonAddedOnlyOnce(): void
     {
-        $this->form->addElement('submit', 'submitCreate', ['id' => 'submit_id']);
-        $this->form->addElement('submit', 'submitDelete');
+        $form = new CompatForm();
+        $form->addElement('submit', 'submitCreate', ['id' => 'submit_id']);
+        $form->addElement('submit', 'submitDelete');
 
         $expected = <<<'HTML'
     <form class="icinga-form icinga-controls" method="POST">
@@ -128,8 +129,8 @@ HTML;
 HTML;
 
         // Call render twice to ensure that the submit button is only prepended once.
-        $this->form->render();
-        $this->assertHtml($expected, $this->form);
+        $form->render();
+        $this->assertHtml($expected, $form);
     }
 
     public function testDuplicateSubmitButtonRespectsOriginalAttributes(): void
@@ -139,7 +140,7 @@ HTML;
             'formnovalidate' => true
         ]);
 
-        $prefixButton = $this->form->duplicateSubmitButton($submitButton);
+        $prefixButton = (new CompatForm())->duplicateSubmitButton($submitButton);
 
         // Name should stay the same
         $this->assertSame($submitButton->getName(), 'test_submit');
@@ -156,7 +157,8 @@ HTML;
 
     public function testLabelDecoration(): void
     {
-        $this->form->applyDefaultElementDecorators()
+        $form = new CompatForm();
+        $form->applyDefaultElementDecorators()
             ->addElement(
                 'text',
                 'test_text_non_required',
@@ -202,12 +204,13 @@ HTML;
     </form>
 HTML;
 
-        $this->assertHtml($expected, $this->form);
+        $this->assertHtml($expected, $form);
     }
 
     public function testFieldsetDecoration(): void
     {
-        $this->form
+        $form = new CompatForm();
+        $form
             ->applyDefaultElementDecorators()
             ->addElement('fieldset', 'foo', [
                 'label'     => 'Legend here',
@@ -226,12 +229,13 @@ HTML;
     </form>
 HTML;
 
-        $this->assertHtml($expected, $this->form);
+        $this->assertHtml($expected, $form);
     }
 
     public function testCheckboxDecoration(): void
     {
-        $this->form
+        $form = new CompatForm();
+        $form
             ->applyDefaultElementDecorators()
             ->addElement('checkbox', 'foo', ['label' => 'Label here', 'id' => 'foo-id']);
 
@@ -250,12 +254,13 @@ HTML;
     </form>
 HTML;
 
-        $this->assertHtml($expected, $this->form);
+        $this->assertHtml($expected, $form);
     }
 
     public function testDescriptionDecoration(): void
     {
-        $this->form
+        $form = new CompatForm();
+        $form
             ->applyDefaultElementDecorators()
             ->addElement('text', 'foo', ['description' => 'Description here', 'id' => 'foo-id']);
 
@@ -270,16 +275,17 @@ HTML;
     </form>
 HTML;
 
-        $this->assertHtml($expected, $this->form);
+        $this->assertHtml($expected, $form);
     }
 
     public function testErrorsDecoration(): void
     {
-        $this->form
+        $form = new CompatForm();
+        $form
             ->applyDefaultElementDecorators()
             ->addElement('text', 'foo');
 
-        $el = $this->form->getElement('foo');
+        $el = $form->getElement('foo');
         $el->addMessage('First error');
         $el->addMessage('Second error');
 
@@ -296,12 +302,13 @@ HTML;
     </form>
 HTML;
 
-        $this->assertHtml($expected, $this->form);
+        $this->assertHtml($expected, $form);
     }
 
     public function testFormControlsDecoration(): void
     {
-        $this->form
+        $form = new CompatForm();
+        $form
             ->applyDefaultElementDecorators()
             ->addElement('submit', 'foo', ['label' => 'Submit Form']);
 
@@ -313,17 +320,17 @@ HTML;
     </form>
 HTML;
 
-        $this->assertHtml($expected, $this->form);
+        $this->assertHtml($expected, $form);
     }
 
     public function testMethodApplyDefaultElementDecorators(): void
     {
         // A fieldset, a text element, a required checkbox, and a submit button should cover
         // all default element decorators.
+        $form = new CompatForm();
+        $form->applyDefaultElementDecorators();
 
-        $this->form->applyDefaultElementDecorators();
-
-        $fieldset = $this->form->createElement('fieldset', 'foo', [
+        $fieldset = $form->createElement('fieldset', 'foo', [
             'label' => 'Fieldset Label',
             'description' => 'Fieldset Description',
             'id' => 'foo-id'
@@ -335,7 +342,7 @@ HTML;
             'id' => 'bar-id'
         ]);
 
-        $this->form
+        $form
             ->addElement($fieldset)
             ->addElement('checkbox', 'fooBar', [
                 'label' => 'Fieldset Label',
@@ -378,6 +385,6 @@ HTML;
     </form>
 HTML;
 
-        $this->assertHtml($expected, $this->form);
+        $this->assertHtml($expected, $form);
     }
 }
