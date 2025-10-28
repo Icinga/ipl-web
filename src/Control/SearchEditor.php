@@ -8,18 +8,23 @@ use ipl\Html\FormDecorator\CallbackDecorator;
 use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
+use ipl\I18n\Translation;
 use ipl\Stdlib\Events;
 use ipl\Stdlib\Filter;
+use ipl\Web\Compat\StyleWithNonce;
 use ipl\Web\Control\SearchBar\SearchException;
 use ipl\Web\Filter\Parser;
 use ipl\Web\Filter\QueryString;
 use ipl\Web\Filter\Renderer;
+use ipl\Web\Style;
 use ipl\Web\Url;
+use ipl\Web\Widget\IcingaIcon;
 use ipl\Web\Widget\Icon;
 
 class SearchEditor extends Form
 {
     use Events;
+    use Translation;
 
     /** @var string Emitted for every validated column */
     const ON_VALIDATE_COLUMN = 'validate-column';
@@ -43,6 +48,9 @@ class SearchEditor extends Form
 
     /** @var Filter\Rule */
     protected $filter;
+
+    /** @var ?Style */
+    protected ?Style $style = null;
 
     /** @var bool */
     protected $cleared = false;
@@ -117,6 +125,20 @@ class SearchEditor extends Form
         return $this->filter;
     }
 
+    /**
+     * Get inline stylesheet
+     *
+     * @return Style
+     */
+    protected function getStyle(): Style
+    {
+        if ($this->style === null) {
+            $this->style = new StyleWithNonce();
+        }
+
+        return $this->style;
+    }
+
     public function populate($values)
     {
         // applyChanges() is basically this form's own populate implementation, hence
@@ -124,6 +146,10 @@ class SearchEditor extends Form
         $filter = (new Parser(isset($values['filter']) ? $values['filter'] : $this->queryString))
             ->setStrict()
             ->parse();
+        if (! $filter instanceof Filter\Chain) {
+            $filter = Filter::all($filter);
+        }
+
         $filter = $this->applyChanges($filter, $values);
 
         parent::populate($values);
@@ -339,51 +365,48 @@ class SearchEditor extends Form
         return $rule;
     }
 
-    protected function createTree(Filter\Rule $rule, array $path = [0])
+    protected function createTree(Filter\Rule $rule, array $path = [0], bool $draggable = false)
     {
         $identifier = 'rule-' . join('-', $path);
 
         if ($rule instanceof Filter\Condition) {
             $parts = [$this->createCondition($rule, $identifier), $this->createButtons($rule, $identifier)];
 
-            if (count($path) === 1) {
-                $item = new HtmlElement('ol', null, new HtmlElement(
-                    'li',
-                    Attributes::create(['id' => $identifier]),
-                    ...$parts
-                ));
-            } else {
-                array_splice($parts, 1, 0, [
-                    new Icon('bars', ['class' => 'drag-initiator'])
-                ]);
-
-                $item = (new HtmlDocument())->addHtml(...$parts);
+            if ($draggable) {
+                array_unshift($parts, new Icon('bars', ['class' => 'drag-initiator']));
             }
+
+            $item = (new HtmlDocument())->addHtml(...$parts);
         } else {
             /** @var Filter\Chain $rule */
             $item = new HtmlElement('ul');
 
             $groupOperatorInput = $this->createElement('select', $identifier, [
                 'options'   => [
-                    '&' => 'ALL',
-                    '|' => 'ANY',
-                    '!' => 'NONE'
+                    '&' => $this->translate('AND'),
+                    '|' => $this->translate('OR'),
+                    '!' => $this->translate('NOT')
                 ],
                 'value' => $rule instanceof Filter\None ? '!' : QueryString::getRuleSymbol($rule)
             ]);
             $this->registerElement($groupOperatorInput);
             $item->addHtml(HtmlElement::create('li', ['id' => $identifier], [
-                $groupOperatorInput,
-                count($path) > 1
+                $draggable
                     ? new Icon('bars', ['class' => 'drag-initiator'])
                     : null,
+                $groupOperatorInput,
                 $this->createButtons($rule, $identifier)
             ]));
 
             $children = new HtmlElement('ol');
             $item->addHtml(new HtmlElement('li', null, $children));
 
+            $this->getStyle()->addFor($children, [
+                '--depth' => sprintf('%dem', count($path))
+            ]);
+
             $i = 0;
+            $draggableChildren = count($path) > 1 || $rule->count() > 1;
             foreach ($rule as $child) {
                 $childPath = $path;
                 $childPath[] = $i++;
@@ -395,7 +418,7 @@ class SearchEditor extends Form
                             ? 'filter-condition'
                             : 'filter-chain'
                     ]),
-                    $this->createTree($child, $childPath)
+                    $this->createTree($child, $childPath, $draggableChildren)
                 ));
             }
         }
@@ -410,38 +433,47 @@ class SearchEditor extends Form
         if ($for instanceof Filter\Chain) {
             $buttons[] = $this->createElement('submitButton', 'structural-change', [
                 'value'             => 'add-condition:' . $identifier,
-                'label'             => t('Add Condition', 'to a group of filter conditions'),
+                'title'             => $this->translate('Append Condition', 'to a group of filter conditions'),
+                'label'             => new IcingaIcon('add-inside'),
+                'class'             => 'control-button',
                 'formnovalidate'    => true
             ]);
             $buttons[] = $this->createElement('submitButton', 'structural-change', [
                 'value'             => 'add-group:' . $identifier,
-                'label'             => t('Add Group', 'of filter conditions'),
+                'title'             => $this->translate('Append Group', 'of filter conditions'),
+                'label'             => new IcingaIcon('insert-group'),
+                'class'             => 'control-button',
                 'formnovalidate'    => true
             ]);
+
+            $wrapTitle = $this->translate('Wrap Group in Group', 'of filter conditions');
+            $removeTitle = $this->translate('Remove Group', 'of filter conditions');
+        } else {
+            $wrapTitle = $this->translate('Wrap Condition in Group', 'a filter rule');
+            $removeTitle = $this->translate('Remove Condition', 'a filter rule');
         }
 
         $buttons[] = $this->createElement('submitButton', 'structural-change', [
             'value'             => 'wrap-rule:' . $identifier,
-            'label'             => t('Wrap in Group', 'a filter rule'),
+            'label'             => new IcingaIcon('wrap'),
+            'class'             => 'control-button',
+            'title'             => $wrapTitle,
             'formnovalidate'    => true
         ]);
         $buttons[] = $this->createElement('submitButton', 'structural-change', [
             'value'             => 'drop-rule:' . $identifier,
-            'label'             => t('Delete', 'a filter rule'),
+            'label'             => new Icon('trash'),
+            'class'             => ['control-button', 'remove-button'],
+            'title'             => $removeTitle,
             'formnovalidate'    => true
         ]);
 
-        $ul = new HtmlElement('ul');
+        $ul = new HtmlElement('ul', Attributes::create(['class' => 'buttons']));
         foreach ($buttons as $button) {
             $ul->addHtml(new HtmlElement('li', null, $button));
         }
 
-        return new HtmlElement(
-            'div',
-            Attributes::create(['class' => 'buttons']),
-            $ul,
-            new Icon('ellipsis-h')
-        );
+        return $ul;
     }
 
     protected function createCondition(Filter\Condition $condition, $identifier)
@@ -460,7 +492,8 @@ class SearchEditor extends Form
             'autocomplete' => 'off',
             'data-type' => 'column',
             'data-enrichment-type' => 'completion',
-            'data-term-suggestions' => '#search-editor-suggestions'
+            'data-term-suggestions' => '#search-editor-suggestions',
+            'placeholder' => $this->translate('Start typing to search for a column')
         ]);
         $columnInput->getAttributes()->registerAttributeCallback('data-suggest-url', function () {
             return (string) $this->getSuggestionUrl();
@@ -537,7 +570,8 @@ class SearchEditor extends Form
             'autocomplete' => 'off',
             'data-type' => 'value',
             'data-enrichment-type' => 'completion',
-            'data-term-suggestions' => '#search-editor-suggestions'
+            'data-term-suggestions' => '#search-editor-suggestions',
+            'placeholder' => $this->translate('Start typing to search for a value')
         ]);
         $valueInput->getAttributes()->registerAttributeCallback('data-suggest-url', function () {
             return (string) $this->getSuggestionUrl();
@@ -561,6 +595,8 @@ class SearchEditor extends Form
 
     protected function assemble()
     {
+        $this->addHtml($this->getStyle());
+
         $filterInput = $this->createElement('hidden', 'filter');
         $filterInput->getAttributes()->registerAttributeCallback(
             'value',
@@ -572,8 +608,12 @@ class SearchEditor extends Form
         $this->addElement($filterInput);
 
         $filter = $this->getFilter();
-        if ($filter instanceof Filter\Chain && $filter->isEmpty()) {
-            $filter = Filter::equal('', '');
+        if ($filter instanceof Filter\Chain) {
+            if ($filter->isEmpty()) {
+                $filter->add(Filter::equal('', ''));
+            }
+        } else {
+            $filter = Filter::all($filter);
         }
 
         $this->addHtml($this->createTree($filter));
@@ -586,13 +626,13 @@ class SearchEditor extends Form
             $this->addHtml($this->createElement('submitButton', 'structural-change', [
                 'value'             => 'clear:rule-0',
                 'class'             => 'cancel-button',
-                'label'             => t('Clear Filter'),
+                'label'             => $this->translate('Clear Filter'),
                 'formnovalidate'    => true
             ]));
         }
 
         $this->addElement('submit', 'btn_submit', [
-            'label' => t('Apply')
+            'label' => $this->translate('Apply')
         ]);
 
         // Add submit button also as first element to make Web 2 submit

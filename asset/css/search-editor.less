@@ -28,12 +28,16 @@
     .rounded-corners(0);
   }
 
-  i.icon::before {
+  i.drag-initiator.icon::before {
     color: var(--search-editor-control-color, @search-editor-control-color);
   }
 
   .drag-initiator {
     cursor: grab;
+  }
+
+  .remove-button {
+    color: var(--search-editor-remove-control-color, @search-editor-remove-control-color);
   }
 
   input[type="text"], select {
@@ -81,50 +85,6 @@
     }
   }
 
-  .buttons {
-    ul {
-      .rounded-corners();
-      .box-shadow(0, 0, .5em);
-      border: 1px solid var(--search-editor-context-menu-border-color, @search-editor-context-menu-border-color);
-      background: var(--search-editor-context-menu-bg, @search-editor-context-menu-bg);
-
-      li:not(:first-child) {
-        border-top: 1px solid var(--search-editor-context-menu-border-color, @search-editor-context-menu-border-color);
-      }
-
-      button:hover {
-        background: var(--primary-button-bg, @primary-button-bg);
-        color: var(--primary-button-color, @primary-button-color);
-      }
-
-      // Add rounded corners to buttons as well, otherwise their
-      // background is not rounded and overlaps the list's corners
-      :first-child button {
-        .rounded-corners();
-        border-bottom-left-radius: 0;
-        border-bottom-right-radius: 0;
-      }
-      :last-child button {
-        .rounded-corners();
-        border-top-left-radius: 0;
-        border-top-right-radius: 0;
-      }
-
-      &::before {
-        // The left pointing arrow
-        border-bottom: 1px solid var(--search-editor-context-menu-border-color, @search-editor-context-menu-border-color);
-        border-left: 1px solid var(--search-editor-context-menu-border-color, @search-editor-context-menu-border-color);
-        background: var(--search-editor-context-menu-bg, @search-editor-context-menu-bg);
-      }
-    }
-
-    &:hover i.icon::before {
-      .rounded-corners();
-      background: var(--primary-button-bg, @primary-button-bg);
-      color: var(--primary-button-color, @primary-button-color);
-    }
-  }
-
   input[type="submit"] {
     .rounded-corners();
     background: var(--primary-button-bg, @primary-button-bg);
@@ -156,17 +116,18 @@
   li {
     display: flex;
 
-    > :not(:first-child) {
+    > .buttons {
       margin-left: @item-spacing;
+    }
+
+    > select,
+    > fieldset {
+      margin-left: ~"calc(@{item-spacing} + var(--depth))";
     }
   }
 
   ol {
-    padding-left: 1em;
-    padding-bottom: @item-spacing;
-
-    > li:first-child,
-    > :not(.filter-chain) + li {
+    > li {
       margin-top: @item-spacing;
     }
   }
@@ -175,16 +136,13 @@
     padding: 0 .5em;
   }
 
-  li > select {
-    margin-right: auto;
-  }
-
   fieldset {
     display: flex;
     flex: 1 1 auto;
     margin: 0;
     padding: 0;
 
+    input[data-type="column"],
     input[data-type="value"] {
       flex: 1 1 auto;
     }
@@ -202,54 +160,34 @@
     margin-left: .5em;
   }
 
+  i.drag-initiator {
+    width: 1.5em; // Not a fan, but the only way to have a known width
+  }
+
+  li > ul:not(.buttons) > li:first-child:not(:has(.drag-initiator)),
+  ol > li:not(:has(.drag-initiator)) {
+    padding-left: 1.5em;
+  }
+
   i.icon::before {
     margin: 0;
     font-size: 1.5em;
     line-height: 1.5;
   }
 
-  .buttons {
-    position: relative;
+  select + .buttons {
+    display: flex;
+    width: 100%;
 
-    ul {
-      position: absolute;
-      right: 32/12em; // Target distance @ default font size / default font size
-      z-index: 1;
-      width: auto;
-      padding: 0;
-
-      display: none;
-
-      button {
-        z-index: 1;
-        width: 100%;
-        text-align: left;
-        white-space: nowrap;
-      }
-
-      &::before {
-        // The left pointing arrow
-        content: "";
-        display: block;
-        height: 1em;
-        transform: rotate(-135deg);
-        width: 1em;
-        z-index: 1;
-
-        position: absolute;
-        top: ((28/12)/2)-.5em; // ((First row pixels @ default font size / default font size) / 2) - own half width
-        right: -.5em;
-      }
+    > :last-child {
+      flex: 1 1 auto;
+      display: flex;
+      justify-content: flex-end;
     }
-
-    &:hover ul {
-      display: block;
-    }
-
-    i.icon::before {
-      padding: ((28/18)-1)/2em; // (Container pixels / default font size) - line height / (padding-top,padding-bottom)
-      line-height: 1;
-    }
+  }
+  fieldset + .buttons {
+    display: flex;
+    width: auto;
   }
 
   .cancel-button {
