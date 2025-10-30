@@ -214,16 +214,15 @@ HTML;
             ->applyDefaultElementDecorators()
             ->addElement('fieldset', 'foo', [
                 'label'     => 'Legend here',
-                'description' => 'Description here',
-                'id' => 'foo-id'
+                'description' => 'Description here'
             ]);
 
         $expected = <<<'HTML'
     <form class="icinga-form icinga-controls" method="POST">
         <div class="control-group">
-            <fieldset name="foo" id="foo-id" aria-describedby="desc_foo-id">
+            <fieldset name="foo">
                 <legend>Legend here</legend>
-                <p id="desc_foo-id">Description here</p>
+                <p>Description here</p>
             </fieldset>
         </div>
     </form>
@@ -332,8 +331,7 @@ HTML;
 
         $fieldset = $form->createElement('fieldset', 'foo', [
             'label' => 'Fieldset Label',
-            'description' => 'Fieldset Description',
-            'id' => 'foo-id'
+            'description' => 'Fieldset Description'
         ]);
 
         $fieldset->addElement('text', 'bar', [
@@ -354,9 +352,9 @@ HTML;
         $expected = <<<'HTML'
     <form class="icinga-form icinga-controls" method="POST">
       <div class="control-group">
-        <fieldset aria-describedby="desc_foo-id" id="foo-id" name="foo">
+        <fieldset name="foo">
           <legend>Fieldset Label</legend>
-          <p id="desc_foo-id">Fieldset Description</p>
+          <p>Fieldset Description</p>
           <div class="control-group">
             <div class="control-label-group">
               <label class="form-element-label" for="bar-id">Legend here</label>
