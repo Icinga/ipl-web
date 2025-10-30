@@ -4,10 +4,10 @@ namespace ipl\Web\FormElement;
 
 use ipl\Html\Attributes;
 use ipl\Html\FormElement\TextElement;
-use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Web\Url;
 use ipl\Web\Widget\Icon;
+use RuntimeException;
 
 class SuggestionElement extends TextElement
 {
@@ -17,30 +17,22 @@ class SuggestionElement extends TextElement
         'data-enrichment-type'  => 'completion'
     ];
 
-    /** @var Url URL to fetch suggestions from */
-    protected Url $suggestionsUrl;
-
-    /**
-     * Create a new SuggestionElement
-     *
-     * @param string $name Name of the form element
-     * @param Url $suggestionsUrl URL to fetch suggestions from
-     * @param ?(array|Attributes) $attributes Attributes of the form element
-     */
-    public function __construct(string $name, Url $suggestionsUrl, array|Attributes $attributes = null)
-    {
-        parent::__construct($name, $attributes);
-
-        $this->setSuggestionsUrl($suggestionsUrl);
-    }
+    /** @var ?Url URL to fetch suggestions from */
+    protected ?Url $suggestionsUrl = null;
 
     /**
      * Get the URL to fetch suggestions from
      *
      * @return Url
+     *
+     * @throws RuntimeException if the suggestionsUrl is not set
      */
     public function getSuggestionsUrl(): Url
     {
+        if ($this->suggestionsUrl === null) {
+            throw new RuntimeException('SuggestionsUrl is not set');
+        }
+
         return $this->suggestionsUrl;
     }
 
@@ -83,5 +75,12 @@ class SuggestionElement extends TextElement
             'data-term-suggestions' => '#' . $suggestionsId,
             'data-suggest-url'      => $this->getSuggestionsUrl()
         ]);
+    }
+
+    protected function registerAttributeCallbacks(Attributes $attributes): void
+    {
+        parent::registerAttributeCallbacks($attributes);
+
+        $attributes->registerAttributeCallback('suggestionsUrl', null, $this->setSuggestionsUrl(...));
     }
 }
