@@ -55,7 +55,7 @@ define(["../notjQuery", "../vendor/Sortable"], function ($, Sortable) {
                 if (! neighbour) {
                     // User dropped the rule into an empty group
                     placement = 'to';
-                    neighbour = event.to.closest('[id]');
+                    neighbour = event.to.closest('li[id]');
                 }
             }
 
