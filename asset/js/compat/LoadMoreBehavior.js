@@ -1,4 +1,4 @@
-define(["../widget/LoadMore", "Icinga"],function (LoadMore, Icinga) {
+define(["../widget/LoadMore", "icinga/legacy-app/Icinga"],function (LoadMore, Icinga) {
 
     "use strict";
 
@@ -80,5 +80,7 @@ define(["../widget/LoadMore", "Icinga"],function (LoadMore, Icinga) {
         }
     }
 
-    return LoadMoreBehavior;
+    Icinga.Behaviors = Icinga.Behaviors || {};
+
+    Icinga.Behaviors.ActionListBehavior = LoadMoreBehavior;
 });
