@@ -1,0 +1,23 @@
+.icinga-chart {
+    .icinga-chart-title {
+        text-align: center;
+        font-size: 1.5em;
+        margin: 2em 0 0.5em 0;
+    }
+}
+
+// default overwrite
+.icinga-chart {
+    text.bb-title {
+        font-size: 2em;
+    }
+
+    .bb-grid .threshold-mark {
+        line { // only for line chart
+            stroke: rgba(0, 0, 0, 0.2);
+            stroke-dasharray: 5;
+        }
+    }
+}
+
+
