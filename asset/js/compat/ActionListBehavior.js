@@ -1,4 +1,4 @@
-define(["../widget/ActionList", "Icinga"],function (ActionList, Icinga) {
+define(["../widget/ActionList", "icinga/legacy-app/Icinga"],function (ActionList, Icinga) {
 
     "use strict";
 
@@ -203,5 +203,7 @@ define(["../widget/ActionList", "Icinga"],function (ActionList, Icinga) {
         }
     }
 
-    return ActionListBehavior;
+    Icinga.Behaviors = Icinga.Behaviors || {};
+
+    Icinga.Behaviors.ActionListBehavior = ActionListBehavior;
 });
