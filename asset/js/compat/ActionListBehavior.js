@@ -1,8 +1,8 @@
-define(["../widget/ActionList", "Icinga"],function (ActionList, Icinga) {
+define(["../widget/ActionList", "icinga/legacy-app/EventListener"],function (ActionList, EventListener) {
 
     "use strict";
 
-    class ActionListBehavior extends Icinga.EventListener {
+    class ActionListBehavior extends EventListener {
         constructor(icinga) {
             super(icinga);
 

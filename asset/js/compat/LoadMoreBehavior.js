@@ -1,8 +1,8 @@
-define(["../widget/LoadMore", "Icinga"],function (LoadMore, Icinga) {
+define(["../widget/LoadMore", "icinga/legacy-app/EventListener"],function (LoadMore, EventListener) {
 
     "use strict";
 
-    class LoadMoreBehavior extends Icinga.EventListener {
+    class LoadMoreBehavior extends EventListener {
         constructor(icinga) {
             super(icinga);
 
