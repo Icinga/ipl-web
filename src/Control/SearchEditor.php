@@ -597,39 +597,40 @@ class SearchEditor extends Form
     {
         $this->addHtml($this->getStyle());
 
-        $filterInput = $this->createElement('hidden', 'filter');
-        $filterInput->getAttributes()->registerAttributeCallback(
-            'value',
-            function () {
-                return $this->queryString ?: static::FAKE_COLUMN;
-            },
-            [$this, 'setQueryString']
-        );
-        $this->addElement($filterInput);
+        if (! $this->cleared) {
+            $filterInput = $this->createElement('hidden', 'filter');
+            $filterInput->getAttributes()->registerAttributeCallback(
+                'value',
+                function () {
+                    return $this->queryString ?: static::FAKE_COLUMN;
+                },
+                [$this, 'setQueryString']
+            );
 
-        $filter = $this->getFilter();
-        if ($filter instanceof Filter\Chain) {
-            if ($filter->isEmpty()) {
-                $filter->add(Filter::equal('', ''));
+            $this->addElement($filterInput);
+            $filter = $this->getFilter();
+            if ($filter instanceof Filter\Chain) {
+                if ($filter->isEmpty()) {
+                    $filter->add(Filter::equal('', ''));
+                }
+            } else {
+                $filter = Filter::all($filter);
             }
-        } else {
-            $filter = Filter::all($filter);
+
+            $this->addHtml($this->createTree($filter));
         }
 
-        $this->addHtml($this->createTree($filter));
         $this->addHtml(new HtmlElement('div', Attributes::create([
             'id'    => 'search-editor-suggestions',
             'class' => 'search-suggestions'
         ])));
 
-        if ($this->queryString) {
-            $this->addHtml($this->createElement('submitButton', 'structural-change', [
-                'value'             => 'clear:rule-0',
-                'class'             => 'cancel-button',
-                'label'             => $this->translate('Clear Filter'),
-                'formnovalidate'    => true
-            ]));
-        }
+        $this->addHtml($this->createElement('submitButton', 'structural-change', [
+            'value'             => 'clear:rule-0',
+            'class'             => 'cancel-button',
+            'label'             => $this->translate('Clear Filter'),
+            'formnovalidate'    => true
+        ]));
 
         $this->addElement('submit', 'btn_submit', [
             'label' => $this->translate('Apply')
