@@ -290,6 +290,10 @@ define(["../notjQuery"], function ($) {
                         input.title = data[name];
                     }
                 }
+
+                if (this.shouldAutoSubmit()) {
+                    $(input.form).trigger('submit', { submittedBy: input });
+                }
             }
 
             this.hideSuggestions();
@@ -454,6 +458,10 @@ define(["../notjQuery"], function ($) {
                     selectionCandidates.push(input);
                 }
             }
+        }
+
+        shouldAutoSubmit() {
+            return 'autoSubmit' in this.input.dataset;
         }
 
         /**
