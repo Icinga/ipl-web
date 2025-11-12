@@ -2,8 +2,6 @@
 
 namespace ipl\Web\Control;
 
-use Icinga\Data\Filter\FilterAnd;
-use Icinga\Data\Filter\FilterChain;
 use ipl\Html\Attributes;
 use ipl\Html\Form;
 use ipl\Html\FormDecorator\CallbackDecorator;
@@ -607,8 +605,8 @@ class SearchEditor extends Form
             },
             [$this, 'setQueryString']
         );
-
         $this->addElement($filterInput);
+
         $filter = $this->getFilter();
         if ($filter instanceof Filter\Chain) {
             if ($filter->isEmpty()) {
