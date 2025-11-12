@@ -314,7 +314,7 @@ HTML;
         $expected = <<<'HTML'
     <form class="icinga-form icinga-controls" method="POST">
         <div class="control-group form-controls">
-            <input name="foo" type="submit" value="Submit Form"/>
+            <input name="foo" type="submit" class="btn-primary" value="Submit Form"/>
         </div>
     </form>
 HTML;
@@ -378,7 +378,7 @@ HTML;
         <span class="sr-only" id="desc_fooBar-id">Fieldset Description</span>
       </div>
       <div class="control-group form-controls">
-        <input name="submit_form" type="submit" value="Submit Form"/>
+        <input name="submit_form" type="submit" class="btn-primary" value="Submit Form"/>
       </div>
     </form>
 HTML;
