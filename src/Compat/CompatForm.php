@@ -2,7 +2,8 @@
 
 namespace ipl\Web\Compat;
 
-use http\Exception\InvalidArgumentException;
+use Icinga\Application\Icinga;
+use InvalidArgumentException;
 use ipl\Html\Contract\FormElement;
 use ipl\Html\Contract\FormSubmitElement;
 use ipl\Html\Contract\HtmlElementInterface;
@@ -41,9 +42,12 @@ class CompatForm extends Form
             ['ipl\\Web\\Compat\\FormDecorator', 'Decorator']
         ]);
 
-        $labelDecorator = new LabelDecorator();
+        $this->getDecorators()->addDecorator('Required', LabelDecorator::class, [
+            'uniqueName' => fn(string $name) => Icinga::app()->getRequest()->protectId($name)
+        ]);
+
         $this->setDefaultElementDecorators([
-            'Label' => $labelDecorator,
+            'Label' => $this->getDecorators()->getDecorator('Required'),
             'LabelGroup' => [
                 'name' => 'HtmlTag',
                 'options' => [
@@ -56,9 +60,19 @@ class CompatForm extends Form
                 ]
             ],
             'Fieldset',
-            'Checkbox',
+            'Checkbox' => [
+                'name' => 'Checkbox',
+                'options' => [
+                    'uniqueName' => fn(string $name) => Icinga::app()->getRequest()->protectId($name)
+                ]
+            ],
             'RenderElement',
-            'Description',
+            'Description' => [
+                'name' => 'Description',
+                'options' => [
+                    'uniqueName' => fn(string $name) => Icinga::app()->getRequest()->protectId($name)
+                ]
+            ],
             'Errors' => ['name' => 'Errors', 'options' => ['class' => 'errors']],
             'ControlGroup' => [
                 'name' => 'HtmlTag',
@@ -77,8 +91,6 @@ class CompatForm extends Form
                 ]
             ],
         ]);
-
-        $this->getDecorators()->addDecorator('Required', $labelDecorator);
 
         return $this;
     }
