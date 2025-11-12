@@ -597,29 +597,26 @@ class SearchEditor extends Form
     {
         $this->addHtml($this->getStyle());
 
-        if (! $this->cleared) {
-            $filterInput = $this->createElement('hidden', 'filter');
-            $filterInput->getAttributes()->registerAttributeCallback(
-                'value',
-                function () {
-                    return $this->queryString ?: static::FAKE_COLUMN;
-                },
-                [$this, 'setQueryString']
-            );
+        $filterInput = $this->createElement('hidden', 'filter');
+        $filterInput->getAttributes()->registerAttributeCallback(
+            'value',
+            function () {
+                return $this->queryString ?: static::FAKE_COLUMN;
+            },
+            [$this, 'setQueryString']
+        );
 
-            $this->addElement($filterInput);
-            $filter = $this->getFilter();
-            if ($filter instanceof Filter\Chain) {
-                if ($filter->isEmpty()) {
-                    $filter->add(Filter::equal('', ''));
-                }
-            } else {
-                $filter = Filter::all($filter);
+        $this->addElement($filterInput);
+        $filter = $this->getFilter();
+        if ($filter instanceof Filter\Chain) {
+            if ($filter->isEmpty()) {
+                $filter = (clone $filter)->add(Filter::equal('', ''));
             }
-
-            $this->addHtml($this->createTree($filter));
+        } else {
+            $filter = Filter::all($filter);
         }
 
+        $this->addHtml($this->createTree($filter));
         $this->addHtml(new HtmlElement('div', Attributes::create([
             'id'    => 'search-editor-suggestions',
             'class' => 'search-suggestions'
