@@ -27,10 +27,38 @@ class ContinueWith extends BaseHtmlElement
     /** @var string */
     protected $title;
 
-    public function __construct(Url $url, $filter)
+    /** @var ?bool Whether the current query has results */
+    protected ?bool $hasResults;
+
+    /**
+     * Whether the current query has results
+     *
+     * @return bool
+     */
+    public function hasResults(): bool
+    {
+        return $this->hasResults;
+    }
+
+    /**
+     * Set whether the current query has results
+     *
+     * @param bool $hasResults
+     *
+     * @return ContinueWith
+     */
+    public function setHasResults(bool $hasResults): ContinueWith
+    {
+        $this->hasResults = $hasResults;
+
+        return $this;
+    }
+
+    public function __construct(Url $url, $filter, bool $hasResults)
     {
         $this->url = $url;
         $this->filter = $filter;
+        $this->hasResults = $hasResults;
     }
 
     /**
@@ -54,18 +82,18 @@ class ContinueWith extends BaseHtmlElement
             $filter = $filter(); /** @var Filter\Rule $filter */
         }
 
-        $baseFilter = $this->url->getFilter();
-        if ($baseFilter && ((! $baseFilter instanceof Filter\Chain) || ! $baseFilter->isEmpty())) {
-            $filter = Filter::all($baseFilter, $filter);
-        }
-
-        if ($filter instanceof Filter\Chain && $filter->isEmpty()) {
+        if (! $this->hasResults || ($filter instanceof Filter\Chain && $filter->isEmpty())) {
             $this->addHtml(new HtmlElement(
                 'span',
                 Attributes::create(['class' => ['control-button', 'disabled']]),
                 new Icon('share')
             ));
         } else {
+            $baseFilter = $this->url->getFilter();
+            if ($baseFilter && ((! $baseFilter instanceof Filter\Chain) || ! $baseFilter->isEmpty())) {
+                $filter = Filter::all($baseFilter, $filter);
+            }
+
             $this->addHtml(new ActionLink(
                 null,
                 $this->url->setFilter($filter),
