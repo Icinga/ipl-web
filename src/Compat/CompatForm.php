@@ -13,6 +13,7 @@ use ipl\Html\FormElement\SubmitElement;
 use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlString;
 use ipl\I18n\Translation;
+use ipl\Web\Compat\FormDecorator\PrimaryButtonDecorator;
 use ipl\Web\FormDecorator\IcingaFormDecorator;
 use ipl\Web\Compat\FormDecorator\LabelDecorator;
 
@@ -42,8 +43,12 @@ class CompatForm extends Form
             ['ipl\\Web\\Compat\\FormDecorator', 'Decorator']
         ]);
 
-        $this->getDecorators()->addDecorator('Required', LabelDecorator::class, [
-            'uniqueName' => fn(string $name) => Icinga::app()->getRequest()->protectId($name)
+        $this->getDecorators()->addDecorators([
+            'PrimaryButton' => new PrimaryButtonDecorator(),
+            'Required' => [
+                'name' => LabelDecorator::class,
+                'options' => ['uniqueName' => fn(string $name) => Icinga::app()->getRequest()->protectId($name)]
+            ]
         ]);
 
         $this->setDefaultElementDecorators([
