@@ -610,7 +610,7 @@ class SearchEditor extends Form
         $filter = $this->getFilter();
         if ($filter instanceof Filter\Chain) {
             if ($filter->isEmpty()) {
-                $filter->add(Filter::equal('', ''));
+                $filter = Filter::all(Filter::equal('', ''));
             }
         } else {
             $filter = Filter::all($filter);
@@ -622,14 +622,12 @@ class SearchEditor extends Form
             'class' => 'search-suggestions'
         ])));
 
-        if ($this->queryString) {
-            $this->addHtml($this->createElement('submitButton', 'structural-change', [
-                'value'             => 'clear:rule-0',
-                'class'             => 'cancel-button',
-                'label'             => $this->translate('Clear Filter'),
-                'formnovalidate'    => true
-            ]));
-        }
+        $this->addHtml($this->createElement('submitButton', 'structural-change', [
+            'value'             => 'clear:rule-0',
+            'class'             => 'cancel-button',
+            'label'             => $this->translate('Clear Filter'),
+            'formnovalidate'    => true
+        ]));
 
         $this->addElement('submit', 'btn_submit', [
             'label' => $this->translate('Apply')
