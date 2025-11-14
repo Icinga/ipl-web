@@ -87,9 +87,10 @@
       flex: 1 1 auto;
       height: 1.5em;
       width: 0;
+      margin-right: 1em;
 
-      &:not(:empty) {
-        margin-right: 1em;
+      &:empty {
+        display: none; // not for Common/detailed, as it would not take up any height, making the list items appear smaller.
       }
 
       .text-ellipsis();
