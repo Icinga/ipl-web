@@ -19,13 +19,13 @@ class ContinueWith extends BaseHtmlElement
     protected $defaultAttributes = ['class' => 'continue-with'];
 
     /** @var Url */
-    protected $url;
+    protected Url $url;
 
     /** @var Filter\Rule|callable */
     protected $filter;
 
-    /** @var string */
-    protected $title;
+    /** @var ?string */
+    protected ?string $title;
 
     /** @var ?bool Whether the current query has results */
     protected ?bool $hasResults;
@@ -68,14 +68,14 @@ class ContinueWith extends BaseHtmlElement
      *
      * @return $this
      */
-    public function setTitle($title)
+    public function setTitle(string $title): static
     {
         $this->title = $title;
 
         return $this;
     }
 
-    public function assemble()
+    public function assemble(): void
     {
         $filter = $this->filter;
         if (is_callable($filter)) {
