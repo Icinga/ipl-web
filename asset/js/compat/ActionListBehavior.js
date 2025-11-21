@@ -88,7 +88,23 @@ define(["../widget/ActionList", "icinga/legacy-app/Icinga"],function (ActionList
                 let actionList = _this._actionLists.get(list);
                 if (! actionList) {
                     let isPrimary = list.parentElement.matches('#main > #col1 > .content');
-                    actionList = (new ActionList(list, isPrimary)).bind();
+                    let isMultiSelectable = list.matches('[data-icinga-multiselect-url]');
+                    let container = list.closest('.container');
+                    let footer = container.querySelector('.footer');
+                    if (! footer && isPrimary && isMultiSelectable) {
+                        footer = document.createElement('div');
+                        footer.classList.add('footer')
+                        footer.dataset.actionListAutomaticallyAdded = true;
+
+                        container.appendChild(footer);
+                    }
+
+                    actionList = new ActionList(list)
+                        .setIsPrimary(isPrimary)
+                        .setIsMultiSelectable(isMultiSelectable)
+                        .setFooter(footer)
+                        .bind();
+
                     actionList.load(detailUrl);
 
                     _this._actionLists.set(list, actionList);

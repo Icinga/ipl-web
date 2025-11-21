@@ -6,26 +6,43 @@ define(["../notjQuery"], function ($) {
     const LIST_ITEM_IDENTIFIER = '[data-action-item]';
 
     class ActionList {
-        constructor(list, isPrimary) {
-            this.list = list;
-            this.isPrimary = isPrimary;
-            this.isMultiSelectable = this.list.matches('[data-icinga-multiselect-url]');
+        /** @type {?Element} The list */
+        #list = null;
 
-            this.lastActivatedItemUrl = null;
-            this.lastTimeoutId = null;
-            this.processing = false;
-            this.isDisplayContents = false;
+        /** @type {?Element} The footer to add selection count and navigation hint */
+        #footer = null;
+
+        /** @type {boolean} Whether the list should be considered as a primary list */
+        #isPrimary = false;
+
+        /** @type {boolean} Whether the list selection is in process */
+        #processing = false;
+
+        /** @type {boolean} Whether the list supports multi-selection */
+        #isMultiSelectable = false;
+
+        /** @type {boolean} Whether the list is set to `display: contents` */
+        #isDisplayContents = false;
+
+        /** @type {?string} The url of last active item */
+        #lastActivatedItemUrl = null;
+
+        /** @type {?number} The timeout id */
+        #lastTimeoutId = null;
+
+        constructor(list) {
+            this.#list = list;
 
             let firstItem = this.getDirectionalNext(null, false);
             if (firstItem
                 && (! firstItem.checkVisibility() && firstItem.firstChild && firstItem.firstChild.checkVisibility())
             ) {
-                this.isDisplayContents = true;
+                this.#isDisplayContents = true;
             }
         }
 
         bind() {
-            $(this.list).on('click', `${LIST_IDENTIFIER} ${LIST_ITEM_IDENTIFIER}, ${LIST_IDENTIFIER} ${LIST_ITEM_IDENTIFIER} a[href]`, this.onClick, this);
+            $(this.#list).on('click', `${LIST_IDENTIFIER} ${LIST_ITEM_IDENTIFIER}, ${LIST_IDENTIFIER} ${LIST_ITEM_IDENTIFIER} a[href]`, this.onClick, this);
 
             this.bindedKeyDown = this.onKeyDown.bind(this)
             document.body.addEventListener('keydown', this.bindedKeyDown);
@@ -39,21 +56,59 @@ define(["../notjQuery"], function ($) {
         }
 
         refresh(list, detailUrl = null) {
-            if (list === this.list) {
+            if (list === this.#list) {
                 // If the DOM node is still the same, nothing has changed
                 return;
             }
 
             this.unbind();
 
-            this.list = list;
+            this.#list = list;
             this.bind();
 
             this.load(detailUrl)
         }
 
         destroy() {
-            this.list = null;
+            this.#list = null;
+        }
+
+        /**
+         * Set whether the list should be considered as a primary list
+         *
+         * @param {boolean} isPrimary
+         *
+         * @returns {ActionList}
+         */
+        setIsPrimary(isPrimary) {
+            this.#isPrimary = isPrimary;
+
+            return this;
+        }
+
+        /**
+         * Set whether the list supports multi-selection
+         * @param {boolean} isMultiSelectable
+         *
+         * @returns {ActionList}
+         */
+        setIsMultiSelectable(isMultiSelectable) {
+            this.#isMultiSelectable = isMultiSelectable;
+
+            return this;
+        }
+
+        /**
+         * The footer to add selection count and navigation hint
+         *
+         * @param {?Element} footer
+         *
+         * @returns {ActionList}
+         */
+        setFooter(footer) {
+            this.#footer = footer;
+
+            return this;
         }
 
         /**
@@ -62,7 +117,7 @@ define(["../notjQuery"], function ($) {
          * @return {boolean}
          */
         isProcessing() {
-            return this.processing;
+            return this.#processing;
         }
 
         /**
@@ -71,7 +126,7 @@ define(["../notjQuery"], function ($) {
          * @param isProcessing True as default
          */
         setProcessing(isProcessing = true) {
-            this.processing = isProcessing;
+            this.#processing = isProcessing;
         }
 
         /**
@@ -110,7 +165,7 @@ define(["../notjQuery"], function ($) {
             let toActiveItems = [],
                 toDeactivateItems = [];
 
-            const isBeingMultiSelected = this.isMultiSelectable && (event.ctrlKey || event.metaKey || event.shiftKey);
+            const isBeingMultiSelected = this.#isMultiSelectable && (event.ctrlKey || event.metaKey || event.shiftKey);
 
             if (isBeingMultiSelected) {
                 if (event.ctrlKey || event.metaKey) {
@@ -146,7 +201,7 @@ define(["../notjQuery"], function ($) {
             }
 
             if (activeItems.length === 1 && toActiveItems.length === 0) {
-                $(this.list).trigger('all-deselected');
+                $(this.#list).trigger('all-deselected');
 
                 this.clearSelection(toDeactivateItems);
                 this.addSelectionCountToFooter();
@@ -174,37 +229,25 @@ define(["../notjQuery"], function ($) {
          * Add selection count to the footer if list is multi selectable and primary
          */
         addSelectionCountToFooter() {
-            if (! this.isMultiSelectable || ! this.isPrimary) {
+            if (! this.#footer) {
                 return;
             }
 
             let activeItemCount = this.getActiveItems().length;
-            let footer = this.list.closest('.container').querySelector('.footer');
 
-            // For items that do not have a bottom status bar like Downtimes, Comments...
-            if (footer === null) {
-                footer = $.render(
-                    '<div class="footer" data-action-list-automatically-added>' +
-                            '<div class="selection-count"><span class="selected-items"></span></div>' +
-                        '</div>'
-                )
-
-                this.list.closest('.container').appendChild(footer);
-            }
-
-            let selectionCount = footer.querySelector('.selection-count');
+            let selectionCount = this.#footer.querySelector('.selection-count');
             if (selectionCount === null) {
                 selectionCount = $.render(
                     '<div class="selection-count"><span class="selected-items"></span></div>'
                 );
 
-                footer.prepend(selectionCount);
+                this.#footer.prepend(selectionCount);
             }
 
             let selectedItems = selectionCount.querySelector('.selected-items');
             selectedItems.innerText = activeItemCount
-                ? this.list.dataset.icingaMultiselectCountLabel.replace('%d', activeItemCount)
-                : this.list.dataset.icingaMultiselectHintLabel;
+                ? this.#list.dataset.icingaMultiselectCountLabel.replace('%d', activeItemCount)
+                : this.#list.dataset.icingaMultiselectHintLabel;
 
             if (activeItemCount === 0) {
                 selectedItems.classList.add('hint');
@@ -224,7 +267,7 @@ define(["../notjQuery"], function ($) {
          */
         onKeyDown(event) {
             let activeItems = this.getActiveItems();
-            if (! this.isPrimary && activeItems.length === 0) {
+            if (! this.#isPrimary && activeItems.length === 0) {
                 return;
             }
 
@@ -232,14 +275,14 @@ define(["../notjQuery"], function ($) {
             let pressedArrowDownKey = event.key === 'ArrowDown';
             let pressedArrowUpKey = event.key === 'ArrowUp';
             let focusedElement = document.activeElement;
-            let isSelectAll = (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'a' && this.isMultiSelectable;
+            let isSelectAll = (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'a' && this.#isMultiSelectable;
 
             if (! isSelectAll && ! pressedArrowDownKey && ! pressedArrowUpKey) {
                 return;
             }
 
             if (activeItems.length) {
-                list = this.list;
+                list = this.#list;
             } else if (focusedElement && (
                 focusedElement.matches('#main > :scope') // add #main as data-attr via php
                 || focusedElement.matches('body'))
@@ -249,7 +292,7 @@ define(["../notjQuery"], function ($) {
                 list = focusedElement.closest(LIST_IDENTIFIER);
             }
 
-            if (list !== this.list) {
+            if (list !== this.#list) {
                 return;
             }
 
@@ -265,8 +308,8 @@ define(["../notjQuery"], function ($) {
             let markAsLastActive = null; // initialized only if it is different from toActiveItem
             let toActiveItem = null;
             let wasAllSelected = activeItems.length === allItems.length;
-            let lastActivatedItem = this.list.querySelector(
-                `[data-icinga-detail-filter="${ this.lastActivatedItemUrl }"]`
+            let lastActivatedItem = this.#list.querySelector(
+                `[data-icinga-detail-filter="${ this.#lastActivatedItemUrl }"]`
             );
 
             if (! lastActivatedItem && activeItems.length) {
@@ -279,7 +322,7 @@ define(["../notjQuery"], function ($) {
                 toActiveItem = directionalNextItem;
                 // reset all on manual page refresh
                 this.clearSelection(activeItems);
-            } else if (this.isMultiSelectable && event.shiftKey) {
+            } else if (this.#isMultiSelectable && event.shiftKey) {
                 if (activeItems.length === 1) {
                     toActiveItem = directionalNextItem;
                 } else if (wasAllSelected && (lastActivatedItem !== firstListItem && pressedArrowDownKey)) {
@@ -326,7 +369,7 @@ define(["../notjQuery"], function ($) {
          */
         getDirectionalNext(item, isArrowUp) {
             if (! item) {
-                item = isArrowUp ? this.list.lastChild : this.list.firstChild;
+                item = isArrowUp ? this.#list.lastChild : this.#list.firstChild;
 
                 if (! item) {
                     return null;
@@ -405,7 +448,7 @@ define(["../notjQuery"], function ($) {
          * @param url
          */
         setLastActivatedItemUrl (url) {
-            this.lastActivatedItemUrl = url;
+            this.#lastActivatedItemUrl = url;
         }
 
         /**
@@ -416,7 +459,7 @@ define(["../notjQuery"], function ($) {
          */
         scrollItemIntoView(item, isArrowUp) {
             let directionalNext = this.getDirectionalNext(item, isArrowUp);
-            if (this.isDisplayContents) {
+            if (this.#isDisplayContents) {
                 item = item.firstChild;
                 directionalNext = directionalNext ? directionalNext.firstChild : null;
             }
@@ -449,17 +492,17 @@ define(["../notjQuery"], function ($) {
                 return;
             }
 
-            if (this.lastTimeoutId === null) { // trigger once, when just started selecting list items
-                $(this.list).trigger('selection-start');
+            if (this.#lastTimeoutId === null) { // trigger once, when just started selecting list items
+                $(this.#list).trigger('selection-start');
             }
 
-            clearTimeout(this.lastTimeoutId);
-            this.lastTimeoutId = setTimeout(() => {
-                this.lastTimeoutId = null;
+            clearTimeout(this.#lastTimeoutId);
+            this.#lastTimeoutId = setTimeout(() => {
+                this.#lastTimeoutId = null;
 
                 this.setProcessing();
 
-                $(this.list).trigger('selection-end', {url: url, actionList: this});
+                $(this.#list).trigger('selection-end', {url: url, actionList: this});
             }, 250);
         }
 
@@ -483,7 +526,7 @@ define(["../notjQuery"], function ($) {
          */
         getActiveItems()
         {
-            return Array.from(this.list.querySelectorAll(`${LIST_ITEM_IDENTIFIER}.active`));
+            return Array.from(this.#list.querySelectorAll(`${LIST_ITEM_IDENTIFIER}.active`));
         }
 
         /**
@@ -493,7 +536,7 @@ define(["../notjQuery"], function ($) {
          */
         getAllItems()
         {
-            return Array.from(this.list.querySelectorAll(LIST_ITEM_IDENTIFIER));
+            return Array.from(this.#list.querySelectorAll(LIST_ITEM_IDENTIFIER));
         }
 
         /**
@@ -540,9 +583,9 @@ define(["../notjQuery"], function ($) {
             }
 
             let toActiveItems = [];
-            if (this.list.dataset.icingaMultiselectUrl === detailUrl.path) {
+            if (this.#list.dataset.icingaMultiselectUrl === detailUrl.path) {
                 for (const filter of this.parseSelectionQuery(detailUrl.query.slice(1))) {
-                    let item = this.list.querySelector(
+                    let item = this.#list.querySelector(
                         '[data-icinga-multiselect-filter="' + filter + '"]'
                     );
 
@@ -551,7 +594,7 @@ define(["../notjQuery"], function ($) {
                     }
                 }
             } else  {
-                let item = this.list.querySelector(
+                let item = this.#list.querySelector(
                     '[data-icinga-detail-filter="' + detailUrl.query.slice(1) + '"]'
                 );
 
