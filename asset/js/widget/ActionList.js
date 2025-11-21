@@ -203,6 +203,7 @@ define(["../notjQuery"], function ($) {
             if (activeItems.length === 1 && toActiveItems.length === 0) {
                 $(this.#list).trigger('all-deselected');
 
+                this.setLastActivatedItemUrl(null);
                 this.clearSelection(toDeactivateItems);
                 this.addSelectionCountToFooter();
                 return;
@@ -445,7 +446,7 @@ define(["../notjQuery"], function ($) {
         /**
          * Set the last activated item Url
          *
-         * @param url
+         * @param {?string} url
          */
         setLastActivatedItemUrl (url) {
             this.#lastActivatedItemUrl = url;
@@ -575,6 +576,7 @@ define(["../notjQuery"], function ($) {
             if (! detailUrl) {
                 let activeItems = this.getActiveItems();
                 if (activeItems.length) {
+                    this.setLastActivatedItemUrl(null);
                     this.clearSelection(activeItems);
                     this.addSelectionCountToFooter();
                 }
