@@ -277,23 +277,11 @@ define(["../notjQuery"], function ($) {
                 return;
             }
 
-            let list = null;
             let pressedArrowDownKey = event.key === 'ArrowDown';
             let pressedArrowUpKey = event.key === 'ArrowUp';
-            let focusedElement = document.activeElement;
             let isSelectAll = (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'a' && this.#isMultiSelectable;
 
             if (! isSelectAll && ! pressedArrowDownKey && ! pressedArrowUpKey) {
-                return;
-            }
-
-            if (activeItems.length) {
-                list = this.#list;
-            } else if (focusedElement) {
-                list = focusedElement.querySelector(LIST_IDENTIFIER) ?? focusedElement.closest(LIST_IDENTIFIER);
-            }
-
-            if (list !== this.#list) {
                 return;
             }
 
