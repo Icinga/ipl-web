@@ -87,7 +87,7 @@ define(["../widget/ActionList", "icinga/legacy-app/Icinga"],function (ActionList
             lists.forEach(list => {
                 let actionList = _this._actionLists.get(list);
                 if (! actionList) {
-                    let isPrimary = list.parentElement.matches('#main > #col1 > .content');
+                    let isPrimary = _this.isPrimaryList(list);
                     let isMultiSelectable = list.matches('[data-icinga-multiselect-url]');
                     let container = list.closest('.container');
                     let footer = container.querySelector('.footer');
@@ -144,13 +144,23 @@ define(["../widget/ActionList", "icinga/legacy-app/Icinga"],function (ActionList
          * @param sourceId The content is moved from
          */
          onColumnMoved(event, sourceId) {
-            if (event.target.id === 'col2' && sourceId === 'col1') { // only for browser-back (col1 shifted to col2)
+            // col1 moved to col2 (browser-back)
+            let col1Moved = event.target.id === 'col2' && sourceId === 'col1';
+
+            // col2 moved to col1 (col1 closed, browser-forward)
+            let col2Moved = event.target.id === 'col1' && sourceId === 'col2';
+
+            if (col1Moved || col2Moved) {
                 let _this = event.data.self;
                 let lists = _this.getActionLists(event.target);
                 lists.forEach((list) => {
                     let actionList = _this._actionLists.get(list);
                     if (actionList) {
-                        actionList.load();
+                        if (col1Moved) {
+                            actionList.setIsPrimary(false).load();
+                        } else if (col2Moved) {
+                            actionList.setIsPrimary(_this.isPrimaryList(list));
+                        }
                     }
                 });
             }
@@ -199,6 +209,17 @@ define(["../widget/ActionList", "icinga/legacy-app/Icinga"],function (ActionList
             return this.icinga.utils.parseUrl(
                 this.icinga.history.getCol2State().replace(/^#!/, '')
             );
+        }
+
+        /**
+         * Whether the specified list should be considered the primary list
+         *
+         * @param {Element} list
+         *
+         * @return {boolean}
+         */
+        isPrimaryList(list) {
+            return list.parentElement.matches('#main > #col1 > .content');
         }
 
         /**
