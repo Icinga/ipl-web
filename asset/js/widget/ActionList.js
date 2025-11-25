@@ -267,6 +267,11 @@ define(["../notjQuery"], function ($) {
          * @param event
          */
         onKeyDown(event) {
+            if (! this.#list.checkVisibility()) {
+                // list is not visible in the current view
+                return;
+            }
+
             let activeItems = this.getActiveItems();
             if (! this.#isPrimary && activeItems.length === 0) {
                 return;
