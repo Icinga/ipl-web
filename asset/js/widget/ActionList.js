@@ -282,6 +282,8 @@ define(["../notjQuery"], function ($) {
                 return;
             }
 
+            //TODO: fix that navigation on searchbar suggestions also navigate the list
+
             let pressedArrowDownKey = event.key === 'ArrowDown';
             let pressedArrowUpKey = event.key === 'ArrowUp';
             let isSelectAll = (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'a' && this.#isMultiSelectable;
