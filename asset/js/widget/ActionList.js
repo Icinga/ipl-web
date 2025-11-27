@@ -39,6 +39,8 @@ define(["../notjQuery"], function ($) {
             ) {
                 this.#isDisplayContents = true;
             }
+
+            this.bind();
         }
 
         bind() {
