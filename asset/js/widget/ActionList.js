@@ -55,7 +55,7 @@ define(["../notjQuery"], function ($) {
             this.bindedKeyDown = null;
         }
 
-        refresh(list, detailUrl = null) {
+        refresh(list, footer = null, detailUrl = null) {
             if (list === this.#list) {
                 // If the DOM node is still the same, nothing has changed
                 return;
@@ -64,6 +64,8 @@ define(["../notjQuery"], function ($) {
             this.unbind();
 
             this.#list = list;
+            this.setFooter(footer);
+
             this.bind();
 
             this.load(detailUrl)
