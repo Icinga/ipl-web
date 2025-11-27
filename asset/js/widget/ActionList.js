@@ -55,6 +55,7 @@ define(["../notjQuery"], function ($) {
         unbind() {
             document.body.removeEventListener('keydown', this.bindedKeyDown);
             this.bindedKeyDown = null;
+            this.#list = null;
         }
 
         refresh(list, footer = null, detailUrl = null) {
@@ -74,7 +75,7 @@ define(["../notjQuery"], function ($) {
         }
 
         destroy() {
-            this.#list = null;
+            this.unbind();
         }
 
         /**
