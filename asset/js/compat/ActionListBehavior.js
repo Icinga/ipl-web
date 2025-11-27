@@ -73,7 +73,7 @@ define(["../widget/ActionList", "icinga/legacy-app/Icinga"],function (ActionList
                     let actionList = _this._cachedActionLists[listPath];
                     let list = container.querySelector(listPath);
                     if (list !== null) {
-                        actionList.refresh(list, detailUrl);
+                        actionList.refresh(list, container.querySelector('.footer'), detailUrl);
                         _this._actionLists.set(list, actionList);
                     } else {
                         actionList.destroy();
