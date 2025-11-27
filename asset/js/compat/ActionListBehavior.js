@@ -102,8 +102,7 @@ define(["../widget/ActionList", "icinga/legacy-app/Icinga"],function (ActionList
                     actionList = new ActionList(list)
                         .setIsPrimary(isPrimary)
                         .setIsMultiSelectable(isMultiSelectable)
-                        .setFooter(footer)
-                        .bind();
+                        .setFooter(footer);
 
                     actionList.load(detailUrl);
 
