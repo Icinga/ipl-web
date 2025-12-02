@@ -7,7 +7,7 @@ use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\I18n\Translation;
-use ipl\Web\FormElement\TermInput;
+use ipl\Web\FormElement\TermInputElement;
 use ipl\Web\Widget\Icon;
 
 class TermContainer extends BaseHtmlElement
@@ -18,15 +18,15 @@ class TermContainer extends BaseHtmlElement
 
     protected $defaultAttributes = ['class' => 'terms'];
 
-    /** @var TermInput */
+    /** @var TermInputElement */
     protected $input;
 
     /**
      * Create a new TermContainer
      *
-     * @param TermInput $input
+     * @param TermInputElement $input
      */
-    public function __construct(TermInput $input)
+    public function __construct(TermInputElement $input)
     {
         $this->input = $input;
 
