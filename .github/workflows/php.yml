@@ -12,3 +12,8 @@ jobs:
   php:
     name: PHP
     uses: Icinga/github-actions/.github/workflows/php.yml@main
+    with:
+      dependencies: |
+        {
+          "./vendor/icingaweb2" : "https://github.com/Icinga/icingaweb2.git"
+        }
