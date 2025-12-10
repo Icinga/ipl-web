@@ -1,7 +1,5 @@
 # Icinga PHP Library - Web Components
 
-![Build Status](https://github.com/Icinga/ipl-web/actions/workflows/php.yml/badge.svg)
-
 `ipl/web` provides common web components.
 
 ## Installation
