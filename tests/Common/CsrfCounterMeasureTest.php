@@ -2,6 +2,7 @@
 
 namespace ipl\Tests\Web\Common;
 
+use Error;
 use ipl\Html\Contract\FormElement;
 use ipl\Html\Form;
 use ipl\Html\FormElement\HiddenElement;
@@ -28,8 +29,8 @@ class CsrfCounterMeasureTest extends TestCase
 
         $this->assertNull($token->getValue(), 'The default value must only be set after the form is rendered');
 
-        $this->expectError();
-        $this->expectErrorMessage('Invalid CSRF token provided');
+        $this->expectException(Error::class);
+        $this->expectExceptionMessage('Invalid CSRF token provided');
 
         $token->isValid();
     }
@@ -50,8 +51,8 @@ class CsrfCounterMeasureTest extends TestCase
 
         $token->setValue('invalid');
 
-        $this->expectError();
-        $this->expectErrorMessage('Invalid CSRF token provided');
+        $this->expectException(Error::class);
+        $this->expectExceptionMessage('Invalid CSRF token provided');
 
         $token->isValid();
     }

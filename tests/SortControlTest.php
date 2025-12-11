@@ -29,7 +29,7 @@ class SortControlTest extends TestCase
         $control->handleRequest($request);
         $control->setDefault('bar desc');
 
-        $this->assertRegExp(
+        $this->assertMatchesRegularExpression(
             '/value="bar desc"[^>]+selected/',
             $control->render(),
             'The default sort column is not selected'
