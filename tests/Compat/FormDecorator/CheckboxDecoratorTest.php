@@ -66,7 +66,7 @@ HTML;
         $element = new CheckboxElement('test', ['id' => 'test-id']);
         $element->addWrapper(Html::tag('div'));
 
-        $this->decorator->decorateFormElement( new FormElementDecorationResult(), $element);
+        $this->decorator->decorateFormElement(new FormElementDecorationResult(), $element);
 
         $html = <<<'HTML'
 <div>
