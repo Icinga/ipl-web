@@ -19,7 +19,7 @@ class PrimaryButtonDecoratorTest extends TestCase
     public function testEveryButtonIsMarkedAsPrimaryButton(): void
     {
         $form = (new CompatForm())
-            ->addElement('submit','btn-1')
+            ->addElement('submit', 'btn-1')
             ->addElement('submit', 'btn-2', ['class' => 'test'])
             ->addElement('submit', 'btn-3', ['class' => 'btn-remove'])
             ->addElement('submit', 'btn-4', ['class' => 'btn-primary']);

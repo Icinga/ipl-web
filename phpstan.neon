@@ -12,11 +12,6 @@ parameters:
     paths:
         - src
 
-    scanDirectories:
-        - /icingaweb2
-        - /usr/share/icinga-php/vendor
-        - /usr/share/icinga-php/ipl
-
     ignoreErrors:
         -
             messages:

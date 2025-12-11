@@ -345,7 +345,7 @@ HTML;
             ->addElement('checkbox', 'fooBar', [
                 'label' => 'Fieldset Label',
                 'description' => 'Fieldset Description',
-                'id' => 'fooBar-id'
+                'id' => 'cb-id'
             ])
             ->addElement('submit', 'submit_form', ['label' => 'Submit Form']);
 
@@ -367,15 +367,15 @@ HTML;
       </div>
       <div class="control-group">
         <div class="control-label-group">
-          <label class="form-element-label" for="fooBar-id">Fieldset Label</label>
+          <label class="form-element-label" for="cb-id">Fieldset Label</label>
         </div>
         <input name="fooBar" type="hidden" value="n"/>
-        <input aria-describedby="desc_fooBar-id" class="sr-only" id="fooBar-id" name="fooBar" type="checkbox" value="y"/>
-        <label aria-hidden="true" class="toggle-switch" for="fooBar-id">
+        <input aria-describedby="desc_cb-id" class="sr-only" id="cb-id" name="fooBar" type="checkbox" value="y"/>
+        <label aria-hidden="true" class="toggle-switch" for="cb-id">
           <span class="toggle-slider"/>
         </label>
         <i aria-hidden="true" class="icon fa-info-circle control-info fa" role="img" title="Fieldset Description"/>
-        <span class="sr-only" id="desc_fooBar-id">Fieldset Description</span>
+        <span class="sr-only" id="desc_cb-id">Fieldset Description</span>
       </div>
       <div class="control-group form-controls">
         <input name="submit_form" type="submit" class="btn-primary" value="Submit Form"/>
