@@ -2,33 +2,41 @@
 
 namespace ipl\Web\Widget;
 
-use Icinga\Date\DateFormatter;
-use ipl\Html\BaseHtmlElement;
+use DateInterval;
 
-class TimeUntil extends BaseHtmlElement
+class TimeUntil extends Time
 {
-    /** @var int */
-    protected $until;
-
-    protected $tag = 'time';
-
     protected $defaultAttributes = ['class' => 'time-until'];
 
-    public function __construct($until)
+    protected function assembleSpecific(): void
     {
-        $this->until = (int) $until;
-    }
-
-    protected function assemble()
-    {
-        $dateTime = DateFormatter::formatDateTime($this->until);
-
         $this->addAttributes([
-            'datetime' => $dateTime,
-            'title' => $dateTime,
-            'data-ago-label' => DateFormatter::timeAgo(time())
+            'datetime' => $this->dateTime,
+            'data-ago-label' => TimeAgo::getFormattedFromGiven()
         ]);
 
-        $this->add(DateFormatter::timeUntil($this->until));
+        $this->add($this->getFormatted());
+    }
+
+    protected static function format(string $time, int $type, DateInterval $interval): string
+    {
+        if ($interval->invert === 1 && $type === static::RELATIVE) {
+            $time = '-' . $time;
+        }
+
+        $values = [];
+        switch ($type) {
+            case static::DATE:
+            case static::DATETIME:
+                $values = ['on %s', 'An event will happen on the given date or date and time'];
+                break;
+            case static::RELATIVE:
+                $values = ['in %s', 'An event will happen after the given time interval has elapsed'];
+                break;
+            case static::TIME:
+                $values = ['at %s', 'An event will happen at the given time'];
+        }
+
+        return sprintf(t(...$values), $time);
     }
 }

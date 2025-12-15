@@ -2,32 +2,32 @@
 
 namespace ipl\Web\Widget;
 
-use Icinga\Date\DateFormatter;
-use ipl\Html\BaseHtmlElement;
+use DateInterval;
 
-class TimeSince extends BaseHtmlElement
+class TimeSince extends Time
 {
-    /** @var int */
-    protected $since;
-
-    protected $tag = 'time';
-
     protected $defaultAttributes = ['class' => 'time-since'];
 
-    public function __construct($since)
+    protected function assembleSpecific(): void
     {
-        $this->since = (int) $since;
+        $this->addAttributes(['datetime' => $this->dateTime]);
+
+        $this->add($this->getFormatted());
     }
 
-    protected function assemble()
+    protected static function format(string $time, int $type, DateInterval $interval = null): string
     {
-        $dateTime = DateFormatter::formatDateTime($this->since);
+        $values = [];
+        switch ($type) {
+            case static::RELATIVE:
+                $values = ['for %s', 'A status is lasting for the given time interval'];
+                break;
+            case static::DATE:
+            case static::DATETIME:
+            case static::TIME:
+                $values = ['since %s', 'A status is lasting since the given time, date or date and time'];
+        }
 
-        $this->addAttributes([
-            'datetime' => $dateTime,
-            'title'    => $dateTime
-        ]);
-
-        $this->add(DateFormatter::timeSince($this->since));
+        return sprintf(t(...$values), $time);
     }
 }
