@@ -204,6 +204,7 @@ class Time extends BaseHtmlElement
     protected function assemble(): void
     {
         $this->addAttributes(['title' => $this->dateTime]);
+        $this->addAttributes('data-relative-time');
 
         $this->assembleSpecific();
     }
@@ -216,6 +217,7 @@ class Time extends BaseHtmlElement
      */
     protected function assembleSpecific(): void
     {
+        $this->addAttributes(['data-relative-time' => null]);
         $this->add($this->dateTime);
     }
 }

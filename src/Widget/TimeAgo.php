@@ -15,7 +15,7 @@ class TimeAgo extends Time
 
     protected function assembleSpecific(): void
     {
-        $this->addAttributes(['datetime' => $this->dateTime]);
+        $this->addAttributes(['datetime' => $this->dateTime, 'data-relative-time' => 'ago']);
 
         $this->add($this->getFormatted());
     }
