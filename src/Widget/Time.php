@@ -18,28 +18,28 @@ class Time extends BaseHtmlElement
      *
      * @var int
      */
-    const RELATIVE = 0;
+    public const RELATIVE = 0;
 
     /**
      * Format time
      *
      * @var int
      */
-    const TIME = 1;
+    public const TIME = 1;
 
     /**
      * Format date
      *
      * @var int
      */
-    const DATE = 2;
+    public const DATE = 2;
 
     /**
      * Format date and time
      *
      * @var int
      */
-    const DATETIME = 4;
+    public const DATETIME = 4;
 
     /** @var DateTimeImmutable */
     protected DateTimeImmutable $time;
@@ -184,7 +184,7 @@ class Time extends BaseHtmlElement
             return DateTimeImmutable::createFromInterface($value);
         }
 
-        return new DateTimeImmutable('@' . (int)$value);
+        return new DateTimeImmutable('@' . (int) $value);
     }
 
     /**
