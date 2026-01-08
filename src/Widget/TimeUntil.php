@@ -12,7 +12,8 @@ class TimeUntil extends Time
     {
         $this->addAttributes([
             'datetime' => $this->dateTime,
-            'data-ago-label' => TimeAgo::getFormattedFromGiven()
+            'data-ago-label' => TimeAgo::getFormattedFromGiven(),
+            'data-relative-time' => 'until'
         ]);
 
         $this->add($this->getFormatted());

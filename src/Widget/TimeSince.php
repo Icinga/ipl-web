@@ -10,7 +10,7 @@ class TimeSince extends Time
 
     protected function assembleSpecific(): void
     {
-        $this->addAttributes(['datetime' => $this->dateTime]);
+        $this->addAttributes(['datetime' => $this->dateTime, 'data-relative-time' => 'since']);
 
         $this->add($this->getFormatted());
     }
