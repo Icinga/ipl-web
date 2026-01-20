@@ -120,13 +120,30 @@
             const now = Date.now();
             const ONE_HOUR_SEC = 60 * 60;
 
+            const tz = ((root) => {
+                const doc = root?.nodeType === 9 ? root : (root?.ownerDocument || document);
+                return doc.documentElement.dataset.icingaTimezone
+                    ?? doc.documentElement.getAttribute("data-icinga-timezone");
+            })(root);
+
+
             const getDatetimeMs = (el) => {
                 const dt = el.dateTime || el.getAttribute('datetime');
                 if (!dt) {
                     return NaN;
                 }
 
-                return Date.parse(dt);
+                console.log(globalThis);
+
+                // If the string already has an offset / Z, or Temporal isn't available, Date.parse is fine
+                if (/[zZ]|[+-]\d\d:\d\d$/.test(dt) || ! globalThis.Temporal) {
+                    return Date.parse(dt);
+                }
+
+                return Temporal.PlainDateTime.from(dt)
+                    .toZonedDateTime(tz)
+                    .toInstant()
+                    .epochMilliseconds;
             };
 
             root.querySelectorAll('time[data-relative-time="ago"], time[data-relative-time="since"]')
