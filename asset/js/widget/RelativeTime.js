@@ -1,78 +1,27 @@
-/* Icinga Web 2 | (c) 2025 Icinga GmbH | GPLv2+ */
+define(["../notjQuery"], function ($) {
 
-define(["icinga/legacy-app/Icinga"], function (Icinga) {
+    "use strict";
 
-    'use strict';
-
-    class RelativeTime extends Icinga.EventListener {
+    class RelativeTime {
+        /**
+         * @param icinga The Icinga instance
+         */
         constructor(icinga) {
-            super(icinga);
+            this.icinga = icinga;
 
             this.formatter = new Intl.RelativeTimeFormat(
                 [icinga.config.locale, 'en'],
                 {style: 'narrow'}
             );
-
-            this._timerHandle = null;
-
-            this.on('rendered', '#main > .container, #modal-content', this.onRendered, this);
-            this.on('close-column', this.stop, this);
-            this.on('close-modal', this.stop, this);
         }
 
-        onRendered(event) {
-            let _this = event.data.self;
-            const root = event.currentTarget || event.target;
-            const element = root && root.nodeType === 1 ? root : null; // 1 = Element
-            const hasRelativeTime =
-                element && (element.matches('time[data-relative-time]') || element.querySelector('time[data-relative-time]'));
-
-            if (!hasRelativeTime) {
-                return;
-            }
-
-            _this.update(root);
-
-            if (_this._timerHandle == null) {
-                _this._timerHandle = _this.icinga.timer.register(_this.update, _this, 1000);
-            }
-        }
-
-        stop(event) {
-            const _this = event?.data?.self || this;
-
-            if (_this._timerHandle == null) {
-                return;
-            }
-
-            const timer = _this.icinga.timer;
-
-            if (typeof timer.unregister === 'function') {
-                try {
-                    timer.unregister(_this._timerHandle);
-                } catch (e) {
-                    // ignore
-                }
-            } else if (typeof timer.remove === 'function') {
-                try {
-                    timer.remove(_this._timerHandle);
-                } catch (e) {
-                    // ignore
-                }
-            } else {
-                // Best effort fallback for older timer APIs
-                try {
-                    timer.unregister(_this.update, _this);
-                } catch (e) {
-                    // ignore
-                }
-            }
-
-            _this._timerHandle = null;
-        }
-
+        /**
+         * Update relative time elements within the given root
+         *
+         * @param root The root element to search within
+         */
         update(root = document) {
-            const ONE_HOUR_SEC = 60 * 60;
+            const RELATIVE_TIME_THRESHOLD = 60 * 60;
 
             const timezone = ((root) => {
                 const doc = root?.nodeType === 9 ? root : (root?.ownerDocument || document);
@@ -121,7 +70,7 @@ define(["icinga/legacy-app/Icinga"], function (Icinga) {
                         diffSeconds = 0;
                     }
 
-                    if (diffSeconds >= ONE_HOUR_SEC) {
+                    if (diffSeconds >= RELATIVE_TIME_THRESHOLD) {
                         return;
                     }
 
@@ -135,7 +84,7 @@ define(["icinga/legacy-app/Icinga"], function (Icinga) {
                 .forEach((element) => {
                     let remainingSeconds = getTimeDifferenceInSeconds(element, timezone, true);
 
-                    if (Math.abs(remainingSeconds) >= ONE_HOUR_SEC) {
+                    if (Math.abs(remainingSeconds) >= RELATIVE_TIME_THRESHOLD) {
                         return;
                     }
 
@@ -155,6 +104,14 @@ define(["icinga/legacy-app/Icinga"], function (Icinga) {
                 });
         }
 
+        /**
+         * Render the relative time string
+         *
+         * @param minute
+         * @param second
+         * @param mode
+         * @returns {string}
+         */
         render(minute, second, mode) {
             const sign = mode === 'ago' || mode === 'since' ? -1 : 1;
 
@@ -231,6 +188,5 @@ define(["icinga/legacy-app/Icinga"], function (Icinga) {
         }
     }
 
-    Icinga.Behaviors = Icinga.Behaviors || {};
-    Icinga.Behaviors.RelativeTime = RelativeTime;
+    return RelativeTime;
 });
