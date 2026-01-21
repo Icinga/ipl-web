@@ -74,45 +74,51 @@ define(["icinga/legacy-app/Icinga"], function (Icinga) {
         }
 
         update(root = document) {
-            const now = Date.now();
             const ONE_HOUR_SEC = 60 * 60;
 
-            const tz = ((root) => {
+            const timezone = ((root) => {
                 const doc = root?.nodeType === 9 ? root : (root?.ownerDocument || document);
 
                 return doc.documentElement.dataset.icingaTimezone
                     ?? doc.documentElement.getAttribute("data-icinga-timezone");
             })(root);
 
+            const getTimeDifferenceInSeconds = (element, timezone, future = false) => {
+                const timeString = element.dateTime || element.getAttribute('datetime');
+                const isoString = timeString.replace(' ', 'T');
 
-            const getDatetimeMs = (el) => {
-                const dt = el.dateTime || el.getAttribute('datetime');
-                if (!dt) {
-                    return NaN;
-                }
+                const date = new Date(isoString + 'Z'); // Parse as UTC temporarily
 
-                // TODO: Find another way to handle timezones, it's no option to rely on Temporal being available
-                // If the string already has an offset / Z, or Temporal isn't available, Date.parse is fine
-                if (/[zZ]|[+-]\d\d:\d\d$/.test(dt) || ! globalThis.Temporal) {
-                    return Date.parse(dt);
-                }
+                const formatter = new Intl.DateTimeFormat('en-US', {
+                    timeZone: timezone,
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: false,
+                    timeZoneName: 'longOffset'
+                });
 
-                return Temporal.PlainDateTime.from(dt)
-                    .toZonedDateTime(tz)
-                    .toInstant()
-                    .epochMilliseconds;
-            };
+                const parts = formatter.formatToParts(date);
+                const offsetPart = parts.find(part => part.type === 'timeZoneName');
+                const offsetString = offsetPart.value.replace('GMT', '');
+                // Create ISO 8601 string with timezone offset
+                const dateTimeString = `${isoString}${offsetString}`;
+
+                const givenTimeUTC = Date.parse(dateTimeString);
+
+                const now = Date.now();
+
+                return Math.floor((future ? givenTimeUTC - now : now - givenTimeUTC) / 1000);
+            }
 
             root.querySelectorAll('time[data-relative-time="ago"], time[data-relative-time="since"]')
                 .forEach((el) => {
                     const mode = el.dataset.relativeTime;
 
-                    const ts = getDatetimeMs(el);
-                    if (!Number.isFinite(ts)) {
-                        return;
-                    }
-
-                    let diffSec = Math.floor((now - ts) / 1000);
+                    let diffSec = getTimeDifferenceInSeconds(el, timezone);
                     if (diffSec < 0) {
                         diffSec = 0;
                     }
@@ -129,12 +135,7 @@ define(["icinga/legacy-app/Icinga"], function (Icinga) {
 
             root.querySelectorAll('time[data-relative-time="until"]')
                 .forEach((el) => {
-                    const ts = getDatetimeMs(el);
-                    if (!Number.isFinite(ts)) {
-                        return;
-                    }
-
-                    const remainingSec = Math.ceil((ts - now) / 1000);
+                    let remainingSec = getTimeDifferenceInSeconds(el, timezone, true);
 
                     if (Math.abs(remainingSec) >= ONE_HOUR_SEC) {
                         return;
