@@ -23,48 +23,46 @@ define(["icinga/legacy-app/Icinga"], function (Icinga) {
         onRendered(event) {
             let _this = event.data.self;
             const root = event.currentTarget || event.target;
+            const element = root && root.nodeType === 1 ? root : null; // 1 = Element
             const hasRelativeTime =
-                (root.matches && root.matches('time[data-relative-time]')) ||
-                root.querySelector('time[data-relative-time]');
+                element && (element.matches('time[data-relative-time]') || element.querySelector('time[data-relative-time]'));
 
             if (!hasRelativeTime) {
                 return;
             }
 
-            // Always update once for the newly rendered root
             _this.update(root);
 
-            // Register the global timer only once
             if (_this._timerHandle == null) {
                 _this._timerHandle = _this.icinga.timer.register(_this.update, _this, 1000);
             }
         }
 
         stop(event) {
-            const _this = event && event.data && event.data.self ? event.data.self : this;
+            const _this = event?.data?.self || this;
 
             if (_this._timerHandle == null) {
                 return;
             }
 
-            const t = _this.icinga.timer;
+            const timer = _this.icinga.timer;
 
-            if (typeof t.unregister === 'function') {
+            if (typeof timer.unregister === 'function') {
                 try {
-                    t.unregister(_this._timerHandle);
+                    timer.unregister(_this._timerHandle);
                 } catch (e) {
                     // ignore
                 }
-            } else if (typeof t.remove === 'function') {
+            } else if (typeof timer.remove === 'function') {
                 try {
-                    t.remove(_this._timerHandle);
+                    timer.remove(_this._timerHandle);
                 } catch (e) {
                     // ignore
                 }
             } else {
                 // Best effort fallback for older timer APIs
                 try {
-                    t.unregister(_this.update, _this);
+                    timer.unregister(_this.update, _this);
                 } catch (e) {
                     // ignore
                 }
@@ -115,49 +113,45 @@ define(["icinga/legacy-app/Icinga"], function (Icinga) {
             }
 
             root.querySelectorAll('time[data-relative-time="ago"], time[data-relative-time="since"]')
-                .forEach((el) => {
-                    const mode = el.dataset.relativeTime;
+                .forEach((element) => {
+                    const mode = element.dataset.relativeTime;
 
-                    let diffSec = getTimeDifferenceInSeconds(el, timezone);
-                    if (diffSec < 0) {
-                        diffSec = 0;
+                    let diffSeconds = getTimeDifferenceInSeconds(element, timezone);
+                    if (diffSeconds < 0) {
+                        diffSeconds = 0;
                     }
 
-                    if (diffSec >= ONE_HOUR_SEC) {
+                    if (diffSeconds >= ONE_HOUR_SEC) {
                         return;
                     }
 
-                    const minute = Math.floor(diffSec / 60);
-                    const second = diffSec % 60;
+                    const minute = Math.floor(diffSeconds / 60);
+                    const second = diffSeconds % 60;
 
-                    el.innerHTML = this.render(minute, second, mode);
+                    element.innerHTML = this.render(minute, second, mode);
                 });
 
             root.querySelectorAll('time[data-relative-time="until"]')
-                .forEach((el) => {
-                    let remainingSec = getTimeDifferenceInSeconds(el, timezone, true);
+                .forEach((element) => {
+                    let remainingSeconds = getTimeDifferenceInSeconds(element, timezone, true);
 
-                    if (Math.abs(remainingSec) >= ONE_HOUR_SEC) {
+                    if (Math.abs(remainingSeconds) >= ONE_HOUR_SEC) {
                         return;
                     }
 
-                    if (remainingSec === 0 && el.dataset.agoLabel) {
-                        el.innerText = el.dataset.agoLabel;
-                        el.dataset.relativeTime = 'ago';
+                    if (remainingSeconds === 0 && element.dataset.agoLabel) {
+                        element.innerText = element.dataset.agoLabel;
+                        element.dataset.relativeTime = 'ago';
 
                         return;
                     }
 
-                    let absSec = remainingSec;
+                    const absSeconds = remainingSeconds * (remainingSeconds < 0 ? -1 : 1);
 
-                    if (remainingSec < 0) {
-                        absSec = -remainingSec;
-                    }
+                    const minute = Math.floor(absSeconds / 60);
+                    const second = absSeconds % 60;
 
-                    const minute = Math.floor(absSec / 60);
-                    const second = absSec % 60;
-
-                    el.innerHTML = this.render(minute, second, 'until');
+                    element.innerHTML = this.render(minute, second, 'until');
                 });
         }
 
@@ -239,5 +233,4 @@ define(["icinga/legacy-app/Icinga"], function (Icinga) {
 
     Icinga.Behaviors = Icinga.Behaviors || {};
     Icinga.Behaviors.RelativeTime = RelativeTime;
-
 });
