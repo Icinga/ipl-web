@@ -1,53 +1,10 @@
 /* Icinga Web 2 | (c) 2025 Icinga GmbH | GPLv2+ */
 
-(function (root, factory) {
+define(["icinga/legacy-app/Icinga"], function (Icinga) {
 
     'use strict';
 
-    // Libraries are concatenated before Icinga Web's core JS. Therefore `root.Icinga` is not available yet.
-    // We lazily initialize once `Icinga` and `Icinga.EventListener` exist.
-    let initialized = false;
-
-    const tryInit = () => {
-        if (initialized) {
-            return true;
-        }
-
-        if (! (root && root.Icinga && root.Icinga.EventListener)) {
-            return false;
-        }
-
-        initialized = true;
-        factory(root.Icinga, root.Icinga.EventListener);
-        return true;
-    };
-
-    if (! tryInit() && root && typeof root.setTimeout === 'function') {
-        let tries = 0;
-        const maxTries = 400; // ~10s at 25ms
-        const delayMs = 25;
-
-        const tick = () => {
-            if (tryInit()) {
-                return;
-            }
-
-            if (++tries >= maxTries) {
-                return;
-            }
-
-            root.setTimeout(tick, delayMs);
-        };
-
-        root.setTimeout(tick, 0);
-    }
-
-    // Not running inside Icinga Web: no-op
-})(typeof window !== 'undefined' ? window : this, function (Icinga, EventListener) {
-
-    'use strict';
-
-    class RelativeTime extends EventListener {
+    class RelativeTime extends Icinga.EventListener {
         constructor(icinga) {
             super(icinga);
 
@@ -122,6 +79,7 @@
 
             const tz = ((root) => {
                 const doc = root?.nodeType === 9 ? root : (root?.ownerDocument || document);
+
                 return doc.documentElement.dataset.icingaTimezone
                     ?? doc.documentElement.getAttribute("data-icinga-timezone");
             })(root);
@@ -133,8 +91,7 @@
                     return NaN;
                 }
 
-                console.log(globalThis);
-
+                // TODO: Find another way to handle timezones, it's no option to rely on Temporal being available
                 // If the string already has an offset / Z, or Temporal isn't available, Date.parse is fine
                 if (/[zZ]|[+-]\d\d:\d\d$/.test(dt) || ! globalThis.Temporal) {
                     return Date.parse(dt);
@@ -190,22 +147,20 @@
                         return;
                     }
 
-                    let invert = '';
                     let absSec = remainingSec;
 
                     if (remainingSec < 0) {
-                        invert = '-';
                         absSec = -remainingSec;
                     }
 
                     const minute = Math.floor(absSec / 60);
                     const second = absSec % 60;
 
-                    el.innerHTML = this.render(minute, second, 'until', invert);
+                    el.innerHTML = this.render(minute, second, 'until');
                 });
         }
 
-        render(minute, second, mode, invert = '') {
+        render(minute, second, mode) {
             const sign = mode === 'ago' || mode === 'since' ? -1 : 1;
 
             let min = minute * sign;
