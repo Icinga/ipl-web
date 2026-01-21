@@ -3,12 +3,9 @@
 namespace ipl\Web\Widget;
 
 use DateInterval;
-use DateInvalidTimeZoneException;
-use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
-use DateTimeZone;
-use Exception;
+use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 
 class Time extends BaseHtmlElement
@@ -203,8 +200,8 @@ class Time extends BaseHtmlElement
 
     protected function assemble(): void
     {
-        $this->addAttributes(['title' => $this->dateTime]);
-        $this->addAttributes('data-relative-time');
+        $this->addAttributes(Attributes::create(['title' => $this->dateTime]));
+        $this->addAttributes(Attributes::create(['data-relative-time']));
 
         $this->assembleSpecific();
     }
@@ -217,7 +214,7 @@ class Time extends BaseHtmlElement
      */
     protected function assembleSpecific(): void
     {
-        $this->addAttributes(['data-relative-time' => null]);
+        $this->addAttributes(Attributes::create(['data-relative-time' => null]));
         $this->add($this->dateTime);
     }
 }

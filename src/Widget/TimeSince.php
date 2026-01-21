@@ -3,6 +3,7 @@
 namespace ipl\Web\Widget;
 
 use DateInterval;
+use ipl\Html\Attributes;
 
 class TimeSince extends Time
 {
@@ -10,7 +11,14 @@ class TimeSince extends Time
 
     protected function assembleSpecific(): void
     {
-        $this->addAttributes(['datetime' => $this->dateTime, 'data-relative-time' => 'since']);
+        $this->addAttributes(
+            Attributes::create(
+                [
+                    'datetime'           => $this->dateTime,
+                    'data-relative-time' => 'since'
+                ]
+            )
+        );
 
         $this->add($this->getFormatted());
     }
