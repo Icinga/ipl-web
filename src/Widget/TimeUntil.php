@@ -3,6 +3,7 @@
 namespace ipl\Web\Widget;
 
 use DateInterval;
+use ipl\Html\Attributes;
 
 class TimeUntil extends Time
 {
@@ -10,11 +11,15 @@ class TimeUntil extends Time
 
     protected function assembleSpecific(): void
     {
-        $this->addAttributes([
-            'datetime' => $this->dateTime,
-            'data-ago-label' => TimeAgo::getFormattedFromGiven(),
-            'data-relative-time' => 'until'
-        ]);
+        $this->addAttributes(
+            Attributes::create(
+                [
+                    'datetime'           => $this->dateTime,
+                    'data-ago-label'     => TimeAgo::getFormattedFromGiven(),
+                    'data-relative-time' => 'until'
+                ]
+            )
+        );
 
         $this->add($this->getFormatted());
     }
