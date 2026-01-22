@@ -18,5 +18,15 @@ export default {
         // Ignored for now, re-enable when we have a better understanding of the implications
         "no-descending-specificity": null,
         "no-duplicate-selectors": null,
+
+        // https://github.com/stylelint-less/stylelint-less/issues/104
+        "declaration-property-value-no-unknown": [
+            true,
+            {
+                "ignoreProperties": {
+                    "/.+/": ["/[+\\-*/]/"],
+                },
+            }
+        ],
     }
 };
