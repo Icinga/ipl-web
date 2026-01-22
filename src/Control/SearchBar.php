@@ -405,7 +405,7 @@ class SearchBar extends Form
                         if (isset($this->changes[1][$columnIndex])) {
                             $change = $this->changes[1][$columnIndex];
                             $condition->setColumn($change['search']);
-                        } elseif (empty($this->changes)) {
+                        } else {
                             $column = ValidatedColumn::fromFilterCondition($condition);
                             $operator = ValidatedOperator::fromFilterCondition($condition);
                             $value = ValidatedValue::fromFilterCondition($condition);
@@ -476,7 +476,11 @@ class SearchBar extends Form
                     $this->setFilter($filter);
 
                     if (! empty($changes)) {
-                        $this->changes = ['#' . $searchInputId, $changes];
+                        if (empty($this->changes)) {
+                            $this->changes = ['#' . $searchInputId, $changes];
+                        } else {
+                            $this->changes[1] += $changes;
+                        }
                     }
 
                     return ! $invalid;
