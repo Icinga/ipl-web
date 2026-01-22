@@ -1,16 +1,15 @@
-define(["../notjQuery"], function ($) {
+define([], function () {
 
     "use strict";
 
     class RelativeTime {
         /**
-         * @param icinga The Icinga instance
+         * @param locale The locale to use for relative time formatting.
          */
-        constructor(icinga) {
-            this.icinga = icinga;
+        constructor(locale) {
 
             this.formatter = new Intl.RelativeTimeFormat(
-                [icinga.config.locale, 'en'],
+                [locale, 'en'],
                 {style: 'narrow'}
             );
         }

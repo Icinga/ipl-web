@@ -18,7 +18,7 @@ define(["../widget/RelativeTime", "icinga/legacy-app/Icinga"], function (Relativ
              * @type {RelativeTime}
              * @private
              */
-            this._relativeTime = new RelativeTime(icinga);
+            this._relativeTime = new RelativeTime(icinga.config.locale);
 
             /**
              * Timer handle
