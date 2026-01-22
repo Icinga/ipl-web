@@ -5,6 +5,7 @@ namespace ipl\Web\Widget;
 use DateInterval;
 use DateTimeImmutable;
 use DateTimeInterface;
+use DateTimeZone;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 
@@ -48,8 +49,8 @@ class Time extends BaseHtmlElement
 
     public function __construct(int|float|DateTimeInterface $time)
     {
-        $this->time = static::toImmutable($time);
-        $this->dateTime = date('Y-m-d H:i:s', $this->time->getTimestamp());
+        $this->time = static::toImmutable($time)->setTimezone(new DateTimeZone(date_default_timezone_get()));
+        $this->dateTime = $this->time->format('Y-m-d H:i:s');
     }
 
     /**
