@@ -4,12 +4,13 @@ define([], function () {
 
     class RelativeTime {
         /**
-         * @param locale The locale to use for relative time formatting.
+         * @param icinga The Icinga application instance
          */
-        constructor(locale) {
+        constructor(icinga) {
+            this.icinga = icinga;
 
             this.formatter = new Intl.RelativeTimeFormat(
-                [locale, 'en'],
+                [icinga.config.locale, 'en'],
                 {style: 'narrow'}
             );
         }
@@ -25,8 +26,7 @@ define([], function () {
             const timezone = ((root) => {
                 const doc = root?.nodeType === 9 ? root : (root?.ownerDocument || document);
 
-                return doc.documentElement.dataset.icingaTimezone
-                    ?? doc.documentElement.getAttribute("data-icinga-timezone");
+                return icinga.config.timezone;
             })(root);
 
             const getTimeDifferenceInSeconds = (element, timezone, future = false) => {
