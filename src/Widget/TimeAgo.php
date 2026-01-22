@@ -2,32 +2,42 @@
 
 namespace ipl\Web\Widget;
 
-use Icinga\Date\DateFormatter;
-use ipl\Html\BaseHtmlElement;
+use DateInterval;
+use ipl\Html\Attributes;
 
-class TimeAgo extends BaseHtmlElement
+class TimeAgo extends Time
 {
-    /** @var int */
-    protected $ago;
-
-    protected $tag = 'time';
-
     protected $defaultAttributes = ['class' => 'time-ago'];
 
-    public function __construct($ago)
+    protected function assembleSpecific(): void
     {
-        $this->ago = (int) $ago;
+        $this->addAttributes(
+            Attributes::create(
+                [
+                    'datetime'           => $this->dateTime,
+                    'data-relative-time' => 'ago'
+                ]
+            )
+        );
+
+        $this->add($this->getFormatted());
     }
 
-    protected function assemble()
+    protected static function format(string $time, int $type, DateInterval $interval = null): string
     {
-        $dateTime = DateFormatter::formatDateTime($this->ago);
+        $values = [];
+        switch ($type) {
+            case static::DATE:
+            case static::DATETIME:
+                $values = ['on %s', 'An event happened on the given date or date and time'];
+                break;
+            case static::RELATIVE:
+                $values = ['%s ago', 'An event that happened the given time interval ago'];
+                break;
+            case static::TIME:
+                $values = ['at %s', 'An event happened at the given time'];
+        }
 
-        $this->addAttributes([
-            'datetime' => $dateTime,
-            'title'    => $dateTime
-        ]);
-
-        $this->add(DateFormatter::timeAgo($this->ago));
+        return sprintf(t(...$values), $time);
     }
 }
