@@ -118,7 +118,13 @@ trait SearchControls
             }
 
             if (isset($definition)) {
-                $column->setLabel($definition->getLabel());
+                if (! $definition->getName()) {
+                    // Happens in case the searchPath is considered a valid relation, but without a column name
+                    $column->setMessage(t('Is not a valid column'));
+                    $column->setSearchValue($searchPath);
+                } else {
+                    $column->setLabel($definition->getLabel());
+                }
             }
         };
 
