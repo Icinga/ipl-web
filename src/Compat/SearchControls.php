@@ -76,6 +76,7 @@ trait SearchControls
         $searchBar->setRedirectUrl($redirectUrl);
         $searchBar->setAction($redirectUrl->getAbsoluteUrl());
         $searchBar->setIdProtector([$this->getRequest(), 'protectId']);
+        $searchBar->setSearchColumns($query->getModel()->getSearchColumns());
         $searchBar->addWrapper(Html::tag('div', ['class' => 'search-controls']));
 
         $moduleName = $this->getRequest()->getModuleName();
