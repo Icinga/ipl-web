@@ -15,8 +15,10 @@ use ipl\Web\Common\FormUid;
 use ipl\Web\Control\SearchBar\Terms;
 use ipl\Web\Control\SearchBar\ValidatedColumn;
 use ipl\Web\Control\SearchBar\ValidatedOperator;
+use ipl\Web\Control\SearchBar\ValidatedTerm;
 use ipl\Web\Control\SearchBar\ValidatedValue;
 use ipl\Web\Filter\ParseException;
+use ipl\Web\Filter\Parser;
 use ipl\Web\Filter\QueryString;
 use ipl\Web\Url;
 use ipl\Web\Widget\Icon;
@@ -449,22 +451,46 @@ class SearchBar extends Form
                     try {
                         $filter = $parser->parse();
                     } catch (ParseException $e) {
-                        $charAt = $e->getCharPos() - 1;
+                        $charAt = $e->getCharPos();
                         $char = $e->getChar();
+
+                        if ($char === Parser::EOL) {
+                            $value = $q;
+                            $title = t('Unexpected end of input');
+                            $pattern = sprintf(
+                                ValidatedTerm::DEFAULT_PATTERN,
+                                ValidatedTerm::escapeForHTMLPattern($q)
+                            );
+                        } else {
+                            $value = substr($q, $charAt);
+                            $title = sprintf(t('Unexpected %s at start of input'), $char);
+                            $pattern = sprintf('^(?!%s).*', ValidatedTerm::escapeForHTMLPattern($char));
+
+                            if ($charAt > 0) {
+                                try {
+                                    $this->setFilter(QueryString::parse(substr($q, 0, $charAt - 1)));
+                                } catch (ParseException) {
+                                    $value = $q;
+                                    $title = sprintf(t('Unexpected %s at position %d'), $char, $charAt + 1);
+                                    $pattern = sprintf(
+                                        ValidatedTerm::DEFAULT_PATTERN,
+                                        ValidatedTerm::escapeForHTMLPattern($q)
+                                    );
+                                }
+                            }
+                        }
 
                         $this->getElement($this->getSearchParameter())
                             ->addAttributes([
-                                'title'     => sprintf(t('Unexpected %s at start of input'), $char),
-                                'pattern'   => sprintf('^(?!%s).*', $char === ')' ? '\)' : $char),
+                                'title'     => $title,
+                                'pattern'   => $pattern,
                                 'data-has-syntax-error' => true
                             ])
                             ->getAttributes()
-                            ->registerAttributeCallback('value', function () use ($q, $charAt) {
-                                return substr($q, $charAt);
+                            ->registerAttributeCallback('value', function () use ($value) {
+                                return $value;
                             });
 
-                        $probablyValidQueryString = substr($q, 0, $charAt);
-                        $this->setFilter(QueryString::parse($probablyValidQueryString));
                         return false;
                     }
 
