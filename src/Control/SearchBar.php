@@ -55,6 +55,9 @@ class SearchBar extends Form
     /** @var string */
     protected $searchParameter;
 
+    /** @var string[] */
+    protected array $searchColumns = [];
+
     /** @var Url */
     protected $suggestionUrl;
 
@@ -135,6 +138,30 @@ class SearchBar extends Form
     public function getSearchParameter()
     {
         return $this->searchParameter ?: 'q';
+    }
+
+    /**
+     * Set the search columns to use
+     *
+     * @param string[] $columns
+     *
+     * @return $this
+     */
+    public function setSearchColumns(array $columns): static
+    {
+        $this->searchColumns = $columns;
+
+        return $this;
+    }
+
+    /**
+     * Get the search columns in use
+     *
+     * @return string[]
+     */
+    public function getSearchColumns(): array
+    {
+        return $this->searchColumns;
     }
 
     /**
@@ -492,6 +519,37 @@ class SearchBar extends Form
                             });
 
                         return false;
+                    }
+
+                    if (
+                        $this->getSearchColumns()
+                        && $filter instanceof Filter\Condition
+                        // The parser yields a boolean but the validation may cast this to a string -.-
+                        && ($filter->getValue() === '1' || $filter->getValue() === true)
+                        && $filter->metaData()->has('invalidColumnMessage')
+                    ) {
+                        // A single expression that's invalid and has only a truthy value can be safely
+                        // be transformed to a quick search
+                        $changes = [];
+                        $change = 0;
+                        $filter = Filter::any();
+                        foreach ($this->getSearchColumns() as $column) {
+                            $condition = Filter::like($column, "*$q*");
+                            $column = ValidatedColumn::fromFilterCondition($condition);
+                            $operator = ValidatedOperator::fromFilterCondition($condition);
+                            $value = ValidatedValue::fromFilterCondition($condition);
+                            $this->emit(self::ON_ADD, [$column, $operator, $value]);
+
+                            $condition->setColumn($column->getSearchValue());
+                            $condition->setValue($value->getSearchValue());
+                            $filter->add($condition);
+
+                            $changes[$change++] = $column->toTermData();
+                            $changes[$change++] = $operator->toTermData();
+                            $changes[$change++] = $value->toTermData();
+                        }
+
+                        $invalid = false;
                     }
 
                     $this->getElement($this->getSearchParameter())
