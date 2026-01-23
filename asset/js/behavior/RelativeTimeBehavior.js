@@ -8,7 +8,6 @@ define(["../widget/RelativeTime", "icinga/legacy-app/Icinga"], function (Relativ
         constructor(icinga) {
             super(icinga);
 
-            this.on('submit', '[name=form_config_preferences]', this.onPreferencesSubmit, this);
             this.on('rendered', '#main > .container, #modal-content', this.onRendered, this);
             this.on('close-column', this.stop, this);
             this.on('close-modal', this.stop, this);
@@ -19,7 +18,7 @@ define(["../widget/RelativeTime", "icinga/legacy-app/Icinga"], function (Relativ
              * @type {RelativeTime}
              * @private
              */
-            this._relativeTime = new RelativeTime(icinga);
+            this._relativeTime = new RelativeTime(icinga.config.timezone, icinga.config.locale);
 
             /**
              * Timer handle
@@ -28,17 +27,6 @@ define(["../widget/RelativeTime", "icinga/legacy-app/Icinga"], function (Relativ
              * @private
              */
             this._timerHandle = null;
-        }
-
-        onPreferencesSubmit(event)
-        {
-            const timezoneElement = event.target.querySelector('[name=timezone]');
-            let timezone = timezoneElement.value;
-            if (timezone === 'autodetect') {
-                timezone = timezoneElement.querySelector('[value=autodetect]').innerHTML.match(/\((.*)\)/)[1];
-            }
-
-            icinga.config.timezone = timezone
         }
 
         /**
@@ -62,7 +50,7 @@ define(["../widget/RelativeTime", "icinga/legacy-app/Icinga"], function (Relativ
 
             if (_this._timerHandle == null) {
                 _this._timerHandle = _this.icinga.timer.register(
-                    () => {_this._relativeTime.update(); },
+                    () => {_this._relativeTime.update(root); },
                     _this,
                     1000
                 );

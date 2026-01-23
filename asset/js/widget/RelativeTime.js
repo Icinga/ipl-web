@@ -4,15 +4,21 @@ define([], function () {
 
     class RelativeTime {
         /**
-         * @param icinga The Icinga application instance
+         * @param timezone The timezone to use for relative time calculations
+         * @param locale The locale to use for relative time formatting
          */
-        constructor(icinga) {
-            this.icinga = icinga;
+        constructor(timezone, locale) {
+            this.timezone = timezone;
+            this.locale = locale;
 
             this.formatter = new Intl.RelativeTimeFormat(
-                [icinga.config.locale, 'en'],
+                [locale, 'en'],
                 {style: 'narrow'}
             );
+        }
+
+        setTimezone(timezone) {
+            this.timezone = timezone;
         }
 
         /**
@@ -21,13 +27,8 @@ define([], function () {
          * @param root The root element to search within
          */
         update(root = document) {
+            const timezone = this.timezone;
             const RELATIVE_TIME_THRESHOLD = 60 * 60;
-
-            const timezone = ((root) => {
-                const doc = root?.nodeType === 9 ? root : (root?.ownerDocument || document);
-
-                return icinga.config.timezone;
-            })(root);
 
             const getTimeDifferenceInSeconds = (element, timezone, future = false) => {
                 const timeString = element.dateTime || element.getAttribute('datetime');
@@ -73,10 +74,7 @@ define([], function () {
                         return;
                     }
 
-                    const minute = Math.floor(diffSeconds / 60);
-                    const second = diffSeconds % 60;
-
-                    element.innerHTML = this.render(minute, second, mode);
+                    element.innerHTML = this.render(diffSeconds, mode);
                 });
 
             root.querySelectorAll('time[data-relative-time="until"]')
@@ -96,22 +94,22 @@ define([], function () {
 
                     const absSeconds = remainingSeconds * (remainingSeconds < 0 ? -1 : 1);
 
-                    const minute = Math.floor(absSeconds / 60);
-                    const second = absSeconds % 60;
-
-                    element.innerHTML = this.render(minute, second, 'until');
+                    element.innerHTML = this.render(absSeconds, 'until');
                 });
         }
 
         /**
          * Render the relative time string
          *
-         * @param minute
-         * @param second
+         * @param diffInSeconds
          * @param mode
+         *
          * @returns {string}
          */
-        render(minute, second, mode) {
+        render(diffInSeconds, mode) {
+            const minute = Math.floor(diffInSeconds / 60);
+            const second = diffInSeconds % 60;
+
             const sign = mode === 'ago' || mode === 'since' ? -1 : 1;
 
             let min = minute * sign;
@@ -138,17 +136,17 @@ define([], function () {
                     break;
                 }
 
-                const a = String(seconds[i].value);
-                const b = String(minutes[i].value);
-                const maxLen = Math.min(a.length, b.length);
+                const sec = String(seconds[i].value);
+                const min = String(minutes[i].value);
+                const maxLen = Math.min(min.length, sec.length);
 
                 // helper: longest common prefix
                 const lcp = () => {
                     let common = '';
                     for (let k = 1; k <= maxLen; k++) {
-                        const cand = a.slice(0, k);
-                        if (b.startsWith(cand)) {
-                            common = cand;
+                        const currentPart = sec.slice(0, k);
+                        if (min.startsWith(currentPart)) {
+                            common = currentPart;
                         } else {
                             break;
                         }
@@ -160,9 +158,9 @@ define([], function () {
                 const lcs = () => {
                     let common = '';
                     for (let k = 1; k <= maxLen; k++) {
-                        const cand = a.slice(-k);
-                        if (b.endsWith(cand)) {
-                            common = cand;
+                        const currentPart = sec.slice(-k);
+                        if (min.endsWith(currentPart)) {
+                            common = currentPart;
                         } else {
                             break;
                         }
