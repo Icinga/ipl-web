@@ -11,40 +11,25 @@ use ipl\Html\BaseHtmlElement;
 
 class Time extends BaseHtmlElement
 {
-    /**
-     * Format relative
-     *
-     * @var int
-     */
+    /** @var int Format relative */
     public const RELATIVE = 0;
 
-    /**
-     * Format time
-     *
-     * @var int
-     */
+    /** @var int Format time */
     public const TIME = 1;
 
-    /**
-     * Format date
-     *
-     * @var int
-     */
+    /** @var int Format date */
     public const DATE = 2;
 
-    /**
-     * Format date and time
-     *
-     * @var int
-     */
+    /** @var int Format date and time */
     public const DATETIME = 4;
 
-    /** @var DateTimeImmutable */
+    /** @var DateTimeImmutable time of this widget */
     protected DateTimeImmutable $time;
 
-    /** @var string */
+    /** @var string DateTime string in ISO 8601 format */
     protected string $dateTime;
 
+    /** @var string Tag of element. */
     protected $tag = 'time';
 
     public function __construct(int|float|DateTimeInterface $time)
