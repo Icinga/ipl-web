@@ -10,11 +10,6 @@ define([], function () {
         constructor(timezone, locale) {
             this.timezone = timezone;
             this.locale = locale;
-
-            this.formatter = new Intl.RelativeTimeFormat(
-                [locale, 'en'],
-                {style: 'narrow'}
-            );
         }
 
         setTimezone(timezone) {
@@ -28,14 +23,21 @@ define([], function () {
          */
         update(root = document) {
             const timezone = this.timezone;
-            const RELATIVE_TIME_THRESHOLD = 60 * 60;
+            const DYNAMIC_RELATIVE_TIME_THRESHOLD = 60 * 60;
 
             const getTimeDifferenceInSeconds = (element, timezone, future = false) => {
-                const timeString = element.dateTime || element.getAttribute('datetime');
-                const isoString = timeString.replace(' ', 'T');
+                const timeString = element.dateTime || element.getAttribute('datetime'); // e.g. "2026-01-30 03:21:52"
+                const isoString = timeString.replace(' ', 'T'); // → "2026-01-30T03:21:52"
 
-                const date = new Date(isoString + 'Z'); // Parse as UTC temporarily
+                // Construct a date assuming it's in the target timezone
+                const [year, month, day, hour, minute, second] = isoString
+                    .split(/[-T:]/)
+                    .map(Number);
 
+                // Create a "fake" UTC date from the components
+                const utcDate = new Date(Date.UTC(year, month - 1, day, hour, minute, second));
+
+                // Get the timezone offset at that local time
                 const formatter = new Intl.DateTimeFormat('en-US', {
                     timeZone: timezone,
                     year: 'numeric',
@@ -48,40 +50,37 @@ define([], function () {
                     timeZoneName: 'longOffset'
                 });
 
-                const parts = formatter.formatToParts(date);
-                const offsetPart = parts.find(part => part.type === 'timeZoneName');
-                const offsetString = offsetPart.value.replace('GMT', '');
-                // Create ISO 8601 string with timezone offset
-                const dateTimeString = `${isoString}${offsetString}`;
+                const parts = formatter.formatToParts(utcDate);
+                const offsetPart = parts.find(p => p.type === 'timeZoneName');
+                const offsetString = offsetPart.value.replace('GMT', ''); // e.g. "+05:00" or "-04:00"
 
-                const givenTimeUTC = Date.parse(dateTimeString);
+                // Now re-interpret the original ISO string with the correct offset
+                const dateTimeWithOffset = `${isoString}${offsetString}`; // e.g. "2026-01-30T03:21:52-05:00"
 
+                const targetTimeUTC = Date.parse(dateTimeWithOffset);
                 const now = Date.now();
 
-                return Math.floor((future ? givenTimeUTC - now : now - givenTimeUTC) / 1000);
-            }
+                return Math.floor((future ? targetTimeUTC - now : now - targetTimeUTC) / 1000);
+            };
 
             root.querySelectorAll('time[data-relative-time="ago"], time[data-relative-time="since"]')
                 .forEach((element) => {
                     const mode = element.dataset.relativeTime;
 
-                    let diffSeconds = getTimeDifferenceInSeconds(element, timezone);
-                    if (diffSeconds < 0) {
-                        diffSeconds = 0;
-                    }
+                    const diffSeconds = Math.max(0, getTimeDifferenceInSeconds(element, timezone));
 
-                    if (diffSeconds >= RELATIVE_TIME_THRESHOLD) {
+                    if (diffSeconds >= DYNAMIC_RELATIVE_TIME_THRESHOLD) {
                         return;
                     }
 
-                    element.innerHTML = this.render(diffSeconds, mode);
+                    element.innerHTML = this.render(diffSeconds, mode, element);
                 });
 
             root.querySelectorAll('time[data-relative-time="until"]')
                 .forEach((element) => {
                     let remainingSeconds = getTimeDifferenceInSeconds(element, timezone, true);
 
-                    if (Math.abs(remainingSeconds) >= RELATIVE_TIME_THRESHOLD) {
+                    if (Math.abs(remainingSeconds) >= DYNAMIC_RELATIVE_TIME_THRESHOLD) {
                         return;
                     }
 
@@ -94,7 +93,7 @@ define([], function () {
 
                     const absSeconds = remainingSeconds * (remainingSeconds < 0 ? -1 : 1);
 
-                    element.innerHTML = this.render(absSeconds, 'until');
+                    element.innerHTML =  this.render(absSeconds, 'until', element);
                 });
         }
 
@@ -103,10 +102,11 @@ define([], function () {
          *
          * @param diffInSeconds
          * @param mode
+         * @param element The HTML element to extract units from
          *
          * @returns {string}
          */
-        render(diffInSeconds, mode) {
+        render(diffInSeconds, mode, element) {
             const minute = Math.floor(diffInSeconds / 60);
             const second = diffInSeconds % 60;
 
@@ -115,73 +115,30 @@ define([], function () {
             let min = minute * sign;
             let sec = second * sign;
 
-            const minutes = this.formatter.formatToParts(min, 'minute');
-            const seconds = this.formatter.formatToParts(sec, 'second');
-            let isPrefix = true;
-            let prefix = '', suffix = '';
-            for (let i = 0; i < seconds.length; i++) {
-                if (seconds[i].type === 'integer') {
-                    if (i === 0) {
-                        isPrefix = false;
-                    }
-                    continue;
-                }
+            // Parse prefix, suffix, and units from existing content
+            const content = element.textContent || element.innerText || '';
 
-                if (seconds[i].value === minutes[i].value) {
-                    if (isPrefix) {
-                        prefix = seconds[i].value;
-                    } else {
-                        suffix = seconds[i].value;
-                    }
-                    break;
-                }
+            // Pattern to extract: {prefix}MM{minute_unit} SS{second_unit}{suffix}
+            const timeMatch = content.match(/^(.*?)(\d+)([^\d\s]+)\s+(\d+)([^\d\s]+)(.*?)$/)
+                || content.match(/^(.*?)(\d+)([^\d\s]+)(.*?)$/);
 
-                const sec = String(seconds[i].value);
-                const min = String(minutes[i].value);
-                const maxLen = Math.min(min.length, sec.length);
+            let prefix = timeMatch[1] || '';
+            let minuteUnit = timeMatch[3] || 'm';
+            let secondUnit = timeMatch[5] || 's';
+            let suffix = timeMatch[6] || '';
 
-                // helper: longest common prefix
-                const lcp = () => {
-                    let common = '';
-                    for (let k = 1; k <= maxLen; k++) {
-                        const currentPart = sec.slice(0, k);
-                        if (min.startsWith(currentPart)) {
-                            common = currentPart;
-                        } else {
-                            break;
-                        }
-                    }
-                    return common;
-                };
-
-                // helper: longest common suffix
-                const lcs = () => {
-                    let common = '';
-                    for (let k = 1; k <= maxLen; k++) {
-                        const currentPart = sec.slice(-k);
-                        if (min.endsWith(currentPart)) {
-                            common = currentPart;
-                        } else {
-                            break;
-                        }
-                    }
-                    return common;
-                };
-
-                if (isPrefix) {
-                    const common = lcp();
-                    if (common && common.trim().length) {
-                        prefix = common;
-                    }
+            if (!timeMatch || (!prefix && !suffix)) {
+                if (sign === -1) {
+                    suffix = ' ago';
                 } else {
-                    const common = lcs();
-                    if (common && common.trim().length) {
-                        suffix = common;
-                    }
+                    prefix = 'in ';
                 }
             }
 
-            return prefix + minute + 'm ' + second + 's ' + suffix;
+            const absMinute = Math.abs(min);
+            const absSecond = Math.abs(second);
+
+            return `${prefix}${absMinute.toString()}${minuteUnit} ${absSecond.toString().padStart(2, '0')}${secondUnit}${suffix}`;
         }
     }
 
