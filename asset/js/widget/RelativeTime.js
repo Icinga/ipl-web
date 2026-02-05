@@ -2,11 +2,14 @@ define([], function () {
 
     "use strict";
 
+    const TIME_REGEX_FULL = /^(.*?)(\d+)([^\d\s]+)\s+(\d+)([^\d\s]+)(.*?)$/;
+    const TIME_REGEX_MIN_ONLY = /^(.*?)(\d+)([^\d\s]+)(.*?)$/;
+
+    // Cache parsed time templates per element
+    const timeTemplateCache = new WeakMap();
+
     class RelativeTime {
-        /**
-         * @param timezone The timezone to use for relative time calculations
-         * @param locale The locale to use for relative time formatting
-         */
+
         constructor(timezone, locale) {
             this.timezone = timezone;
             this.locale = locale;
@@ -65,80 +68,75 @@ define([], function () {
 
             root.querySelectorAll('time[data-relative-time="ago"], time[data-relative-time="since"]')
                 .forEach((element) => {
-                    const mode = element.dataset.relativeTime;
-
                     const diffSeconds = Math.max(0, getTimeDifferenceInSeconds(element, timezone));
+                    if (diffSeconds >= DYNAMIC_RELATIVE_TIME_THRESHOLD) return;
 
-                    if (diffSeconds >= DYNAMIC_RELATIVE_TIME_THRESHOLD) {
-                        return;
-                    }
-
-                    element.innerHTML = this.render(diffSeconds, mode, element);
+                    element.textContent = this.render(diffSeconds, element);
                 });
 
             root.querySelectorAll('time[data-relative-time="until"]')
                 .forEach((element) => {
                     let remainingSeconds = getTimeDifferenceInSeconds(element, timezone, true);
-
-                    if (Math.abs(remainingSeconds) >= DYNAMIC_RELATIVE_TIME_THRESHOLD) {
-                        return;
-                    }
+                    if (Math.abs(remainingSeconds) >= DYNAMIC_RELATIVE_TIME_THRESHOLD) return;
 
                     if (remainingSeconds === 0 && element.dataset.agoLabel) {
-                        element.innerText = element.dataset.agoLabel;
+                        element.textContent = element.dataset.agoLabel;
                         element.dataset.relativeTime = 'ago';
-
                         return;
                     }
 
-                    const absSeconds = remainingSeconds * (remainingSeconds < 0 ? -1 : 1);
-
-                    element.innerHTML =  this.render(absSeconds, 'until', element);
+                    element.textContent = this.render(Math.abs(remainingSeconds), element);
                 });
         }
 
         /**
-         * Render the relative time string
-         *
-         * @param diffInSeconds
-         * @param mode
-         * @param element The HTML element to extract units from
-         *
-         * @returns {string}
+         * Parse and cache prefix / units / suffix once
          */
-        render(diffInSeconds, mode, element) {
+        _getTemplate(element) {
+            let cached = timeTemplateCache.get(element);
+            if (cached) return cached;
+
+            const content = element.textContent || '';
+            let match = TIME_REGEX_FULL.exec(content) || TIME_REGEX_MIN_ONLY.exec(content);
+
+            if (!match) {
+                cached = {
+                    prefix: '',
+                    minuteUnit: 'm',
+                    secondUnit: 's',
+                    suffix: ''
+                };
+            } else {
+                cached = {
+                    prefix: match[1] || '',
+                    minuteUnit: match[3] || 'm',
+                    secondUnit: match[5] || 's',
+                    suffix: match[6] || ''
+                };
+            }
+
+            timeTemplateCache.set(element, cached);
+            return cached;
+        }
+
+        /**
+         * Render relative time string using cached template
+         */
+        render(diffInSeconds, element) {
+            const template = this._getTemplate(element);
+
             const minute = Math.floor(diffInSeconds / 60);
             const second = diffInSeconds % 60;
 
-            const sign = mode === 'ago' || mode === 'since' ? -1 : 1;
-
-            let min = minute * sign;
-            let sec = second * sign;
-
-            // Parse prefix, suffix, and units from existing content
-            const content = element.textContent || element.innerText || '';
-
-            // Pattern to extract: {prefix}MM{minute_unit} SS{second_unit}{suffix}
-            const timeMatch = content.match(/^(.*?)(\d+)([^\d\s]+)\s+(\d+)([^\d\s]+)(.*?)$/)
-                || content.match(/^(.*?)(\d+)([^\d\s]+)(.*?)$/);
-
-            let prefix = timeMatch[1] || '';
-            let minuteUnit = timeMatch[3] || 'm';
-            let secondUnit = timeMatch[5] || 's';
-            let suffix = timeMatch[6] || '';
-
-            if (!timeMatch || (!prefix && !suffix)) {
-                if (sign === -1) {
-                    suffix = ' ago';
-                } else {
-                    prefix = 'in ';
-                }
-            }
-
-            const absMinute = Math.abs(min);
-            const absSecond = Math.abs(second);
-
-            return `${prefix}${absMinute.toString()}${minuteUnit} ${absSecond.toString().padStart(2, '0')}${secondUnit}${suffix}`;
+            return (
+                template.prefix +
+                minute +
+                template.minuteUnit +
+                ' ' +
+                String(second).padStart(2, '0') +
+                template.secondUnit +
+                template.suffix
+            );
         }
     }
 
