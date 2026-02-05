@@ -16,6 +16,7 @@ define([], function () {
 
         constructor(timezone) {
             this.timezone = timezone;
+            this._cachedOffset = null; // Cache offset
         }
 
         setTimezone(timezone) {
@@ -55,15 +56,7 @@ define([], function () {
                 const timeString = element.dateTime || element.getAttribute('datetime');
                 const isoString = timeString.replace(' ', 'T');
 
-                // Get UTC offset for the timezone
-                const formatter = new Intl.DateTimeFormat('en-US', {
-                    timeZone: timezone,
-                    timeZoneName: 'longOffset'
-                });
-
-                const parts = formatter.formatToParts(new Date());
-                const offset = parts.find(p => p.type === 'timeZoneName')
-                    .value.replace('GMT', '');
+                const offset = this._getOffset();
 
                 const targetTimeUTC = Date.parse(`${isoString}${offset}`);
                 const now = Date.now();
@@ -111,6 +104,19 @@ define([], function () {
 
             timeTemplateCache.set(element, cached);
             return cached;
+        }
+
+        _getOffset() {
+            if (!this._cachedOffset) {
+                const formatter = new Intl.DateTimeFormat('en-US', {
+                    timeZone: this.timezone,
+                    timeZoneName: 'longOffset'
+                });
+                const parts = formatter.formatToParts(new Date());
+                this._cachedOffset = parts.find(p => p.type === 'timeZoneName')
+                    .value.replace('GMT', '');
+            }
+            return this._cachedOffset;
         }
 
         /**
