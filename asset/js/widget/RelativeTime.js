@@ -9,14 +9,15 @@ define([], function () {
     const TIME_REGEX_DIGITS = /(\d{1,2})(?!\d|[:;\-._,])\s*[^\d\s]+\s+(\d{1,2})/;
 
 
-    // Cache parsed time templates per element
-    const timeTemplateCache = new WeakMap();
+    // Cache element time differences
+    const elementTimeCache = new WeakMap();
 
     class RelativeTime {
 
         constructor(timezone) {
             this.timezone = timezone;
-            this._cachedOffset = null; // Cache offset
+            this._offsetCache = null;
+            this._templateCache = new Map();
         }
 
         setTimezone(timezone) {
@@ -24,12 +25,11 @@ define([], function () {
         }
 
         update(root = document) {
-            const timezone = this.timezone;
             const DYNAMIC_RELATIVE_TIME_THRESHOLD = 60 * 60;
 
             root.querySelectorAll('time[data-relative-time="ago"], time[data-relative-time="since"]')
                 .forEach((element) => {
-                    const diffSeconds = this.getTimeDifferenceInSeconds(element, timezone);
+                    const diffSeconds = this._getTimeDifferenceInSeconds(element);
                     if (diffSeconds == null || diffSeconds >= DYNAMIC_RELATIVE_TIME_THRESHOLD) return;
 
                     element.textContent = this.render(diffSeconds, element);
@@ -37,8 +37,8 @@ define([], function () {
 
             root.querySelectorAll('time[data-relative-time="until"]')
                 .forEach((element) => {
-                    let remainingSeconds = this.getTimeDifferenceInSeconds(element, timezone, true);
-                    if (Math.abs(remainingSeconds == null || remainingSeconds) >= DYNAMIC_RELATIVE_TIME_THRESHOLD) return;
+                    let remainingSeconds = this._getTimeDifferenceInSeconds(element, true);
+                    if (remainingSeconds == null || Math.abs(remainingSeconds) >= DYNAMIC_RELATIVE_TIME_THRESHOLD) return;
 
                     if (remainingSeconds === 0 && element.dataset.agoLabel) {
                         element.textContent = element.dataset.agoLabel;
@@ -50,9 +50,9 @@ define([], function () {
                 });
         }
 
-        getTimeDifferenceInSeconds(element, timezone, future = false) {
+        _getTimeDifferenceInSeconds(element, future = false) {
 
-            const fromDateTimeWithTimezone = (element, timezone, future = false) => {
+            const fromDateTimeWithTimezone = (element, future = false) => {
                 const timeString = element.dateTime || element.getAttribute('datetime');
                 const isoString = timeString.replace(' ', 'T');
 
@@ -81,42 +81,58 @@ define([], function () {
                 return future ? --secondsDiff * -1 : ++secondsDiff;
             };
 
-            return fromDateTimeWithTimezone(element, timezone, future);
-            // return fromTextContent(element, future);
+            const cached = elementTimeCache.get(element);
+            if (cached) {
+                const next = cached + (future ? -1 : 1);
+                elementTimeCache.set(element, next);
+
+                return next;
+            }
+
+            const timeDifference = fromDateTimeWithTimezone(element, future);
+            // const timeDifference = fromTextContent(element, future);
+            elementTimeCache.set(element, timeDifference);
+
+            return timeDifference;
         }
 
         /**
          * Parse and cache prefix / units / suffix once
          */
         _getTemplate(element) {
-            let cached = timeTemplateCache.get(element);
-            if (cached) return cached;
+            const type = element.dataset.relativeTime; // 'ago', 'since', 'until'
+
+            if (this._templateCache.has(type)) {
+                return this._templateCache.get(type);
+            }
 
             const content = element.textContent || '';
             let match = TIME_REGEX_FULL.exec(content) || TIME_REGEX_MIN_ONLY.exec(content);
 
-            cached = {
+            const template = {
                 prefix: match?.[1] ?? '',
                 minuteUnit: match?.[3] ?? 'm',
                 secondUnit: match?.[5] ?? 's',
                 suffix: match?.[6] ?? ''
             };
 
-            timeTemplateCache.set(element, cached);
-            return cached;
+            this._templateCache.set(type, template);
+
+            return template
         }
 
         _getOffset() {
-            if (!this._cachedOffset) {
+            if (!this._offsetCache) {
                 const formatter = new Intl.DateTimeFormat('en-US', {
                     timeZone: this.timezone,
                     timeZoneName: 'longOffset'
                 });
                 const parts = formatter.formatToParts(new Date());
-                this._cachedOffset = parts.find(p => p.type === 'timeZoneName')
+                this._offsetCache = parts.find(p => p.type === 'timeZoneName')
                     .value.replace('GMT', '');
             }
-            return this._cachedOffset;
+
+            return this._offsetCache;
         }
 
         /**
