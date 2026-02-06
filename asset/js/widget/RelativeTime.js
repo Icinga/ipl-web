@@ -8,10 +8,6 @@ define([], function () {
     // const TIME_REGEX_DIGITS = /(\d{1,2})m (\d{1,2})s/.exec(content);
     const TIME_REGEX_DIGITS = /(\d{1,2})(?!\d|[:;\-._,])\s*[^\d\s]+\s+(\d{1,2})/;
 
-
-    // Cache element time differences
-    const elementTimeCache = new WeakMap();
-
     class RelativeTime {
 
         constructor(timezone) {
@@ -81,19 +77,8 @@ define([], function () {
                 return future ? --secondsDiff * -1 : ++secondsDiff;
             };
 
-            const cached = elementTimeCache.get(element);
-            if (cached) {
-                const next = cached + (future ? -1 : 1);
-                elementTimeCache.set(element, next);
-
-                return next;
-            }
-
-            const timeDifference = fromDateTimeWithTimezone(element, future);
-            // const timeDifference = fromTextContent(element, future);
-            elementTimeCache.set(element, timeDifference);
-
-            return timeDifference;
+            // return fromTextContent(element, future);
+            return fromDateTimeWithTimezone(element, future);
         }
 
         /**
