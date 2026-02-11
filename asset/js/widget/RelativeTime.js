@@ -23,6 +23,9 @@ define([], function () {
         update(root = document) {
             const DYNAMIC_RELATIVE_TIME_THRESHOLD = 60 * 60;
 
+            this._offsetCache = null;
+            this._templateCache = new Map();
+
             root.querySelectorAll('time[data-relative-time="ago"], time[data-relative-time="since"]')
                 .forEach((element) => {
                     const diffSeconds = this._getTimeDifferenceInSeconds(element);
@@ -95,7 +98,7 @@ define([], function () {
             let match = TIME_REGEX_FULL.exec(content) || TIME_REGEX_MIN_ONLY.exec(content);
 
             const template = {
-                prefix: match?.[1] ?? '',
+                prefix: (match?.[1]).replace(/-+$/g, '') ?? '',
                 minuteUnit: match?.[3] ?? 'm',
                 secondUnit: match?.[5] ?? 's',
                 suffix: match?.[6] ?? ''
