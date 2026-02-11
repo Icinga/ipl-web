@@ -16,10 +16,6 @@ define([], function () {
             this._templateCache = new Map();
         }
 
-        setTimezone(timezone) {
-            this.timezone = timezone;
-        }
-
         update(root = document) {
             const DYNAMIC_RELATIVE_TIME_THRESHOLD = 60 * 60;
 
