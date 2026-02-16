@@ -2,40 +2,40 @@
 
 namespace ipl\Web\Widget;
 
-use DateInterval;
 use ipl\Html\Attributes;
+use ipl\Html\Text;
 
 class TimeSince extends Time
 {
     protected $defaultAttributes = ['class' => 'time-since'];
 
-    protected function assembleSpecific(): void
+    protected function assemble(): void
     {
         $this->addAttributes(
             Attributes::create(
                 [
-                    'datetime'           => $this->dateTime,
+                    'datetime'           => $this->timeString,
                     'data-relative-time' => 'since'
                 ]
             )
         );
 
-        $this->add($this->getFormatted());
+        $this->addHtml(Text::create($this->format()));
     }
 
-    protected static function format(string $time, int $type, DateInterval $interval = null): string
+    protected function format(): string
     {
-        $values = [];
-        switch ($type) {
-            case static::RELATIVE:
-                $values = ['for %s', 'A status is lasting for the given time interval'];
-                break;
-            case static::DATE:
-            case static::DATETIME:
-            case static::TIME:
-                $values = ['since %s', 'A status is lasting since the given time, date or date and time'];
-        }
+        static $sinceMessage = ['since %s', 'A status is lasting since the given time, date or date and time'];
+        static $map = [
+            self::RELATIVE => ['for %s', 'A status is lasting for the given time interval'],
+            self::TIME     => null,
+            self::DATE     => null,
+            self::DATETIME => null,
+        ];
 
-        return sprintf(t(...$values), $time);
+        [$time, $type] = $this->diff($this->dateTime);
+        $format = $map[$type] ?? $sinceMessage;
+
+        return sprintf(t(N_($format[0]), N_($format[1])), $time);
     }
 }

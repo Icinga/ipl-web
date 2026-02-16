@@ -2,47 +2,44 @@
 
 namespace ipl\Web\Widget;
 
-use DateInterval;
 use ipl\Html\Attributes;
+use ipl\Html\Text;
 
 class TimeUntil extends Time
 {
     protected $defaultAttributes = ['class' => 'time-until'];
 
-    protected function assembleSpecific(): void
+    protected function assemble(): void
     {
         $this->addAttributes(
             Attributes::create(
                 [
-                    'datetime'           => $this->dateTime,
-                    'data-ago-label'     => TimeAgo::getFormattedFromGiven(),
-                    'data-relative-time' => 'until'
+                    'datetime'           => $this->timeString,
+                    'data-relative-time' => 'until',
                 ]
             )
         );
 
-        $this->add($this->getFormatted());
+        $this->addHtml(Text::create($this->format()));
     }
 
-    protected static function format(string $time, int $type, DateInterval $interval): string
+    protected function format(): string
     {
+        static $onMessage = ['on %s', 'An event will happen on the given date or date and time'];
+        static $map = [
+            self::RELATIVE => ['in %s', 'An event will happen after the given time interval has elapsed'],
+            self::TIME     => ['at %s', 'An event will happen at the given time'],
+            self::DATE     => null,
+            self::DATETIME => null,
+        ];
+
+        [$time, $type, $interval] = $this->diff($this->dateTime);
+        $format = $map[$type] ?? $onMessage;
+
         if ($interval->invert === 1 && $type === static::RELATIVE) {
             $time = '-' . $time;
         }
 
-        $values = [];
-        switch ($type) {
-            case static::DATE:
-            case static::DATETIME:
-                $values = ['on %s', 'An event will happen on the given date or date and time'];
-                break;
-            case static::RELATIVE:
-                $values = ['in %s', 'An event will happen after the given time interval has elapsed'];
-                break;
-            case static::TIME:
-                $values = ['at %s', 'An event will happen at the given time'];
-        }
-
-        return sprintf(t(...$values), $time);
+        return sprintf(t(N_($format[0]), N_($format[1])), $time);
     }
 }

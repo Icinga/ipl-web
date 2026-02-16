@@ -2,12 +2,10 @@
 
 namespace ipl\Web\Widget;
 
-use DateInterval;
-use DateTimeImmutable;
-use DateTimeInterface;
-use DateTimeZone;
+use DateTime;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
+use ipl\Html\Text;
 
 class Time extends BaseHtmlElement
 {
@@ -23,19 +21,20 @@ class Time extends BaseHtmlElement
     /** @var int Format date and time */
     public const DATETIME = 4;
 
-    /** @var DateTimeImmutable time of this widget */
-    protected DateTimeImmutable $time;
+    /** @var DateTime time of this widget */
+    protected DateTime $dateTime;
 
     /** @var string DateTime string in ISO 8601 format */
-    protected string $dateTime;
+    protected string $timeString;
 
     /** @var string Tag of element. */
     protected $tag = 'time';
 
-    public function __construct(int|float|DateTimeInterface $time)
+    public function __construct(DateTime $time)
     {
-        $this->time = static::toImmutable($time)->setTimezone(new DateTimeZone(date_default_timezone_get()));
-        $this->dateTime = $this->time->format('Y-m-d H:i:s');
+        $this->dateTime = $time;
+        $this->timeString = $time->format('Y-m-d H:i:s');
+        $this->addAttributes(Attributes::create(['title' => $this->timeString]));
     }
 
     /**
@@ -45,24 +44,19 @@ class Time extends BaseHtmlElement
      * Type can be one of the constants RELATIVE, TIME, DATE, DATETIME
      * Passing null as a parameter will use the current time
      *
-     * @param DateTimeInterface|int|null $time
-     * @param DateTimeInterface|int|null $compareTime
+     * @param DateTime $time
      *
      * @return array [string<formattedTime>, int<type>, DateInterval]
      */
-    public static function diff(
-        DateTimeInterface|int|null $time = null,
-        DateTimeInterface|int|null $compareTime = null
-    ): array {
-        $time = static::toImmutable($time);
-        $compareTime = static::toImmutable($compareTime);
+    public function diff(DateTime $time): array {
+        $now = new DateTime();
 
-        $interval = $compareTime->diff($time);
+        $interval = $now->diff($time);
 
-        if ($interval->d > 2 || $interval->m > 0 || $interval->y > 0) {
+        if ($interval->days > 2) {
             $type = static::DATE;
             $formatted = $time->format(date('Y') === date('Y', $time->getTimestamp()) ? 'M j' : 'Y-m');
-        } elseif ($interval->d > 0) {
+        } elseif ($interval->days > 0) {
             $type = static::RELATIVE;
             $formatted = $interval->format('%dd %hh');
         } elseif ($interval->h > 0) {
@@ -82,125 +76,35 @@ class Time extends BaseHtmlElement
     }
 
     /**
-     * Compute difference to a given date
-     *
-     * @param DateTimeInterface|int|null $compare
-     *
-     * @return array [string<formattedTime>, int<type>, DateInterval]
-     */
-    protected function diffTo(DateTimeInterface|int|null $compare = null): array
-    {
-        $time = $this->time;
-
-        return static::diff($time, $compare);
-    }
-
-    /**
-     * Compute difference now
-     *
-     * @return array [string<formattedTime>, int<type>, DateInterval]
-     */
-    protected function diffNow(): array
-    {
-        return static::diff($this->time);
-    }
-
-    /**
-     * Get formatted time from a given time
-     *
-     * @param DateTimeInterface|int|null $time
-     *
-     * @return string
-     */
-    public static function getFormattedFromGiven(DateTimeInterface|int|null $time = null): string
-    {
-        [$formatted, $type, $interval] = static::diff(static::toImmutable($time));
-
-        return static::format($formatted, $type, $interval);
-    }
-
-    /**
      * Get formatted time
      *
      * @return string
      */
-    public function getFormatted(): string
+    protected function format(): string
     {
-        [$formatted, $type, $interval] = $this->diffNow();
-
-        return static::format($formatted, $type, $interval);
-    }
-
-    /**
-     * Format a time string
-     * Override this method to customize the formatting
-     *
-     * @param string $time
-     * @param int $type
-     * @param DateInterval $interval
-     *
-     * @return string
-     */
-    protected static function format(string $time, int $type, DateInterval $interval): string
-    {
-        return $interval->invert === 1 ? TimeAgo::format($time, $type) : TimeUntil::format($time, $type, $interval);
-    }
-
-    /**
-     * Convert a value to a DateTimeImmutable
-     *
-     * @param int|float|DateTimeInterface|null $value
-     *
-     * @return DateTimeImmutable
-     */
-    public static function toImmutable(int|float|DateTimeInterface|null $value): DateTimeImmutable
-    {
-        if ($value === null) {
-            return new DateTimeImmutable();
-        }
-
-        if ($value instanceof DateTimeImmutable) {
-            return $value;
-        }
-
-        if ($value instanceof DateTimeInterface) {
-            return DateTimeImmutable::createFromInterface($value);
-        }
-
-        return new DateTimeImmutable('@' . (int) $value);
+        return $this->timeString;
     }
 
     /**
      * Return a relative time widget
      *
-     * @return $this
+     * @param DateTime $time
+     *
+     * @return static
      */
-    public function relative(): static
+    public static function relative(DateTime $time): static
     {
-        if ($this->time->getTimestamp() < time()) {
-            return new TimeAgo($this->time);
-        } else {
-            return new TimeUntil($this->time);
-        }
-    }
-
-    protected function assemble(): void
-    {
-        $this->addAttributes(Attributes::create(['title' => $this->dateTime]));
-        $this->addAttributes(Attributes::create(['data-relative-time']));
-
-        $this->assembleSpecific();
+        return $time->getTimestamp() < time() ? new TimeAgo($time) : new TimeUntil($time);
     }
 
     /**
-     * Assemble specific logic of subclasses
+     * Assemble logic of subclasses
      * Override this method to customize the output
      *
      * @return void
      */
-    protected function assembleSpecific(): void
+    protected function assemble(): void
     {
-        $this->addAttributes(Attributes::create(['data-relative-time' => null]));
-        $this->add($this->dateTime);
+        $this->addHtml(Text::create($this->format()));
     }
 }

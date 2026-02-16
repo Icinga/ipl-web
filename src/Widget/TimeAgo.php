@@ -2,42 +2,40 @@
 
 namespace ipl\Web\Widget;
 
-use DateInterval;
 use ipl\Html\Attributes;
+use ipl\Html\Text;
 
 class TimeAgo extends Time
 {
     protected $defaultAttributes = ['class' => 'time-ago'];
 
-    protected function assembleSpecific(): void
+    protected function assemble(): void
     {
         $this->addAttributes(
             Attributes::create(
                 [
-                    'datetime'           => $this->dateTime,
+                    'datetime'           => $this->timeString,
                     'data-relative-time' => 'ago'
                 ]
             )
         );
 
-        $this->add($this->getFormatted());
+        $this->addHtml(Text::create($this->format()));
     }
 
-    protected static function format(string $time, int $type, DateInterval $interval = null): string
+    protected function format(): string
     {
-        $values = [];
-        switch ($type) {
-            case static::DATE:
-            case static::DATETIME:
-                $values = ['on %s', 'An event happened on the given date or date and time'];
-                break;
-            case static::RELATIVE:
-                $values = ['%s ago', 'An event that happened the given time interval ago'];
-                break;
-            case static::TIME:
-                $values = ['at %s', 'An event happened at the given time'];
-        }
+        static $onMessage = ['on %s', 'An event happened on the given date or date and time'];
+        static $map = [
+            self::RELATIVE => ['%s ago', 'An event that happened the given time interval ago'],
+            self::TIME     => ['at %s', 'An event happened at the given time'],
+            self::DATE     => null,
+            self::DATETIME => null,
+        ];
 
-        return sprintf(t(...$values), $time);
+        [$time, $type] = $this->diff($this->dateTime);
+        $format = $map[$type] ?? $onMessage;
+
+        return sprintf(t(N_($format[0]), N_($format[1])), $time);
     }
 }
