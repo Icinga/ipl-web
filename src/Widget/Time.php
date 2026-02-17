@@ -48,7 +48,8 @@ class Time extends BaseHtmlElement
      *
      * @return array [string<formattedTime>, int<type>, DateInterval]
      */
-    public function diff(DateTime $time): array {
+    public function diff(DateTime $time): array
+    {
         $now = new DateTime();
 
         $interval = $now->diff($time);

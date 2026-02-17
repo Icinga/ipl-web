@@ -25,7 +25,9 @@ define([], function () {
             root.querySelectorAll('time[data-relative-time="ago"], time[data-relative-time="since"]')
                 .forEach((element) => {
                     const diffSeconds = this._getTimeDifferenceInSeconds(element);
-                    if (diffSeconds == null || diffSeconds >= DYNAMIC_RELATIVE_TIME_THRESHOLD) return;
+                    if (diffSeconds == null || diffSeconds >= DYNAMIC_RELATIVE_TIME_THRESHOLD) {
+                        return;
+                    }
 
                     element.textContent = this.render(diffSeconds, element);
                 });
@@ -33,12 +35,12 @@ define([], function () {
             root.querySelectorAll('time[data-relative-time="until"]')
                 .forEach((element) => {
                     let remainingSeconds = this._getTimeDifferenceInSeconds(element, true);
-                    if (remainingSeconds == null || Math.abs(remainingSeconds) >= DYNAMIC_RELATIVE_TIME_THRESHOLD) return;
-
-                    if (remainingSeconds === 0 && element.dataset.agoLabel) {
-                        element.textContent = element.dataset.agoLabel;
-                        element.dataset.relativeTime = 'ago';
+                    if (remainingSeconds == null || Math.abs(remainingSeconds) >= DYNAMIC_RELATIVE_TIME_THRESHOLD) {
                         return;
+                    }
+
+                    if (remainingSeconds === 0) {
+                        element.dataset.relativeTime = 'ago';
                     }
 
                     element.textContent = this.render(Math.abs(remainingSeconds), element);
