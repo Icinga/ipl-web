@@ -3,6 +3,7 @@
 namespace ipl\Web\Widget;
 
 use DateTime;
+use DateTimeZone;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\Text;
@@ -111,5 +112,29 @@ class Time extends BaseHtmlElement
     protected function assemble(): void
     {
         $this->addHtml(Text::create($this->format()));
+    }
+
+    /**
+     * Convert a value to a DateTime object
+     *
+     * @param int|float|DateTime|null $value
+     *
+     * @return DateTime
+     *
+     * @throws \Exception
+     */
+    protected function castToDateTime(int|float|DateTime|null $value = null): DateTime
+    {
+        if ($value === null) {
+            return new DateTime();
+        }
+
+        if ($value instanceof DateTime) {
+            return $value;
+        }
+
+        $value = (int) ($value > 9999999999 ? ($value / 1000) : $value);
+
+        return new DateTime('@' . $value, new DateTimeZone(date_default_timezone_get()));
     }
 }

@@ -2,12 +2,27 @@
 
 namespace ipl\Web\Widget;
 
+use DateTime;
 use ipl\Html\Attributes;
 use ipl\Html\Text;
 
 class TimeSince extends Time
 {
     protected $defaultAttributes = ['class' => 'time-since'];
+
+    /**
+     * @param int|float|DateTime|null $time Time as timestamp, DateTime object, or null for current time
+     *
+     * @throws \Exception
+     */
+    public function __construct(int|float|DateTime|null $time = null)
+    {
+        if (! $time instanceof DateTime) {
+            $time = $this->castToDateTime($time);
+        }
+
+        parent::__construct($time);
+    }
 
     protected function assemble(): void
     {
