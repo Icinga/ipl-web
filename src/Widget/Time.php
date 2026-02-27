@@ -30,6 +30,11 @@ class Time extends BaseHtmlElement
     /** @var string Tag of element. */
     protected $tag = 'time';
 
+    /**
+     * Create a time widget for the given time
+     *
+     * @param DateTime $time
+     */
     public function __construct(DateTime $time)
     {
         $this->dateTime = $time;
@@ -38,11 +43,10 @@ class Time extends BaseHtmlElement
     }
 
     /**
-     * Compute difference between two dates
+     * Compute the difference between the given time and now
      *
-     * Returns an array with the interval, the formatted string and the type of difference
+     * Returns an array with the interval, the formatted string, and the type of difference
      * Type can be one of the constants RELATIVE, TIME, DATE, DATETIME
-     * Passing null as a parameter will use the current time
      *
      * @param DateTime $time
      *
