@@ -40,9 +40,9 @@ class TimeSince extends Time
 
     protected function format(): string
     {
-        static $sinceMessage = ['since %s', 'A status is lasting since the given time, date or date and time'];
-        static $map = [
-            self::RELATIVE => ['for %s', 'A status is lasting for the given time interval'],
+        $sinceMessage = [N_('since %s'), N_('A status is lasting since the given time, date or date and time')];
+        $map = [
+            self::RELATIVE => [N_('for %s'), N_('A status is lasting for the given time interval')],
             self::TIME     => null,
             self::DATE     => null,
             self::DATETIME => null,
@@ -51,6 +51,6 @@ class TimeSince extends Time
         [$time, $type] = $this->diff($this->dateTime);
         $format = $map[$type] ?? $sinceMessage;
 
-        return sprintf(t(N_($format[0]), N_($format[1])), $time);
+        return sprintf(t($format[0], $format[1]), $time);
     }
 }

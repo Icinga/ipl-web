@@ -40,10 +40,10 @@ class TimeUntil extends Time
 
     protected function format(): string
     {
-        static $onMessage = ['on %s', 'An event will happen on the given date or date and time'];
-        static $map = [
-            self::RELATIVE => ['in %s', 'An event will happen after the given time interval has elapsed'],
-            self::TIME     => ['at %s', 'An event will happen at the given time'],
+        $onMessage = [N_('on %s'), N_('An event will happen on the given date or date and time')];
+        $map = [
+            self::RELATIVE => [N_('in %s'), N_('An event will happen after the given time interval has elapsed')],
+            self::TIME     => [N_('at %s'), N_('An event will happen at the given time')],
             self::DATE     => null,
             self::DATETIME => null,
         ];
@@ -55,6 +55,6 @@ class TimeUntil extends Time
             $time = '-' . $time;
         }
 
-        return sprintf(t(N_($format[0]), N_($format[1])), $time);
+        return sprintf(t($format[0], $format[1]), $time);
     }
 }
