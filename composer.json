@@ -24,7 +24,7 @@
     "ipl/i18n": ">=0.2.0",
     "ipl/orm": ">=0.5.2",
     "ipl/scheduler": ">=0.1.0",
-    "ipl/stdlib": ">=0.13.0",
+    "ipl/stdlib": "dev-modernize-code-with-breaking-changes as 0.14.0-dev",
     "fortawesome/font-awesome": "^6",
     "wikimedia/less.php": "^3.2.1"
   },
@@ -33,7 +33,7 @@
     "ipl/i18n": "dev-main",
     "ipl/orm": "dev-main",
     "ipl/scheduler": "dev-main",
-    "ipl/stdlib": "dev-main",
+    "ipl/stdlib": "dev-modernize-code-with-breaking-changes as 0.14.0-dev",
     "shardj/zf1-future": "^1.22"
   }
 }
