@@ -31,7 +31,7 @@ namespace ipl\Tests\Web\Widget {
         /** Returns a concrete Time instance for testing the protected castToDateTime() method */
         private function createExposedTime(): object
         {
-            return new class(new DateTime()) extends Time {
+            return new class (new DateTime()) extends Time {
                 public function publicCastToDateTime(int|float|DateTime|null $value = null): DateTime
                 {
                     return $this->castToDateTime($value);
