@@ -2,6 +2,7 @@
 
 // Define t() and N_() in ipl\Web\Widget namespace so unqualified calls from widget code resolve here
 namespace ipl\Web\Widget {
+
     if (! function_exists('ipl\Web\Widget\t')) {
         function t(string $message, ?string $context = null): string
         {
@@ -18,6 +19,7 @@ namespace ipl\Web\Widget {
 }
 
 namespace ipl\Tests\Web\Widget {
+
     use DateTime;
     use ipl\Tests\Web\TestCase;
     use ipl\Web\Widget\Time;
@@ -242,6 +244,30 @@ namespace ipl\Tests\Web\Widget {
             $rendered = $widget->render();
 
             $this->assertStringContainsString('>2024-01-15 12:00:00<', $rendered);
+        }
+
+        public function testBaseTimeDoesNotHaveRelativeTimeAttribute(): void
+        {
+            $widget = new Time(new DateTime());
+            $rendered = $widget->render();
+
+            $this->assertStringNotContainsString('data-relative-time', $rendered);
+        }
+
+        public function testDiffReturnsRelativeTypeForFutureSubHour(): void
+        {
+            $widget = new TimeAgo(new DateTime());
+            [, $type] = $widget->diff(new DateTime('+30 minutes'));
+
+            $this->assertSame(Time::RELATIVE, $type);
+        }
+
+        public function testDiffReturnsDateTypeForFarPast(): void
+        {
+            $widget = new TimeAgo(new DateTime());
+            [, $type] = $widget->diff(new DateTime('-400 days'));
+
+            $this->assertSame(Time::DATE, $type);
         }
     }
 }

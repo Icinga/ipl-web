@@ -2,6 +2,7 @@
 
 // Define t() and N_() in ipl\Web\Widget namespace so unqualified calls from widget code resolve here
 namespace ipl\Web\Widget {
+
     if (! function_exists('ipl\Web\Widget\t')) {
         function t(string $message, ?string $context = null): string
         {
@@ -18,6 +19,7 @@ namespace ipl\Web\Widget {
 }
 
 namespace ipl\Tests\Web\Widget {
+
     use DateTime;
     use ipl\Tests\Web\TestCase;
     use ipl\Web\Widget\TimeAgo;
@@ -104,7 +106,12 @@ namespace ipl\Tests\Web\Widget {
 
         public function testFormatWithDaysAgoShowsOnPrefix(): void
         {
-            $widget = new TimeAgo(new DateTime('-5 days'));
+            $fiveDaysAgo = new DateTime('-5 days');
+            if (date('Y') !== $fiveDaysAgo->format('Y')) {
+                $this->markTestSkipped('Skipped: test date crosses a year boundary');
+            }
+
+            $widget = new TimeAgo($fiveDaysAgo);
             $rendered = $widget->render();
 
             // DATE type: "on %s" → "on Feb 22"
@@ -151,6 +158,29 @@ namespace ipl\Tests\Web\Widget {
 
             $this->assertStringStartsWith('<time', $rendered);
             $this->assertStringEndsWith('</time>', $rendered);
+        }
+
+        public function testFormatWithPreviousYearShowsOnPrefixWithYearMonth(): void
+        {
+            $lastYear = new DateTime('-400 days');
+            if (date('Y') === $lastYear->format('Y')) {
+                $this->markTestSkipped('Skipped: test date is still in the current year');
+            }
+
+            $widget = new TimeAgo($lastYear);
+            $rendered = $widget->render();
+
+            // DATE type with previous year: "on %s" → "on 2024-01"
+            $this->assertMatchesRegularExpression('/on \d{4}-\d{2}/', $rendered);
+        }
+
+        public function testFormatWithFutureSubHourShowsAgoSuffix(): void
+        {
+            $widget = new TimeAgo(new DateTime('+30 minutes'));
+            $rendered = $widget->render();
+
+            // RELATIVE type even for future: "%s ago" → "29m Xs ago"
+            $this->assertMatchesRegularExpression('/\d+m \d+s ago/', $rendered);
         }
     }
 }

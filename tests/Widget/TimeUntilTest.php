@@ -2,6 +2,7 @@
 
 // Define t() and N_() in ipl\Web\Widget namespace so unqualified calls from widget code resolve here
 namespace ipl\Web\Widget {
+
     if (! function_exists('ipl\Web\Widget\t')) {
         function t(string $message, ?string $context = null): string
         {
@@ -18,6 +19,7 @@ namespace ipl\Web\Widget {
 }
 
 namespace ipl\Tests\Web\Widget {
+
     use DateTime;
     use ipl\Tests\Web\TestCase;
     use ipl\Web\Widget\TimeUntil;
@@ -104,7 +106,12 @@ namespace ipl\Tests\Web\Widget {
 
         public function testFormatWithFarFutureDateShowsOnPrefix(): void
         {
-            $widget = new TimeUntil(new DateTime('+5 days'));
+            $fiveDaysLater = new DateTime('+5 days');
+            if (date('Y') !== $fiveDaysLater->format('Y')) {
+                $this->markTestSkipped('Skipped: test date crosses a year boundary');
+            }
+
+            $widget = new TimeUntil($fiveDaysLater);
             $rendered = $widget->render();
 
             // DATE type: "on %s" → "on Mar 4"
@@ -161,6 +168,29 @@ namespace ipl\Tests\Web\Widget {
 
             $this->assertStringStartsWith('<time', $rendered);
             $this->assertStringEndsWith('</time>', $rendered);
+        }
+
+        public function testFormatWithFarFutureDifferentYearShowsOnPrefixWithYearMonth(): void
+        {
+            $farFuture = new DateTime('+400 days');
+            if (date('Y') === $farFuture->format('Y')) {
+                $this->markTestSkipped('Skipped: test date is still in the current year');
+            }
+
+            $widget = new TimeUntil($farFuture);
+            $rendered = $widget->render();
+
+            // DATE type with different year: "on %s" → "on 2028-04"
+            $this->assertMatchesRegularExpression('/on \d{4}-\d{2}/', $rendered);
+        }
+
+        public function testFormatWithPastDaysAndHoursShowsDashPrefix(): void
+        {
+            $widget = new TimeUntil(new DateTime('-36 hours'));
+            $rendered = $widget->render();
+
+            // RELATIVE type, invert=1: "in %s" with "-" prefix → "in -1d 12h"
+            $this->assertMatchesRegularExpression('/in -\d+d \d+h/', $rendered);
         }
     }
 }
