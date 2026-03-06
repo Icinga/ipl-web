@@ -478,7 +478,7 @@ define(["../notjQuery"], function ($) {
         }
 
         onFocusOut(event) {
-            // Autosubmit when the user leaves the input without selecting a suggestion on manually changing the value.
+            // Autosubmit if the user leaves the input and the input has been manually changed.
             // Only for non-instrumented mode — instrumented inputs (e.g. TermInput) handle
             // autosubmit themselves via BaseInput.autoSubmit() with proper term data.
             if (! this.instrumented && this.hasBeenManuallyChanged && this.shouldAutoSubmit()) {
@@ -486,7 +486,7 @@ define(["../notjQuery"], function ($) {
                 let input = event.target;
                 setTimeout(() => {
                     $(input.form).trigger('submit', { submittedBy: input });
-                }, 250);
+                }, 300);
             }
 
             if (this.completedInput === null) {
@@ -511,6 +511,7 @@ define(["../notjQuery"], function ($) {
                     }
 
                     this.hideSuggestions();
+                    this.hasBeenManuallyChanged = true;
                 }
             }, 250);
         }
@@ -668,6 +669,7 @@ define(["../notjQuery"], function ($) {
                     break;
                 case 'Tab':
                     suggestions = this.termSuggestions.querySelectorAll('[type="button"]');
+                    this.hasBeenManuallyChanged = false;
                     if (suggestions.length === 1) {
                         event.preventDefault();
                         let input = event.target;
@@ -689,6 +691,7 @@ define(["../notjQuery"], function ($) {
                     break;
                 case 'Escape':
                     if (this.hasSuggestions()) {
+                        this.hasBeenManuallyChanged = true;
                         this.hideSuggestions()
                         event.preventDefault();
                     }
@@ -696,6 +699,7 @@ define(["../notjQuery"], function ($) {
                     break;
                 case 'ArrowUp':
                     suggestions = this.termSuggestions.querySelectorAll('[type="button"]');
+                    this.hasBeenManuallyChanged = false;
                     if (suggestions.length) {
                         event.preventDefault();
                         this.moveToSuggestion(true);
@@ -704,6 +708,7 @@ define(["../notjQuery"], function ($) {
                     break;
                 case 'ArrowDown':
                     suggestions = this.termSuggestions.querySelectorAll('[type="button"]');
+                    this.hasBeenManuallyChanged = false;
                     if (suggestions.length) {
                         event.preventDefault();
                         this.moveToSuggestion();
