@@ -6,7 +6,7 @@ define(["../notjQuery"], function ($) {
         constructor(input, instrumented = false) {
             this.input = input;
             this.instrumented = instrumented;
-            this.hasNotBeenCompleted = false; // Flag to identify if the input has been completed at least once.
+            this.hasBeenManuallyChanged = false; // Flag to identify if the input has been manually changed.
             this.selectionStartInput = null;
             this.selectionActive = false;
             this.mouseSelectionActive = false;
@@ -269,7 +269,7 @@ define(["../notjQuery"], function ($) {
 
         complete(input, value, data) {
             $(input).focus({ scripted: true });
-            this.hasNotBeenCompleted = false;
+            this.hasBeenManuallyChanged = false;
 
             if (this.instrumented) {
                 if (! Object.keys(data).length) {
@@ -478,7 +478,18 @@ define(["../notjQuery"], function ($) {
         }
 
         onFocusOut(event) {
-            if (this.completedInput === null && (this.instrumented || ! this.hasNotBeenCompleted)) {
+            // Autosubmit when the user leaves the input without selecting a suggestion on manually changing the value.
+            // Only for non-instrumented mode — instrumented inputs (e.g. TermInput) handle
+            // autosubmit themselves via BaseInput.autoSubmit() with proper term data.
+            if (! this.instrumented && this.hasBeenManuallyChanged && this.shouldAutoSubmit()) {
+                this.hasBeenManuallyChanged = false;
+                let input = event.target;
+                setTimeout(() => {
+                    $(input.form).trigger('submit', { submittedBy: input });
+                }, 250);
+            }
+
+            if (this.completedInput === null) {
                 // If there are multiple instances of Completer bound to the same suggestion container
                 // all of them try to handle the event. Though, only one of them is responsible and
                 // that's the one which has a completed input set.
@@ -494,20 +505,12 @@ define(["../notjQuery"], function ($) {
                     && ! this.termSuggestions.contains(document.activeElement)
                 ) {
                     // Hide the suggestions if the user doesn't navigate them
-                if (completedInput !== null && input !== completedInput) {
+                    if (input !== completedInput) {
                         // Restore input if a suggestion lost focus
                         this.suggest(completedInput, this.completedValue);
                     }
 
                     this.hideSuggestions();
-
-                    // Autosubmit when the user leaves without selecting a suggestion on manual input.
-                    // Only for non-instrumented mode — instrumented inputs (e.g. TermInput) handle
-                    // autosubmit themselves via BaseInput.autoSubmit() with proper term data.
-                    if (! this.instrumented && this.shouldAutoSubmit()) {
-                        this.hasNotBeenCompleted = false;
-                        $(input.form).trigger('submit', { submittedBy: input });
-                    }
                 }
             }, 250);
         }
@@ -722,7 +725,7 @@ define(["../notjQuery"], function ($) {
 
         onInput(event) {
             let input = event.target;
-            this.hasNotBeenCompleted = true;
+            this.hasBeenManuallyChanged = true;
 
             if (input.minLength > 0 && input.value.length < input.minLength) {
                 return;
