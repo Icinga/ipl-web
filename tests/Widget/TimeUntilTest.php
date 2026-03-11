@@ -192,5 +192,29 @@ namespace ipl\Tests\Web\Widget {
             // RELATIVE type, invert=1: "in %s" with "-" prefix → "in -1d 12h"
             $this->assertMatchesRegularExpression('/in -\d+d \d+h/', $rendered);
         }
+
+        public function testSubHourTimeHasAgoLabelAttribute(): void
+        {
+            $widget = new TimeUntil(new DateTime('+30 minutes'));
+            $rendered = $widget->render();
+
+            $this->assertStringContainsString('data-ago-label=', $rendered);
+        }
+
+        public function testMultiHourTimeDoesNotHaveAgoLabelAttribute(): void
+        {
+            $widget = new TimeUntil(new DateTime('+2 hours'));
+            $rendered = $widget->render();
+
+            $this->assertStringNotContainsString('data-ago-label=', $rendered);
+        }
+
+        public function testMultiDayTimeDoesNotHaveAgoLabelAttribute(): void
+        {
+            $widget = new TimeUntil(new DateTime('+5 days'));
+            $rendered = $widget->render();
+
+            $this->assertStringNotContainsString('data-ago-label=', $rendered);
+        }
     }
 }
