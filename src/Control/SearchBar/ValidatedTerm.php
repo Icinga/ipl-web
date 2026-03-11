@@ -13,7 +13,7 @@ abstract class ValidatedTerm
      *
      * @var string
      */
-    public const DEFAULT_PATTERN = '(?!\s*%s\s*$).*';
+    public const DEFAULT_PATTERN = '^(?!\s*%s\s*$).*$';
 
     /** @var string The search value */
     protected $searchValue;
