@@ -45,7 +45,6 @@ class TimeSince extends Time
             self::RELATIVE => [N_('for %s'), N_('A status is lasting for the given time interval')],
             self::TIME     => null,
             self::DATE     => null,
-            self::DATETIME => null,
         ];
 
         [$time, $type] = $this->diff($this->dateTime);

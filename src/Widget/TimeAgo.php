@@ -45,7 +45,6 @@ class TimeAgo extends Time
             self::RELATIVE => [N_('%s ago'), N_('An event that happened the given time interval ago')],
             self::TIME     => [N_('at %s'), N_('An event happened at the given time')],
             self::DATE     => null,
-            self::DATETIME => null,
         ];
 
         [$time, $type] = $this->diff($this->dateTime);

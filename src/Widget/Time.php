@@ -19,9 +19,6 @@ class Time extends BaseHtmlElement
     /** @var int Format date */
     public const DATE = 2;
 
-    /** @var int Format date and time */
-    public const DATETIME = 4;
-
     /** @var DateTime time of this widget */
     protected DateTime $dateTime;
 
@@ -47,7 +44,7 @@ class Time extends BaseHtmlElement
      * Compute the difference between the given time and now
      *
      * Returns an array with the interval, the formatted string, and the type of difference
-     * Type can be one of the constants RELATIVE, TIME, DATE, DATETIME
+     * Type can be one of the constants RELATIVE, TIME, DATE
      *
      * @param DateTime $time
      *

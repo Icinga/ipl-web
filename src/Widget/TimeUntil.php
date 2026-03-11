@@ -51,7 +51,6 @@ class TimeUntil extends Time
             self::RELATIVE => [N_('in %s'), N_('An event will happen after the given time interval has elapsed')],
             self::TIME     => [N_('at %s'), N_('An event will happen at the given time')],
             self::DATE     => null,
-            self::DATETIME => null,
         ];
 
         [$time, $type, $interval] = $this->diff($this->dateTime);
