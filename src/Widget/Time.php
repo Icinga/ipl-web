@@ -135,6 +135,6 @@ class Time extends BaseHtmlElement
 
         $value = (int) ($value > 9999999999 ? ($value / 1000) : $value);
 
-        return new DateTime('@' . $value, new DateTimeZone(date_default_timezone_get()));
+        return (new DateTime('@' . $value))->setTimezone(new DateTimeZone(date_default_timezone_get()));
     }
 }
