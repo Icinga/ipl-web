@@ -4,8 +4,6 @@ define([], function () {
 
     const TIME_REGEX_FULL = /^(.*?)(\d+)([^\d\s]+)\s+(\d+)([^\d\s]+)(.*?)$/;
     const TIME_REGEX_MIN_ONLY = /^(.*?)(\d+)([^\d\s]+)(.*?)$/;
-    // const TIME_REGEX_DIGITS = /(\d+)\s*[^\d\s]+\s+(\d+)/;
-    // const TIME_REGEX_DIGITS = /(\d{1,2})m (\d{1,2})s/.exec(content);
     const TIME_REGEX_DIGITS = /(\d{1,2})(?!\d|[:;\-._,])\s*[^\d\s]+\s+(\d{1,2})/;
 
     class RelativeTime {
@@ -43,7 +41,7 @@ define([], function () {
                         element.dataset.relativeTime = 'ago';
                     }
 
-                    element.textContent = this.render(Math.abs(remainingSeconds), element);
+                    element.textContent = this.render(remainingSeconds, element);
                 });
         }
 
@@ -72,14 +70,15 @@ define([], function () {
 
                 const minutes = parseInt(partialTime[1], 10);
                 const seconds = parseInt(partialTime[2], 10);
+                const isNegative = partialTime[1] === '-';
 
-                let secondsDiff = minutes * 60 + seconds;
+                let secondsDiff = (isNegative ? -1 : 1) * (minutes * 60 + seconds);
 
-                return future ? --secondsDiff * -1 : ++secondsDiff;
+                return future ? --secondsDiff : ++secondsDiff;
             };
 
-            // return fromTextContent(element, future);
-            return fromDateTimeWithTimezone(element, future);
+            return fromTextContent(element, future);
+            // return fromDateTimeWithTimezone(element, future);
         }
 
         /**
@@ -127,11 +126,14 @@ define([], function () {
         render(diffInSeconds, element) {
             const template = this._getTemplate(element);
 
-            const minute = Math.floor(diffInSeconds / 60);
-            const second = diffInSeconds % 60;
+            const absDiff = Math.abs(diffInSeconds);
+            const minute = Math.floor(absDiff / 60);
+            const second = absDiff % 60;
+            const sign = diffInSeconds < 0 ? '-' : '';
 
             return (
                 template.prefix +
+                sign +
                 minute +
                 template.minuteUnit +
                 ' ' +
