@@ -13,7 +13,7 @@ abstract class ValidatedTerm
      *
      * @var string
      */
-    public const DEFAULT_PATTERN = '(?!\s*%s\s*$).*';
+    public const DEFAULT_PATTERN = '^(?!\s*%s\s*$).*$';
 
     /** @var string The search value */
     protected $searchValue;
@@ -162,7 +162,7 @@ abstract class ValidatedTerm
         }
 
         return $this->pattern ?? sprintf(
-            self::DEFAULT_PATTERN,
+            static::DEFAULT_PATTERN,
             static::escapeForHTMLPattern($this->getLabel() ?: $this->getSearchValue())
         );
     }
