@@ -26,15 +26,21 @@ class TimeUntil extends Time
 
     protected function assemble(): void
     {
-        $this->addAttributes(
-            Attributes::create(
-                [
-                    'datetime'           => $this->timeString,
-                    'data-relative-time' => 'until',
-                ]
-            )
-        );
+        [, , $interval] = $this->diff($this->dateTime);
 
+        $attributes = [
+            'datetime'           => $this->timeString,
+            'data-relative-time' => 'until',
+        ];
+
+        if ($interval->days === 0 && $interval->h === 0) {
+            $attributes['data-ago-label'] = sprintf(
+                t('%s ago', 'Label for time intervals in the past'),
+                '0m 0s'
+            );
+        }
+
+        $this->addAttributes(Attributes::create($attributes));
         $this->addHtml(Text::create($this->format()));
     }
 
