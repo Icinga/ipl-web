@@ -162,7 +162,7 @@ abstract class ValidatedTerm
         }
 
         return $this->pattern ?? sprintf(
-            self::DEFAULT_PATTERN,
+            static::DEFAULT_PATTERN,
             static::escapeForHTMLPattern($this->getLabel() ?: $this->getSearchValue())
         );
     }
