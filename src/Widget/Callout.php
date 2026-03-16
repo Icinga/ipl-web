@@ -23,21 +23,18 @@ class Callout extends BaseHtmlElement
 
     protected $defaultAttributes = ['class' => 'callout'];
 
-    /** @var string|null An optional title */
-    protected ?string $title;
-
-    /** @var string The content to display */
-    protected string $content;
-
-    /** @var CalloutType The type of callout, determines the color and icon */
-    protected CalloutType $type;
-
-    public function __construct(CalloutType $type, string $content, ?string $title = null)
-    {
-        $this->type = $type;
-        $this->content = $content;
-        $this->title = $title;
-
+    /**
+     * Create a new callout
+     *
+     * @param CalloutType $type the type of the callout. The type determines the color and icon that is used.
+     * @param string $content the text content of the callout
+     * @param string|null $title an optional title, displayed above the content
+     */
+    public function __construct(
+        protected CalloutType $type,
+        protected string $content,
+        protected ?string $title = null
+    ) {
         $this->addAttributes(Attributes::create(['class' => $type->value]));
     }
 
