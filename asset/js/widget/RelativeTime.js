@@ -39,7 +39,6 @@ define([], function () {
 
                     if (remainingSeconds === 0 && element.dataset.agoLabel) {
                         element.textContent = element.dataset.agoLabel;
-                        delete element.dataset.agoLabel;
                         element.dataset.relativeTime = 'ago';
                     }
 

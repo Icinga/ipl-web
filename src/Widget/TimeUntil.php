@@ -34,10 +34,8 @@ class TimeUntil extends Time
         ];
 
         if ($interval->days === 0 && $interval->h === 0) {
-            $attributes['data-ago-label'] = sprintf(
-                t('%s ago', 'Label for time intervals in the past'),
-                '0m 0s'
-            );
+            [$format, $description] = TimeAgo::getRelativeTimeFormat();
+            $attributes['data-ago-label'] = sprintf(t($format, $description), '0m 0s');
         }
 
         $this->addAttributes(Attributes::create($attributes));
