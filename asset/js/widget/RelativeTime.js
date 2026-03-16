@@ -4,7 +4,7 @@ define([], function () {
 
     const TIME_REGEX_FULL = /^(.*?)(\d+)([^\d\s]+)\s+(\d+)([^\d\s]+)(.*?)$/;
     const TIME_REGEX_MIN_ONLY = /^(.*?)(\d+)([^\d\s]+)(.*?)$/;
-    const TIME_REGEX_DIGITS = /(\d{1,2})(?!\d|[:;\-._,])\s*[^\d\s]+\s+(\d{1,2})/;
+    const TIME_REGEX_DIGITS = /(-?)(\d{1,2})(?!\d|[:;\-._,])\s*m\s+(\d{1,2})(?!\d|[:;\-._,])\s*s/i;
 
     class RelativeTime {
 
@@ -70,9 +70,9 @@ define([], function () {
                     return null;
                 }
 
-                const minutes = parseInt(partialTime[1], 10);
-                const seconds = parseInt(partialTime[2], 10);
                 const isNegative = partialTime[1] === '-';
+                const minutes = parseInt(partialTime[2], 10);
+                const seconds = parseInt(partialTime[3], 10);
 
                 let secondsDiff = (isNegative ? -1 : 1) * (minutes * 60 + seconds);
 
