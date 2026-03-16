@@ -34,8 +34,10 @@ class TimeAgo extends Time
         ];
 
         if ($interval->days === 0 && $interval->h === 0) {
-            [$format, $description] = static::getRelativeTimeFormat();
-            $attributes['data-ago-label'] = sprintf(t($format, $description), '0m 0s');
+            $attributes['data-ago-label'] = sprintf(
+                t('%s ago', 'An event that happened the given time interval ago'),
+                '0m 0s'
+            );
         }
 
         $this->addAttributes(Attributes::create($attributes));
@@ -44,29 +46,15 @@ class TimeAgo extends Time
 
     protected function format(): string
     {
-        $onMessage = [N_('on %s'), N_('An event happened on the given date or date and time')];
+        $onMessage = t('on %s', 'An event happened on the given date or date and time');
         $map = [
-            self::RELATIVE => static::getRelativeTimeFormat(),
-            self::TIME     => [N_('at %s'), N_('An event happened at the given time')],
+            self::RELATIVE => t('%s ago', 'An event that happened the given time interval ago'),
+            self::TIME     => t('at %s', 'An event happened at the given time'),
             self::DATE     => null,
         ];
 
         [$time, $type] = $this->diff($this->dateTime);
-        $format = $map[$type] ?? $onMessage;
 
-        return sprintf(t($format[0], $format[1]), $time);
-    }
-
-    /**
-     * Get the format for relative time intervals.
-     *
-     * Returns the translation string and description used for formatting
-     * time intervals in the past (e.g., "5 minutes ago").
-     *
-     * @return array An array containing the format string and its description.
-     */
-    public static function getRelativeTimeFormat(): array
-    {
-        return [N_('%s ago'), N_('An event that happened the given time interval ago')];
+        return sprintf($map[$type] ?? $onMessage, $time);
     }
 }

@@ -34,8 +34,10 @@ class TimeUntil extends Time
         ];
 
         if ($interval->days === 0 && $interval->h === 0) {
-            [$format, $description] = TimeAgo::getRelativeTimeFormat();
-            $attributes['data-ago-label'] = sprintf(t($format, $description), '0m 0s');
+            $attributes['data-ago-label'] = sprintf(
+                t('%s ago', 'An event that happened the given time interval ago'),
+                '0m 0s'
+            );
         }
 
         $this->addAttributes(Attributes::create($attributes));
@@ -44,20 +46,19 @@ class TimeUntil extends Time
 
     protected function format(): string
     {
-        $onMessage = [N_('on %s'), N_('An event will happen on the given date or date and time')];
+        $onMessage = t('on %s', 'An event will happen on the given date or date and time');
         $map = [
-            self::RELATIVE => [N_('in %s'), N_('An event will happen after the given time interval has elapsed')],
-            self::TIME     => [N_('at %s'), N_('An event will happen at the given time')],
+            self::RELATIVE => t('in %s', 'An event will happen after the given time interval has elapsed'),
+            self::TIME     => t('at %s', 'An event will happen at the given time'),
             self::DATE     => null,
         ];
 
         [$time, $type, $interval] = $this->diff($this->dateTime);
-        $format = $map[$type] ?? $onMessage;
 
         if ($interval->invert === 1 && $type === static::RELATIVE) {
             $time = '-' . $time;
         }
 
-        return sprintf(t($format[0], $format[1]), $time);
+        return sprintf($map[$type] ?? $onMessage, $time);
     }
 }
