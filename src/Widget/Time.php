@@ -2,6 +2,7 @@
 
 namespace ipl\Web\Widget;
 
+use DateInterval;
 use DateTime;
 use DateTimeZone;
 use IntlDateFormatter;
@@ -66,7 +67,7 @@ class Time extends BaseHtmlElement
      *
      * @param DateTime $time
      *
-     * @return array [string<formattedTime>, int<type>, DateInterval]
+     * @return array{0: string, 1: self::TIME|self::DATE|self::RELATIVE, 2: DateInterval}
      */
     public function diff(DateTime $time): array
     {
