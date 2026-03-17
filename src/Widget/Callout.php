@@ -6,6 +6,7 @@ use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
+use ipl\Html\ValidHtml;
 use ipl\I18n\Translation;
 use ipl\Web\Common\CalloutType;
 
@@ -24,17 +25,26 @@ class Callout extends BaseHtmlElement
     protected $defaultAttributes = ['class' => 'callout'];
 
     /**
+     * @var ValidHtml The content of the callout
+     */
+    protected ValidHtml $content;
+
+    /**
      * Create a new callout
      *
      * @param CalloutType $type the type of the callout. The type determines the color and icon that is used.
-     * @param string $content the text content of the callout
+     * @param ValidHtml|string $content the content of the callout
      * @param string|null $title an optional title, displayed above the content
      */
     public function __construct(
         protected CalloutType $type,
-        protected string $content,
+        ValidHtml|string $content,
         protected ?string $title = null
     ) {
+        if (is_string($content)) {
+            $content = new Text($content);
+        }
+        $this->content = $content;
         $this->addAttributes(Attributes::create(['class' => $type->value]));
     }
 
@@ -42,22 +52,16 @@ class Callout extends BaseHtmlElement
     {
         $this->addHtml($this->type->getIcon());
 
-        if ($this->title) {
-            $this->addHtml(HtmlElement::create(
-                'div',
-                ['class' => 'callout-text'],
-                [
-                    HtmlElement::create('strong', null, new Text($this->title)),
-                    HtmlElement::create('p', null, new Text($this->content)),
-                ],
-            ));
-        } else {
-            $this->addHtml(HtmlElement::create(
-                'div',
-                ['class' => 'callout-text'],
-                HtmlElement::create('strong', null, new Text($this->content)),
-            ));
-        }
+        $this->addHtml(HtmlElement::create(
+            'div',
+            ['class' => 'callout-text'],
+            [
+                $this->title
+                    ? HtmlElement::create('strong', ['class' => 'callout-title'], new Text($this->title))
+                    : null,
+                $this->content,
+            ],
+        ));
     }
 
     /**
