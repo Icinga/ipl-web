@@ -119,6 +119,8 @@ class Time extends BaseHtmlElement
      * @return DateTime
      *
      * @throws \Exception
+     *
+     * @internal This method is for backwards compatibility
      */
     protected function castToDateTime(int|float|DateTime|null $value = null): DateTime
     {
