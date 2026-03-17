@@ -46,15 +46,15 @@ class TimeAgo extends Time
 
     protected function format(): string
     {
-        $onMessage = t('on %s', 'An event happened on the given date or date and time');
-        $map = [
-            self::RELATIVE => t('%s ago', 'An event that happened the given time interval ago'),
-            self::TIME     => t('at %s', 'An event happened at the given time'),
-            self::DATE     => null,
-        ];
-
         [$time, $type] = $this->diff($this->dateTime);
 
-        return sprintf($map[$type] ?? $onMessage, $time);
+        return sprintf(
+            match ($type) {
+                self::RELATIVE => t('%s ago', 'An event that happened the given time interval ago'),
+                self::TIME     => t('at %s', 'An event happened at the given time'),
+                self::DATE     => t('on %s', 'An event happened on the given date or date and time'),
+            },
+            $time
+        );
     }
 }

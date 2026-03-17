@@ -46,19 +46,19 @@ class TimeUntil extends Time
 
     protected function format(): string
     {
-        $onMessage = t('on %s', 'An event will happen on the given date or date and time');
-        $map = [
-            self::RELATIVE => t('in %s', 'An event will happen after the given time interval has elapsed'),
-            self::TIME     => t('at %s', 'An event will happen at the given time'),
-            self::DATE     => null,
-        ];
-
         [$time, $type, $interval] = $this->diff($this->dateTime);
 
         if ($interval->invert === 1 && $type === static::RELATIVE) {
             $time = '-' . $time;
         }
 
-        return sprintf($map[$type] ?? $onMessage, $time);
+        return sprintf(
+            match ($type) {
+                self::RELATIVE => t('in %s', 'An event will happen after the given time interval has elapsed'),
+                self::TIME     => t('at %s', 'An event will happen at the given time'),
+                self::DATE     => t('on %s', 'An event will happen on the given date or date and time'),
+            },
+            $time
+        );
     }
 }
