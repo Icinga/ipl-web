@@ -4,6 +4,7 @@ namespace ipl\Web\Widget;
 
 use DateTime;
 use DateTimeZone;
+use IntlDateFormatter;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\Text;
@@ -19,11 +20,14 @@ class Time extends BaseHtmlElement
     /** @var int Format date */
     public const DATE = 2;
 
-    /** @var DateTime time of this widget */
+    /** @var DateTime Time of this widget */
     protected DateTime $dateTime;
 
-    /** @var string DateTime string in ISO 8601 format */
+    /** @var string Default formatted datetime string */
     protected string $timeString;
+
+    /** @var IntlDateFormatter|null Formatter to create the time string */
+    protected ?IntlDateFormatter $formatter = null;
 
     /** @var string Tag of element. */
     protected $tag = 'time';
@@ -38,6 +42,20 @@ class Time extends BaseHtmlElement
         $this->dateTime = $time;
         $this->timeString = $time->format('Y-m-d H:i:s');
         $this->addAttributes(Attributes::create(['title' => $this->timeString]));
+    }
+
+    /**
+     * Set the formatter to use for formatting the time
+     *
+     * @param IntlDateFormatter $formatter
+     *
+     * @return $this
+     */
+    public function setFormatter(IntlDateFormatter $formatter): static
+    {
+        $this->formatter = $formatter;
+
+        return $this;
     }
 
     /**
@@ -81,11 +99,13 @@ class Time extends BaseHtmlElement
     /**
      * Get formatted time
      *
+     * This method is only used by {@see assemble()}
+     *
      * @return string
      */
     protected function format(): string
     {
-        return $this->timeString;
+        return $this->formatter ? $this->formatter->format($this->dateTime) : $this->timeString;
     }
 
     /**

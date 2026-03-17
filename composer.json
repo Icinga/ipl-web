@@ -18,7 +18,8 @@
     "ipl/scheduler": ">=0.3.0",
     "ipl/stdlib": ">=0.15.0",
     "psr/http-message": "^1.1",
-    "wikimedia/less.php": "^3.2.1"
+    "wikimedia/less.php": "^3.2.1",
+    "ext-intl": "*"
   },
   "require-dev": {
     "icinga/zf1": "dev-main",
