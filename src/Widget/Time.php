@@ -5,6 +5,7 @@ namespace ipl\Web\Widget;
 use DateInterval;
 use DateTime;
 use DateTimeZone;
+use Exception;
 use IntlDateFormatter;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
@@ -104,6 +105,8 @@ class Time extends BaseHtmlElement
      * @param DateTime $time
      *
      * @return static
+     *
+     * @throws Exception
      */
     public static function relative(DateTime $time): static
     {
@@ -127,7 +130,7 @@ class Time extends BaseHtmlElement
      *
      * @return DateTime
      *
-     * @throws \Exception
+     * @throws Exception
      *
      * @internal This method is for backwards compatibility
      */

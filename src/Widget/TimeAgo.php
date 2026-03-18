@@ -3,6 +3,7 @@
 namespace ipl\Web\Widget;
 
 use DateTime;
+use Exception;
 use ipl\Html\Attributes;
 
 class TimeAgo extends Time
@@ -12,7 +13,7 @@ class TimeAgo extends Time
     /**
      * @param int|float|DateTime|null $time Time as timestamp, DateTime object, or null for current time
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function __construct(int|float|DateTime|null $time = null)
     {
