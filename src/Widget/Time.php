@@ -71,30 +71,16 @@ class Time extends BaseHtmlElement
      */
     public function diff(DateTime $time): array
     {
-        $now = new DateTime();
+        $interval = (new DateTime())->diff($time);
 
-        $interval = $now->diff($time);
-
-        if ($interval->days > 2) {
-            $type = static::DATE;
-            $formatted = $time->format(date('Y') === date('Y', $time->getTimestamp()) ? 'M j' : 'Y-m');
-        } elseif ($interval->days > 0) {
-            $type = static::RELATIVE;
-            $formatted = $interval->format('%dd %hh');
-        } elseif ($interval->h > 0) {
-            if (date('d') === date('d', $time->getTimestamp())) {
-                $type = static::TIME;
-                $formatted = $time->format('H:i');
-            } else {
-                $type = static::DATE;
-                $formatted = $time->format('M j H:i');
-            }
-        } else {
-            $type = static::RELATIVE;
-            $formatted = $interval->format('%im %ss');
-        }
-
-        return [$formatted, $type, $interval];
+        return [...match (true) {
+            $interval->days > 2 => [$time->format(date('Y') === $time->format('Y') ? 'M j' : 'Y-m'), static::DATE],
+            $interval->days > 0 => [$interval->format('%dd %hh'), static::RELATIVE],
+            $interval->h > 0    => date('d') === $time->format('d')
+                ? [$time->format('H:i'), static::TIME]
+                : [$time->format('M j H:i'), static::DATE],
+            default             => [$interval->format('%im %ss'), static::RELATIVE],
+        }, $interval];
     }
 
     /**
