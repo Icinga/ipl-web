@@ -120,6 +120,7 @@ class Time extends BaseHtmlElement
      */
     protected function assemble(): void
     {
+        $this->addAttributes(Attributes::create(['datetime' => $this->timeString]));
         $this->addHtml(Text::create($this->format()));
     }
 

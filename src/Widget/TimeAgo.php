@@ -28,10 +28,7 @@ class TimeAgo extends Time
     {
         [$time, $type, $interval] = $this->diff($this->dateTime);
 
-        $attributes = [
-            'datetime'           => $this->timeString,
-            'data-relative-time' => 'ago'
-        ];
+        $attributes = ['data-relative-time' => 'ago'];
 
         if ($interval->days === 0 && $interval->h === 0) {
             $attributes['data-ago-label'] = sprintf(

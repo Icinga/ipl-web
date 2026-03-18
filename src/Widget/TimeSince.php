@@ -28,14 +28,7 @@ class TimeSince extends Time
     {
         [$time, $type] = $this->diff($this->dateTime);
 
-        $this->addAttributes(
-            Attributes::create(
-                [
-                    'datetime'           => $this->timeString,
-                    'data-relative-time' => 'since'
-                ]
-            )
-        );
+        $this->addAttributes(Attributes::create(['data-relative-time' => 'since']));
 
         return sprintf(
             match ($type) {

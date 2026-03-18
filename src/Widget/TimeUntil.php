@@ -28,10 +28,7 @@ class TimeUntil extends Time
     {
         [$time, $type, $interval] = $this->diff($this->dateTime);
 
-        $attributes = [
-            'datetime'           => $this->timeString,
-            'data-relative-time' => 'until',
-        ];
+        $attributes = ['data-relative-time' => 'until'];
 
         if ($interval->days === 0 && $interval->h === 0) {
             $attributes['data-ago-label'] = sprintf(
