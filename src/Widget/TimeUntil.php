@@ -4,7 +4,6 @@ namespace ipl\Web\Widget;
 
 use DateTime;
 use ipl\Html\Attributes;
-use ipl\Html\Text;
 
 class TimeUntil extends Time
 {
@@ -24,9 +23,9 @@ class TimeUntil extends Time
         parent::__construct($time);
     }
 
-    protected function assemble(): void
+    protected function format(): string
     {
-        [, , $interval] = $this->diff($this->dateTime);
+        [$time, $type, $interval] = $this->diff($this->dateTime);
 
         $attributes = [
             'datetime'           => $this->timeString,
@@ -41,12 +40,6 @@ class TimeUntil extends Time
         }
 
         $this->addAttributes(Attributes::create($attributes));
-        $this->addHtml(Text::create($this->format()));
-    }
-
-    protected function format(): string
-    {
-        [$time, $type, $interval] = $this->diff($this->dateTime);
 
         if ($interval->invert === 1 && $type === static::RELATIVE) {
             $time = '-' . $time;

@@ -4,7 +4,6 @@ namespace ipl\Web\Widget;
 
 use DateTime;
 use ipl\Html\Attributes;
-use ipl\Html\Text;
 
 class TimeSince extends Time
 {
@@ -24,8 +23,10 @@ class TimeSince extends Time
         parent::__construct($time);
     }
 
-    protected function assemble(): void
+    protected function format(): string
     {
+        [$time, $type] = $this->diff($this->dateTime);
+
         $this->addAttributes(
             Attributes::create(
                 [
@@ -34,13 +35,6 @@ class TimeSince extends Time
                 ]
             )
         );
-
-        $this->addHtml(Text::create($this->format()));
-    }
-
-    protected function format(): string
-    {
-        [$time, $type] = $this->diff($this->dateTime);
 
         return sprintf(
             match ($type) {

@@ -86,6 +86,9 @@ class Time extends BaseHtmlElement
     /**
      * Get formatted time
      *
+     * Override this method to customize the format of the time widget
+     * i.e., to use custom formatting, add attributes, etc.
+     *
      * This method is only used by {@see assemble()}
      *
      * @return string
@@ -108,8 +111,7 @@ class Time extends BaseHtmlElement
     }
 
     /**
-     * Assemble logic of subclasses
-     * Override this method to customize the output
+     * Assemble the content of the time widget
      *
      * @return void
      */

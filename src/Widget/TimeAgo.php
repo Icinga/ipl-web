@@ -4,7 +4,6 @@ namespace ipl\Web\Widget;
 
 use DateTime;
 use ipl\Html\Attributes;
-use ipl\Html\Text;
 
 class TimeAgo extends Time
 {
@@ -24,9 +23,9 @@ class TimeAgo extends Time
         parent::__construct($time);
     }
 
-    protected function assemble(): void
+    protected function format(): string
     {
-        [, , $interval] = $this->diff($this->dateTime);
+        [$time, $type, $interval] = $this->diff($this->dateTime);
 
         $attributes = [
             'datetime'           => $this->timeString,
@@ -41,12 +40,6 @@ class TimeAgo extends Time
         }
 
         $this->addAttributes(Attributes::create($attributes));
-        $this->addHtml(Text::create($this->format()));
-    }
-
-    protected function format(): string
-    {
-        [$time, $type] = $this->diff($this->dateTime);
 
         return sprintf(
             match ($type) {
