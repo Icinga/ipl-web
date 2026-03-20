@@ -255,7 +255,7 @@ class SearchBar extends Form
         parent::populate($values);
     }
 
-    public function isValidEvent($event)
+    public function isValidEvent(string $event): bool
     {
         switch ($event) {
             case self::ON_ADD:
