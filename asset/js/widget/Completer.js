@@ -269,6 +269,7 @@ define(["../notjQuery"], function ($) {
 
         complete(input, value, data) {
             $(input).focus({ scripted: true });
+            // Disable autosubmit for the input in non-instrumented mode if the input is completed.
             this.hasBeenManuallyChanged = false;
 
             if (this.instrumented) {
@@ -323,8 +324,12 @@ define(["../notjQuery"], function ($) {
 
             if (! stopAtEdge && this.completedValue !== null) {
                 if (input === this.completedInput) {
+                    // Re-enable autosubmit for the input in non-instrumented mode when the user moves from suggestions back to the input.
+                    this.hasBeenManuallyChanged = true;
                     this.suggest(this.completedInput, this.completedValue);
                 } else {
+                    // Disable the autosubmit for the input in non-instrumented mode while moving through suggestions.
+                    this.hasBeenManuallyChanged = false;
                     this.suggest(this.completedInput, input.value, { ...input.dataset });
                 }
             }
@@ -478,16 +483,22 @@ define(["../notjQuery"], function ($) {
         }
 
         onFocusOut(event) {
-            // Autosubmit if the user leaves the input and the input has been manually changed.
-            // Only for non-instrumented mode — instrumented inputs (e.g. TermInput) handle
-            // autosubmit themselves via BaseInput.autoSubmit() with proper term data.
-            if (! this.instrumented && this.hasBeenManuallyChanged && this.shouldAutoSubmit()) {
-                this.hasBeenManuallyChanged = false;
-                let input = event.target;
-                setTimeout(() => {
-                    $(input.form).trigger('submit', { submittedBy: input });
-                }, 300);
-            }
+            setTimeout(() => {
+                // Autosubmit if the user leaves the input and the input has been manually changed.
+                // Only for non-instrumented mode — instrumented inputs (e.g. TermInput) handle
+                // autosubmit themselves via BaseInput.autoSubmit() with proper term data.
+                if (
+                    ! this.instrumented
+                    && this.hasBeenManuallyChanged
+                    && ! this.hasSuggestions()
+                    && this.shouldAutoSubmit()
+                ) {
+                    // Reset this flag since the user has navigated away from the input and the submit event
+                    // will be triggered by the input's form submit event handler.
+                    this.hasBeenManuallyChanged = false;
+                    $(this.input.form).trigger('submit', {submittedBy: this.input});
+                }
+            }, 300);
 
             if (this.completedInput === null) {
                 // If there are multiple instances of Completer bound to the same suggestion container
@@ -511,6 +522,9 @@ define(["../notjQuery"], function ($) {
                     }
 
                     this.hideSuggestions();
+
+                    // This triggers the autosubmit if the user navigates away from the input for non-instrumented mode.
+                    // as the input is reset to the manually changed value once suggestions are hidden.
                     this.hasBeenManuallyChanged = true;
                 }
             }, 250);
@@ -645,6 +659,11 @@ define(["../notjQuery"], function ($) {
 
         onKeyDown(event) {
             let suggestions;
+            const keys = ['Tab', 'ArrowDown', 'ArrowUp'];
+            if (keys.includes(event.key) && (event.target === this.input && this.hasSuggestions())) {
+                // Disable the autosubmit if the user navigates away from the input but is within the suggestions.
+                this.hasBeenManuallyChanged = false;
+            }
 
             switch (event.key) {
                 case ' ':
@@ -669,7 +688,6 @@ define(["../notjQuery"], function ($) {
                     break;
                 case 'Tab':
                     suggestions = this.termSuggestions.querySelectorAll('[type="button"]');
-                    this.hasBeenManuallyChanged = false;
                     if (suggestions.length === 1) {
                         event.preventDefault();
                         let input = event.target;
@@ -691,15 +709,16 @@ define(["../notjQuery"], function ($) {
                     break;
                 case 'Escape':
                     if (this.hasSuggestions()) {
+                        this.hideSuggestions();
+                        // This triggers the autosubmit if the user navigates away from the input for non-instrumented mode.
+                        // as the input has the manually changed value.
                         this.hasBeenManuallyChanged = true;
-                        this.hideSuggestions()
                         event.preventDefault();
                     }
 
                     break;
                 case 'ArrowUp':
                     suggestions = this.termSuggestions.querySelectorAll('[type="button"]');
-                    this.hasBeenManuallyChanged = false;
                     if (suggestions.length) {
                         event.preventDefault();
                         this.moveToSuggestion(true);
@@ -708,7 +727,6 @@ define(["../notjQuery"], function ($) {
                     break;
                 case 'ArrowDown':
                     suggestions = this.termSuggestions.querySelectorAll('[type="button"]');
-                    this.hasBeenManuallyChanged = false;
                     if (suggestions.length) {
                         event.preventDefault();
                         this.moveToSuggestion();
@@ -730,8 +748,6 @@ define(["../notjQuery"], function ($) {
 
         onInput(event) {
             let input = event.target;
-            this.hasBeenManuallyChanged = true;
-
             if (input.minLength > 0 && input.value.length < input.minLength) {
                 return;
             }
@@ -749,6 +765,9 @@ define(["../notjQuery"], function ($) {
                 dataElement.value = input.value;
             }
 
+            // This flag triggers the autosubmit if the user navigates away from the input for non-instrumented mode
+            // and the input has the manually changed value.
+            this.hasBeenManuallyChanged = true;
             let [value, data] = this.prepareCompletionData(input);
             this.completedInput = input;
             this.completedValue = value;
