@@ -8,15 +8,20 @@ use ipl\Html\Attributes;
 
 class TimeAgo extends Time
 {
-    protected $defaultAttributes = ['class' => 'time-ago'];
+    protected $defaultAttributes = ['class' => 'time-ago', 'data-relative-time' => 'ago'];
 
     /**
      * @param int|float|DateTime|null $time Time as timestamp, DateTime object, or null for current time
+     * @param int|float|DateTime|null $compareTime Time to compare with, null for current time
      *
      * @throws Exception
      */
-    public function __construct(int|float|DateTime|null $time = null)
+    public function __construct(int|float|DateTime|null $time = null, int|float|DateTime|null $compareTime = null)
     {
+        if ($compareTime !== null) {
+            $this->compareTime = $this->castToDateTime($compareTime);
+        }
+
         if (! $time instanceof DateTime) {
             $time = $this->castToDateTime($time);
         }
@@ -26,18 +31,20 @@ class TimeAgo extends Time
 
     protected function format(): string
     {
-        [$time, $type, $interval] = $this->diff($this->dateTime);
-
-        $attributes = ['data-relative-time' => 'ago'];
+        [$time, $type, $interval] = $this->diff($this->compareTime);
 
         if ($interval->days === 0 && $interval->h === 0) {
-            $attributes['data-ago-label'] = sprintf(
-                t('%s ago', 'An event that happened the given time interval ago'),
-                '0m 0s'
+            $this->addAttributes(
+                Attributes::create(
+                    [
+                        'data-ago-label' => sprintf(
+                            t('%s ago', 'An event that happened the given time interval ago'),
+                            '0m 0s'
+                        )
+                    ]
+                )
             );
         }
-
-        $this->addAttributes(Attributes::create($attributes));
 
         return sprintf(
             match ($type) {

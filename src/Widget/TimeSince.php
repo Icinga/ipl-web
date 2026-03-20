@@ -4,19 +4,23 @@ namespace ipl\Web\Widget;
 
 use DateTime;
 use Exception;
-use ipl\Html\Attributes;
 
 class TimeSince extends Time
 {
-    protected $defaultAttributes = ['class' => 'time-since'];
+    protected $defaultAttributes = ['class' => 'time-since', 'data-relative-time' => 'since'];
 
     /**
      * @param int|float|DateTime|null $time Time as timestamp, DateTime object, or null for current time
+     * @param int|float|DateTime|null $compareTime Time to compare with, null for current time
      *
      * @throws Exception
      */
-    public function __construct(int|float|DateTime|null $time = null)
+    public function __construct(int|float|DateTime|null $time = null, int|float|DateTime|null $compareTime = null)
     {
+        if ($compareTime !== null) {
+            $this->compareTime = $this->castToDateTime($compareTime);
+        }
+
         if (! $time instanceof DateTime) {
             $time = $this->castToDateTime($time);
         }
@@ -26,9 +30,7 @@ class TimeSince extends Time
 
     protected function format(): string
     {
-        [$time, $type] = $this->diff($this->dateTime);
-
-        $this->addAttributes(Attributes::create(['data-relative-time' => 'since']));
+        [$time, $type] = $this->diff($this->compareTime);
 
         return sprintf(
             match ($type) {

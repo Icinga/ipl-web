@@ -31,6 +31,9 @@ class Time extends BaseHtmlElement
     /** @var IntlDateFormatter|null Formatter to create the time string */
     protected ?IntlDateFormatter $formatter = null;
 
+    /** @var DateTime|null Time to compare with, null takes current time */
+    protected ?DateTime $compareTime = null;
+
     /** @var string Tag of element. */
     protected $tag = 'time';
 
@@ -61,23 +64,28 @@ class Time extends BaseHtmlElement
     }
 
     /**
-     * Compute the difference between the given time and now
+     * Compute the difference between the given time and the compare time
      *
      * Returns an array with the interval, the formatted string, and the type of difference
      * Type can be one of the constants RELATIVE, TIME, DATE
      *
-     * @param DateTime $time
+     * @param ?DateTime $compareTime time to compare with, or null for now
      *
      * @return array{0: string, 1: self::TIME|self::DATE|self::RELATIVE, 2: DateInterval}
      */
-    public function diff(DateTime $time): array
+    public function diff(?DateTime $compareTime = null): array
     {
-        $interval = (new DateTime())->diff($time);
+        $compareTime = $compareTime ?? new DateTime();
+        $time = $this->dateTime;
+        $interval = $time->diff($compareTime);
 
         return [...match (true) {
-            $interval->days > 2 => [$time->format(date('Y') === $time->format('Y') ? 'M j' : 'Y-m'), static::DATE],
+            $interval->days > 2 => [
+                $time->format($this->isSameByFormat($compareTime, 'Y') ? 'M j' : 'Y-m'),
+                static::DATE
+            ],
             $interval->days > 0 => [$interval->format('%dd %hh'), static::RELATIVE],
-            $interval->h > 0    => date('d') === $time->format('d')
+            $interval->h > 0    => $this->isSameByFormat($compareTime, 'd')
                 ? [$time->format('H:i'), static::TIME]
                 : [$time->format('M j H:i'), static::DATE],
             default             => [$interval->format('%im %ss'), static::RELATIVE],
@@ -103,14 +111,21 @@ class Time extends BaseHtmlElement
      * Return a relative time widget
      *
      * @param DateTime $time
+     * @param DateTime|null $compareTime null takes current time
      *
      * @return static
      *
      * @throws Exception
      */
-    public static function relative(DateTime $time): static
+    public static function relative(DateTime $time, ?DateTime $compareTime = null): static
     {
-        return $time->getTimestamp() < time() ? new TimeAgo($time) : new TimeUntil($time);
+        if ($compareTime === null) {
+            $compareTime = new DateTime();
+        }
+
+        return $time->getTimestamp() < $compareTime->getTimestamp()
+            ? new TimeAgo($time, $compareTime)
+            : new TimeUntil($time, $compareTime);
     }
 
     /**
@@ -148,5 +163,20 @@ class Time extends BaseHtmlElement
         $value = (int) ($value > 9999999999 ? ($value / 1000) : $value);
 
         return (new DateTime('@' . $value))->setTimezone(new DateTimeZone(date_default_timezone_get()));
+    }
+
+    /**
+     * Checks whether the widget time and the compare time share the same value for a given format.
+     *
+     * @param DateTime $compareTime  DateTime to compare with the widget time
+     * @param string   $format  A format string accepted by DateTime::format() (e.g. 'Y', 'd', 'Y-m-d').
+     *
+     * @return bool True if both date/times produce the same string for the given format, false otherwise.
+     *
+     * @internal
+     */
+    protected function isSameByFormat(DateTime $compareTime, string $format): bool
+    {
+        return $this->dateTime->format($format) === $compareTime->format($format);
     }
 }
