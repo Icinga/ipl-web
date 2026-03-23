@@ -5,9 +5,12 @@ namespace ipl\Web\Widget;
 use DateTime;
 use Exception;
 use ipl\Html\Attributes;
+use ipl\I18n\Translation;
 
 class TimeAgo extends Time
 {
+    use Translation;
+
     protected $defaultAttributes = ['class' => 'time-ago', 'data-relative-time' => 'ago'];
 
     /**
@@ -38,7 +41,7 @@ class TimeAgo extends Time
                 Attributes::create(
                     [
                         'data-ago-label' => sprintf(
-                            t('%s ago', 'An event that happened the given time interval ago'),
+                            $this->translate('%s ago', 'An event that happened the given time interval ago'),
                             '0m 0s'
                         )
                     ]
@@ -48,9 +51,9 @@ class TimeAgo extends Time
 
         return sprintf(
             match ($type) {
-                self::RELATIVE => t('%s ago', 'An event that happened the given time interval ago'),
-                self::TIME     => t('at %s', 'An event happened at the given time'),
-                self::DATE     => t('on %s', 'An event happened on the given date or date and time'),
+                self::RELATIVE => $this->translate('%s ago', 'An event that happened the given time interval ago'),
+                self::TIME     => $this->translate('at %s', 'An event happened at the given time'),
+                self::DATE     => $this->translate('on %s', 'An event happened on the given date or date and time'),
             },
             $time
         );

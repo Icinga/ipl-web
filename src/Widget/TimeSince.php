@@ -4,9 +4,12 @@ namespace ipl\Web\Widget;
 
 use DateTime;
 use Exception;
+use ipl\I18n\Translation;
 
 class TimeSince extends Time
 {
+    use Translation;
+
     protected $defaultAttributes = ['class' => 'time-since', 'data-relative-time' => 'since'];
 
     /**
@@ -34,8 +37,11 @@ class TimeSince extends Time
 
         return sprintf(
             match ($type) {
-                self::RELATIVE         => t('for %s', 'A status is lasting for the given time interval'),
-                self::TIME, self::DATE => t(
+                self::RELATIVE         => $this->translate(
+                    'for %s',
+                    'A status is lasting for the given time interval'
+                ),
+                self::TIME, self::DATE => $this->translate(
                     'since %s',
                     'A status is lasting since the given time, date or date and time'
                 ),

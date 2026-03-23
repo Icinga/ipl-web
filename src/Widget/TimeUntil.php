@@ -5,9 +5,12 @@ namespace ipl\Web\Widget;
 use DateTime;
 use Exception;
 use ipl\Html\Attributes;
+use ipl\I18n\Translation;
 
 class TimeUntil extends Time
 {
+    use Translation;
+
     protected $defaultAttributes = ['class' => 'time-until', 'data-relative-time' => 'until'];
 
     /**
@@ -38,7 +41,7 @@ class TimeUntil extends Time
                 Attributes::create(
                     [
                         'data-ago-label' => sprintf(
-                            t('%s ago', 'An event that happened the given time interval ago'),
+                            $this->translate('%s ago', 'An event that happened the given time interval ago'),
                             '0m 0s'
                         )
                     ]
@@ -55,9 +58,12 @@ class TimeUntil extends Time
 
         return sprintf(
             match ($type) {
-                self::RELATIVE => t('in %s', 'An event will happen after the given time interval has elapsed'),
-                self::TIME     => t('at %s', 'An event will happen at the given time'),
-                self::DATE     => t('on %s', 'An event will happen on the given date or date and time'),
+                self::RELATIVE => $this->translate(
+                    'in %s',
+                    'An event will happen after the given time interval has elapsed'
+                ),
+                self::TIME     => $this->translate('at %s', 'An event will happen at the given time'),
+                self::DATE     => $this->translate('on %s', 'An event will happen on the given date or date and time'),
             },
             $time
         );
