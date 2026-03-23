@@ -52,6 +52,9 @@ class Csp
      */
     public static function fromString(string $header): static
     {
+        $header = trim($header);
+        $header = str_replace("\r\n", ' ', $header);
+        $header = str_replace("\n", ' ', $header);
         $result = new static();
         foreach (explode(';', $header) as $directive) {
             $directive = trim($directive);
