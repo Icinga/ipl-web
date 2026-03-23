@@ -123,7 +123,7 @@ class Time extends BaseHtmlElement
             $compareTime = new DateTime();
         }
 
-        return $time->getTimestamp() < $compareTime->getTimestamp()
+        return $time->getTimestamp() <= $compareTime->getTimestamp()
             ? new TimeAgo($time, $compareTime)
             : new TimeUntil($time, $compareTime);
     }
