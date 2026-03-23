@@ -519,13 +519,12 @@ define(["../notjQuery"], function ($) {
                     if (input !== completedInput) {
                         // Restore input if a suggestion lost focus
                         this.suggest(completedInput, this.completedValue);
+                        // This triggers the autosubmit if the user navigates away from the input for non-instrumented mode.
+                        // as the input is reset to the manually changed value once suggestions are hidden.
+                        this.hasBeenManuallyChanged = true;
                     }
 
                     this.hideSuggestions();
-
-                    // This triggers the autosubmit if the user navigates away from the input for non-instrumented mode.
-                    // as the input is reset to the manually changed value once suggestions are hidden.
-                    this.hasBeenManuallyChanged = true;
                 }
             }, 250);
         }
@@ -597,6 +596,8 @@ define(["../notjQuery"], function ($) {
                     $(this.completedInput).focus({ scripted: true });
                     this.suggest(this.completedInput, this.completedValue);
                     this.clearSelection();
+                    this.hasBeenManuallyChanged = true;
+
                     break;
                 case 'Tab':
                     event.preventDefault();
@@ -710,9 +711,6 @@ define(["../notjQuery"], function ($) {
                 case 'Escape':
                     if (this.hasSuggestions()) {
                         this.hideSuggestions();
-                        // This triggers the autosubmit if the user navigates away from the input for non-instrumented mode.
-                        // as the input has the manually changed value.
-                        this.hasBeenManuallyChanged = true;
                         event.preventDefault();
                     }
 
