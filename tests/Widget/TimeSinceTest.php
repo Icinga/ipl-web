@@ -1,186 +1,187 @@
 <?php
 
-// Define t() and N_() in ipl\Web\Widget namespace so unqualified calls from widget code resolve here
-namespace ipl\Web\Widget {
+namespace ipl\Tests\Web\Widget;
 
-    if (! function_exists('ipl\Web\Widget\t')) {
-        function t(string $message, ?string $context = null): string
-        {
-            return $message;
-        }
-    }
+use DateTime;
+use IntlDateFormatter;
+use ipl\I18n\NoopTranslator;
+use ipl\I18n\StaticTranslator;
+use ipl\Tests\Web\TestCase;
+use ipl\Web\Widget\TimeSince;
 
-    if (! function_exists('ipl\Web\Widget\N_')) {
-        function N_(string $message): string
-        {
-            return $message;
-        }
-    }
-}
-
-namespace ipl\Tests\Web\Widget {
-
-    use DateTime;
-    use ipl\Tests\Web\TestCase;
-    use ipl\Web\Widget\TimeSince;
-
-    class TimeSinceTest extends TestCase
+class TimeSinceTest extends TestCase
+{
+    protected function setUp(): void
     {
-        public function testConstructorAcceptsNullForCurrentTime(): void
-        {
-            $widget = new TimeSince(null);
+        StaticTranslator::$instance = new NoopTranslator();
+    }
 
-            $this->assertStringContainsString('data-relative-time="since"', $widget->render());
-        }
+    public function testConstructorAcceptsNullForCurrentTime(): void
+    {
+        $nowDateTime = new DateTime();
+        $html = sprintf(
+            '<time %s title="%2$s" datetime="%2$s">for 0m 0s</time>',
+            'class="time-since" data-relative-time="since"',
+            $nowDateTime->format('Y-m-d H:i:s'),
+        );
+        $renderedWithoutParams = (new TimeSince(null, null))->render();
 
-        public function testConstructorAcceptsIntTimestamp(): void
-        {
-            $timestamp = mktime(12, 0, 0, 1, 15, 2024);
-            $widget = new TimeSince($timestamp);
+        $this->assertSame($html, $renderedWithoutParams);
 
-            $this->assertStringContainsString('data-relative-time="since"', $widget->render());
-        }
+        $renderedWithParams = (new TimeSince($nowDateTime, $nowDateTime))->render();
 
-        public function testConstructorAcceptsFloatTimestamp(): void
-        {
-            $timestamp = (float) mktime(12, 0, 0, 1, 15, 2024);
-            $widget = new TimeSince($timestamp);
+        $this->assertSame($html, $renderedWithParams);
+    }
 
-            $this->assertStringContainsString('data-relative-time="since"', $widget->render());
-        }
+    public function testConstructorAcceptsTimestamp(): void
+    {
+        $html = sprintf(
+            '<time %s title="%2$s" datetime="%2$s">for 30m 0s</time>',
+            'class="time-since" data-relative-time="since"',
+            '2026-03-17 14:17:07',
+        );
+        $timestampEvent = mktime(14, 17, 7, 3, 17, 2026);
+        $timestampNow = mktime(14, 47, 7, 3, 17, 2026);
+        $rendered = (new TimeSince($timestampEvent, $timestampNow))->render();
 
-        public function testConstructorAcceptsDateTime(): void
-        {
-            $widget = new TimeSince(new DateTime('-30 minutes'));
+        $this->assertSame($html, $rendered);
 
-            $this->assertStringContainsString('data-relative-time="since"', $widget->render());
-        }
+        $timestampEventFloat = (float) $timestampEvent;
+        $timestampNowFloat = (float) $timestampNow;
+        $rendered2 = (new TimeSince($timestampEventFloat, $timestampNowFloat))->render();
 
-        public function testRenderHasTimeSinceClass(): void
-        {
-            $widget = new TimeSince(new DateTime('-30 minutes'));
+        $this->assertSame($html, $rendered2);
+    }
 
-            $this->assertStringContainsString('class="time-since"', $widget->render());
-        }
+    public function testRenderHasAttributes(): void
+    {
+        $eventTime = '2026-03-17 14:17:07';
+        $now = '2026-03-17 14:47:07';
+        $time = new DateTime($eventTime);
+        $compareTime = new DateTime($now);
+        $rendered = (new TimeSince($time, $compareTime))->render();
 
-        public function testRenderHasDatetimeAttribute(): void
-        {
-            $dateTime = new DateTime('2024-01-15 12:00:00');
-            $widget = new TimeSince($dateTime);
-            $rendered = $widget->render();
+        $this->assertStringContainsString('class="time-since"', $rendered);
+        $this->assertStringContainsString('data-relative-time="since"', $rendered);
+        $this->assertStringContainsString(sprintf('datetime="%s"', $eventTime), $rendered);
+        $this->assertStringContainsString(sprintf('title="%s"', $eventTime), $rendered);
+    }
 
-            $this->assertStringContainsString('datetime="2024-01-15 12:00:00"', $rendered);
-        }
+    public function testRenderHasAgoLabel(): void
+    {
+        $eventTime = '2026-03-17 14:17:07';
+        $now = '2026-03-17 14:47:07';
+        $time = new DateTime($eventTime);
+        $compareTime = new DateTime($now);
+        $rendered = (new TimeSince($time, $compareTime))->render();
 
-        public function testRenderHasTitleAttribute(): void
-        {
-            $dateTime = new DateTime('2024-01-15 12:00:00');
-            $widget = new TimeSince($dateTime);
-            $rendered = $widget->render();
+        $this->assertStringNotContainsString('data-ago-label=', $rendered);
 
-            $this->assertStringContainsString('title="2024-01-15 12:00:00"', $rendered);
-        }
+        $compareTime = new DateTime('2026-03-17 15:18:07');
+        $rendered = (new TimeSince($time, $compareTime))->render();
 
-        public function testFormatWithSubHourTimeShowsForPrefix(): void
-        {
-            $widget = new TimeSince(new DateTime('-30 minutes'));
-            $rendered = $widget->render();
+        $this->assertStringNotContainsString('data-ago-label=', $rendered);
+    }
 
-            // RELATIVE type: "for %s" → "for 30m Xs"
-            $this->assertMatchesRegularExpression('/for \d+m \d+s/', $rendered);
-        }
+    public function testRenderUsesTimeHtmlTag(): void
+    {
+        $time = new DateTime('2026-03-17 14:17:07');
+        $compareTime = new DateTime('2026-03-22 14:17:07');
+        $rendered = (new TimeSince($time, $compareTime))->render();
 
-        public function testFormatWithHoursAgoSameDayShowsSincePrefix(): void
-        {
-            $now = new DateTime();
-            if ((int) $now->format('H') < 3) {
-                $this->markTestSkipped('Unreliable before 03:00 local time');
-            }
 
-            $widget = new TimeSince(new DateTime('-2 hours'));
-            $rendered = $widget->render();
+        $this->assertStringStartsWith('<time', $rendered);
+        $this->assertStringEndsWith('</time>', $rendered);
+    }
 
-            // TIME type: falls back to "since %s" → "since 14:30"
-            $this->assertMatchesRegularExpression('/since \d{1,2}:\d{2}/', $rendered);
-        }
+    public function testFormatWithSubHourTime(): void
+    {
+        $time = new DateTime('2026-03-17 14:17:07');
+        $compareTime = new DateTime('2026-03-17 14:47:07');
+        $rendered = (new TimeSince($time, $compareTime))->render();
 
-        public function testFormatWithDaysAgoShowsSincePrefix(): void
-        {
-            $fiveDaysAgo = new DateTime('-5 days');
-            if (date('Y') !== $fiveDaysAgo->format('Y')) {
-                $this->markTestSkipped('Skipped: test date crosses a year boundary');
-            }
+        $this->assertStringContainsString('>for 30m 0s<', $rendered);
+    }
 
-            $widget = new TimeSince($fiveDaysAgo);
-            $rendered = $widget->render();
+    public function testFormatWithHoursAgoSameDay(): void
+    {
+        $time = new DateTime('2026-03-17 14:17:07');
+        $compareTime = new DateTime('2026-03-17 16:17:07');
+        $rendered = (new TimeSince($time, $compareTime))->render();
 
-            // DATE type: falls back to "since %s" → "since Feb 22"
-            $this->assertMatchesRegularExpression('/since [A-Z][a-z]+ \d+/', $rendered);
-        }
+        $this->assertStringContainsString('>since 14:17<', $rendered);
+    }
 
-        public function testFormatWithDaysAndHoursAgoShowsForRelative(): void
-        {
-            $widget = new TimeSince(new DateTime('-36 hours'));
-            $rendered = $widget->render();
+    public function testFormatWithDaysAgo(): void
+    {
+        $time = new DateTime('2026-03-17 14:17:07');
+        $compareTime = new DateTime('2026-03-22 14:17:07');
+        $rendered = (new TimeSince($time, $compareTime))->render();
 
-            // RELATIVE type with days: "for %s" → "for 1d 12h"
-            $this->assertMatchesRegularExpression('/for \d+d \d+h/', $rendered);
-        }
+        $this->assertStringContainsString('>since Mar 17<', $rendered);
+    }
 
-        public function testTimestampInputProducesCorrectDatetimeAttribute(): void
-        {
-            $timestamp = mktime(12, 0, 0, 1, 15, 2024);
-            $widget = new TimeSince($timestamp);
-            $rendered = $widget->render();
+    public function testFormatWithDaysAndHoursAgo(): void
+    {
+        $time = new DateTime('2026-03-17 14:17:07');
+        $compareTime = new DateTime('2026-03-19 02:17:07');
+        $rendered = (new TimeSince($time, $compareTime))->render();
 
-            $this->assertStringContainsString('datetime="2024-01-15 12:00:00"', $rendered);
-        }
+        $this->assertStringContainsString('>for 1d 12h<', $rendered);
+    }
 
-        public function testFormatCrossMidnightShowsSincePrefixWithTime(): void
-        {
-            $hour = (int) date('H');
-            if ($hour < 1 || $hour >= 23) {
-                $this->markTestSkipped('Unreliable outside 01:00–23:00 local time');
-            }
+    public function testFormatCrossMidnightLessThanDayAgo(): void
+    {
+        $time = new DateTime('2026-03-17 14:17:07');
+        $compareTime = new DateTime('2026-03-18 02:17:07');
+        $rendered = (new TimeSince($time, $compareTime))->render();
 
-            // Yesterday 23:30 — hours diff but different calendar day
-            $widget = new TimeSince(new DateTime('yesterday 23:30'));
-            $rendered = $widget->render();
+        $this->assertStringContainsString('>since Mar 17 14:17<', $rendered);
+    }
 
-            // DATE type with cross-midnight: "since %s" → "since Mar 1 23:30"
-            $this->assertMatchesRegularExpression('/since [A-Z][a-z]+ \d+ \d{1,2}:\d{2}/', $rendered);
-        }
+    public function testFormatWithPreviousYear(): void
+    {
+        $time = new DateTime('2026-12-31 23:47:07');
+        $compareTime3Days = new DateTime('2027-03-17 14:17:07');
+        $rendered3Days = (new TimeSince($time, $compareTime3Days))->render();
 
-        public function testRenderUsesTimeHtmlTag(): void
-        {
-            $widget = new TimeSince(new DateTime('-30 minutes'));
-            $rendered = $widget->render();
+        $this->assertStringContainsString('>since 2026-12<', $rendered3Days);
 
-            $this->assertStringStartsWith('<time', $rendered);
-            $this->assertStringEndsWith('</time>', $rendered);
-        }
+        $compareTime1To3Days = new DateTime('2027-01-02 09:47:07');
+        $rendered1To3Days = (new TimeSince($time, $compareTime1To3Days))->render();
 
-        public function testFormatWithPreviousYearShowsSincePrefixWithYearMonth(): void
-        {
-            $lastYear = new DateTime('-400 days');
-            if (date('Y') === $lastYear->format('Y')) {
-                $this->markTestSkipped('Skipped: test date is still in the current year');
-            }
+        $this->assertStringContainsString('>for 1d 10h<', $rendered1To3Days);
 
-            $widget = new TimeSince($lastYear);
-            $rendered = $widget->render();
+        $compareTimeHours = new DateTime('2027-01-01 09:47:07');
+        $renderedHours = (new TimeSince($time, $compareTimeHours))->render();
 
-            // DATE type with previous year: "since %s" → "since 2024-01"
-            $this->assertMatchesRegularExpression('/since \d{4}-\d{2}/', $rendered);
-        }
+        $this->assertStringContainsString('>since Dec 31 23:47<', $renderedHours);
 
-        public function testFormatWithFutureSubHourShowsForPrefix(): void
-        {
-            $widget = new TimeSince(new DateTime('+30 minutes'));
-            $rendered = $widget->render();
+        $compareTimeMinutes = new DateTime('2027-01-01 00:17:07');
+        $renderedMinutes = (new TimeSince($time, $compareTimeMinutes))->render();
 
-            // RELATIVE type even for future: "for %s" → "for 29m Xs"
-            $this->assertMatchesRegularExpression('/for \d+m \d+s/', $rendered);
-        }
+        $this->assertStringContainsString('>for 30m 0s<', $renderedMinutes);
+    }
+
+    public function testFormatWithFutureSubHourShowsAgoSuffix(): void
+    {
+        $time = new DateTime('2026-03-17 14:17:07');
+        $compareTime = new DateTime('2026-03-17 13:47:07');
+        $rendered = (new TimeSince($time, $compareTime))->render();
+
+        $this->assertStringContainsString('>for 30m 0s<', $rendered);
+    }
+
+
+    public function testRenderIgnoresFormatter(): void
+    {
+        $dateTime = new DateTime('2026-03-17 14:17:07');
+        $compareTime = new DateTime('2026-03-17 15:17:07');
+        $widget = new TimeSince($dateTime, $compareTime);
+        $formatter = IntlDateFormatter::create(locale: 'en', pattern: 'Y_M_d H:m');
+
+        $rendered = $widget->setFormatter($formatter)->render();
+
+        $this->assertStringNotContainsString('>2026_3_17 14:17<', $rendered);
     }
 }
