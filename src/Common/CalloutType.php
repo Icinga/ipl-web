@@ -9,10 +9,10 @@ use ipl\Web\Widget\Icon;
  */
 enum CalloutType: string
 {
-    case Info = "info";
-    case Success = "success";
-    case Warning = "warning";
-    case Error = "error";
+    case Info = 'callout-type-info';
+    case Success = 'callout-type-success';
+    case Warning = 'callout-type-warning';
+    case Error = 'callout-type-error';
 
     /**
      * Get the icon element for use in the callout
@@ -21,11 +21,11 @@ enum CalloutType: string
      */
     public function getIcon(): Icon
     {
-        return match ($this) {
-            self::Info => new Icon('circle-info'),
-            self::Success => new Icon('circle-check'),
-            self::Warning => new Icon('warning'),
-            self::Error => new Icon('circle-xmark'),
-        };
+        return new Icon(match ($this) {
+            self::Info => 'circle-info',
+            self::Success => 'circle-check',
+            self::Warning => 'warning',
+            self::Error => 'circle-xmark',
+        });
     }
 }
