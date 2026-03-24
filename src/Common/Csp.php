@@ -2,7 +2,6 @@
 
 namespace ipl\Web\Common;
 
-use Generator;
 use InvalidArgumentException;
 
 /**
@@ -62,7 +61,10 @@ class Csp
                 continue;
             }
             $parts = explode(' ', $directive, 2);
-            $result->add($parts[0], $parts[1] ?? '');
+            if (count($parts) < 2) {
+                continue;
+            }
+            $result->add($parts[0], $parts[1]);
         }
 
         return $result;
@@ -82,7 +84,7 @@ class Csp
             throw new InvalidArgumentException("Changing default-src is forbidden.");
         }
 
-        if (! preg_match('|^[a-z\-]+$|', $directive)) {
+        if (! preg_match('/^[a-z\-]+$/', $directive)) {
             throw new InvalidArgumentException(
                 "Directive names contain only lowercase letters and '-'. Directive: $directive",
             );
@@ -134,21 +136,21 @@ class Csp
      *
      * @param string $directive The directive name
      *
-     * @return Generator<string>
+     * @return string[]
      */
-    public function getDirective(string $directive): Generator
+    public function getDirective(string $directive): array
     {
-        yield from $this->directives[$directive] ?? [];
+        return $this->directives[$directive] ?? [];
     }
 
     /**
      * Get all directives
      *
-     * @return Generator<string, array<string>>
+     * @return array<string, array<string>>
      */
-    public function getDirectives(): Generator
+    public function getDirectives(): array
     {
-        yield from $this->directives;
+        return $this->directives;
     }
 
     /**
