@@ -25,11 +25,6 @@ class Callout extends BaseHtmlElement
     protected $defaultAttributes = ['class' => 'callout'];
 
     /**
-     * @var ValidHtml The content of the callout
-     */
-    protected ValidHtml $content;
-
-    /**
      * Create a new callout
      *
      * @param CalloutType $type the type of the callout. The type determines the color and icon that is used.
@@ -38,13 +33,9 @@ class Callout extends BaseHtmlElement
      */
     public function __construct(
         protected CalloutType $type,
-        ValidHtml|string $content,
+        protected ValidHtml|string $content,
         protected ?string $title = null
     ) {
-        if (is_string($content)) {
-            $content = new Text($content);
-        }
-        $this->content = $content;
         $this->addAttributes(Attributes::create(['class' => $type->value]));
     }
 
@@ -59,7 +50,7 @@ class Callout extends BaseHtmlElement
                 $this->title
                     ? HtmlElement::create('strong', ['class' => 'callout-title'], new Text($this->title))
                     : null,
-                $this->content,
+                is_string($this->content) ? new Text($this->content) : $this->content,
             ],
         ));
     }
