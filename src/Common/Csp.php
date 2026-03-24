@@ -74,7 +74,7 @@ class Csp
      * Add a directive with a policy or a list of policies to the CSP
      *
      * @param string $directive The directive name
-     * @param string|array $value The policy or list of policies to add
+     * @param string|string[] $value The policy or list of policies to add
      *
      * @return $this
      */
