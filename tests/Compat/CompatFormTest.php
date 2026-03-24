@@ -3,9 +3,9 @@
 namespace ipl\Tests\Web\Compat;
 
 use ipl\Html\FormElement\SubmitElement;
+use ipl\Html\Test\TestCase;
 use ipl\I18n\NoopTranslator;
 use ipl\I18n\StaticTranslator;
-use ipl\Tests\Html\TestCase;
 use ipl\Web\Compat\CompatForm;
 
 class CompatFormTest extends TestCase

@@ -5,9 +5,9 @@ namespace ipl\Tests\Web\Compat\FormDecorator;
 use ipl\Html\Contract\Form;
 use ipl\Html\FormDecoration\FormElementDecorationResult;
 use ipl\Html\FormElement\TextElement;
+use ipl\Html\Test\TestCase as IplHtmlTestCase;
 use ipl\I18n\NoopTranslator;
 use ipl\I18n\StaticTranslator;
-use ipl\Tests\Html\TestCase as IplHtmlTestCase;
 use ipl\Web\Compat\FormDecorator\LabelDecorator;
 
 class LabelDecoratorTest extends IplHtmlTestCase

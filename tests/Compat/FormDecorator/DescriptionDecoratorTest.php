@@ -4,8 +4,8 @@ namespace ipl\Tests\Web\Compat\FormDecorator;
 
 use ipl\Html\FormDecoration\FormElementDecorationResult;
 use ipl\Html\FormElement\TextElement;
+use ipl\Html\Test\TestCase as IplHtmlTestCase;
 use ipl\Web\Compat\FormDecorator\DescriptionDecorator;
-use ipl\Tests\Html\TestCase as IplHtmlTestCase;
 
 class DescriptionDecoratorTest extends IplHtmlTestCase
 {
