@@ -5,7 +5,7 @@ namespace ipl\Tests\Web\Compat\FormDecorator;
 use ipl\Html\FormDecoration\FormElementDecorationResult;
 use ipl\Html\FormElement\CheckboxElement;
 use ipl\Html\Html;
-use ipl\Tests\Html\TestCase as IplHtmlTestCase;
+use ipl\Html\Test\TestCase as IplHtmlTestCase;
 use ipl\Web\Compat\FormDecorator\CheckboxDecorator;
 
 class CheckboxDecoratorTest extends IplHtmlTestCase
