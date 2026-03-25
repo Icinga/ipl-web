@@ -57,7 +57,7 @@ class Csp
         $result = new static();
         foreach (explode(';', $header) as $directive) {
             $directive = trim($directive);
-            if (empty($directive) || $directive === 'default-src') {
+            if (empty($directive)) {
                 continue;
             }
             $parts = explode(' ', $directive, 2);
@@ -97,6 +97,10 @@ class Csp
                 return $this->add($directive, explode(' ', $value));
             }
 
+            if (empty($value)) {
+                return $this;
+            }
+
             if (! isset($this->directives[$directive])) {
                 $this->directives[$directive] = [];
             }
@@ -112,7 +116,12 @@ class Csp
                 && str_starts_with($value, "'nonce-")
                 && str_ends_with($value, "'")
             ) {
-                $this->nonce = substr($value, 7, -1);
+                $nonce = substr($value, 7, -1);
+                if (empty($nonce)) {
+                    throw new InvalidArgumentException("Nonce cannot must have a value.");
+                }
+
+                $this->nonce = $nonce;
             }
         } else {
             foreach ($value as $v) {
