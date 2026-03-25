@@ -172,4 +172,9 @@ class Csp
     {
         return $this->getHeader();
     }
+
+    public function isEmpty(): bool
+    {
+        return empty($this->directives);
+    }
 }
