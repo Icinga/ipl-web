@@ -10,6 +10,9 @@ use InvalidArgumentException;
  */
 class Csp
 {
+    /** @var string[] The default source directive */
+    protected const DEFAULT_SOURCE_DIRECTIVE = ["'self'"];
+
     /**
      * @var array<string, array<string>> The directives and their values
      */
@@ -145,11 +148,11 @@ class Csp
      *
      * @param string $directive The directive name
      *
-     * @return string[]
+     * @return string[] The policies of the directive or the default-src directive if none is set explicitly
      */
     public function getDirective(string $directive): array
     {
-        return $this->directives[$directive] ?? [];
+        return $this->directives[$directive] ?? static::DEFAULT_SOURCE_DIRECTIVE;
     }
 
     /**
@@ -170,7 +173,7 @@ class Csp
      */
     public function getHeader(): string
     {
-        $directiveStrings = ["default-src 'self'"];
+        $directiveStrings = ["default-src " . implode(' ', static::DEFAULT_SOURCE_DIRECTIVE)];
         foreach ($this->directives as $directive => $values) {
             $directiveStrings[] = sprintf('%s %s', $directive, implode(' ', $values));
         }
