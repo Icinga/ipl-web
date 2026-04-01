@@ -2,6 +2,7 @@
 
 namespace ipl\Web\Common;
 
+use GuzzleHttp\Psr7\ServerRequest;
 use InvalidArgumentException;
 
 /**
@@ -112,6 +113,8 @@ class Csp
                 return $this;
             }
 
+            $this->validatePolicy($value);
+
             $this->directives[$directive][] = $value;
 
             if (
@@ -121,7 +124,7 @@ class Csp
             ) {
                 $nonce = substr($value, 7, -1);
                 if (empty($nonce)) {
-                    throw new InvalidArgumentException("Nonce cannot must have a value.");
+                    throw new InvalidArgumentException("Nonce must have a value.");
                 }
 
                 $this->nonce = $nonce;
@@ -188,5 +191,147 @@ class Csp
     public function isEmpty(): bool
     {
         return empty($this->directives);
+    }
+
+    /**
+     * Validate a policy. Throws an exception if the policy is invalid.
+     *
+     * @param string $policy The policy to validate
+     *
+     * @return void
+     */
+    protected function validatePolicy(string $policy): void
+    {
+        if ($policy === '*') {
+            return;
+        }
+
+        if (str_contains($policy, ' ')) {
+            throw new InvalidArgumentException("Policy must not contain spaces. policy: $policy");
+        }
+
+        if (
+            (str_starts_with($policy, "'") && ! str_ends_with($policy, "'"))
+            || ! str_starts_with($policy, "'") && str_ends_with($policy, "'")
+        ) {
+            throw new InvalidArgumentException(
+                "Quoted policy must be fully surrounded by single quotes. policy: $policy",
+            );
+        }
+
+        if (str_starts_with($policy, "'") && str_ends_with($policy, "'")) {
+            return;
+        }
+
+        // scheme and scheme://*
+        if (preg_match('/^[a-z]+:(\/\/\*)?$/', $policy)) {
+            return;
+        }
+
+        // Reporting names
+        if (preg_match('/^[a-zA-Z0-9_-]+$/', $policy)) {
+            return;
+        }
+
+        $parsedUrl = parse_url($policy);
+        if ($parsedUrl === false) {
+            throw new InvalidArgumentException("Policy must be a valid URL. policy: $policy");
+        }
+
+        if (! isset($parsedUrl['host'])) {
+            throw new InvalidArgumentException("Policy URL must specify a host. policy: $policy");
+        }
+
+        if (! isset($parsedUrl['scheme'])) {
+            throw new InvalidArgumentException("Policy URL must specify a scheme. policy: $policy");
+        }
+
+        if (str_starts_with($parsedUrl['host'], '*')) {
+            if (! str_starts_with($parsedUrl['host'], '*.')) {
+                throw new InvalidArgumentException("Wildcard host must be a full subdomain. policy: $policy");
+            }
+        } else {
+            if (str_contains($parsedUrl['host'], '*')) {
+                throw new InvalidArgumentException("Wildcards can only be used at the start of the host. policy: $policy");
+            }
+        }
+    }
+
+    /**
+     * Evaluates a URL against a CSP directive.
+     * Returns true if the URL is allowed by the directive.
+     * This method only checks the URL's scheme and host and path. Nonce and hash are not checked because they can't be
+     * represented inside a URL.
+     *
+     * @param string $directive The CSP directive to evaluate the URL against
+     * @param string $url The URL to evaluate
+     *
+     * @return bool
+     */
+    public function evaluateUrl(string $directive, string $url): bool
+    {
+        $policies = $this->getDirective($directive);
+
+        // 'none' is only supported if it is the only policy.
+        // If it is combined with other values, browsers ignore 'none'
+        if (count($policies) === 1 && $policies[0] === "'none'") {
+            return false;
+        }
+
+        if (in_array('*', $policies)) {
+            return true;
+        }
+
+        $parsedUrl = parse_url($url);
+        $scheme = $parsedUrl['scheme'] ?? null;
+        if (in_array("'self'", $policies)) {
+            $requestUri = ServerRequest::getUriFromGlobals();
+            if (
+                ($scheme === null || $requestUri->getScheme() === $scheme)
+                && $requestUri->getHost() === $parsedUrl['host']
+            ) {
+                return true;
+            }
+        }
+
+        foreach ($policies as $policy) {
+            if (str_starts_with($policy, "'") && str_ends_with($policy, "'")) {
+                continue;
+            }
+
+            if ($scheme !== null && ($policy === $scheme . ':' || $policy === $scheme . '://')) {
+                return true;
+            }
+
+            $parsedPolicyUrl = parse_url($policy);
+            if (! isset($parsedPolicyUrl['scheme']) || ! isset($parsedPolicyUrl['host'])) {
+                continue;
+            }
+
+            $parsedPolicyPath = $parsedPolicyUrl['path'] ?? null;
+            $pathIsDirectory = $parsedPolicyPath !== null && str_ends_with($parsedPolicyPath, '/');
+            $parsedPath = $parsedUrl['path'] ?? null;
+            if (
+                ($scheme === null || $parsedPolicyUrl['scheme'] === $scheme)
+                && $parsedPolicyUrl['host'] === $parsedUrl['host']
+                && ($parsedPolicyPath === null || (
+                    $pathIsDirectory && $parsedPath !== null && str_starts_with($parsedPath, $parsedPolicyPath)
+                    || $parsedPath === $parsedPolicyPath
+                ))
+            ) {
+                return true;
+            }
+
+            // Note: https://*.example.com means https://example.com and https://sub.example.com
+            if (
+                ($scheme === null || $parsedPolicyUrl['scheme'] === $scheme)
+                && str_starts_with($parsedPolicyUrl['host'], '*')
+                && (str_ends_with($parsedUrl['host'], substr($parsedPolicyUrl['host'], 2)))
+            ) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
