@@ -281,6 +281,11 @@ class Csp
         }
 
         $parsedUrl = parse_url($url);
+
+        if (! isset($parsedUrl['host'])) {
+            throw new InvalidArgumentException("URL must specify a host. url: $url");
+        }
+
         $scheme = $parsedUrl['scheme'] ?? null;
         if (in_array("'self'", $policies)) {
             $requestUri = ServerRequest::getUriFromGlobals();
