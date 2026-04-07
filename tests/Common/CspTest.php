@@ -332,6 +332,7 @@ class CspTest extends TestCase
         $csp->add('frame-src', 'https://example.com/blog/some-article.html');
 
         $this->assertTrue($csp->evaluateUrl('frame-src', 'https://example.com/blog/some-article.html'));
+        $this->assertFalse($csp->evaluateUrl('frame-src', 'https://example.com/blog/some-article.html/style.css'));
         $this->assertFalse($csp->evaluateUrl('frame-src', 'https://blog.example.com/blog/some-article.html'));
         $this->assertFalse($csp->evaluateUrl('frame-src', 'https://example.com/blog/another-article.html'));
         $this->assertFalse($csp->evaluateUrl('frame-src', 'https://example.com/feed/some-article.html'));
