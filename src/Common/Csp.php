@@ -206,10 +206,6 @@ class Csp
             return;
         }
 
-        if (str_contains($policy, ' ')) {
-            throw new InvalidArgumentException("Policy must not contain spaces. policy: $policy");
-        }
-
         if (
             (str_starts_with($policy, "'") && ! str_ends_with($policy, "'"))
             || ! str_starts_with($policy, "'") && str_ends_with($policy, "'")
