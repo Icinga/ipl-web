@@ -2,6 +2,7 @@
 
 namespace ipl\Tests\Web\Common;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use InvalidArgumentException;
 use ipl\Tests\Web\TestCase;
 use ipl\Web\Common\Csp;
@@ -165,9 +166,7 @@ class CspTest extends TestCase
         $this->assertEquals(['reporting-endpoint'], $csp->getDirective('report-to'));
     }
 
-    /**
-     * @dataProvider providerInvalidWildcards
-     */
+    #[DataProvider('providerInvalidWildcards')]
     public function testAddInvalidWildcard(string $policy)
     {
         $this->expectException(InvalidArgumentException::class);
