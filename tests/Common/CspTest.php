@@ -177,7 +177,8 @@ class CspTest extends TestCase
         $csp->add('script-src', $policy);
     }
 
-    public function providerInvalidWildcards(): array {
+    public function providerInvalidWildcards(): array
+    {
         return [
             ['https://example.com*'],
             ['https://a*.example.com'],

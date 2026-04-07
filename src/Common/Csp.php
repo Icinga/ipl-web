@@ -248,7 +248,9 @@ class Csp
             }
         } else {
             if (str_contains($parsedUrl['host'], '*')) {
-                throw new InvalidArgumentException("Wildcards can only be used at the start of the host. policy: $policy");
+                throw new InvalidArgumentException(
+                    "Wildcards can only be used at the start of the host. policy: $policy",
+                );
             }
         }
     }
