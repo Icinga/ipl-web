@@ -32,11 +32,47 @@ class CspTest extends TestCase
 
     public function testAddStringEmpty()
     {
+        $this->expectException(InvalidArgumentException::class);
+
         $csp = new Csp();
 
         $csp->add('script-src', '');
+    }
 
-        $this->assertTrue($csp->isEmpty());
+    public function testAddNull()
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        $csp = new Csp();
+
+        $csp->add('script-src', null);
+    }
+
+    public function testAddNullOnAllowedEmptyDirective()
+    {
+        $csp = new Csp();
+
+        $csp->add('sandbox', null);
+
+        $this->assertEquals([], $csp->getDirective('sandbox'));
+    }
+
+    public function testAddNullOnMandatoryEmptyDirective()
+    {
+        $csp = new Csp();
+
+        $csp->add('block-all-mixed-content', null);
+
+        $this->assertEquals([], $csp->getDirective('block-all-mixed-content'));
+    }
+
+    public function testAddStringOnMandatoryEmptyDirective()
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        $csp = new Csp();
+
+        $csp->add('block-all-mixed-content', 'example');
     }
 
     public function testAddStringTrim()
@@ -226,6 +262,17 @@ class CspTest extends TestCase
         );
     }
 
+    public function testGetHeaderWithNullableDirectives()
+    {
+        $csp = new Csp();
+        $csp->add('sandbox', null);
+
+        $this->assertEquals(
+            'default-src \'self\'; sandbox',
+            $csp->getHeader(),
+        );
+    }
+
     public function testNonce()
     {
         $csp = new Csp();
@@ -254,6 +301,52 @@ class CspTest extends TestCase
             ],
             $csp->getDirectives(),
         );
+    }
+
+    public function testFromStringOptionalEmpty()
+    {
+        $csp = Csp::fromString("script-src 'nonce-example';\nsandbox;");
+
+        $this->assertEquals(
+            [
+                'script-src' => ["'nonce-example'"],
+                'sandbox'    => [],
+            ],
+            $csp->getDirectives(),
+        );
+    }
+
+    public function testFromStringOptionalEmptyWithValue()
+    {
+        $csp = Csp::fromString("script-src 'nonce-example';\nsandbox allow-scripts allow-forms;");
+
+        $this->assertEquals(
+            [
+                'script-src' => ["'nonce-example'"],
+                'sandbox'    => ['allow-scripts', 'allow-forms'],
+            ],
+            $csp->getDirectives(),
+        );
+    }
+
+    public function testFromStringMandatoryEmpty()
+    {
+        $csp = Csp::fromString("script-src 'nonce-example';\nblock-all-mixed-content;");
+
+        $this->assertEquals(
+            [
+                'script-src'              => ["'nonce-example'"],
+                'block-all-mixed-content' => [],
+            ],
+            $csp->getDirectives(),
+        );
+    }
+
+    public function testFromStringMandatoryEmptyWithValue()
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        Csp::fromString("script-src 'nonce-example';\nblock-all-mixed-content foo;");
     }
 
     public function testEvaluateWildcardEverything()

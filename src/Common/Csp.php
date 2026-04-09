@@ -14,6 +14,17 @@ class Csp
     /** @var string[] The expressions for the default-src directive */
     protected const DEFAULT_SOURCE_EXPRESSIONS = ["'self'"];
 
+    /** @var string[] The directives that can be empty */
+    protected const POSSIBLE_EMPTY_DIRECTIVES = [
+        'sandbox',
+    ];
+
+    /** @var string[] The directives that must be empty */
+    protected const MANDATORY_EMPTY_DIRECTIVES = [
+        'block-all-mixed-content',
+        'upgrade-insecure-requests',
+    ];
+
     /**
      * @var array<string, array<string>> The directives and their values
      */
@@ -47,6 +58,19 @@ class Csp
     }
 
     /**
+     * Only a subset of directives can be empty. Allowing them to be empty does not mean they cannot have a value,
+     * only that it can be omitted.
+     * @param string $directive The directive name
+     *
+     * @return bool
+     */
+    protected function canDirectiveBeEmpty(string $directive): bool
+    {
+        return in_array($directive, static::POSSIBLE_EMPTY_DIRECTIVES, true)
+            || in_array($directive, static::MANDATORY_EMPTY_DIRECTIVES, true);
+    }
+
+    /**
      * Create a new CSP from a string
      *
      * @param string $header The CSP header string
@@ -65,12 +89,17 @@ class Csp
                 continue;
             }
             $parts = explode(' ', $directive, 2);
-            if (count($parts) < 2) {
-                throw new InvalidArgumentException(
-                    "Directives must contain the directive name and at least one expression."
-                );
+            $name = $parts[0];
+            if (count($parts) == 1) {
+                if (! $result->canDirectiveBeEmpty($name)) {
+                    throw new InvalidArgumentException(
+                        "Directives must contain the directive name and at least one expression. Directive: $directive"
+                    );
+                }
+                $result->add($name, null);
+            } else {
+                $result->add($parts[0], $parts[1]);
             }
-            $result->add($parts[0], $parts[1]);
         }
 
         return $result;
@@ -80,11 +109,11 @@ class Csp
      * Add a directive with a expression or a list of expressions to the CSP
      *
      * @param string $directive The directive name
-     * @param string|string[] $value The expression or list of expressions to add
+     * @param string|string[]|null $value The expression or list of expressions to add
      *
      * @return $this
      */
-    public function add(string $directive, string|array $value): static
+    public function add(string $directive, string|array|null $value): static
     {
         if ($directive === "default-src") {
             throw new InvalidArgumentException("Changing default-src is forbidden.");
@@ -96,7 +125,26 @@ class Csp
             );
         }
 
-        if (is_string($value)) {
+        if ($value !== null && in_array($directive, static::MANDATORY_EMPTY_DIRECTIVES, true)) {
+            throw new InvalidArgumentException(
+                "Directive $directive can not have a value."
+            );
+        }
+
+        if ($value == null) {
+            if (! $this->canDirectiveBeEmpty($directive)) {
+                throw new InvalidArgumentException(
+                    "Directive $directive can not be empty."
+                );
+            }
+            if (! isset($this->directives[$directive])) {
+                $this->directives[$directive] = [];
+            }
+
+            if (in_array($value, $this->directives[$directive])) {
+                return $this;
+            }
+        } else if (is_string($value)) {
             $value = trim($value);
 
             if (str_contains($value, ' ')) {
@@ -107,15 +155,15 @@ class Csp
                 return $this;
             }
 
-            if (! isset($this->directives[$directive])) {
-                $this->directives[$directive] = [];
-            }
+            $this->validateExpression($value);
 
-            if (in_array($value, $this->directives[$directive])) {
+            if (in_array($value, $this->directives[$directive] ?? [])) {
                 return $this;
             }
 
-            $this->validateExpression($value);
+            if (! isset($this->directives[$directive])) {
+                $this->directives[$directive] = [];
+            }
 
             $this->directives[$directive][] = $value;
 
@@ -179,8 +227,8 @@ class Csp
     public function getHeader(): string
     {
         $directiveStrings = ["default-src " . implode(' ', static::DEFAULT_SOURCE_EXPRESSIONS)];
-        foreach ($this->directives as $directive => $values) {
-            $directiveStrings[] = sprintf('%s %s', $directive, implode(' ', $values));
+        foreach ($this->directives as $directive => $expressions) {
+            $directiveStrings[] = implode(' ', array_merge([$directive], $expressions));
         }
         return implode('; ', $directiveStrings);
     }
@@ -204,6 +252,10 @@ class Csp
      */
     protected function validateExpression(string $expression): void
     {
+        if ($expression === '') {
+            throw new InvalidArgumentException("Expression must not be empty.");
+        }
+
         if ($expression === '*') {
             return;
         }
