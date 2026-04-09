@@ -7,12 +7,12 @@ use InvalidArgumentException;
 
 /**
  * Represents a Content Security Policy (CSP) header.
- * Methods are additive, and duplicate policies are ignored.
+ * Methods are additive, and duplicate expressions are ignored.
  */
 class Csp
 {
-    /** @var string[] The default source directive */
-    protected const DEFAULT_SOURCE_DIRECTIVE = ["'self'"];
+    /** @var string[] The expressions for the default-src directive */
+    protected const DEFAULT_SOURCE_EXPRESSIONS = ["'self'"];
 
     /**
      * @var array<string, array<string>> The directives and their values
@@ -66,7 +66,9 @@ class Csp
             }
             $parts = explode(' ', $directive, 2);
             if (count($parts) < 2) {
-                throw new InvalidArgumentException("Directives must contain the directive name and at least one policy.");
+                throw new InvalidArgumentException(
+                    "Directives must contain the directive name and at least one expression."
+                );
             }
             $result->add($parts[0], $parts[1]);
         }
@@ -75,10 +77,10 @@ class Csp
     }
 
     /**
-     * Add a directive with a policy or a list of policies to the CSP
+     * Add a directive with a expression or a list of expressions to the CSP
      *
      * @param string $directive The directive name
-     * @param string|string[] $value The policy or list of policies to add
+     * @param string|string[] $value The expression or list of expressions to add
      *
      * @return $this
      */
@@ -113,7 +115,7 @@ class Csp
                 return $this;
             }
 
-            $this->validatePolicy($value);
+            $this->validateExpression($value);
 
             $this->directives[$directive][] = $value;
 
@@ -151,11 +153,11 @@ class Csp
      *
      * @param string $directive The directive name
      *
-     * @return string[] The policies of the directive or the default-src directive if none is set explicitly
+     * @return string[] The expressions of the directive or the default-src directive if none is set explicitly
      */
     public function getDirective(string $directive): array
     {
-        return $this->directives[$directive] ?? static::DEFAULT_SOURCE_DIRECTIVE;
+        return $this->directives[$directive] ?? static::DEFAULT_SOURCE_EXPRESSIONS;
     }
 
     /**
@@ -176,7 +178,7 @@ class Csp
      */
     public function getHeader(): string
     {
-        $directiveStrings = ["default-src " . implode(' ', static::DEFAULT_SOURCE_DIRECTIVE)];
+        $directiveStrings = ["default-src " . implode(' ', static::DEFAULT_SOURCE_EXPRESSIONS)];
         foreach ($this->directives as $directive => $values) {
             $directiveStrings[] = sprintf('%s %s', $directive, implode(' ', $values));
         }
@@ -194,62 +196,62 @@ class Csp
     }
 
     /**
-     * Validate a policy. Throws an exception if the policy is invalid.
+     * Validate an expression. Throws an exception if the expression is invalid.
      *
-     * @param string $policy The policy to validate
+     * @param string $expression The expression to validate
      *
      * @return void
      */
-    protected function validatePolicy(string $policy): void
+    protected function validateExpression(string $expression): void
     {
-        if ($policy === '*') {
+        if ($expression === '*') {
             return;
         }
 
         if (
-            (str_starts_with($policy, "'") && ! str_ends_with($policy, "'"))
-            || ! str_starts_with($policy, "'") && str_ends_with($policy, "'")
+            (str_starts_with($expression, "'") && ! str_ends_with($expression, "'"))
+            || ! str_starts_with($expression, "'") && str_ends_with($expression, "'")
         ) {
             throw new InvalidArgumentException(
-                "Quoted policy must be fully surrounded by single quotes. Policy: $policy",
+                "Quoted expression must be fully surrounded by single quotes. Expression: $expression",
             );
         }
 
-        if (str_starts_with($policy, "'") && str_ends_with($policy, "'")) {
+        if (str_starts_with($expression, "'") && str_ends_with($expression, "'")) {
             return;
         }
 
         // scheme: and scheme://*
-        if (preg_match('/^[a-z]+:(\/\/\*)?$/', $policy)) {
+        if (preg_match('/^[a-z]+:(\/\/\*)?$/', $expression)) {
             return;
         }
 
         // Reporting names
-        if (preg_match('/^[a-zA-Z0-9_-]+$/', $policy)) {
+        if (preg_match('/^[a-zA-Z0-9_-]+$/', $expression)) {
             return;
         }
 
-        $parsedUrl = parse_url($policy);
+        $parsedUrl = parse_url($expression);
         if ($parsedUrl === false) {
-            throw new InvalidArgumentException("Policy must be a valid URL. Policy: $policy");
+            throw new InvalidArgumentException("Expression must be a valid URL. Expression: $expression");
         }
 
         if (! isset($parsedUrl['host'])) {
-            throw new InvalidArgumentException("Policy URL must specify a host. Policy: $policy");
+            throw new InvalidArgumentException("Expression URL must specify a host. Expression: $expression");
         }
 
         if (! isset($parsedUrl['scheme'])) {
-            throw new InvalidArgumentException("Policy URL must specify a scheme. Policy: $policy");
+            throw new InvalidArgumentException("Expression URL must specify a scheme. Expression: $expression");
         }
 
         if (str_starts_with($parsedUrl['host'], '*')) {
             if (! str_starts_with($parsedUrl['host'], '*.')) {
-                throw new InvalidArgumentException("Wildcard host must be a full subdomain. Policy: $policy");
+                throw new InvalidArgumentException("Wildcard host must be a full subdomain. Expression: $expression");
             }
         } else {
             if (str_contains($parsedUrl['host'], '*')) {
                 throw new InvalidArgumentException(
-                    "Wildcards can only be used at the start of the host. Policy: $policy",
+                    "Wildcards can only be used at the start of the host. Expression: $expression",
                 );
             }
         }
@@ -274,20 +276,20 @@ class Csp
             throw new InvalidArgumentException("URL must specify a host. URL: $url");
         }
 
-        $policies = $this->getDirective($directive);
+        $expressions = $this->getDirective($directive);
 
-        // 'none' is only supported if it is the only policy.
+        // 'none' is only supported if it is the only expression.
         // If it is combined with other values, browsers ignore 'none'
-        if (count($policies) === 1 && $policies[0] === "'none'") {
+        if (count($expressions) === 1 && $expressions[0] === "'none'") {
             return false;
         }
 
-        if (in_array('*', $policies)) {
+        if (in_array('*', $expressions)) {
             return true;
         }
 
         $scheme = $parsedUrl['scheme'] ?? null;
-        if (in_array("'self'", $policies)) {
+        if (in_array("'self'", $expressions)) {
             $requestUri = ServerRequest::getUriFromGlobals();
             if (
                 ($scheme === null || $requestUri->getScheme() === $scheme)
@@ -297,29 +299,29 @@ class Csp
             }
         }
 
-        foreach ($policies as $policy) {
-            if (str_starts_with($policy, "'") && str_ends_with($policy, "'")) {
+        foreach ($expressions as $expression) {
+            if (str_starts_with($expression, "'") && str_ends_with($expression, "'")) {
                 continue;
             }
 
-            if ($scheme !== null && ($policy === $scheme . ':' || $policy === $scheme . '://*')) {
+            if ($scheme !== null && ($expression === $scheme . ':' || $expression === $scheme . '://*')) {
                 return true;
             }
 
-            $parsedPolicyUrl = parse_url($policy);
-            if (! isset($parsedPolicyUrl['scheme']) || ! isset($parsedPolicyUrl['host'])) {
+            $parsedExpressionUrl = parse_url($expression);
+            if (! isset($parsedExpressionUrl['scheme']) || ! isset($parsedExpressionUrl['host'])) {
                 continue;
             }
 
-            $parsedPolicyPath = $parsedPolicyUrl['path'] ?? null;
-            $pathIsDirectory = $parsedPolicyPath !== null && str_ends_with($parsedPolicyPath, '/');
+            $parsedExpressionPath = $parsedExpressionUrl['path'] ?? null;
+            $pathIsDirectory = $parsedExpressionPath !== null && str_ends_with($parsedExpressionPath, '/');
             $parsedPath = $parsedUrl['path'] ?? null;
             if (
-                ($scheme === null || $parsedPolicyUrl['scheme'] === $scheme)
-                && $parsedPolicyUrl['host'] === $parsedUrl['host']
-                && ($parsedPolicyPath === null || (
-                    $pathIsDirectory && $parsedPath !== null && str_starts_with($parsedPath, $parsedPolicyPath)
-                    || $parsedPath === $parsedPolicyPath
+                ($scheme === null || $parsedExpressionUrl['scheme'] === $scheme)
+                && $parsedExpressionUrl['host'] === $parsedUrl['host']
+                && ($parsedExpressionPath === null || (
+                    $pathIsDirectory && $parsedPath !== null && str_starts_with($parsedPath, $parsedExpressionPath)
+                    || $parsedPath === $parsedExpressionPath
                 ))
             ) {
                 return true;
@@ -327,9 +329,9 @@ class Csp
 
             // Note: https://*.example.com means https://example.com and https://sub.example.com
             if (
-                ($scheme === null || $parsedPolicyUrl['scheme'] === $scheme)
-                && str_starts_with($parsedPolicyUrl['host'], '*')
-                && (str_ends_with($parsedUrl['host'], substr($parsedPolicyUrl['host'], 2)))
+                ($scheme === null || $parsedExpressionUrl['scheme'] === $scheme)
+                && str_starts_with($parsedExpressionUrl['host'], '*')
+                && (str_ends_with($parsedUrl['host'], substr($parsedExpressionUrl['host'], 2)))
             ) {
                 return true;
             }
