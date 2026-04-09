@@ -245,11 +245,12 @@ class CspTest extends TestCase
 
     public function testFromString()
     {
-        $csp = Csp::fromString(" script-src 'nonce-example';\n\n\r\nimg-src ");
+        $csp = Csp::fromString(" script-src 'nonce-example';\n\n\r\nimg-src 'self' https://example.com");
 
         $this->assertEquals(
             [
                 'script-src' => ["'nonce-example'"],
+                'img-src'    => ["'self'", 'https://example.com'],
             ],
             $csp->getDirectives(),
         );
@@ -270,7 +271,6 @@ class CspTest extends TestCase
 
         $this->assertFalse($csp->evaluateUrl('script-src', 'https://example.com'));
         $this->assertFalse($csp->evaluateUrl('script-src', 'http://example.com'));
-        $this->assertFalse($csp->evaluateUrl('script-src', 'test'));
     }
 
     public function testEvaluateNoneWithMultiplePolicies()

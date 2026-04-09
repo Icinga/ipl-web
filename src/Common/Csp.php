@@ -66,7 +66,7 @@ class Csp
             }
             $parts = explode(' ', $directive, 2);
             if (count($parts) < 2) {
-                continue;
+                throw new InvalidArgumentException("Directives must contain the directive name and at least one policy.");
             }
             $result->add($parts[0], $parts[1]);
         }
@@ -211,7 +211,7 @@ class Csp
             || ! str_starts_with($policy, "'") && str_ends_with($policy, "'")
         ) {
             throw new InvalidArgumentException(
-                "Quoted policy must be fully surrounded by single quotes. policy: $policy",
+                "Quoted policy must be fully surrounded by single quotes. Policy: $policy",
             );
         }
 
@@ -219,7 +219,7 @@ class Csp
             return;
         }
 
-        // scheme and scheme://*
+        // scheme: and scheme://*
         if (preg_match('/^[a-z]+:(\/\/\*)?$/', $policy)) {
             return;
         }
@@ -231,25 +231,25 @@ class Csp
 
         $parsedUrl = parse_url($policy);
         if ($parsedUrl === false) {
-            throw new InvalidArgumentException("Policy must be a valid URL. policy: $policy");
+            throw new InvalidArgumentException("Policy must be a valid URL. Policy: $policy");
         }
 
         if (! isset($parsedUrl['host'])) {
-            throw new InvalidArgumentException("Policy URL must specify a host. policy: $policy");
+            throw new InvalidArgumentException("Policy URL must specify a host. Policy: $policy");
         }
 
         if (! isset($parsedUrl['scheme'])) {
-            throw new InvalidArgumentException("Policy URL must specify a scheme. policy: $policy");
+            throw new InvalidArgumentException("Policy URL must specify a scheme. Policy: $policy");
         }
 
         if (str_starts_with($parsedUrl['host'], '*')) {
             if (! str_starts_with($parsedUrl['host'], '*.')) {
-                throw new InvalidArgumentException("Wildcard host must be a full subdomain. policy: $policy");
+                throw new InvalidArgumentException("Wildcard host must be a full subdomain. Policy: $policy");
             }
         } else {
             if (str_contains($parsedUrl['host'], '*')) {
                 throw new InvalidArgumentException(
-                    "Wildcards can only be used at the start of the host. policy: $policy",
+                    "Wildcards can only be used at the start of the host. Policy: $policy",
                 );
             }
         }
@@ -268,6 +268,12 @@ class Csp
      */
     public function evaluateUrl(string $directive, string $url): bool
     {
+        $parsedUrl = parse_url($url);
+
+        if (! isset($parsedUrl['host'])) {
+            throw new InvalidArgumentException("URL must specify a host. URL: $url");
+        }
+
         $policies = $this->getDirective($directive);
 
         // 'none' is only supported if it is the only policy.
@@ -278,12 +284,6 @@ class Csp
 
         if (in_array('*', $policies)) {
             return true;
-        }
-
-        $parsedUrl = parse_url($url);
-
-        if (! isset($parsedUrl['host'])) {
-            throw new InvalidArgumentException("URL must specify a host. url: $url");
         }
 
         $scheme = $parsedUrl['scheme'] ?? null;
@@ -302,7 +302,7 @@ class Csp
                 continue;
             }
 
-            if ($scheme !== null && ($policy === $scheme . ':' || $policy === $scheme . '://')) {
+            if ($scheme !== null && ($policy === $scheme . ':' || $policy === $scheme . '://*')) {
                 return true;
             }
 
