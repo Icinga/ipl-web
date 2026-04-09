@@ -144,7 +144,7 @@ class Csp
             if (in_array($value, $this->directives[$directive])) {
                 return $this;
             }
-        } else if (is_string($value)) {
+        } elseif (is_string($value)) {
             $value = trim($value);
 
             if (str_contains($value, ' ')) {
