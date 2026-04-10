@@ -6,6 +6,7 @@ use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
+use ipl\Html\ValidHtml;
 use ipl\I18n\Translation;
 use Psr\Http\Message\ServerRequestInterface;
 use Traversable;
@@ -42,6 +43,7 @@ class SearchSuggestions extends BaseHtmlElement
      * The provider must deliver terms in form of arrays with the following keys:
      * * (required) search: The search value
      * * label: A human-readable label
+     * * label-html: A {@see ValidHtml} label to render inside a button element instead of an input
      * * class: A CSS class
      * * title: A message shown upon hover on the term
      *
@@ -234,7 +236,7 @@ class SearchSuggestions extends BaseHtmlElement
             $provider = ['' => $this->provider];
         }
 
-        /** @var iterable<?string, array<array<string, string>>> $provider */
+        /** @var iterable<?string, array<array<string, string|ValidHtml>>> $provider */
         foreach ($provider as $group => $suggestions) {
             if ($group) {
                 $this->addHtml(
@@ -251,18 +253,31 @@ class SearchSuggestions extends BaseHtmlElement
                     'type' => 'button',
                     'value' => $data['label'] ?? $data['search']
                 ];
+                $labelHtml = $data['label-html'] ?? null;
+                unset($data['label-html']);
                 foreach ($data as $name => $value) {
                     $attributes["data-$name"] = $value;
+                }
+
+                if ($labelHtml instanceof ValidHtml) {
+                    $attributes['class'] = 'has-details';
+                    $content = new HtmlElement(
+                        'button',
+                        Attributes::create($attributes),
+                        $labelHtml
+                    );
+                } else {
+                    $content = new HtmlElement(
+                        'input',
+                        Attributes::create($attributes)
+                    );
                 }
 
                 $this->addHtml(
                     new HtmlElement(
                         'li',
                         null,
-                        new HtmlElement(
-                            'input',
-                            Attributes::create($attributes)
-                        )
+                        $content
                     )
                 );
             }
