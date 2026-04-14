@@ -43,7 +43,7 @@ class SearchSuggestions extends BaseHtmlElement
      * The provider must deliver terms in form of arrays with the following keys:
      * * (required) search: The search value
      * * label: A human-readable label
-     * * label-html: A {@see ValidHtml} label to render inside a button element instead of an input
+     * * details: {@see ValidHtml} to render inside a button element instead of an input
      * * class: A CSS class
      * * title: A message shown upon hover on the term
      *
@@ -253,18 +253,18 @@ class SearchSuggestions extends BaseHtmlElement
                     'type' => 'button',
                     'value' => $data['label'] ?? $data['search']
                 ];
-                $labelHtml = $data['label-html'] ?? null;
-                unset($data['label-html']);
+                $details = $data['details'] ?? null;
+                unset($data['details']);
                 foreach ($data as $name => $value) {
                     $attributes["data-$name"] = $value;
                 }
 
-                if ($labelHtml instanceof ValidHtml) {
+                if ($details instanceof ValidHtml) {
                     $attributes['class'] = 'has-details';
                     $content = new HtmlElement(
                         'button',
                         Attributes::create($attributes),
-                        $labelHtml
+                        $details
                     );
                 } else {
                     $content = new HtmlElement(
