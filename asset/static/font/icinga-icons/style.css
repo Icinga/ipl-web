@@ -51,6 +51,9 @@
 .iicon-icinga:before {
   content: "\e907";
 }
+.iicon-list-view-tabular:before {
+  content: "\e90f";
+}
 .iicon-list-view-minimal:before {
   content: "\e900";
 }
