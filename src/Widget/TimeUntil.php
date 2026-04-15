@@ -36,19 +36,6 @@ class TimeUntil extends Time
     {
         [$time, $type, $interval] = $this->diff($this->compareTime);
 
-        if ($interval->days === 0 && $interval->h === 0) {
-            $this->addAttributes(
-                Attributes::create(
-                    [
-                        'data-ago-label' => sprintf(
-                            $this->translate('%s ago', 'An event that happened the given time interval ago'),
-                            '0m 0s'
-                        )
-                    ]
-                )
-            );
-        }
-
         if (
             $interval->invert !== 1 && $type === static::RELATIVE
             && ($interval->days !== 0 || $interval->h !== 0 || $interval->i !== 0 || $interval->s !== 0)
