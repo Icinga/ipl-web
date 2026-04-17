@@ -4,6 +4,8 @@ define(function () {
 
     class RelativeTime {
 
+        static DYNAMIC_RELATIVE_TIME_THRESHOLD = 60 * 60;
+
         constructor(timezone) {
             this.timezone = timezone;
             this._offsetCache = null;
@@ -43,11 +45,10 @@ define(function () {
         }
 
         updateElement(element) {
-            const DYNAMIC_RELATIVE_TIME_THRESHOLD = 60 * 60;
             const relativeTimeAgo = element.getAttribute('data-relative-time');
             if (relativeTimeAgo === 'ago' || relativeTimeAgo === 'since') {
-                const diffSeconds = this._getTimeDifferenceInSeconds(element);
-                if (diffSeconds == null || diffSeconds >= DYNAMIC_RELATIVE_TIME_THRESHOLD) {
+                const diffSeconds = this.getTimeDifferenceInSeconds(element);
+                if (diffSeconds == null || diffSeconds >= RelativeTime.DYNAMIC_RELATIVE_TIME_THRESHOLD) {
                     return;
                 }
 
@@ -56,8 +57,11 @@ define(function () {
                     this.render(diffSeconds)
                 );
             } else if (relativeTimeAgo === 'until') {
-                const remainingSeconds = this._getTimeDifferenceInSeconds(element, true);
-                if (remainingSeconds == null || Math.abs(remainingSeconds) >= DYNAMIC_RELATIVE_TIME_THRESHOLD) {
+                const remainingSeconds = this.getTimeDifferenceInSeconds(element, true);
+                if (
+                    remainingSeconds == null
+                    || Math.abs(remainingSeconds) >= RelativeTime.DYNAMIC_RELATIVE_TIME_THRESHOLD
+                ) {
                     return;
                 }
 
@@ -73,25 +77,20 @@ define(function () {
             }
         }
 
-        _getTimeDifferenceInSeconds(element, future = false) {
+        getTimeDifferenceInSeconds(element, future = false) {
+            const timeString = element.dateTime || element.getAttribute('datetime');
+            const isoString = timeString.replace(' ', 'T');
 
-            const fromDateTimeWithTimezone = (element, future = false) => {
-                const timeString = element.dateTime || element.getAttribute('datetime');
-                const isoString = timeString.replace(' ', 'T');
+            const offset = this.getOffset();
 
-                const offset = this._getOffset();
+            const targetTimeUTC = Date.parse(`${isoString}${offset}`);
+            const now = Date.now();
 
-                const targetTimeUTC = Date.parse(`${isoString}${offset}`);
-                const now = Date.now();
-
-                return Math.floor((future ? targetTimeUTC - now : now - targetTimeUTC) / 1000);
-            };
-
-            return fromDateTimeWithTimezone(element, future);
+            return Math.floor((future ? targetTimeUTC - now : now - targetTimeUTC) / 1000);
         }
 
-        _getOffset() {
-            if (!this._offsetCache) {
+        getOffset() {
+            if (! this._offsetCache) {
                 const formatter = new Intl.DateTimeFormat('en-US', {
                     timeZone: this.timezone,
                     timeZoneName: 'longOffset'
