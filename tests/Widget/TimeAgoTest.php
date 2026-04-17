@@ -32,10 +32,11 @@ class TimeAgoTest extends TestCase
     public function testConstructorAcceptsTimestamp(): void
     {
         $html = <<<'HTML'
-        <time class="time-ago" data-relative-time="ago"
-              title="2026-03-17 14:17:07" datetime="2026-03-17 14:17:07"
-              data-ago-label="0m 0s ago">30m 0s ago</time>
-        HTML;
+<time class="time-ago" data-relative-time="ago"
+      title="2026-03-17 14:17:07" datetime="2026-03-17 14:17:07"
+      data-ago-label="0m 0s ago">30m 0s ago</time>
+HTML;
+
         $timestampEvent = mktime(14, 17, 7, 3, 17, 2026);
         $timestampNow = mktime(14, 47, 7, 3, 17, 2026);
 
@@ -46,10 +47,10 @@ class TimeAgoTest extends TestCase
     public function testFormatWithSubHourTime(): void
     {
         $html = <<<'HTML'
-        <time class="time-ago" data-relative-time="ago"
-              title="2026-03-17 14:17:07" datetime="2026-03-17 14:17:07"
-              data-ago-label="0m 0s ago">30m 0s ago</time>
-        HTML;
+<time class="time-ago" data-relative-time="ago"
+      title="2026-03-17 14:17:07" datetime="2026-03-17 14:17:07"
+      data-ago-label="0m 0s ago">30m 0s ago</time>
+HTML;
 
         $this->assertHtml(
             $html,
@@ -60,9 +61,9 @@ class TimeAgoTest extends TestCase
     public function testFormatWithHoursAgoSameDay(): void
     {
         $html = <<<'HTML'
-        <time class="time-ago" data-relative-time="ago"
-              title="2026-03-17 14:17:07" datetime="2026-03-17 14:17:07">at 14:17</time>
-        HTML;
+<time class="time-ago" data-ago-label="0m 0s ago" data-relative-time="ago"
+      title="2026-03-17 14:17:07" datetime="2026-03-17 14:17:07">at 14:17</time>
+HTML;
 
         $this->assertHtml(
             $html,
@@ -73,9 +74,9 @@ class TimeAgoTest extends TestCase
     public function testFormatWithDaysAgo(): void
     {
         $html = <<<'HTML'
-        <time class="time-ago" data-relative-time="ago"
-              title="2026-03-17 14:17:07" datetime="2026-03-17 14:17:07">on Mar 17</time>
-        HTML;
+<time class="time-ago" data-ago-label="0m 0s ago" data-relative-time="ago"
+      title="2026-03-17 14:17:07" datetime="2026-03-17 14:17:07">on Mar 17</time>
+HTML;
 
         $this->assertHtml(
             $html,
@@ -86,9 +87,9 @@ class TimeAgoTest extends TestCase
     public function testFormatWithDaysAndHoursAgo(): void
     {
         $html = <<<'HTML'
-        <time class="time-ago" data-relative-time="ago"
-              title="2026-03-17 14:17:07" datetime="2026-03-17 14:17:07">1d 12h ago</time>
-        HTML;
+<time class="time-ago" data-ago-label="0m 0s ago" data-relative-time="ago"
+      title="2026-03-17 14:17:07" datetime="2026-03-17 14:17:07">1d 12h ago</time>
+HTML;
 
         $this->assertHtml(
             $html,
@@ -99,9 +100,9 @@ class TimeAgoTest extends TestCase
     public function testFormatCrossMidnightLessThanDayAgo(): void
     {
         $html = <<<'HTML'
-        <time class="time-ago" data-relative-time="ago"
-              title="2026-03-17 14:17:07" datetime="2026-03-17 14:17:07">on Mar 17 14:17</time>
-        HTML;
+<time class="time-ago" data-ago-label="0m 0s ago" data-relative-time="ago"
+      title="2026-03-17 14:17:07" datetime="2026-03-17 14:17:07">on Mar 17 14:17</time>
+HTML;
 
         $this->assertHtml(
             $html,
@@ -114,27 +115,26 @@ class TimeAgoTest extends TestCase
         $eventTime = new DateTime('2026-12-31 23:47:07');
 
         $this->assertHtml(
-            '<time class="time-ago" data-relative-time="ago"'
+            '<time class="time-ago" data-ago-label="0m 0s ago" data-relative-time="ago"'
             . ' title="2026-12-31 23:47:07" datetime="2026-12-31 23:47:07">on 2026-12</time>',
             new TimeAgo($eventTime, new DateTime('2027-03-17 14:17:07'))
         );
 
         $this->assertHtml(
-            '<time class="time-ago" data-relative-time="ago"'
+            '<time class="time-ago" data-ago-label="0m 0s ago" data-relative-time="ago"'
             . ' title="2026-12-31 23:47:07" datetime="2026-12-31 23:47:07">1d 10h ago</time>',
             new TimeAgo($eventTime, new DateTime('2027-01-02 09:47:07'))
         );
 
         $this->assertHtml(
-            '<time class="time-ago" data-relative-time="ago"'
+            '<time class="time-ago" data-ago-label="0m 0s ago" data-relative-time="ago"'
             . ' title="2026-12-31 23:47:07" datetime="2026-12-31 23:47:07">on Dec 31 23:47</time>',
             new TimeAgo($eventTime, new DateTime('2027-01-01 09:47:07'))
         );
 
         $this->assertHtml(
-            '<time class="time-ago" data-relative-time="ago"'
-            . ' title="2026-12-31 23:47:07" datetime="2026-12-31 23:47:07"'
-            . ' data-ago-label="0m 0s ago">30m 0s ago</time>',
+            '<time class="time-ago" data-ago-label="0m 0s ago" data-relative-time="ago"'
+            . ' title="2026-12-31 23:47:07" datetime="2026-12-31 23:47:07">30m 0s ago</time>',
             new TimeAgo($eventTime, new DateTime('2027-01-01 00:17:07'))
         );
     }
@@ -142,10 +142,10 @@ class TimeAgoTest extends TestCase
     public function testFormatWithFutureSubHourShowsAgoSuffix(): void
     {
         $html = <<<'HTML'
-        <time class="time-ago" data-relative-time="ago"
-              title="2026-03-17 14:17:07" datetime="2026-03-17 14:17:07"
-              data-ago-label="0m 0s ago">30m 0s ago</time>
-        HTML;
+<time class="time-ago" data-relative-time="ago"
+      title="2026-03-17 14:17:07" datetime="2026-03-17 14:17:07"
+      data-ago-label="0m 0s ago">30m 0s ago</time>
+HTML;
 
         $this->assertHtml(
             $html,
@@ -156,9 +156,10 @@ class TimeAgoTest extends TestCase
     public function testRenderIgnoresFormatter(): void
     {
         $html = <<<'HTML'
-        <time class="time-ago" data-relative-time="ago"
-              title="2026-03-17 14:17:07" datetime="2026-03-17 14:17:07">at 14:17</time>
-        HTML;
+<time class="time-ago" data-ago-label="0m 0s ago" data-relative-time="ago"
+      title="2026-03-17 14:17:07" datetime="2026-03-17 14:17:07">at 14:17</time>
+HTML;
+
         $widget = new TimeAgo(new DateTime('2026-03-17 14:17:07'), new DateTime('2026-03-17 15:17:07'));
         $formatter = IntlDateFormatter::create(locale: 'en', pattern: 'Y_M_d H:m');
 
