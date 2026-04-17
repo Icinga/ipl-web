@@ -18,9 +18,7 @@ class TimeSince extends Time
      */
     public function __construct(int|float|DateTime|null $time = null, ?DateTime $compareTime = null)
     {
-        if ($compareTime !== null) {
-            $this->compareTime = $this->castToDateTime($compareTime);
-        }
+        $this->compareTime = $compareTime;
 
         if (! $time instanceof DateTime) {
             $time = $this->castToDateTime($time);
