@@ -33,6 +33,8 @@ define(function () {
                 const el = ref.deref();
                 if (el) {
                     this.updateElement(el);
+                } else {
+                    this._trackedElements.delete(ref);
                 }
             })
         }
