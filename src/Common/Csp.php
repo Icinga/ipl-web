@@ -135,13 +135,7 @@ class Csp
                     "Directive $directive can not be empty."
                 );
             }
-            if (! isset($this->directives[$directive])) {
-                $this->directives[$directive] = [];
-            }
-
-            if (in_array($value, $this->directives[$directive])) {
-                return $this;
-            }
+            $this->directives[$directive] ??= [];
         } elseif (is_string($value)) {
             $value = trim($value);
 
@@ -159,9 +153,7 @@ class Csp
                 return $this;
             }
 
-            if (! isset($this->directives[$directive])) {
-                $this->directives[$directive] = [];
-            }
+            $this->directives[$directive] ??= [];
 
             $this->directives[$directive][] = $value;
 
