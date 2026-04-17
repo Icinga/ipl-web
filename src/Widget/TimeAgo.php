@@ -9,17 +9,15 @@ use ipl\I18n\Translation;
 
 class TimeAgo extends Time
 {
-    use Translation;
-
     protected $defaultAttributes = ['class' => 'time-ago', 'data-relative-time' => 'ago'];
 
     /**
      * @param int|float|DateTime|null $time Time as timestamp, DateTime object, or null for current time
-     * @param int|float|DateTime|null $compareTime Time to compare with, null for current time
+     * @param ?DateTime $compareTime Time to compare with, null for current time
      *
      * @throws Exception
      */
-    public function __construct(int|float|DateTime|null $time = null, int|float|DateTime|null $compareTime = null)
+    public function __construct(int|float|DateTime|null $time = null, ?DateTime $compareTime = null)
     {
         if ($compareTime !== null) {
             $this->compareTime = $this->castToDateTime($compareTime);

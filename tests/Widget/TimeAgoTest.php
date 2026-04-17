@@ -38,10 +38,10 @@ class TimeAgoTest extends TestCase
 HTML;
 
         $timestampEvent = mktime(14, 17, 7, 3, 17, 2026);
-        $timestampNow = mktime(14, 47, 7, 3, 17, 2026);
+        $timestampNow = new DateTime('2026-03-17 14:47:7');
 
         $this->assertHtml($html, new TimeAgo($timestampEvent, $timestampNow));
-        $this->assertHtml($html, new TimeAgo((float) $timestampEvent, (float) $timestampNow));
+        $this->assertHtml($html, new TimeAgo((float) $timestampEvent, $timestampNow));
     }
 
     public function testFormatWithSubHourTime(): void

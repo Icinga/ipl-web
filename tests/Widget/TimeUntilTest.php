@@ -38,10 +38,10 @@ class TimeUntilTest extends TestCase
 HTML;
 
         $timestampEvent = mktime(14, 17, 7, 3, 17, 2026);
-        $timestampNow = mktime(13, 47, 7, 3, 17, 2026);
+        $timestampNow = new DateTime('2026-03-17 13:47:7');
 
         $this->assertHtml($html, new TimeUntil($timestampEvent, $timestampNow));
-        $this->assertHtml($html, new TimeUntil((float) $timestampEvent, (float) $timestampNow));
+        $this->assertHtml($html, new TimeUntil((float) $timestampEvent, $timestampNow));
     }
 
     public function testFormatWithSubHourTime(): void
