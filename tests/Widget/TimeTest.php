@@ -7,7 +7,7 @@ use DateTimeZone;
 use IntlDateFormatter;
 use ipl\I18n\NoopTranslator;
 use ipl\I18n\StaticTranslator;
-use ipl\Tests\Web\TestCase;
+use ipl\Html\Test\TestCase;
 use ipl\Web\Widget\Time;
 use ipl\Web\Widget\TimeAgo;
 use ipl\Web\Widget\TimeUntil;
@@ -35,40 +35,18 @@ class TimeTest extends TestCase
         $now = '2026-03-17 14:17:07';
         $html = sprintf('<time title="%1$s" datetime="%1$s">%1$s</time>', $now);
 
-        $rendered = (new Time(new DateTime($now)))->render();
-
-        $this->assertSame($html, $rendered);
-    }
-
-    public function testRenderHasCorrectAttributes(): void
-    {
-        $eventTime = '2026-03-17 14:17:07';
-        $time = new DateTime($eventTime);
-        $rendered = (new Time($time))->render();
-
-        $this->assertStringContainsString(sprintf('datetime="%s"', $eventTime), $rendered);
-        $this->assertStringContainsString(sprintf('title="%s"', $eventTime), $rendered);
-        $this->assertStringNotContainsString('data-relative-time', $rendered);
-    }
-
-    public function testBaseTimeRendersFullDateTimeString(): void
-    {
-        $time = new DateTime('2026-03-17 14:17:07');
-        $widget = new Time($time);
-        $rendered = $widget->render();
-
-        $this->assertStringContainsString('>2026-03-17 14:17:07<', $rendered);
+        $this->assertHtml($html, new Time(new DateTime($now)));
     }
 
     public function testRenderUsesFormatter(): void
     {
-        $time = new DateTime('2026-03-17 14:17:07');
-        $widget = new Time($time);
+        $html = <<<'HTML'
+        <time title="2026-03-17 14:17:07" datetime="2026-03-17 14:17:07">2026_3_17 14:17</time>
+        HTML;
+        $widget = new Time(new DateTime('2026-03-17 14:17:07'));
         $formatter = IntlDateFormatter::create(locale: 'en', pattern: 'Y_M_d H:m');
 
-        $rendered = $widget->setFormatter($formatter)->render();
-
-        $this->assertStringContainsString('>2026_3_17 14:17<', $rendered);
+        $this->assertHtml($html, $widget->setFormatter($formatter));
     }
 
     public function testDiffThreeDaysAndMore(): void
@@ -339,10 +317,9 @@ class TimeTest extends TestCase
         $compareTime = new DateTime('2026-03-17 15:17:07');
 
         $result = Time::relative($time, $compareTime);
-        $agoRendered = (new TimeAgo($time, $compareTime))->render();
 
         $this->assertInstanceOf(TimeAgo::class, $result);
-        $this->assertSame($agoRendered, $result->render());
+        $this->assertHtml((new TimeAgo($time, $compareTime))->render(), $result);
     }
 
     public function testRelativeReturnsTimeUntilForFutureDateTime(): void
@@ -355,10 +332,9 @@ class TimeTest extends TestCase
         $compareTime = new DateTime('2026-03-17 13:17:07');
 
         $result = Time::relative($time, $compareTime);
-        $untilRendered = (new TimeUntil($time, $compareTime))->render();
 
         $this->assertInstanceOf(TimeUntil::class, $result);
-        $this->assertSame($untilRendered, $result->render());
+        $this->assertHtml((new TimeUntil($time, $compareTime))->render(), $result);
     }
 
     public function testRelativeReturnsTimeUntilForCurrentDateTime(): void
@@ -370,10 +346,9 @@ class TimeTest extends TestCase
         $time = $compareTime = new DateTime('2026-03-17 14:17:07');
 
         $result = Time::relative($time, $compareTime);
-        $untilRendered = (new TimeAgo($time, $compareTime))->render();
 
         $this->assertInstanceOf(TimeAgo::class, $result);
-        $this->assertSame($untilRendered, $result->render());
+        $this->assertHtml((new TimeAgo($time, $compareTime))->render(), $result);
     }
 
     public function testCastToDateTimeReturnsCurrentTimeForNull(): void

@@ -6,7 +6,7 @@ use DateTime;
 use IntlDateFormatter;
 use ipl\I18n\NoopTranslator;
 use ipl\I18n\StaticTranslator;
-use ipl\Tests\Web\TestCase;
+use ipl\Html\Test\TestCase;
 use ipl\Web\Widget\TimeUntil;
 
 class TimeUntilTest extends TestCase
@@ -20,167 +20,148 @@ class TimeUntilTest extends TestCase
     {
         $nowDateTime = new DateTime();
         $html = sprintf(
-            '<time %s title="%2$s" datetime="%2$s" data-ago-label="0m 0s ago">in 0m 0s</time>',
-            'class="time-until" data-relative-time="until"',
+            '<time class="time-until" data-relative-time="until"'
+            . ' title="%1$s" datetime="%1$s" data-ago-label="0m 0s ago">in 0m 0s</time>',
             $nowDateTime->format('Y-m-d H:i:s'),
         );
-        $renderedWithoutParams = (new TimeUntil(null, null))->render();
 
-        $this->assertSame($html, $renderedWithoutParams);
-
-        $renderedWithParams = (new TimeUntil($nowDateTime, $nowDateTime))->render();
-
-        $this->assertSame($html, $renderedWithParams);
+        $this->assertHtml($html, new TimeUntil(null, null));
+        $this->assertHtml($html, new TimeUntil($nowDateTime, $nowDateTime));
     }
 
     public function testConstructorAcceptsTimestamp(): void
     {
-        $html = sprintf(
-            '<time %s title="%2$s" datetime="%2$s" data-ago-label="0m 0s ago">in 30m 0s</time>',
-            'class="time-until" data-relative-time="until"',
-            '2026-03-17 14:17:07',
-        );
+        $html = <<<'HTML'
+        <time class="time-until" data-relative-time="until"
+              title="2026-03-17 14:17:07" datetime="2026-03-17 14:17:07"
+              data-ago-label="0m 0s ago">in 30m 0s</time>
+        HTML;
         $timestampEvent = mktime(14, 17, 7, 3, 17, 2026);
         $timestampNow = mktime(13, 47, 7, 3, 17, 2026);
-        $rendered = (new TimeUntil($timestampEvent, $timestampNow))->render();
 
-        $this->assertSame($html, $rendered);
-
-        $timestampEventFloat = (float) $timestampEvent;
-        $timestampNowFloat = (float) $timestampNow;
-        $rendered2 = (new TimeUntil($timestampEventFloat, $timestampNowFloat))->render();
-
-        $this->assertSame($html, $rendered2);
-    }
-
-    public function testRenderHasAttributes(): void
-    {
-        $eventTime = '2026-03-17 14:17:07';
-        $now = '2026-03-17 13:47:07';
-        $time = new DateTime($eventTime);
-        $compareTime = new DateTime($now);
-        $rendered = (new TimeUntil($time, $compareTime))->render();
-
-        $this->assertStringContainsString('class="time-until"', $rendered);
-        $this->assertStringContainsString('data-relative-time="until"', $rendered);
-        $this->assertStringContainsString(sprintf('datetime="%s"', $eventTime), $rendered);
-        $this->assertStringContainsString(sprintf('title="%s"', $eventTime), $rendered);
-    }
-
-    public function testRenderHasAgoLabel(): void
-    {
-        $eventTime = '2026-03-17 14:17:07';
-        $now = '2026-03-17 13:47:07';
-        $time = new DateTime($eventTime);
-        $compareTime = new DateTime($now);
-        $rendered = (new TimeUntil($time, $compareTime))->render();
-
-        $this->assertStringContainsString('data-ago-label="0m 0s ago"', $rendered);
-
-        $compareTime = new DateTime('2026-03-17 15:18:07');
-        $rendered = (new TimeUntil($time, $compareTime))->render();
-
-        $this->assertStringNotContainsString('data-ago-label=', $rendered);
-    }
-
-    public function testRenderUsesTimeHtmlTag(): void
-    {
-        $time = new DateTime('2026-03-22 14:17:07');
-        $compareTime = new DateTime('2026-03-17 14:17:07');
-        $rendered = (new TimeUntil($time, $compareTime))->render();
-
-
-        $this->assertStringStartsWith('<time', $rendered);
-        $this->assertStringEndsWith('</time>', $rendered);
+        $this->assertHtml($html, new TimeUntil($timestampEvent, $timestampNow));
+        $this->assertHtml($html, new TimeUntil((float) $timestampEvent, (float) $timestampNow));
     }
 
     public function testFormatWithSubHourTime(): void
     {
-        $time = new DateTime('2026-03-17 14:17:07');
-        $compareTime = new DateTime('2026-03-17 13:47:07');
-        $rendered = (new TimeUntil($time, $compareTime))->render();
+        $html = <<<'HTML'
+        <time class="time-until" data-relative-time="until"
+              title="2026-03-17 14:17:07" datetime="2026-03-17 14:17:07"
+              data-ago-label="0m 0s ago">in 30m 0s</time>
+        HTML;
 
-        $this->assertStringContainsString('>in 30m 0s<', $rendered);
+        $this->assertHtml(
+            $html,
+            new TimeUntil(new DateTime('2026-03-17 14:17:07'), new DateTime('2026-03-17 13:47:07'))
+        );
     }
 
     public function testFormatWithHoursAgoSameDay(): void
     {
-        $time = new DateTime('2026-03-17 14:17:07');
-        $compareTime = new DateTime('2026-03-17 12:17:07');
-        $rendered = (new TimeUntil($time, $compareTime))->render();
+        $html = <<<'HTML'
+        <time class="time-until" data-relative-time="until"
+              title="2026-03-17 14:17:07" datetime="2026-03-17 14:17:07">at 14:17</time>
+        HTML;
 
-        $this->assertStringContainsString('>at 14:17<', $rendered);
+        $this->assertHtml(
+            $html,
+            new TimeUntil(new DateTime('2026-03-17 14:17:07'), new DateTime('2026-03-17 12:17:07'))
+        );
     }
 
     public function testFormatWithDaysAgo(): void
     {
-        $time = new DateTime('2026-03-17 14:17:07');
-        $compareTime = new DateTime('2026-03-12 14:17:07');
-        $rendered = (new TimeUntil($time, $compareTime))->render();
+        $html = <<<'HTML'
+        <time class="time-until" data-relative-time="until"
+              title="2026-03-17 14:17:07" datetime="2026-03-17 14:17:07">on Mar 17</time>
+        HTML;
 
-        $this->assertStringContainsString('>on Mar 17<', $rendered);
+        $this->assertHtml(
+            $html,
+            new TimeUntil(new DateTime('2026-03-17 14:17:07'), new DateTime('2026-03-12 14:17:07'))
+        );
     }
 
     public function testFormatWithDaysAndHoursAgo(): void
     {
-        $time = new DateTime('2026-03-17 14:17:07');
-        $compareTime = new DateTime('2026-03-16 02:17:07');
-        $rendered = (new TimeUntil($time, $compareTime))->render();
+        $html = <<<'HTML'
+        <time class="time-until" data-relative-time="until"
+              title="2026-03-17 14:17:07" datetime="2026-03-17 14:17:07">in 1d 12h</time>
+        HTML;
 
-        $this->assertStringContainsString('>in 1d 12h<', $rendered);
+        $this->assertHtml(
+            $html,
+            new TimeUntil(new DateTime('2026-03-17 14:17:07'), new DateTime('2026-03-16 02:17:07'))
+        );
     }
 
     public function testFormatCrossMidnightLessThanDayAgo(): void
     {
-        $time = new DateTime('2026-03-17 14:17:07');
-        $compareTime = new DateTime('2026-03-16 22:17:07');
-        $rendered = (new TimeUntil($time, $compareTime))->render();
+        $html = <<<'HTML'
+        <time class="time-until" data-relative-time="until"
+              title="2026-03-17 14:17:07" datetime="2026-03-17 14:17:07">on Mar 17 14:17</time>
+        HTML;
 
-        $this->assertStringContainsString('>on Mar 17 14:17<', $rendered);
+        $this->assertHtml(
+            $html,
+            new TimeUntil(new DateTime('2026-03-17 14:17:07'), new DateTime('2026-03-16 22:17:07'))
+        );
     }
 
     public function testFormatWithPreviousYear(): void
     {
-        $time = new DateTime('2027-01-01 00:17:07');
-        $compareTime = new DateTime('2026-03-17 14:17:07');
-        $rendered = (new TimeUntil($time, $compareTime))->render();
+        $eventTime = new DateTime('2027-01-01 00:17:07');
 
-        $this->assertStringContainsString('>on 2027-01<', $rendered);
+        $this->assertHtml(
+            '<time class="time-until" data-relative-time="until"'
+            . ' title="2027-01-01 00:17:07" datetime="2027-01-01 00:17:07">on 2027-01</time>',
+            new TimeUntil($eventTime, new DateTime('2026-03-17 14:17:07'))
+        );
 
-        $compareTime = new DateTime('2026-12-30 14:17:07');
-        $rendered = (new TimeUntil($time, $compareTime))->render();
+        $this->assertHtml(
+            '<time class="time-until" data-relative-time="until"'
+            . ' title="2027-01-01 00:17:07" datetime="2027-01-01 00:17:07">in 1d 10h</time>',
+            new TimeUntil($eventTime, new DateTime('2026-12-30 14:17:07'))
+        );
 
-        $this->assertStringContainsString('>in 1d 10h<', $rendered);
+        $this->assertHtml(
+            '<time class="time-until" data-relative-time="until"'
+            . ' title="2027-01-01 00:17:07" datetime="2027-01-01 00:17:07">on Jan 1 00:17</time>',
+            new TimeUntil($eventTime, new DateTime('2026-12-31 14:17:07'))
+        );
 
-        $compareTime = new DateTime('2026-12-31 14:17:07');
-        $rendered = (new TimeUntil($time, $compareTime))->render();
-
-        $this->assertStringContainsString('>on Jan 1 00:17<', $rendered);
-
-        $compareTime = new DateTime('2026-12-31 23:47:07');
-        $rendered = (new TimeUntil($time, $compareTime))->render();
-
-        $this->assertStringContainsString('>in 30m 0s<', $rendered);
+        $this->assertHtml(
+            '<time class="time-until" data-relative-time="until"'
+            . ' title="2027-01-01 00:17:07" datetime="2027-01-01 00:17:07"'
+            . ' data-ago-label="0m 0s ago">in 30m 0s</time>',
+            new TimeUntil($eventTime, new DateTime('2026-12-31 23:47:07'))
+        );
     }
 
     public function testFormatWithFutureSubHourShowsAgoSuffix(): void
     {
-        $time = new DateTime('2026-03-17 14:17:07');
-        $compareTime = new DateTime('2026-03-17 14:47:07');
-        $rendered = (new TimeUntil($time, $compareTime))->render();
+        $html = <<<'HTML'
+        <time class="time-until" data-relative-time="until"
+              title="2026-03-17 14:17:07" datetime="2026-03-17 14:17:07"
+              data-ago-label="0m 0s ago">in -30m 0s</time>
+        HTML;
 
-        $this->assertStringContainsString('>in -30m 0s<', $rendered);
+        $this->assertHtml(
+            $html,
+            new TimeUntil(new DateTime('2026-03-17 14:17:07'), new DateTime('2026-03-17 14:47:07'))
+        );
     }
 
     public function testRenderIgnoresFormatter(): void
     {
-        $dateTime = new DateTime('2026-03-17 15:17:07');
-        $compareTime = new DateTime('2026-03-17 14:17:07');
-        $widget = new TimeUntil($dateTime, $compareTime);
+        $html = <<<'HTML'
+        <time class="time-until" data-relative-time="until"
+              title="2026-03-17 15:17:07" datetime="2026-03-17 15:17:07">at 15:17</time>
+        HTML;
+        $widget = new TimeUntil(new DateTime('2026-03-17 15:17:07'), new DateTime('2026-03-17 14:17:07'));
         $formatter = IntlDateFormatter::create(locale: 'en', pattern: 'Y_M_d H:m');
 
-        $rendered = $widget->setFormatter($formatter)->render();
-
-        $this->assertStringNotContainsString('>2026_3_17 14:17<', $rendered);
+        $this->assertHtml($html, $widget->setFormatter($formatter));
     }
 }
