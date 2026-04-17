@@ -1,12 +1,12 @@
-/* Icinga Web 2 | (c) 2025 Icinga GmbH | GPLv2+ */
-
-define(["../widget/RelativeTime", "icinga/legacy-app/Icinga"], function (RelativeTime, Icinga) {
+define(["../RelativeTime", "icinga/legacy-app/Icinga"], function (RelativeTime, Icinga) {
 
     "use strict";
 
     class RelativeTimeBehavior extends Icinga.EventListener {
         constructor(icinga) {
             super(icinga);
+
+            this.on('rendered', this.onTimeRendered, this);
 
             /**
              * RelativeTime instance
@@ -15,16 +15,16 @@ define(["../widget/RelativeTime", "icinga/legacy-app/Icinga"], function (Relativ
              * @private
              */
             this._relativeTime = new RelativeTime(icinga.config.timezone);
+            this._relativeTime.scan(document);
+        }
 
-            this._relativeTime.update(document);
+        onTimeRendered(event) {
+            event.data.self._relativeTime.scan(event.target);
+        }
 
-            if (this._timerHandle == null) {
-                this._timerHandle = icinga.timer.register(
-                    () => {this._relativeTime.update(document); },
-                    this,
-                    1000
-                );
-            }
+        unbind(emitter) {
+            super.unbind(emitter);
+            this._relativeTime.stop();
         }
     }
 
