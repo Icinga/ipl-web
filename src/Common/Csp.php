@@ -129,7 +129,7 @@ class Csp
             );
         }
 
-        if ($value == null) {
+        if ($value === null) {
             if (! $this->canDirectiveBeEmpty($directive)) {
                 throw new InvalidArgumentException(
                     "Directive $directive can not be empty."
@@ -141,10 +141,6 @@ class Csp
 
             if (str_contains($value, ' ')) {
                 return $this->add($directive, explode(' ', $value));
-            }
-
-            if (empty($value)) {
-                return $this;
             }
 
             $this->validateExpression($value);
