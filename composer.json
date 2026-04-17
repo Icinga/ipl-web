@@ -10,6 +10,7 @@
   "require": {
     "php": ">=8.2",
     "ext-json": "*",
+    "ext-intl": "*",
     "fortawesome/font-awesome": "^6",
     "icinga/zf1": ">=2.0.0",
     "ipl/html": ">=0.10.0",
@@ -18,8 +19,7 @@
     "ipl/scheduler": ">=0.3.0",
     "ipl/stdlib": ">=0.15.0",
     "psr/http-message": "^1.1",
-    "wikimedia/less.php": "^3.2.1",
-    "ext-intl": "*"
+    "wikimedia/less.php": "^3.2.1"
   },
   "require-dev": {
     "icinga/zf1": "dev-main",
