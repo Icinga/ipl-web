@@ -7,7 +7,6 @@ define(function () {
         constructor(timezone) {
             this.timezone = timezone;
             this._offsetCache = null;
-            this._states = new WeakMap();
             this._trackedElements = new Set();
             this._timer = null;
         }
@@ -19,10 +18,7 @@ define(function () {
             }
 
             elements.forEach((el) => {
-                if (! this._states.has(el)) {
-                    this._trackedElements.add(new WeakRef(el));
-                    this._states.set(el, true);
-                }
+                this._trackedElements.add(new WeakRef(el));
             });
 
             if (! this._timer) {
@@ -33,7 +29,7 @@ define(function () {
         tick() {
             this._trackedElements.forEach((ref) => {
                 const el = ref.deref();
-                if (this._states.get(el)) {
+                if (el) {
                     this.updateElement(el);
                 }
             })
