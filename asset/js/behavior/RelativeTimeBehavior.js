@@ -6,7 +6,7 @@ define(["../RelativeTime", "icinga/legacy-app/Icinga"], function (RelativeTime, 
         constructor(icinga) {
             super(icinga);
 
-            this.on('rendered', this.onTimeRendered, this);
+            this.on('rendered', '.container', this.onTimeRendered, this);
 
             /**
              * RelativeTime instance
@@ -15,11 +15,12 @@ define(["../RelativeTime", "icinga/legacy-app/Icinga"], function (RelativeTime, 
              * @private
              */
             this._relativeTime = new RelativeTime(icinga.config.timezone);
-            this._relativeTime.scan(document);
         }
 
         onTimeRendered(event) {
-            event.data.self._relativeTime.scan(event.target);
+            if (event.currentTarget === event.target) {
+                event.data.self._relativeTime.scan(event.target);
+            }
         }
 
         unbind(emitter) {
