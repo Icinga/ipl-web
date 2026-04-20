@@ -160,14 +160,21 @@ class LessRuleset extends ArrayObject
         $less = [];
 
         foreach ($this as $property => $value) {
+            if ($value === null || trim($value) === '') {
+                continue;
+            }
+
             $less[] = "$property: $value;";
         }
 
         foreach ($this->children as $ruleset) {
-            $less[] = $ruleset->renderLess();
+            $rendered = $ruleset->renderLess();
+            if ($rendered !== '') {
+                $less[] = $rendered;
+            }
         }
 
-        if ($this->selector !== null) {
+        if ($this->selector !== null && ! empty($less)) {
             array_unshift($less, "$this->selector {");
             $less[] = '}';
         }

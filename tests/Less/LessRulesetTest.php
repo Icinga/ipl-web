@@ -87,6 +87,68 @@ EOT
         );
     }
 
+    public function testEmptyStringPropertyIsOmitted()
+    {
+        $set = LessRulesetWithTestableRenderCss::create('.foo', ['color' => '', 'width' => 'auto']);
+
+        $this->assertSame(
+            <<<'EOT'
+.foo {
+width: auto;
+}
+EOT
+            ,
+            $set->renderCss()
+        );
+    }
+
+    public function testWhitespaceOnlyPropertyIsOmitted()
+    {
+        $set = LessRulesetWithTestableRenderCss::create('.foo', ['color' => '  ', 'width' => 'auto']);
+
+        $this->assertSame(
+            <<<'EOT'
+.foo {
+width: auto;
+}
+EOT
+            ,
+            $set->renderCss()
+        );
+    }
+
+    public function testNullPropertyIsOmitted()
+    {
+        $set = LessRulesetWithTestableRenderCss::create('.foo', ['width' => 'auto']);
+        $set['color'] = null;
+
+        $this->assertSame(
+            <<<'EOT'
+.foo {
+width: auto;
+}
+EOT
+            ,
+            $set->renderCss()
+        );
+    }
+
+    public function testRulesetWithOnlyEmptyPropertiesRendersEmpty()
+    {
+        $set = LessRulesetWithTestableRenderCss::create('.foo', ['color' => '', 'width' => '']);
+
+        $this->assertSame('', $set->renderCss());
+    }
+
+    public function testNestedRulesetWithOnlyEmptyPropertiesRendersEmpty()
+    {
+        $parent = LessRulesetWithTestableRenderCss::create('.parent', []);
+        $child = LessRulesetWithTestableRenderCss::create('.child', ['color' => '']);
+        $parent->addRuleset($child);
+
+        $this->assertSame('', $parent->renderCss());
+    }
+
     public function testAccessingAMissingPropertyThrowsIfGetPropertyIsUsed()
     {
         $this->markTestSkipped('I am done with this. Test keeps failing on GitHub.');
