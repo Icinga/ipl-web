@@ -1,6 +1,6 @@
 <?php
 
-namespace ipl\Web;
+namespace ipl\Web\Less;
 
 use ArrayObject;
 use Less_Parser;

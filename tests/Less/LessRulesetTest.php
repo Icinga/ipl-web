@@ -1,10 +1,11 @@
 <?php
 
-namespace ipl\Tests\Web;
+namespace ipl\Tests\Web\Less;
 
 use ErrorException;
-use ipl\Tests\Web\Lib\LessRulesetWithTestableRenderCss;
-use ipl\Web\LessRuleset;
+use ipl\Tests\Web\Less\Lib\LessRulesetWithTestableRenderCss;
+use ipl\Tests\Web\TestCase;
+use ipl\Web\Less\LessRuleset;
 
 class LessRulesetTest extends TestCase
 {
