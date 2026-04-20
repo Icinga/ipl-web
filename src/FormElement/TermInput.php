@@ -7,6 +7,7 @@ use ipl\Html\Attributes;
 use ipl\Html\Form;
 use ipl\Html\FormElement\FieldsetElement;
 use ipl\Html\FormElement\HiddenElement;
+use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\HtmlString;
 use ipl\Stdlib\Events;
@@ -328,6 +329,15 @@ class TermInput extends FieldsetElement
         $this->hasBeenAutoSubmitted = in_array($mainInputId, $autoSubmittedBy, true)
             || in_array($termContainerId, $autoSubmittedBy, true);
 
+        $suggestions = (new HtmlElement('div'))
+            ->setAttribute('id', Attribute::sanitizeId($this->getValueOfNameAttribute()) . '-suggestions')
+            ->setAttribute('class', 'search-suggestions');
+
+        $form->prependWrapper(
+            (new HtmlDocument())
+                ->addHtml($form, $suggestions)
+        );
+
         parent::onRegistered($form);
     }
 
@@ -407,10 +417,6 @@ class TermInput extends FieldsetElement
         $suggestionsId = $myName . '-suggestions';
 
         $termContainer = $this->termContainer();
-
-        $suggestions = (new HtmlElement('div'))
-            ->setAttribute('id', $suggestionsId)
-            ->setAttribute('class', 'search-suggestions');
 
         $termInput = $this->createElement('hidden', 'value', [
             'id' => $termInputId,
@@ -507,8 +513,6 @@ class TermInput extends FieldsetElement
             $termContainer,
             new HtmlElement('label', null, $mainInput)
         )));
-
-        $this->addHtml($suggestions);
 
         if (! $this->hasBeenAutoSubmitted()) {
             $this->emit(self::ON_ENRICH, [$this->getTerms()]);
