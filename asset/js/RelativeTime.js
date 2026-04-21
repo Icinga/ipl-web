@@ -13,7 +13,7 @@ define(function () {
         }
 
         scan(root) {
-            const elements = root.querySelectorAll('time[data-relative-time]');
+            const elements = root.querySelectorAll('time[data-relative-time], span.relative-time');
             if (elements.length === 0) {
                 return;
             }
@@ -46,7 +46,7 @@ define(function () {
         }
 
         updateElement(element) {
-            const relativeTimeAgo = element.dataset.relativeTime;
+            const relativeTimeAgo = this.getType(element);
             if (relativeTimeAgo === 'ago' || relativeTimeAgo === 'since') {
                 const diffSeconds = this.getTimeDifferenceInSeconds(element);
                 if (diffSeconds == null || diffSeconds >= RelativeTime.DYNAMIC_RELATIVE_TIME_THRESHOLD) {
@@ -66,7 +66,7 @@ define(function () {
                     return;
                 }
 
-                if (remainingSeconds === 0 && element.dataset.agoLabel) {
+                if (remainingSeconds <= 0 && element.dataset.agoLabel) {
                     element.textContent = element.dataset.agoLabel;
                     element.dataset.relativeTime = 'ago';
                 }
@@ -79,7 +79,7 @@ define(function () {
         }
 
         getTimeDifferenceInSeconds(element, future = false) {
-            const timeString = element.dateTime || element.getAttribute('datetime');
+            const timeString = this.getDateTime(element);
             const isoString = timeString.replace(' ', 'T');
 
             const offset = this.getOffset();
@@ -97,6 +97,26 @@ define(function () {
             });
             const parts = formatter.formatToParts(new Date());
             return parts.find(p => p.type === 'timeZoneName').value.replace('GMT', '');
+        }
+
+        getType(element) {
+            if (element.dataset.relativeTime) {
+                return element.dataset.relativeTime;
+            } else if (element.classList.contains('time-ago')) {
+                return 'ago';
+            } else if (element.classList.contains('time-since')) {
+                return 'since';
+            } else if (element.classList.contains('time-until')) {
+                return 'until';
+            }
+
+            return null;
+        }
+
+        getDateTime(element) {
+            return element.dateTime
+                || element.getAttribute('datetime')
+                || element.getAttribute('title');
         }
 
         render(diffInSeconds) {

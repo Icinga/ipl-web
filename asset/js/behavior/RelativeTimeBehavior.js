@@ -1,35 +1,45 @@
-define(["../RelativeTime", "icinga/legacy-app/Icinga"], function (RelativeTime, Icinga) {
+(function () {
 
     "use strict";
 
-    class RelativeTimeBehavior extends Icinga.EventListener {
-        constructor(icinga) {
-            super(icinga);
+    document.addEventListener('DOMContentLoaded', function () {
 
-            this.on('rendered', '.container', this.onTimeRendered, this);
+        class RelativeTimeBehavior extends Icinga.EventListener {
+            constructor(icinga) {
+                super(icinga);
 
-            /**
-             * RelativeTime instance
-             *
-             * @type {RelativeTime}
-             * @private
-             */
-            this._relativeTime = new RelativeTime(icinga.config.timezone);
-        }
+                const RelativeTime = require('icinga/icinga-php-library/RelativeTime');
 
-        onTimeRendered(event) {
-            if (event.currentTarget === event.target) {
-                event.data.self._relativeTime.scan(event.target);
+                // Icinga Web <= 2.13 support
+                if (typeof icinga.ui.disableTimeCounters === 'function') {
+                    this.on('icinga-init', null, () => icinga.ui.disableTimeCounters());
+                }
+
+                this.on('rendered', '.container', this.onTimeRendered, this);
+
+                /**
+                 * RelativeTime instance
+                 *
+                 * @type {RelativeTime}
+                 * @private
+                 */
+                this._relativeTime = new RelativeTime(icinga.config.timezone);
+            }
+
+            onTimeRendered(event) {
+                if (event.currentTarget === event.target) {
+                    event.data.self._relativeTime.scan(event.target);
+                }
+            }
+
+            unbind(emitter) {
+                super.unbind(emitter);
+                this._relativeTime.stop();
             }
         }
 
-        unbind(emitter) {
-            super.unbind(emitter);
-            this._relativeTime.stop();
-        }
-    }
+        Icinga.Behaviors = Icinga.Behaviors || {};
 
-    Icinga.Behaviors = Icinga.Behaviors || {};
-
-    Icinga.Behaviors.RelativeTime = RelativeTimeBehavior;
-});
+        Icinga.Behaviors.RelativeTime = RelativeTimeBehavior;
+    });
+})();
