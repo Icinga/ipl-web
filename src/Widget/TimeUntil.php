@@ -2,33 +2,53 @@
 
 namespace ipl\Web\Widget;
 
-use Icinga\Date\DateFormatter;
-use ipl\Html\BaseHtmlElement;
+use DateTime;
+use Exception;
+use ipl\Html\Attributes;
+use ipl\I18n\Translation;
 
-class TimeUntil extends BaseHtmlElement
+class TimeUntil extends Time
 {
-    /** @var int */
-    protected $until;
+    protected $defaultAttributes = ['class' => 'time-until', 'data-relative-time' => 'until'];
 
-    protected $tag = 'time';
-
-    protected $defaultAttributes = ['class' => 'time-until'];
-
-    public function __construct($until)
+    /**
+     * @param int|float|DateTime|null $time Time as timestamp, DateTime object, or null for current time
+     * @param ?DateTime $compareTime Time to compare with, null for current time
+     *
+     * @throws Exception
+     */
+    public function __construct(int|float|DateTime|null $time = null, ?DateTime $compareTime = null)
     {
-        $this->until = (int) $until;
+        $this->compareTime = $compareTime;
+
+        if (! $time instanceof DateTime) {
+            $time = $this->castToDateTime($time);
+        }
+
+        parent::__construct($time);
     }
 
-    protected function assemble()
+    protected function format(): string
     {
-        $dateTime = DateFormatter::formatDateTime($this->until);
+        [$time, $type, $interval] = $this->diff($this->compareTime);
 
-        $this->addAttributes([
-            'datetime' => $dateTime,
-            'title' => $dateTime,
-            'data-ago-label' => DateFormatter::timeAgo(time())
-        ]);
+        if (
+            $interval->invert !== 1 && $type === static::RELATIVE
+            && ($interval->days !== 0 || $interval->h !== 0 || $interval->i !== 0 || $interval->s !== 0)
+        ) {
+            $time = '-' . $time;
+        }
 
-        $this->add(DateFormatter::timeUntil($this->until));
+        return sprintf(
+            match ($type) {
+                self::RELATIVE => $this->translate(
+                    'in %s',
+                    'An event will happen after the given time interval has elapsed'
+                ),
+                self::TIME     => $this->translate('at %s', 'An event will happen at the given time'),
+                self::DATE     => $this->translate('on %s', 'An event will happen on the given date or date and time'),
+            },
+            $time
+        );
     }
 }

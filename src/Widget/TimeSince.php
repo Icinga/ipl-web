@@ -2,32 +2,47 @@
 
 namespace ipl\Web\Widget;
 
-use Icinga\Date\DateFormatter;
-use ipl\Html\BaseHtmlElement;
+use DateTime;
+use Exception;
+use ipl\I18n\Translation;
 
-class TimeSince extends BaseHtmlElement
+class TimeSince extends Time
 {
-    /** @var int */
-    protected $since;
+    protected $defaultAttributes = ['class' => 'time-since', 'data-relative-time' => 'since'];
 
-    protected $tag = 'time';
-
-    protected $defaultAttributes = ['class' => 'time-since'];
-
-    public function __construct($since)
+    /**
+     * @param int|float|DateTime|null $time Time as timestamp, DateTime object, or null for current time
+     * @param ?DateTime $compareTime Time to compare with, null for current time
+     *
+     * @throws Exception
+     */
+    public function __construct(int|float|DateTime|null $time = null, ?DateTime $compareTime = null)
     {
-        $this->since = (int) $since;
+        $this->compareTime = $compareTime;
+
+        if (! $time instanceof DateTime) {
+            $time = $this->castToDateTime($time);
+        }
+
+        parent::__construct($time);
     }
 
-    protected function assemble()
+    protected function format(): string
     {
-        $dateTime = DateFormatter::formatDateTime($this->since);
+        [$time, $type] = $this->diff($this->compareTime);
 
-        $this->addAttributes([
-            'datetime' => $dateTime,
-            'title'    => $dateTime
-        ]);
-
-        $this->add(DateFormatter::timeSince($this->since));
+        return sprintf(
+            match ($type) {
+                self::RELATIVE         => $this->translate(
+                    'for %s',
+                    'A status is lasting for the given time interval'
+                ),
+                self::TIME, self::DATE => $this->translate(
+                    'since %s',
+                    'A status is lasting since the given time, date or date and time'
+                ),
+            },
+            $time
+        );
     }
 }

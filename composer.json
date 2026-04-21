@@ -10,6 +10,7 @@
   "require": {
     "php": ">=8.2",
     "ext-json": "*",
+    "ext-intl": "*",
     "fortawesome/font-awesome": "^6",
     "icinga/zf1": ">=2.0.0",
     "ipl/html": ">=0.10.0",
