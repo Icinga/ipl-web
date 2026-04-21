@@ -4,6 +4,7 @@ namespace ipl\Web\Less;
 
 use ArrayObject;
 use Less_Parser;
+use OutOfBoundsException;
 
 /**
  * @extends ArrayObject<string, string>
@@ -63,10 +64,30 @@ class LessRuleset extends ArrayObject
      * @param string $property Name of the property
      *
      * @return string
+     *
+     * @throws OutOfBoundsException If the property does not exist
      */
     public function getProperty(string $property): string
     {
         return (string) $this[$property];
+    }
+
+    /**
+     * Get a property value
+     *
+     * @param string $key Name of the property
+     *
+     * @return string
+     *
+     * @throws OutOfBoundsException If the property does not exist
+     */
+    public function offsetGet(mixed $key): mixed
+    {
+        if (! $this->offsetExists($key)) {
+            throw new OutOfBoundsException("Property '$key' not found");
+        }
+
+        return parent::offsetGet($key);
     }
 
     /**

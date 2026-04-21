@@ -2,9 +2,9 @@
 
 namespace ipl\Tests\Web\Less;
 
-use ErrorException;
 use ipl\Tests\Web\TestCase;
 use ipl\Web\Less\LessRuleset;
+use OutOfBoundsException;
 
 class LessRulesetTest extends TestCase
 {
@@ -150,30 +150,15 @@ EOT
 
     public function testAccessingAMissingPropertyThrowsIfGetPropertyIsUsed()
     {
-        $this->markTestSkipped('I am done with this. Test keeps failing on GitHub.');
-
-        $set = new LessRuleset();
-
-        try {
-            $set->getProperty('missing');
-        } catch (ErrorException $_) {
-            // $this->expectException() didn't work on GitHub for an unknown reason
-            $this->assertTrue(true);
-        }
+        $this->expectException(OutOfBoundsException::class);
+        (new LessRuleset())->getProperty('missing');
     }
 
     public function testAccessingAMissingPropertyThrowsIfOffsetAccessIsUsed()
     {
-        $this->markTestSkipped('I am done with this. Test keeps failing on GitHub.');
-
+        $this->expectException(OutOfBoundsException::class);
         $set = new LessRuleset();
-
-        try {
-            $set['missing'];
-        } catch (ErrorException $_) {
-            // $this->expectException() didn't work on GitHub for an unknown reason
-            $this->assertTrue(true);
-        }
+        $_ = $set['missing'];
     }
 
     protected function createTestableRuleset(?string $selector = null, array $properties = []): LessRuleset
