@@ -3,7 +3,6 @@
 namespace ipl\Tests\Web\Less;
 
 use ErrorException;
-use ipl\Tests\Web\Less\Lib\LessRulesetWithTestableRenderCss;
 use ipl\Tests\Web\TestCase;
 use ipl\Web\Less\LessRuleset;
 
@@ -11,7 +10,7 @@ class LessRulesetTest extends TestCase
 {
     public function testSetWithSelectorIsCorrectlyRendered()
     {
-        $set = LessRulesetWithTestableRenderCss::create('.foo', ['width' => 'auto']);
+        $set = $this->createTestableRuleset('.foo', ['width' => 'auto']);
 
         $this->assertSame('.foo', $set->getSelector());
         $this->assertSame(
@@ -27,7 +26,7 @@ EOT
 
     public function testSetWithoutSelectorIsCorrectlyRendered()
     {
-        $set = new LessRulesetWithTestableRenderCss();
+        $set = $this->createTestableRuleset();
         $set->setProperties(['width' => 'auto', 'height' => 'auto']);
 
         $this->assertSame(['width' => 'auto', 'height' => 'auto'], $set->getProperties());
@@ -43,9 +42,9 @@ EOT
 
     public function testNestedSetsAreCorrectlyRendered()
     {
-        $set = LessRulesetWithTestableRenderCss::create('.level1', ['width' => 'auto']);
+        $set = $this->createTestableRuleset('.level1', ['width' => 'auto']);
         $set->addRuleset(
-            LessRulesetWithTestableRenderCss::create('.level2', ['width' => '2em'])
+            $this->createTestableRuleset('.level2', ['width' => '2em'])
                 ->add('.level3', ['width' => '1em'])
         );
 
@@ -68,7 +67,7 @@ EOT
 
     public function testSetsCanBeAdjustedAfterCreation()
     {
-        $set = LessRulesetWithTestableRenderCss::create('.foo', ['width' => 'auto']);
+        $set = $this->createTestableRuleset('.foo', ['width' => 'auto']);
         $set->setProperty('line-height', 1.5);
         $set['color'] = '#abc';
 
@@ -89,7 +88,7 @@ EOT
 
     public function testEmptyStringPropertyIsOmitted()
     {
-        $set = LessRulesetWithTestableRenderCss::create('.foo', ['color' => '', 'width' => 'auto']);
+        $set = $this->createTestableRuleset('.foo', ['color' => '', 'width' => 'auto']);
 
         $this->assertSame(
             <<<'EOT'
@@ -104,7 +103,7 @@ EOT
 
     public function testWhitespaceOnlyPropertyIsOmitted()
     {
-        $set = LessRulesetWithTestableRenderCss::create('.foo', ['color' => '  ', 'width' => 'auto']);
+        $set = $this->createTestableRuleset('.foo', ['color' => '  ', 'width' => 'auto']);
 
         $this->assertSame(
             <<<'EOT'
@@ -119,7 +118,7 @@ EOT
 
     public function testNullPropertyIsOmitted()
     {
-        $set = LessRulesetWithTestableRenderCss::create('.foo', ['width' => 'auto']);
+        $set = $this->createTestableRuleset('.foo', ['width' => 'auto']);
         $set['color'] = null;
 
         $this->assertSame(
@@ -135,15 +134,15 @@ EOT
 
     public function testRulesetWithOnlyEmptyPropertiesRendersEmpty()
     {
-        $set = LessRulesetWithTestableRenderCss::create('.foo', ['color' => '', 'width' => '']);
+        $set = $this->createTestableRuleset('.foo', ['color' => '', 'width' => '']);
 
         $this->assertSame('', $set->renderCss());
     }
 
     public function testNestedRulesetWithOnlyEmptyPropertiesRendersEmpty()
     {
-        $parent = LessRulesetWithTestableRenderCss::create('.parent', []);
-        $child = LessRulesetWithTestableRenderCss::create('.child', ['color' => '']);
+        $parent = $this->createTestableRuleset('.parent', []);
+        $child = $this->createTestableRuleset('.child', ['color' => '']);
         $parent->addRuleset($child);
 
         $this->assertSame('', $parent->renderCss());
@@ -175,5 +174,17 @@ EOT
             // $this->expectException() didn't work on GitHub for an unknown reason
             $this->assertTrue(true);
         }
+    }
+
+    protected function createTestableRuleset(?string $selector = null, array $properties = []): LessRuleset
+    {
+        $ruleset = new class extends LessRuleset {
+            public function renderCss(): string
+            {
+                return $this->renderLess();
+            }
+        };
+
+        return $selector !== null ? $ruleset::create($selector, $properties) : $ruleset;
     }
 }

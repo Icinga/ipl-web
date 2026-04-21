@@ -3,14 +3,13 @@
 namespace ipl\Tests\Web;
 
 use ipl\Html\Html;
-use ipl\Tests\Web\Lib\StyleWithTestableRenderCss;
 use ipl\Web\Style;
 
 class StyleTest extends TestCase
 {
     public function testNonceIsCorrectlyRendered()
     {
-        $style = new StyleWithTestableRenderCss();
+        $style = $this->createTestableStyle();
         $style->setNonce('12345rtzujiklö');
 
         $this->assertSame(
@@ -21,7 +20,7 @@ class StyleTest extends TestCase
 
     public function testModuleScopeIsCorrectlyRendered()
     {
-        $style = new StyleWithTestableRenderCss();
+        $style = $this->createTestableStyle();
         $style->setModule('foo');
         $style->add('#bar', ['width' => 'auto']);
 
@@ -52,7 +51,7 @@ EOT
     {
         $div = Html::tag('div', ['id' => 'foo']);
 
-        $style = new StyleWithTestableRenderCss();
+        $style = $this->createTestableStyle();
         $style->addFor($div, ['width' => 'auto']);
 
         $this->assertSame(
@@ -75,7 +74,7 @@ EOT
     {
         $div = Html::tag('div', ['id' => 'foo']);
 
-        $style = new StyleWithTestableRenderCss();
+        $style = $this->createTestableStyle();
         $style->setNonce('12345rtzujiklö');
         $style->setModule('foo');
         $style->addFor($div, ['width' => 'auto']);
@@ -91,5 +90,15 @@ EOT
             ,
             (string) $style
         );
+    }
+
+    protected function createTestableStyle(): Style
+    {
+        return new class extends Style {
+            public function renderCss(): string
+            {
+                return $this->renderLess();
+            }
+        };
     }
 }
