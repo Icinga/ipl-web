@@ -8,7 +8,6 @@ define(function () {
 
         constructor(timezone) {
             this.timezone = timezone;
-            this._offsetCache = null;
             this._trackedElements = new Set();
             this._timer = null;
         }
@@ -47,7 +46,7 @@ define(function () {
         }
 
         updateElement(element) {
-            const relativeTimeAgo = element.getAttribute('data-relative-time');
+            const relativeTimeAgo = element.dataset.relativeTime;
             if (relativeTimeAgo === 'ago' || relativeTimeAgo === 'since') {
                 const diffSeconds = this.getTimeDifferenceInSeconds(element);
                 if (diffSeconds == null || diffSeconds >= RelativeTime.DYNAMIC_RELATIVE_TIME_THRESHOLD) {
@@ -92,17 +91,12 @@ define(function () {
         }
 
         getOffset() {
-            if (! this._offsetCache) {
-                const formatter = new Intl.DateTimeFormat('en-US', {
-                    timeZone: this.timezone,
-                    timeZoneName: 'longOffset'
-                });
-                const parts = formatter.formatToParts(new Date());
-                this._offsetCache = parts.find(p => p.type === 'timeZoneName')
-                    .value.replace('GMT', '');
-            }
-
-            return this._offsetCache;
+            const formatter = new Intl.DateTimeFormat('en-US', {
+                timeZone: this.timezone,
+                timeZoneName: 'longOffset'
+            });
+            const parts = formatter.formatToParts(new Date());
+            return parts.find(p => p.type === 'timeZoneName').value.replace('GMT', '');
         }
 
         render(diffInSeconds) {
