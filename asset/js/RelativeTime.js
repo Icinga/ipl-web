@@ -13,7 +13,7 @@ define(function () {
         }
 
         scan(root) {
-            const elements = root.querySelectorAll('time[data-relative-time], span.relative-time');
+            const elements = root.querySelectorAll('time[data-relative-time], .time-ago, .time-since, .time-until');
             if (elements.length === 0) {
                 return;
             }
