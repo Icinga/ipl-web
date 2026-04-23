@@ -20,8 +20,7 @@ class TimeAgoTest extends TestCase
     {
         $nowDateTime = new DateTime();
         $html = sprintf(
-            '<time class="time-ago" data-relative-time="ago" title="%1$s" datetime="%1$s"'
-            . ' data-ago-label="0m 0s ago">0m 0s ago</time>',
+            '<time class="time-ago" data-relative-time="ago" title="%1$s" datetime="%1$s">0m 0s ago</time>',
             $nowDateTime->format('Y-m-d H:i:s'),
         );
 
@@ -33,8 +32,7 @@ class TimeAgoTest extends TestCase
     {
         $html = <<<'HTML'
 <time class="time-ago" data-relative-time="ago"
-      title="2026-03-17 14:17:07" datetime="2026-03-17 14:17:07"
-      data-ago-label="0m 0s ago">30m 0s ago</time>
+      title="2026-03-17 14:17:07" datetime="2026-03-17 14:17:07">30m 0s ago</time>
 HTML;
 
         $timestampEvent = mktime(14, 17, 7, 3, 17, 2026);
@@ -48,8 +46,7 @@ HTML;
     {
         $html = <<<'HTML'
 <time class="time-ago" data-relative-time="ago"
-      title="2026-03-17 14:17:07" datetime="2026-03-17 14:17:07"
-      data-ago-label="0m 0s ago">30m 0s ago</time>
+      title="2026-03-17 14:17:07" datetime="2026-03-17 14:17:07">30m 0s ago</time>
 HTML;
 
         $this->assertHtml(
@@ -61,7 +58,7 @@ HTML;
     public function testFormatWithHoursAgoSameDay(): void
     {
         $html = <<<'HTML'
-<time class="time-ago" data-ago-label="0m 0s ago" data-relative-time="ago"
+<time class="time-ago" data-relative-time="ago"
       title="2026-03-17 14:17:07" datetime="2026-03-17 14:17:07">at 14:17</time>
 HTML;
 
@@ -74,7 +71,7 @@ HTML;
     public function testFormatWithDaysAgo(): void
     {
         $html = <<<'HTML'
-<time class="time-ago" data-ago-label="0m 0s ago" data-relative-time="ago"
+<time class="time-ago" data-relative-time="ago"
       title="2026-03-17 14:17:07" datetime="2026-03-17 14:17:07">on Mar 17</time>
 HTML;
 
@@ -87,7 +84,7 @@ HTML;
     public function testFormatWithDaysAndHoursAgo(): void
     {
         $html = <<<'HTML'
-<time class="time-ago" data-ago-label="0m 0s ago" data-relative-time="ago"
+<time class="time-ago" data-relative-time="ago"
       title="2026-03-17 14:17:07" datetime="2026-03-17 14:17:07">1d 12h ago</time>
 HTML;
 
@@ -100,7 +97,7 @@ HTML;
     public function testFormatCrossMidnightLessThanDayAgo(): void
     {
         $html = <<<'HTML'
-<time class="time-ago" data-ago-label="0m 0s ago" data-relative-time="ago"
+<time class="time-ago" data-relative-time="ago"
       title="2026-03-17 14:17:07" datetime="2026-03-17 14:17:07">on Mar 17 14:17</time>
 HTML;
 
@@ -115,25 +112,25 @@ HTML;
         $eventTime = new DateTime('2026-12-31 23:47:07');
 
         $this->assertHtml(
-            '<time class="time-ago" data-ago-label="0m 0s ago" data-relative-time="ago"'
+            '<time class="time-ago" data-relative-time="ago"'
             . ' title="2026-12-31 23:47:07" datetime="2026-12-31 23:47:07">on 2026-12</time>',
             new TimeAgo($eventTime, new DateTime('2027-03-17 14:17:07'))
         );
 
         $this->assertHtml(
-            '<time class="time-ago" data-ago-label="0m 0s ago" data-relative-time="ago"'
+            '<time class="time-ago" data-relative-time="ago"'
             . ' title="2026-12-31 23:47:07" datetime="2026-12-31 23:47:07">1d 10h ago</time>',
             new TimeAgo($eventTime, new DateTime('2027-01-02 09:47:07'))
         );
 
         $this->assertHtml(
-            '<time class="time-ago" data-ago-label="0m 0s ago" data-relative-time="ago"'
+            '<time class="time-ago" data-relative-time="ago"'
             . ' title="2026-12-31 23:47:07" datetime="2026-12-31 23:47:07">on Dec 31 23:47</time>',
             new TimeAgo($eventTime, new DateTime('2027-01-01 09:47:07'))
         );
 
         $this->assertHtml(
-            '<time class="time-ago" data-ago-label="0m 0s ago" data-relative-time="ago"'
+            '<time class="time-ago" data-relative-time="ago"'
             . ' title="2026-12-31 23:47:07" datetime="2026-12-31 23:47:07">30m 0s ago</time>',
             new TimeAgo($eventTime, new DateTime('2027-01-01 00:17:07'))
         );
@@ -143,8 +140,7 @@ HTML;
     {
         $html = <<<'HTML'
 <time class="time-ago" data-relative-time="ago"
-      title="2026-03-17 14:17:07" datetime="2026-03-17 14:17:07"
-      data-ago-label="0m 0s ago">30m 0s ago</time>
+      title="2026-03-17 14:17:07" datetime="2026-03-17 14:17:07">30m 0s ago</time>
 HTML;
 
         $this->assertHtml(
@@ -156,7 +152,7 @@ HTML;
     public function testRenderIgnoresFormatter(): void
     {
         $html = <<<'HTML'
-<time class="time-ago" data-ago-label="0m 0s ago" data-relative-time="ago"
+<time class="time-ago" data-relative-time="ago"
       title="2026-03-17 14:17:07" datetime="2026-03-17 14:17:07">at 14:17</time>
 HTML;
 

@@ -138,17 +138,6 @@ class Time extends BaseHtmlElement
      */
     protected function assemble(): void
     {
-        $this->addAttributes(
-            Attributes::create(
-                [
-                    'data-ago-label' => sprintf(
-                        $this->translate('%s ago', 'An event that happened the given time interval ago'),
-                        '0m 0s'
-                    )
-                ]
-            )
-        );
-
         $this->addAttributes(Attributes::create(['datetime' => $this->timeString]));
         $this->addHtml(Text::create($this->format()));
     }
