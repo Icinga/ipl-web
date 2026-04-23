@@ -1,0 +1,351 @@
+<?php
+
+namespace ipl\Tests\Web\Common;
+
+use PHPUnit\Framework\Attributes\DataProvider;
+use InvalidArgumentException;
+use ipl\Tests\Web\TestCase;
+use ipl\Web\Common\Csp;
+
+class CspTest extends TestCase
+{
+    public function testEmpty()
+    {
+        $csp = new Csp();
+
+        $this->assertInstanceOf(Csp::class, $csp);
+        $this->assertTrue($csp->isEmpty());
+
+        $csp->add('foo', 'bar');
+
+        $this->assertFalse($csp->isEmpty());
+    }
+
+    public function testAddString()
+    {
+        $csp = new Csp();
+
+        $csp->add('script-src', 'https://example.com');
+
+        $this->assertEquals(['https://example.com'], $csp->getDirective('script-src'));
+    }
+
+    public function testAddStringEmpty()
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        $csp = new Csp();
+
+        $csp->add('script-src', '');
+    }
+
+    public function testAddNull()
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        $csp = new Csp();
+
+        $csp->add('script-src', null);
+    }
+
+    public function testAddNullOnAllowedEmptyDirective()
+    {
+        $csp = new Csp();
+
+        $csp->add('sandbox', null);
+
+        $this->assertEquals([], $csp->getDirective('sandbox'));
+    }
+
+    public function testAddNullOnMandatoryEmptyDirective()
+    {
+        $csp = new Csp();
+
+        $csp->add('block-all-mixed-content', null);
+
+        $this->assertEquals([], $csp->getDirective('block-all-mixed-content'));
+    }
+
+    public function testAddStringOnMandatoryEmptyDirective()
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        $csp = new Csp();
+
+        $csp->add('block-all-mixed-content', 'example');
+    }
+
+    public function testAddStringTrim()
+    {
+        $csp = new Csp();
+
+        $csp->add('script-src', ' https://example.com');
+
+        $this->assertEquals(['https://example.com'], $csp->getDirective('script-src'));
+    }
+
+    public function testAddStringDuplicate()
+    {
+        $csp = new Csp();
+
+        $csp->add('script-src', 'https://example.com');
+        $csp->add('script-src', 'https://example.com');
+
+        $this->assertEquals(['https://example.com'], $csp->getDirective('script-src'));
+    }
+
+    public function testAddStringCombined()
+    {
+        $csp = new Csp();
+
+        $csp->add('script-src', 'https://example.com https://example.org');
+
+        $this->assertEquals(['https://example.com', 'https://example.org'], $csp->getDirective('script-src'));
+    }
+
+    public function testAddArray()
+    {
+        $csp = new Csp();
+
+        $csp->add('img-src', ['https://example.com', 'https://example.org', 'https://example.com']);
+
+        $this->assertEquals(['https://example.com', 'https://example.org'], $csp->getDirective('img-src'));
+    }
+
+    public function testAddDefaultSource()
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        $csp = new Csp();
+
+        $csp->add('default-src', 'https://example.com');
+    }
+
+    public function testFallbackToDefault()
+    {
+        $csp = new Csp();
+
+        $this->assertEquals(["'self'"], $csp->getDirective('script-src'));
+    }
+
+    public function testAddDirectiveNameCapitals()
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        $csp = new Csp();
+
+        $csp->add('Default-src', 'https://example.com');
+    }
+
+    public function testAddDirectiveNameSpecialCharacters()
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        $csp = new Csp();
+
+        $csp->add('default-src:', 'https://example.com');
+    }
+
+    public function testAddWildcardEverything()
+    {
+        $csp = new Csp();
+        $csp->add('script-src', '*');
+
+        $this->assertEquals(['*'], $csp->getDirective('script-src'));
+    }
+
+    public function testAddWildcard()
+    {
+        $csp = new Csp();
+        $csp->add('script-src', 'https://*.example.com');
+        $csp->add('script-src', 'https://*.int.example.com');
+
+        $this->assertEquals(
+            ['https://*.example.com', 'https://*.int.example.com'],
+            $csp->getDirective('script-src'),
+        );
+    }
+
+    public function testAddMissingEndQuote()
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        $csp = new Csp();
+
+        $csp->add('script-src', "'self");
+    }
+
+    public function testAddMissingStartQuote()
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        $csp = new Csp();
+
+        $csp->add('script-src', "self'");
+    }
+
+    public function testAddScheme()
+    {
+        $csp = new Csp();
+        $csp->add('script-src', 'https://*');
+        $csp->add('script-src', 'http:');
+
+        $this->assertEquals(['https://*', 'http:'], $csp->getDirective('script-src'));
+    }
+
+    public function testAddReportingName()
+    {
+        $csp = new Csp();
+
+        $csp->add('report-to', 'reporting-endpoint');
+
+        $this->assertEquals(['reporting-endpoint'], $csp->getDirective('report-to'));
+    }
+
+    #[DataProvider('providerInvalidWildcards')]
+    public function testAddInvalidWildcard(string $policy)
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        $csp = new Csp();
+
+        $csp->add('script-src', $policy);
+    }
+
+    public static function providerInvalidWildcards(): array
+    {
+        return [
+            ['https://example.com*'],
+            ['https://a*.example.com'],
+            ['https://*c.example.com'],
+            ['https://a*c.example.com'],
+            ['https://a*.int.example.com'],
+            ['https://*c.int.example.com'],
+            ['https://a*c.int.example.com'],
+            ['https://int.a*.example.com'],
+            ['https://int.*c.example.com'],
+            ['https://int.a*c.example.com'],
+            ['https://example.*'],
+            ['https://example.*om'],
+            ['https://example.c*m'],
+            ['https://example.co*'],
+            ['https://exa*ple.com'],
+        ];
+    }
+
+    public function testGetDirectives()
+    {
+        $csp = new Csp();
+        $csp->add('script-src', 'https://example.com');
+        $csp->add('imc-src', "'self'");
+
+        $this->assertEquals(
+            ['script-src' => ['https://example.com'], 'imc-src' => ["'self'"]],
+            $csp->getDirectives(),
+        );
+    }
+
+    public function testGetHeader()
+    {
+        $csp = new Csp();
+        $csp->add('script-src', 'https://example.com');
+        $csp->add('imc-src', "'none'");
+
+        $this->assertEquals(
+            "default-src 'self'; script-src https://example.com; imc-src 'none'",
+            $csp->getHeader()
+        );
+
+        $this->assertEquals(
+            $csp->getHeader(),
+            (string) $csp,
+        );
+    }
+
+    public function testGetHeaderWithNullableDirectives()
+    {
+        $csp = new Csp();
+        $csp->add('sandbox', null);
+
+        $this->assertEquals(
+            'default-src \'self\'; sandbox',
+            $csp->getHeader(),
+        );
+    }
+
+    public function testNonce()
+    {
+        $csp = new Csp();
+
+        $csp->add('style-src', "'nonce-example'");
+
+        $this->assertEquals('example', $csp->getNonce());
+    }
+
+    public function testNonceEmpty()
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        $csp = new Csp();
+        $csp->add('style-src', "'nonce-'");
+    }
+
+    public function testFromString()
+    {
+        $csp = Csp::fromString(" script-src 'nonce-example';\n\n\r\nimg-src 'self' https://example.com");
+
+        $this->assertEquals(
+            [
+                'script-src' => ["'nonce-example'"],
+                'img-src'    => ["'self'", 'https://example.com'],
+            ],
+            $csp->getDirectives(),
+        );
+    }
+
+    public function testFromStringOptionalEmpty()
+    {
+        $csp = Csp::fromString("script-src 'nonce-example';\nsandbox;");
+
+        $this->assertEquals(
+            [
+                'script-src' => ["'nonce-example'"],
+                'sandbox'    => [],
+            ],
+            $csp->getDirectives(),
+        );
+    }
+
+    public function testFromStringOptionalEmptyWithValue()
+    {
+        $csp = Csp::fromString("script-src 'nonce-example';\nsandbox allow-scripts allow-forms;");
+
+        $this->assertEquals(
+            [
+                'script-src' => ["'nonce-example'"],
+                'sandbox'    => ['allow-scripts', 'allow-forms'],
+            ],
+            $csp->getDirectives(),
+        );
+    }
+
+    public function testFromStringMandatoryEmpty()
+    {
+        $csp = Csp::fromString("script-src 'nonce-example';\nblock-all-mixed-content;");
+
+        $this->assertEquals(
+            [
+                'script-src'              => ["'nonce-example'"],
+                'block-all-mixed-content' => [],
+            ],
+            $csp->getDirectives(),
+        );
+    }
+
+    public function testFromStringMandatoryEmptyWithValue()
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        Csp::fromString("script-src 'nonce-example';\nblock-all-mixed-content foo;");
+    }
+}
