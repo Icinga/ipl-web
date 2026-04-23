@@ -33,7 +33,7 @@ class TimeTest extends TestCase
     public function testConstructorAcceptsNullForCurrentTime(): void
     {
         $now = '2026-03-17 14:17:07';
-        $html = sprintf('<time title="%1$s" data-ago-label="0m 0s ago"  datetime="%1$s">%1$s</time>', $now);
+        $html = sprintf('<time title="%1$s" datetime="%1$s">%1$s</time>', $now);
 
         $this->assertHtml($html, new Time(new DateTime($now)));
     }
@@ -41,7 +41,7 @@ class TimeTest extends TestCase
     public function testRenderUsesFormatter(): void
     {
         $html = <<<'HTML'
-<time title="2026-03-17 14:17:07" data-ago-label="0m 0s ago"  datetime="2026-03-17 14:17:07">2026_3_17 14:17</time>
+<time title="2026-03-17 14:17:07" datetime="2026-03-17 14:17:07">2026_3_17 14:17</time>
 HTML;
 
         $widget = new Time(new DateTime('2026-03-17 14:17:07'));

@@ -61,7 +61,7 @@ HTML;
     public function testFormatWithHoursAgoSameDay(): void
     {
         $html = <<<'HTML'
-<time class="time-until" data-ago-label="0m 0s ago" data-relative-time="until"
+<time class="time-until" data-relative-time="until"
       title="2026-03-17 14:17:07" datetime="2026-03-17 14:17:07">at 14:17</time>
 HTML;
 
@@ -74,7 +74,7 @@ HTML;
     public function testFormatWithDaysAgo(): void
     {
         $html = <<<'HTML'
-<time class="time-until" data-ago-label="0m 0s ago" data-relative-time="until"
+<time class="time-until" data-relative-time="until"
       title="2026-03-17 14:17:07" datetime="2026-03-17 14:17:07">on Mar 17</time>
 HTML;
 
@@ -87,7 +87,7 @@ HTML;
     public function testFormatWithDaysAndHoursAgo(): void
     {
         $html = <<<'HTML'
-<time class="time-until" data-ago-label="0m 0s ago" data-relative-time="until"
+<time class="time-until" data-relative-time="until"
       title="2026-03-17 14:17:07" datetime="2026-03-17 14:17:07">in 1d 12h</time>
 HTML;
 
@@ -100,7 +100,7 @@ HTML;
     public function testFormatCrossMidnightLessThanDayAgo(): void
     {
         $html = <<<'HTML'
-<time class="time-until" data-ago-label="0m 0s ago" data-relative-time="until"
+<time class="time-until" data-relative-time="until"
       title="2026-03-17 14:17:07" datetime="2026-03-17 14:17:07">on Mar 17 14:17</time>
 HTML;
 
@@ -115,19 +115,19 @@ HTML;
         $eventTime = new DateTime('2027-01-01 00:17:07');
 
         $this->assertHtml(
-            '<time class="time-until" data-ago-label="0m 0s ago" data-relative-time="until"'
+            '<time class="time-until" data-relative-time="until"'
             . ' title="2027-01-01 00:17:07" datetime="2027-01-01 00:17:07">on 2027-01</time>',
             new TimeUntil($eventTime, new DateTime('2026-03-17 14:17:07'))
         );
 
         $this->assertHtml(
-            '<time class="time-until" data-ago-label="0m 0s ago" data-relative-time="until"'
+            '<time class="time-until" data-relative-time="until"'
             . ' title="2027-01-01 00:17:07" datetime="2027-01-01 00:17:07">in 1d 10h</time>',
             new TimeUntil($eventTime, new DateTime('2026-12-30 14:17:07'))
         );
 
         $this->assertHtml(
-            '<time class="time-until" data-ago-label="0m 0s ago" data-relative-time="until"'
+            '<time class="time-until" data-relative-time="until"'
             . ' title="2027-01-01 00:17:07" datetime="2027-01-01 00:17:07">on Jan 1 00:17</time>',
             new TimeUntil($eventTime, new DateTime('2026-12-31 14:17:07'))
         );
@@ -155,7 +155,7 @@ HTML;
     public function testFormatWithPastDaysAndHoursNegatesTime(): void
     {
         $html = <<<'HTML'
-<time class="time-until" data-ago-label="0m 0s ago" data-relative-time="until"
+<time class="time-until" data-relative-time="until"
       title="2026-03-17 14:17:07" datetime="2026-03-17 14:17:07">in -1d 12h</time>
 HTML;
 
@@ -168,7 +168,7 @@ HTML;
     public function testRenderIgnoresFormatter(): void
     {
         $html = <<<'HTML'
-<time class="time-until" data-ago-label="0m 0s ago" data-relative-time="until"
+<time class="time-until" data-relative-time="until"
       title="2026-03-17 15:17:07" datetime="2026-03-17 15:17:07">at 15:17</time>
 HTML;
 
