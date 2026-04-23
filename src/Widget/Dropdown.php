@@ -60,4 +60,14 @@ class Dropdown extends BaseHtmlElement
     {
         $this->add(Html::tag('div', ['class' => 'dropdown-menu'], $this->links));
     }
+
+    /**
+     * Check if the dropdown element contains any links
+     *
+     * @return bool
+     */
+    public function hasLinks(): bool
+    {
+        return ! empty($this->links);
+    }
 }
