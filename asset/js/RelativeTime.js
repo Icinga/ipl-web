@@ -46,6 +46,10 @@ define(function () {
         }
 
         updateElement(element) {
+            if (element.hidden) {
+                return;
+            }
+
             const relativeTimeAgo = this.getType(element);
             if (relativeTimeAgo === 'ago' || relativeTimeAgo === 'since') {
                 const diffSeconds = this.getTimeDifferenceInSeconds(element);
