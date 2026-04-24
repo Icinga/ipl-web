@@ -27,7 +27,7 @@
             }
 
             onTimeRendered(event) {
-                if (event.currentTarget === event.target) {
+                if (event.target.closest('.container') === event.currentTarget) {
                     event.data.self._relativeTime.scan(event.target);
                 }
             }
