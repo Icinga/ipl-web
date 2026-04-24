@@ -8,7 +8,20 @@ define(function () {
 
         constructor(timezone) {
             this.timezone = timezone;
-            this._trackedElements = new Set();
+            /**
+             * Walked by tick() to update the text on each element
+             *
+             * @type {Set<WeakRef<Element>>}
+             * @private
+             */
+            this._refsToUpdate = new Set();
+            /**
+             * Checked by scan() before adding to _refsToUpdate, to avoid tracking the same element twice
+             *
+             * @type {WeakSet<Element>}
+             * @private
+             */
+            this._knownElements = new WeakSet();
             this._timer = null;
         }
 
@@ -19,7 +32,10 @@ define(function () {
             }
 
             elements.forEach((el) => {
-                this._trackedElements.add(new WeakRef(el));
+                if (! this._knownElements.has(el)) {
+                    this._knownElements.add(el);
+                    this._refsToUpdate.add(new WeakRef(el));
+                }
             });
 
             if (! this._timer) {
@@ -28,12 +44,12 @@ define(function () {
         }
 
         tick() {
-            this._trackedElements.forEach((ref) => {
+            this._refsToUpdate.forEach((ref) => {
                 const el = ref.deref();
                 if (el) {
                     this.updateElement(el);
                 } else {
-                    this._trackedElements.delete(ref);
+                    this._refsToUpdate.delete(ref);
                 }
             })
         }
@@ -46,6 +62,10 @@ define(function () {
         }
 
         updateElement(element) {
+            if (element.hidden) {
+                return;
+            }
+
             const relativeTimeAgo = this.getType(element);
             if (relativeTimeAgo === 'ago' || relativeTimeAgo === 'since') {
                 const diffSeconds = this.getTimeDifferenceInSeconds(element);
