@@ -17,7 +17,7 @@ define(["../notjQuery"], function ($) {
             let copyText;
 
             if (clipboardSource) {
-                copyText = clipboardSource.innerText;
+                copyText = this.collectText(clipboardSource);
             } else {
                 throw new Error('Clipboard source is required but not provided');
             }
@@ -42,6 +42,31 @@ define(["../notjQuery"], function ($) {
 
             event.stopPropagation();
             event.preventDefault();
+        }
+
+        collectText(node)
+        {
+            let text = '';
+
+            for (const child of node.childNodes) {
+                if (child.nodeType === Node.TEXT_NODE) {
+                    text += child.nodeValue;
+                } else if (child.nodeType === Node.ELEMENT_NODE) {
+                    if (child.tagName === 'BR') {
+                        text += '\n';
+                        continue;
+                    }
+
+                    const style = window.getComputedStyle(child);
+                    if (style.display === 'none' || style.visibility === 'hidden') {
+                        continue;
+                    }
+
+                    text += this.collectText(child);
+                }
+            }
+
+            return text;
         }
     }
 
