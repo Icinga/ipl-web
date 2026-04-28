@@ -8,6 +8,7 @@ use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
 use ipl\Html\HtmlString;
 use ipl\Html\ValidHtml;
+use ipl\Web\Less\LessRuleset;
 use Throwable;
 
 class Style extends LessRuleset implements ValidHtml
