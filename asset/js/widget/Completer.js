@@ -661,7 +661,11 @@ define(["../notjQuery"], function ($) {
         onKeyDown(event) {
             let suggestions;
             const keys = ['Tab', 'ArrowDown', 'ArrowUp'];
-            if (keys.includes(event.key) && (event.target === this.input && this.hasSuggestions())) {
+            if (
+                ! this.instrumented
+                && keys.includes(event.key)
+                && this.hasSuggestions()
+            ) {
                 // Disable the autosubmit if the user navigates away from the input but is within the suggestions.
                 this.hasBeenManuallyChanged = false;
             }
