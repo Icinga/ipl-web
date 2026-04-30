@@ -483,22 +483,22 @@ define(["../notjQuery"], function ($) {
         }
 
         onFocusOut(event) {
-            setTimeout(() => {
-                // Autosubmit if the user leaves the input and the input has been manually changed.
-                // Only for non-instrumented mode — instrumented inputs (e.g. TermInput) handle
-                // autosubmit themselves via BaseInput.autoSubmit() with proper term data.
-                if (
-                    ! this.instrumented
-                    && this.hasBeenManuallyChanged
-                    && ! this.hasSuggestions()
-                    && this.shouldAutoSubmit()
-                ) {
-                    // Reset this flag since the user has navigated away from the input and the submit event
-                    // will be triggered by the input's form submit event handler.
-                    this.hasBeenManuallyChanged = false;
-                    $(this.input.form).trigger('submit', {submittedBy: this.input});
-                }
-            }, 300);
+            if (! this.instrumented && this.shouldAutoSubmit()) {
+                setTimeout(() => {
+                    // Autosubmit if the user leaves the input and the input has been manually changed.
+                    // Only for non-instrumented mode — instrumented inputs (e.g. TermInput) handle
+                    // autosubmit themselves via BaseInput.autoSubmit() with proper term data.
+                    if (
+                        this.hasBeenManuallyChanged
+                        && ! this.hasSuggestions()
+                    ) {
+                        // Reset this flag since the user has navigated away from the input and the submit event
+                        // will be triggered by the input's form submit event handler.
+                        this.hasBeenManuallyChanged = false;
+                        $(this.input.form).trigger('submit', {submittedBy: this.input});
+                    }
+                }, 300);
+            }
 
             if (this.completedInput === null) {
                 // If there are multiple instances of Completer bound to the same suggestion container
