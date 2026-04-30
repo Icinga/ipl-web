@@ -63,6 +63,7 @@ class SearchEditor extends Form
      * Set the filter query string to populate the form with
      *
      * Use {@see SearchEditor::getParser()} to subscribe to parser events.
+     * Calling this resets any filter previously set by {@see SearchEditor::setFilter()}
      *
      * @param string $query
      *
@@ -71,6 +72,7 @@ class SearchEditor extends Form
     public function setQueryString($query)
     {
         $this->queryString = $query;
+        $this->filter = null;
 
         return $this;
     }
@@ -153,6 +155,25 @@ class SearchEditor extends Form
         }
 
         return $this->filter;
+    }
+
+    /**
+     * Set the filter to populate the form with
+     *
+     * Overwrites any query string previously set by {@see SearchEditor::setQueryString()}.
+     *
+     * @param Filter\Rule $filter
+     *
+     * @return $this
+     */
+    public function setFilter(Filter\Rule $filter): static
+    {
+        $this->filter = $filter;
+        $this->queryString = $filter instanceof Filter\Chain && $filter->isEmpty()
+            ? ''
+            : (new Renderer($filter))->setStrict()->render();
+
+        return $this;
     }
 
     /**
