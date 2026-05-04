@@ -279,7 +279,8 @@ define(["../notjQuery"], function ($) {
                 input.value = value;
 
                 for (let name in data) {
-                    let dataElement = input.form[input.name + '-' + name];
+                    let dataElement = input.form[input.name + '-' + name]
+                        ?? input.form[input.name + '-metadata-' + name];
                     if (typeof dataElement !== 'undefined') {
                         if (dataElement instanceof RadioNodeList) {
                             dataElement = dataElement[dataElement.length - 1];

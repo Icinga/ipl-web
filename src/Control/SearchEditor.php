@@ -55,6 +55,9 @@ class SearchEditor extends Form
     /** @var bool */
     protected $cleared = false;
 
+    /** @var string[] Additional `metadata` fields for the condition */
+    protected array $metadataFields = [];
+
     /**
      * Set the filter query string to populate the form with
      *
@@ -91,6 +94,22 @@ class SearchEditor extends Form
     public function setSuggestionUrl(Url $url)
     {
         $this->suggestionUrl = $url;
+
+        return $this;
+    }
+
+    /**
+     * Set additional `metadata` fields for the condition
+     *
+     * The value of these fields is populated to condition's `metadata`
+     *
+     * @param array $fields
+     *
+     * @return $this
+     */
+    public function setMetadataFields(array $fields): static
+    {
+        $this->metadataFields = $fields;
 
         return $this;
     }
@@ -551,6 +570,19 @@ class SearchEditor extends Form
             }]
         ]);
 
+        $metadataFields = new HtmlDocument();
+        foreach ($this->metadataFields as $fieldNameSuffix) {
+            $name = $identifier . '-column-metadata-' . $fieldNameSuffix;
+            $columnMetaInput = $this->createElement('hidden', $name, [
+                'value' => $condition->metaData()->get($fieldNameSuffix)
+            ]);
+            $this->registerElement($columnMetaInput);
+
+            $condition->metaData()->set($fieldNameSuffix, $this->getValue($name));
+
+            $metadataFields->addHtml($columnMetaInput);
+        }
+
         $operatorInput = $this->createElement('select', $identifier . '-operator', [
             'options'   => [
                 '~'     => '~',
@@ -588,6 +620,7 @@ class SearchEditor extends Form
             $columnInput,
             $columnFakeInput,
             $columnSearchInput,
+            $metadataFields,
             $operatorInput,
             $valueInput
         );
