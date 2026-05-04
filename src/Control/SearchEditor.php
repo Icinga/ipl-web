@@ -2,6 +2,7 @@
 
 namespace ipl\Web\Control;
 
+use Icinga\Exception\ConfigurationError;
 use ipl\Html\Attributes;
 use ipl\Html\Form;
 use ipl\Html\FormDecorator\CallbackDecorator;
@@ -55,6 +56,9 @@ class SearchEditor extends Form
     /** @var bool */
     protected $cleared = false;
 
+    /** @var string[] Additional fields to add to the condition's `metadata` */
+    protected array $metadataFields = [];
+
     /**
      * Set the filter query string to populate the form with
      *
@@ -91,6 +95,32 @@ class SearchEditor extends Form
     public function setSuggestionUrl(Url $url)
     {
         $this->suggestionUrl = $url;
+
+        return $this;
+    }
+
+    /**
+     * Set additional fields to add to the condition's `metadata`
+     *
+     * The values of these fields are populated into the condition's `metadata`
+     *
+     * @param array $fields
+     *
+     * @return $this
+     *
+     * @throws ConfigurationError When array contains reserved keywords: `search`, `title`
+     */
+    public function setMetadataFields(array $fields): static
+    {
+        // `search` is already a hidden field, and `title` has special handling in js Completer.complete()
+        $reserved = array_intersect($fields, ['search', 'title']);
+        if (! empty($reserved)) {
+            throw new ConfigurationError(
+                sprintf("Reserved keyword(s) not allowed as metadata field: %s", implode(', ', $reserved))
+            );
+        }
+
+        $this->metadataFields = $fields;
 
         return $this;
     }
@@ -195,6 +225,10 @@ class SearchEditor extends Form
             } else {
                 // Make sure we don't forget to present the column labels again
                 $rule->metaData()->set('columnLabel', $this->popKey($values, $identifier . '-column'));
+
+                foreach ($this->metadataFields as $fieldName) {
+                    $rule->metaData()->set($fieldName, $this->popKey($values, $identifier . '-column-' . $fieldName));
+                }
             }
 
             if ($newColumn !== null && $rule->getColumn() !== $newColumn) {
@@ -551,6 +585,16 @@ class SearchEditor extends Form
             }]
         ]);
 
+        $metadataFields = new HtmlDocument();
+        foreach ($this->metadataFields as $fieldNameSuffix) {
+            $columnMetaInput = $this->createElement('hidden', $identifier . '-column-' . $fieldNameSuffix, [
+                'value' => $condition->metaData()->get($fieldNameSuffix)
+            ]);
+            $this->registerElement($columnMetaInput);
+
+            $metadataFields->addHtml($columnMetaInput);
+        }
+
         $operatorInput = $this->createElement('select', $identifier . '-operator', [
             'options'   => [
                 '~'     => '~',
@@ -588,6 +632,7 @@ class SearchEditor extends Form
             $columnInput,
             $columnFakeInput,
             $columnSearchInput,
+            $metadataFields,
             $operatorInput,
             $valueInput
         );

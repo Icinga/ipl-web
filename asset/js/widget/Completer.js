@@ -721,6 +721,7 @@ define(["../notjQuery"], function ($) {
             // choose a suggestion, an up2date contextual value will be transmitted with
             // completion requests and the server can properly identify a new value upon submit
             input.dataset.search = input.value;
+            input.title = input.value;
             if (typeof input.form[input.name + '-search'] !== 'undefined') {
                 let dataElement = input.form[input.name + '-search'];
                 if (dataElement instanceof RadioNodeList) {
@@ -729,6 +730,10 @@ define(["../notjQuery"], function ($) {
 
                 dataElement.value = input.value;
             }
+
+            input.form.querySelectorAll(
+                `input[type="hidden"][name^="${input.name}-"]:not([name="${input.name}-search"])`
+            ).forEach(i => i.value = '');
 
             let [value, data] = this.prepareCompletionData(input);
             this.completedInput = input;
