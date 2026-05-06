@@ -44,3 +44,9 @@
   -webkit-user-select: @user-select;
   user-select: @user-select;
 }
+
+.wobble-effect(@duration: 1s; @timing: ease; @iteration: infinite; @distance: 32px; @rotation: 15deg) {
+  --wobble-distance: @distance;
+  --wobble-rotation: @rotation;
+  animation: wobble-effect @duration @timing @iteration;
+}
