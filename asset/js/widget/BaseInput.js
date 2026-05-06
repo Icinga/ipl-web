@@ -1,4 +1,4 @@
-define(["../notjQuery", "Completer"], function ($, Completer) {
+define(["../notjQuery", "../functions", "Completer"], function ($, functions, Completer) {
 
     "use strict";
 
@@ -803,7 +803,7 @@ define(["../notjQuery", "Completer"], function ($, Completer) {
             let input = event.target;
             let termIndex = Number(input.parentNode.dataset.index);
 
-            if (this.hasSyntaxError(input) && ! (/[A-Z]/.test(event.key.charAt(0)) || event.ctrlKey || event.metaKey)) {
+            if (this.hasSyntaxError(input) && ! functions.isSpecialKeyPress(event)) {
                 // Clear syntax error flag if the user types entirely new input after having selected the entire input
                 // (This way the input isn't empty but switches from input to input immediately, causing the clearing
                 // in onInput to not work)
