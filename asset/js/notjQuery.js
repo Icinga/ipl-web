@@ -81,19 +81,30 @@ define(function () {
         /**
          * Trigger a custom event on the element, asynchronously
          *
-         * The event will bubble and is not cancelable.
+         * The returned promise will be resolved with `false` only if the event
+         * is cancelable and was canceled by a listener; otherwise `true`.
          *
          * @param {string} type
          * @param {{}} detail
+         * @param {boolean} cancelable
+         * @param {boolean} bubbles
+         * @return {Promise<boolean>}
          */
-        trigger(type, detail = null) {
-            setTimeout(() => {
-                this.element.dispatchEvent(new CustomEvent(type, {
-                    cancelable: true, // TODO: this should depend on whether it's a native or custom event
-                    bubbles: true,
-                    detail: detail
-                }));
-            }, 0);
+        trigger(type, detail = null, cancelable = true, bubbles = true) {
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    try {
+                        const proceed = this.element.dispatchEvent(new CustomEvent(type, {
+                            cancelable: cancelable,
+                            bubbles: bubbles,
+                            detail: detail
+                        }));
+                        resolve(proceed);
+                    } catch (error) {
+                        reject(error);
+                    }
+                }, 0);
+            });
         }
 
         /**
