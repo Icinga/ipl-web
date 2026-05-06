@@ -1,4 +1,4 @@
-define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
+define(["../notjQuery", "../functions", "BaseInput"], function ($, functions, BaseInput) {
 
     "use strict";
 
@@ -1350,7 +1350,7 @@ define(["../notjQuery", "BaseInput"], function ($, BaseInput) {
             } else if (input.selectionStart !== input.selectionEnd) {
                 // In case the user selected a range of text, do nothing
                 return;
-            } else if (/[A-Z]/.test(event.key.charAt(0)) || event.ctrlKey || event.metaKey) {
+            } else if (functions.isSpecialKeyPress(event)) {
                 // Ignore control keys not resulting in new input data
                 // TODO: Remove this and move the entire block into `onInput`
                 //       once Safari supports `InputEvent.data`

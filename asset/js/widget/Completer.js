@@ -695,18 +695,6 @@ define(["../notjQuery"], function ($) {
                         event.preventDefault();
                         this.moveToSuggestion();
                     }
-
-                    break;
-                default:
-                    if (/[A-Z]/.test(event.key.charAt(0)) || event.key === '"') {
-                        // Ignore control keys not resulting in new input data
-                        break;
-                    }
-
-                    let typedSuggestion = this.termSuggestions.querySelector(`[value="${ event.key }"]`);
-                    if (typedSuggestion !== null) {
-                        this.hideSuggestions();
-                    }
             }
         }
 
