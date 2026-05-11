@@ -20,10 +20,10 @@ class Callout extends BaseHtmlElement
 {
     use Translation;
 
-    /** @var string Classname for form-element callouts */
+    /** @var string Class name for form element callouts */
     protected const CLASS_FORM_ELEMENT = 'callout-form-element';
 
-    /** @var string Classname for full-width callouts */
+    /** @var string Class name for full width callouts */
     protected const CLASS_FULL_WIDTH = 'callout-full-width';
 
     protected $tag = 'div';
@@ -35,9 +35,9 @@ class Callout extends BaseHtmlElement
      *
      * The $type parameter determines the color and icon of the callout.
      *
-     * @param CalloutType $type The type of the callout.
+     * @param CalloutType $type The type of the callout
      * @param ValidHtml|string $content The content of the callout
-     * @param string|null $title An optional title, displayed above the content
+     * @param ?string $title An optional title, displayed above the content
      */
     public function __construct(
         protected CalloutType $type,
@@ -56,9 +56,9 @@ class Callout extends BaseHtmlElement
             ['class' => 'callout-text'],
             [
                 $this->title
-                    ? HtmlElement::create('strong', ['class' => 'callout-title'], new Text($this->title))
+                    ? HtmlElement::create('strong', ['class' => 'callout-title'], Text::create($this->title))
                     : null,
-                is_string($this->content) ? new Text($this->content) : $this->content,
+                is_string($this->content) ? Text::create($this->content) : $this->content,
             ],
         ));
     }
