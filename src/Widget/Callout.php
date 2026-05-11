@@ -39,7 +39,7 @@ class Callout extends BaseHtmlElement
         $this->addAttributes(Attributes::create(['class' => $type->value]));
     }
 
-    public function assemble(): void
+    protected function assemble(): void
     {
         $this->addHtml($this->type->getIcon());
 
@@ -59,7 +59,7 @@ class Callout extends BaseHtmlElement
      * Callouts are only as wide as their content.
      * Setting it to fullwidth will force the callout to be as wide as its container.
      *
-     * @param bool $fullwidth should the callout be fullwidth
+     * @param bool $fullwidth Whether the callout should be full width
      *
      * @return $this
      */
@@ -78,7 +78,7 @@ class Callout extends BaseHtmlElement
      * Setting this to true will allow the callout to be used for a single form element.
      * This is used to visually align the callout to the content of the form element.
      *
-     * @param bool $isFormElement should the callout be used for a form element
+     * @param bool $isFormElement Whether the callout should be used for a form element
      *
      * @return $this
      */
@@ -87,7 +87,7 @@ class Callout extends BaseHtmlElement
         if ($isFormElement) {
             $this->addAttributes(Attributes::create(['class' => 'form-callout']));
         } else {
-            $this->removeAttribute('class', 'from-callout');
+            $this->removeAttribute('class', 'form-callout');
         }
 
         return $this;
