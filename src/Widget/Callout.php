@@ -73,7 +73,7 @@ class Callout extends BaseHtmlElement
      *
      * @return $this
      */
-    public function setFullwidth(bool $isFullWidth = true): static
+    public function setFullWidth(bool $isFullWidth = true): static
     {
         if ($isFullWidth) {
             $this->addAttributes(Attributes::create(['class' => static::CLASS_FULL_WIDTH]));
