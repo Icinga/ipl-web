@@ -5,7 +5,7 @@ namespace ipl\Web\Common;
 use ipl\Web\Widget\Icon;
 
 /**
- * An enum containing all possible callout types for the {@see Callout} widget.
+ * An enum containing all possible callout types for the {@see Callout} widget
  */
 enum CalloutType: string
 {

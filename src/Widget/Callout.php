@@ -11,10 +11,10 @@ use ipl\I18n\Translation;
 use ipl\Web\Common\CalloutType;
 
 /**
- * An information box that can be used to display information to the user.
- * It consists of a set of standardized colors and icons that can be used to
- * visually distinguish the type of information. A content string and an
- * optional title can be passed to the constructor.
+ * Information box with a type specific color and icon
+ *
+ * The type controls both the color scheme and the icon. An optional title
+ * is displayed above the content.
  */
 class Callout extends BaseHtmlElement
 {
@@ -64,10 +64,10 @@ class Callout extends BaseHtmlElement
     }
 
     /**
-     * Set the callout width to be 100% of its parent container
+     * Set the callout width to 100% of its parent container
      *
      * Callouts are normally only as wide as their content.
-     * Setting it to fullwidth will force the callout to be as wide as its container.
+     * Setting it to full width will force the callout to be as wide as its container.
      *
      * @param bool $isFullWidth Whether the callout should be full width
      *
