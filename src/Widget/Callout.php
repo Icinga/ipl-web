@@ -7,7 +7,6 @@ use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\Html\ValidHtml;
-use ipl\I18n\Translation;
 use ipl\Web\Common\CalloutType;
 
 /**
@@ -18,8 +17,6 @@ use ipl\Web\Common\CalloutType;
  */
 class Callout extends BaseHtmlElement
 {
-    use Translation;
-
     /** @var string Class name for form element callouts */
     protected const CLASS_FORM_ELEMENT = 'callout-form-element';
 
