@@ -9,6 +9,22 @@ use ipl\Web\Widget\Callout;
 
 class CalloutTest extends TestCase
 {
+    public function testCalloutWithoutTitle(): void
+    {
+        $callout = new Callout(CalloutType::Info, 'Content');
+
+        $html = <<<'HTML'
+<div class="callout callout-type-info">
+    <i class="icon fa-circle-info fa"></i>
+    <div class="callout-text">
+        Content
+    </div>
+</div>
+HTML;
+
+        $this->assertHtml($html, $callout);
+    }
+
     public function testCalloutWithTitle(): void
     {
         $callout = new Callout(CalloutType::Info, 'Content', 'Title');
