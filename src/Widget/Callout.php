@@ -2,7 +2,6 @@
 
 namespace ipl\Web\Widget;
 
-use InvalidArgumentException;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
