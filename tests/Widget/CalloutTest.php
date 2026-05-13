@@ -94,4 +94,60 @@ HTML;
 
         $this->assertHtml($html, $callout);
     }
+
+    public function testCalloutFullWidth(): void
+    {
+        $callout = (new Callout(CalloutType::Error, 'Content'))
+            ->setFullWidth(true);
+
+        $html = <<<'HTML'
+<div class="callout callout-type-error callout-full-width">
+    <i class="icon fa-circle-xmark fa"></i>
+    <div class="callout-text">
+        Content
+    </div>
+</div>
+HTML;
+        $this->assertHtml($html, $callout);
+
+        $callout->setFullWidth(false);
+
+        $html2 = <<<'HTML'
+<div class="callout callout-type-error">
+    <i class="icon fa-circle-xmark fa"></i>
+    <div class="callout-text">
+        Content
+    </div>
+</div>
+HTML;
+        $this->assertHtml($html2, $callout);
+    }
+
+    public function testCalloutFormElement(): void
+    {
+        $callout = (new Callout(CalloutType::Error, 'Content'))
+            ->setFormElement(true);
+
+        $html = <<<'HTML'
+<div class="callout callout-type-error callout-form-element">
+    <i class="icon fa-circle-xmark fa"></i>
+    <div class="callout-text">
+        Content
+    </div>
+</div>
+HTML;
+        $this->assertHtml($html, $callout);
+
+        $callout->setFormElement(false);
+
+        $html2 = <<<'HTML'
+<div class="callout callout-type-error">
+    <i class="icon fa-circle-xmark fa"></i>
+    <div class="callout-text">
+        Content
+    </div>
+</div>
+HTML;
+        $this->assertHtml($html2, $callout);
+    }
 }
