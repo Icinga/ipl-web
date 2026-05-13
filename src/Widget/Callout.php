@@ -2,6 +2,7 @@
 
 namespace ipl\Web\Widget;
 
+use InvalidArgumentException;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
@@ -52,7 +53,7 @@ class Callout extends BaseHtmlElement
             'div',
             ['class' => 'callout-text'],
             [
-                $this->title
+                $this->title !== null
                     ? HtmlElement::create('strong', ['class' => 'callout-title'], Text::create($this->title))
                     : null,
                 is_string($this->content) ? Text::create($this->content) : $this->content,
