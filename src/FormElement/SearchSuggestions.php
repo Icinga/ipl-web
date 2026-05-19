@@ -210,13 +210,8 @@ class SearchSuggestions extends BaseHtmlElement
      */
     public function forRequest(ServerRequestInterface $request): self
     {
-        if ($request->getMethod() !== 'POST') {
-            return $this;
-        }
-
-        /** @var array<string, array<int|string, string>> $requestData */
-        $requestData = json_decode($request->getBody()->read(8192), true);
-        if (empty($requestData)) {
+        $requestData = static::parseRequest($request);
+        if ($requestData === null) {
             return $this;
         }
 
@@ -290,5 +285,29 @@ class SearchSuggestions extends BaseHtmlElement
                 new HtmlElement('em', null, Text::create($this->translate('Nothing to suggest')))
             ));
         }
+    }
+
+    /**
+     * Get the JSON-decoded body of a suggestion request
+     *
+     * Returns `null` for non-POST requests or an empty body
+     *
+     * @param ServerRequestInterface $request
+     *
+     * @return ?array<string, mixed>
+     */
+    public static function parseRequest(ServerRequestInterface $request): ?array
+    {
+        if ($request->getMethod() !== 'POST') {
+            return null;
+        }
+
+        /** @var array<string, array<int|string, string>> $requestData */
+        $requestData = json_decode($request->getBody()->read(8192), true);
+        if (empty($requestData)) {
+            return null;
+        }
+
+        return $requestData;
     }
 }
