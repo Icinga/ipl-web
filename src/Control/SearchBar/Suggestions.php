@@ -247,6 +247,10 @@ abstract class Suggestions extends BaseHtmlElement
                 $term = $meta;
             }
 
+            if ($term === '') {
+                continue;
+            }
+
             if ($this->searchTerm) {
                 // Only the first exact match will set this to true, any other to false
                 $noDefault = $noDefault === null && $term === $this->searchTerm;
