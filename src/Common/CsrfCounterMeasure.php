@@ -58,6 +58,12 @@ trait CsrfCounterMeasure
             'ignore'        => true,
             'required'      => true,
             'validators'    => ['Callback' => function ($token) use ($uniqueId, $hashAlgo) {
+                switch ($_SERVER['HTTP_SEC_FETCH_SITE'] ?? '') {
+                    case 'same-origin': // same scheme, host and port
+                    case 'none': // a user-originated operation
+                        return true;
+                }
+
                 if (empty($token) || strpos($token, '|') === false) {
                     throw new Error('Invalid CSRF token provided');
                 }
