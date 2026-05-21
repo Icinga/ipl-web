@@ -2,6 +2,8 @@
 
 namespace ipl\Web\FormElement;
 
+use ArrayIterator;
+use Exception;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
@@ -9,7 +11,6 @@ use ipl\Html\Text;
 use ipl\Html\ValidHtml;
 use ipl\I18n\Translation;
 use Psr\Http\Message\ServerRequestInterface;
-use Traversable;
 
 use function ipl\Stdlib\yield_groups;
 
@@ -19,8 +20,11 @@ class SearchSuggestions extends BaseHtmlElement
 
     protected $tag = 'ul';
 
-    /** @var Traversable */
-    protected $provider;
+    /** @var iterable */
+    protected iterable $provider;
+
+    /** @var ?string */
+    protected ?string $failureMessage = null;
 
     /** @var ?callable */
     protected $groupingCallback;
@@ -49,11 +53,25 @@ class SearchSuggestions extends BaseHtmlElement
      *
      * Any excess key is also transferred to the client, but currently unused.
      *
-     * @param Traversable $provider
+     * @param iterable $provider
      */
-    public function __construct(Traversable $provider)
+    public function __construct(iterable $provider = [])
     {
         $this->provider = $provider;
+    }
+
+    /**
+     * Show a failure message
+     *
+     * @param ?string $message
+     *
+     * @return $this
+     */
+    public function showFailureMessage(?string $message)
+    {
+        $this->failureMessage = $message;
+
+        return $this;
     }
 
     /**
@@ -222,11 +240,16 @@ class SearchSuggestions extends BaseHtmlElement
         return $this;
     }
 
-    protected function assemble(): void
+    protected function assembleSuggestions(): void
     {
         $groupingCallback = $this->getGroupingCallback();
         if ($groupingCallback) {
-            $provider = yield_groups($this->provider, $groupingCallback);
+            $iterator = $this->provider;
+            if (is_array($iterator)) {
+                $iterator = new ArrayIterator($iterator);
+            }
+
+            $provider = yield_groups($iterator, $groupingCallback);
         } else {
             $provider = ['' => $this->provider];
         }
@@ -276,6 +299,28 @@ class SearchSuggestions extends BaseHtmlElement
                     )
                 );
             }
+        }
+    }
+
+    protected function assemble(): void
+    {
+        if ($this->failureMessage === null) {
+            try {
+                $this->assembleSuggestions();
+            } catch (Exception $e) {
+                $this->failureMessage = $e->getMessage();
+                $this->setContent(null);
+            }
+        }
+
+        if ($this->failureMessage !== null) {
+            $this->addHtml(new HtmlElement(
+                'li',
+                Attributes::create(['class' => 'failure-message']),
+                new HtmlElement('em', null, Text::create($this->translate('Can\'t search:'))),
+                Text::create($this->failureMessage)
+            ));
+            return;
         }
 
         if ($this->isEmpty()) {

@@ -220,18 +220,13 @@ abstract class Suggestions extends BaseHtmlElement
         $this->prependHtml(new HtmlElement('li', Attributes::create(['class' => 'default']), $button));
     }
 
-    protected function assemble()
+    /**
+     * Assemble the list content
+     *
+     * @return bool Whether the default suggestion should be hidden or not
+     */
+    protected function assembleSuggestions(): bool
     {
-        if ($this->failureMessage !== null) {
-            $this->addHtml(new HtmlElement(
-                'li',
-                Attributes::create(['class' => 'failure-message']),
-                new HtmlElement('em', null, Text::create(t('Can\'t search:'))),
-                Text::create($this->failureMessage)
-            ));
-            return;
-        }
-
         if ($this->data === null) {
             $data = [];
         } elseif ($this->data instanceof Paginatable) {
@@ -291,8 +286,28 @@ abstract class Suggestions extends BaseHtmlElement
             $this->addHtml(new HtmlElement('li', null, $button));
         }
 
-        if ($this->hasMore($data, self::DEFAULT_LIMIT)) {
-            $this->getAttributes()->add('class', 'has-more');
+        return $noDefault ?? false;
+    }
+
+    protected function assemble()
+    {
+        if ($this->failureMessage === null) {
+            try {
+                $noDefault = $this->assembleSuggestions();
+            } catch (SearchException $e) {
+                $this->failureMessage = $e->getMessage();
+                $this->setContent(null);
+            }
+        }
+
+        if ($this->failureMessage !== null) {
+            $this->addHtml(new HtmlElement(
+                'li',
+                Attributes::create(['class' => 'failure-message']),
+                new HtmlElement('em', null, Text::create(t('Can\'t search:'))),
+                Text::create($this->failureMessage)
+            ));
+            return;
         }
 
         if ($this->type === 'column' && ! $this->isEmpty() && ! $this->getFirst('li')->getAttributes()->has('class')) {
