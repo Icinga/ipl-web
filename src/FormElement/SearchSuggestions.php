@@ -2,6 +2,7 @@
 
 namespace ipl\Web\FormElement;
 
+use ArrayIterator;
 use Exception;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
@@ -10,7 +11,6 @@ use ipl\Html\Text;
 use ipl\Html\ValidHtml;
 use ipl\I18n\Translation;
 use Psr\Http\Message\ServerRequestInterface;
-use Traversable;
 
 use function ipl\Stdlib\yield_groups;
 
@@ -20,8 +20,8 @@ class SearchSuggestions extends BaseHtmlElement
 
     protected $tag = 'ul';
 
-    /** @var Traversable */
-    protected $provider;
+    /** @var iterable */
+    protected iterable $provider;
 
     /** @var ?string */
     protected ?string $failureMessage = null;
@@ -53,9 +53,9 @@ class SearchSuggestions extends BaseHtmlElement
      *
      * Any excess key is also transferred to the client, but currently unused.
      *
-     * @param Traversable $provider
+     * @param iterable $provider
      */
-    public function __construct(Traversable $provider)
+    public function __construct(iterable $provider = [])
     {
         $this->provider = $provider;
     }
@@ -244,7 +244,12 @@ class SearchSuggestions extends BaseHtmlElement
     {
         $groupingCallback = $this->getGroupingCallback();
         if ($groupingCallback) {
-            $provider = yield_groups($this->provider, $groupingCallback);
+            $iterator = $this->provider;
+            if (is_array($iterator)) {
+                $iterator = new ArrayIterator($iterator);
+            }
+
+            $provider = yield_groups($iterator, $groupingCallback);
         } else {
             $provider = ['' => $this->provider];
         }
