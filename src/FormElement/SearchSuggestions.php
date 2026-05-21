@@ -2,6 +2,7 @@
 
 namespace ipl\Web\FormElement;
 
+use Exception;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
@@ -21,6 +22,9 @@ class SearchSuggestions extends BaseHtmlElement
 
     /** @var Traversable */
     protected $provider;
+
+    /** @var ?string */
+    protected ?string $failureMessage = null;
 
     /** @var ?callable */
     protected $groupingCallback;
@@ -54,6 +58,20 @@ class SearchSuggestions extends BaseHtmlElement
     public function __construct(Traversable $provider)
     {
         $this->provider = $provider;
+    }
+
+    /**
+     * Show a failure message
+     *
+     * @param ?string $message
+     *
+     * @return $this
+     */
+    public function showFailureMessage(?string $message)
+    {
+        $this->failureMessage = $message;
+
+        return $this;
     }
 
     /**
@@ -222,7 +240,7 @@ class SearchSuggestions extends BaseHtmlElement
         return $this;
     }
 
-    protected function assemble(): void
+    protected function assembleSuggestions(): void
     {
         $groupingCallback = $this->getGroupingCallback();
         if ($groupingCallback) {
@@ -276,6 +294,28 @@ class SearchSuggestions extends BaseHtmlElement
                     )
                 );
             }
+        }
+    }
+
+    protected function assemble(): void
+    {
+        if ($this->failureMessage === null) {
+            try {
+                $this->assembleSuggestions();
+            } catch (Exception $e) {
+                $this->failureMessage = $e->getMessage();
+                $this->setContent(null);
+            }
+        }
+
+        if ($this->failureMessage !== null) {
+            $this->addHtml(new HtmlElement(
+                'li',
+                Attributes::create(['class' => 'failure-message']),
+                new HtmlElement('em', null, Text::create($this->translate('Can\'t search:'))),
+                Text::create($this->failureMessage)
+            ));
+            return;
         }
 
         if ($this->isEmpty()) {
