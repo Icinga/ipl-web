@@ -493,7 +493,9 @@ class SearchEditor extends Form
             'data-type' => 'column',
             'data-enrichment-type' => 'completion',
             'data-term-suggestions' => '#search-editor-suggestions',
-            'placeholder' => $this->translate('Start typing to search for a column')
+            'placeholder' => $this->getSuggestionUrl() !== null
+                ? $this->translate('Start typing to search for a column')
+                : null
         ]);
         $columnInput->getAttributes()->registerAttributeCallback('data-suggest-url', function () {
             return (string) $this->getSuggestionUrl();
@@ -571,7 +573,9 @@ class SearchEditor extends Form
             'data-type' => 'value',
             'data-enrichment-type' => 'completion',
             'data-term-suggestions' => '#search-editor-suggestions',
-            'placeholder' => $this->translate('Start typing to search for a value')
+            'placeholder' => $this->getSuggestionUrl() !== null
+                ? $this->translate('Start typing to search for a value')
+                : null
         ]);
         $valueInput->getAttributes()->registerAttributeCallback('data-suggest-url', function () {
             return (string) $this->getSuggestionUrl();
