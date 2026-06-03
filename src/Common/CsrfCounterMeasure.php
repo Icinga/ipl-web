@@ -41,14 +41,35 @@ trait CsrfCounterMeasure
     /**
      * Create a form element to countermeasure CSRF attacks
      *
+     * If the {@see requestIsSafe()} check concludes the request is safe, returns a dummy element that accepts any
+     * value. If it concludes the request is unsafe, throws an {@see Error}. If the check is inconclusive (legacy
+     * browser), creates a token-based CSRF element validated against $uniqueId.
+     *
      * @param string $uniqueId A unique ID that persists through different requests
      *
      * @return FormElement
+     *
+     * @throws Error If {@see requestIsSafe()} returns false
      *
      * @deprecated Use {@see addCsrfCounterMeasure()} instead
      */
     protected function createCsrfCounterMeasure($uniqueId)
     {
+        $requestIsSafe = $this->requestIsSafe();
+
+        if ($requestIsSafe !== null) {
+            if (! $requestIsSafe) {
+                throw new Error('Rejecting cross-site request');
+            }
+
+            return new HiddenElement('CSRFToken', [
+                'ignore'     => true,
+                'validators' => ['Callback' => function () {
+                    return true;
+                }]
+            ]);
+        }
+
         $hashAlgo = in_array('sha3-256', hash_algos(), true) ? 'sha3-256' : 'sha256';
 
         $seed = random_bytes(16);
@@ -107,5 +128,24 @@ trait CsrfCounterMeasure
         }
 
         $this->addElement($this->createCsrfCounterMeasure($uniqueId ?? $this->csrfCounterMeasureId));
+    }
+
+    /**
+     * Get whether the request is safe from CSRF based on the Sec-Fetch-Site header
+     *
+     * Returns true if the header indicates a same-origin request or a user-originated operation (e.g. typing a URL),
+     * both of which cannot be forged by a cross-site attacker. Returns null if the header is absent,
+     * in which case a CSRF token must be validated. False indicates a cross-site request.
+     *
+     * @return ?bool
+     */
+    protected function requestIsSafe(): ?bool
+    {
+        return match ($_SERVER['HTTP_SEC_FETCH_SITE'] ?? null) {
+            'same-origin' => true, // same scheme, host and port
+            'none'        => true, // a user-originated operation
+            null          => null, // legacy browser without Sec-Fetch-Site support
+            default       => false,
+        };
     }
 }
