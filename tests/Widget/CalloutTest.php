@@ -73,6 +73,21 @@ HTML;
         $this->assertHtml($html, $callout);
     }
 
+    public function testCalloutWithEmptyUtf8Title(): void
+    {
+        $callout = new Callout(CalloutType::Error, 'Content', "\u{2000}");
+
+        $html = <<<'HTML'
+<div class="callout callout-type-error">
+    <i class="icon fa-circle-xmark fa"></i>
+    <div class="callout-text">
+        Content
+    </div>
+</div>
+HTML;
+        $this->assertHtml($html, $callout);
+    }
+
     public function testCalloutValidHtmlContent(): void
     {
         $callout = new Callout(
