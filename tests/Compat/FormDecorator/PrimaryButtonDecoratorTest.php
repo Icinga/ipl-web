@@ -16,13 +16,12 @@ class PrimaryButtonDecoratorTest extends TestCase
         $this->decorator = new PrimaryButtonDecorator();
     }
 
-    public function testEveryButtonIsMarkedAsPrimaryButton(): void
+    public function testOnlyTheFirstSubmitButtonIsMarkedPrimaryByDefault(): void
     {
         $form = (new CompatForm())
             ->addElement('submit', 'btn-1')
             ->addElement('submit', 'btn-2', ['class' => 'test'])
-            ->addElement('submit', 'btn-3', ['class' => 'btn-remove'])
-            ->addElement('submit', 'btn-4', ['class' => 'btn-primary']);
+            ->addElement('submit', 'btn-3', ['class' => 'btn-remove']);
 
         $this->decorator->decorateForm(new FormElementDecorationResult(), $form);
 
@@ -32,18 +31,40 @@ class PrimaryButtonDecoratorTest extends TestCase
         );
 
         $this->assertSame(
+            'class="test"',
+            $form->getElement('btn-2')->getAttributes()->get('class')->render()
+        );
+
+        $this->assertSame(
+            'class="btn-remove"',
+            $form->getElement('btn-3')->getAttributes()->get('class')->render()
+        );
+    }
+
+    public function testAnExplicitlySetSubmitButtonIsMarkedPrimary(): void
+    {
+        $form = (new CompatForm())
+            ->addElement('submit', 'btn-1')
+            ->addElement('submit', 'btn-2', ['class' => 'test'])
+            ->addElement('submit', 'btn-3', ['class' => 'btn-remove']);
+
+        $form->setSubmitButton($form->getElement('btn-2'));
+
+        $this->decorator->decorateForm(new FormElementDecorationResult(), $form);
+
+        $this->assertSame(
+            '',
+            $form->getElement('btn-1')->getAttributes()->get('class')->render()
+        );
+
+        $this->assertSame(
             'class="test btn-primary"',
             $form->getElement('btn-2')->getAttributes()->get('class')->render()
         );
 
         $this->assertSame(
-            'class="btn-remove btn-primary"',
+            'class="btn-remove"',
             $form->getElement('btn-3')->getAttributes()->get('class')->render()
-        );
-
-        $this->assertSame(
-            'class="btn-primary btn-primary"',
-            $form->getElement('btn-4')->getAttributes()->get('class')->render()
         );
     }
 
