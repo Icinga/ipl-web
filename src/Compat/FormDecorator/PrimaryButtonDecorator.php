@@ -6,16 +6,21 @@ use ipl\Html\Attribute;
 use ipl\Html\Contract\DecorationResult;
 use ipl\Html\Contract\Form;
 use ipl\Html\Contract\FormDecoration;
-use ipl\Html\Contract\FormSubmitElement;
+use ipl\Html\Form as iplForm;
 
+/**
+ * Marks the form’s submit button as primary (adds the "btn-primary" CSS class).
+ *
+ * Note: This decorator only applies to {@see \ipl\Html\Form} instances because it relies on
+ * the submit-button tracking provided by that implementation.
+ */
 class PrimaryButtonDecorator implements FormDecoration
 {
     public function decorateForm(DecorationResult $result, Form $form): void
     {
-        foreach ($form->getElements() as $element) {
-            if ($element instanceof FormSubmitElement) {
-                $element->getAttributes()->addAttribute(new Attribute('class', 'btn-primary'));
-            }
+        if ($form instanceof iplForm && $form->hasSubmitButton()) {
+            $form->getSubmitButton()->getAttributes()
+                ->addAttribute(new Attribute('class', 'btn-primary'));
         }
     }
 }
