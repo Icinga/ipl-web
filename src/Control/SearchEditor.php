@@ -4,15 +4,15 @@ namespace ipl\Web\Control;
 
 use ipl\Html\Attributes;
 use ipl\Html\Form;
-use ipl\Html\FormDecorator\CallbackDecorator;
+use ipl\Html\FormElement\FieldsetElement;
 use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
-use ipl\Html\Text;
 use ipl\I18n\Translation;
 use ipl\Stdlib\Events;
 use ipl\Stdlib\Filter;
 use ipl\Web\Compat\StyleWithNonce;
 use ipl\Web\Control\SearchBar\SearchException;
+use ipl\Web\Control\SearchEditor\ConditionErrorsDecorator;
 use ipl\Web\Filter\Parser;
 use ipl\Web\Filter\QueryString;
 use ipl\Web\Filter\Renderer;
@@ -500,32 +500,6 @@ class SearchEditor extends Form
         $columnInput->getAttributes()->registerAttributeCallback('data-suggest-url', function () {
             return (string) $this->getSuggestionUrl();
         });
-        (new CallbackDecorator(function ($element) {
-            $errors = new HtmlElement('ul', Attributes::create(['class' => 'search-errors']));
-
-            foreach ($element->getMessages() as $message) {
-                $errors->addHtml(new HtmlElement('li', null, Text::create($message)));
-            }
-
-            if (! $errors->isEmpty()) {
-                if (trim($element->getValue())) {
-                    $element->getAttributes()->add(
-                        'pattern',
-                        sprintf(
-                            '^\s*(?!%s\b).*\s*$',
-                            $element->getValue()
-                        )
-                    );
-                }
-
-                $element->prependWrapper(new HtmlElement(
-                    'div',
-                    Attributes::create(['class' => 'search-error']),
-                    $element,
-                    $errors
-                ));
-            }
-        }))->decorate($columnInput);
 
         $columnFakeInput = $this->createElement('hidden', $identifier . '-column-search', [
             'value' => static::FAKE_COLUMN
@@ -543,6 +517,13 @@ class SearchEditor extends Form
                     $this->emit(static::ON_VALIDATE_COLUMN, [$condition]);
                 } catch (SearchException $e) {
                     $columnInput->addMessage($e->getMessage());
+                    if (trim($columnInput->getValue())) {
+                        $columnInput->getAttributes()->add(
+                            'pattern',
+                            sprintf('^\s*(?!%s\b).*\s*$', $columnInput->getValue())
+                        );
+                    }
+
                     return false;
                 }
 
@@ -586,15 +567,19 @@ class SearchEditor extends Form
         $this->registerElement($operatorInput);
         $this->registerElement($valueInput);
 
-        return new HtmlElement(
-            'fieldset',
-            Attributes::create(['name' => $identifier . '-']),
-            $columnInput,
-            $columnFakeInput,
-            $columnSearchInput,
-            $operatorInput,
-            $valueInput
-        );
+        $fieldset = (new FieldsetElement($identifier . '-'))
+            ->addHtml(
+                $columnInput,
+                $columnFakeInput,
+                $columnSearchInput,
+                $operatorInput,
+                $valueInput
+            )
+            ->setDecorators(['errors' => new ConditionErrorsDecorator()]);
+
+        $this->decorate($fieldset);
+
+        return $fieldset;
     }
 
     protected function assemble()
