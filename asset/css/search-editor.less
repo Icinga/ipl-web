@@ -59,16 +59,14 @@
     .rounded-corners(0 .4em .4em 0);
   }
 
-  .search-error {
-    input:invalid {
-      background: var(--search-term-invalid-bg, @search-term-invalid-bg);
-      color: var(--search-term-invalid-color, @search-term-invalid-color);
-    }
+  fieldset:has(.search-errors) input:invalid {
+    background: var(--search-term-invalid-bg, @search-term-invalid-bg);
+    color: var(--search-term-invalid-color, @search-term-invalid-color);
+  }
 
-    .search-errors {
-      color: var(--search-editor-error-color, @search-editor-error-color);
-      font-weight: bold;
-    }
+  .search-errors {
+    color: var(--search-editor-error-color, @search-editor-error-color);
+    font-weight: bold;
   }
 
   li > select:not([multiple]) {
@@ -139,6 +137,7 @@
   fieldset {
     display: flex;
     flex: 1 1 auto;
+    flex-wrap: wrap;
     margin: 0;
     padding: 0;
 
@@ -150,14 +149,14 @@
     > :not(:first-child) {
       margin-left: .1em;
     }
+
+    .search-errors {
+      margin-left: .5em;
+    }
   }
 
   input, button, select {
     height: 28/12em; // Target Pixels @ default font size / default font size
-  }
-
-  .search-errors {
-    margin-left: .5em;
   }
 
   i.drag-initiator {
