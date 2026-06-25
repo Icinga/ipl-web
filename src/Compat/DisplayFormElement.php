@@ -54,7 +54,7 @@ class DisplayFormElement extends BaseHtmlElement
             HtmlElement::create(
                 'div',
                 Attributes::create(['class' => 'control-label-group']),
-                $this->label ? HtmlElement::create('label', null, Text::create($this->label)) : null
+                $this->label !== null ? HtmlElement::create('label', null, Text::create($this->label)) : null
             )
         );
         $this->addHtml(
