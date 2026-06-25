@@ -60,7 +60,7 @@ class DisplayFormElement extends BaseHtmlElement
         $this->addHtml(
             HtmlElement::create('div', Attributes::create(['class' => 'display-form-element']), $this->content)
         );
-        if ($this->description) {
+        if ($this->description !== null) {
             $this->addHtml(
                 new Icon('info-circle', Attributes::create(['class' => 'control-info', 'title' => $this->description]))
             );
