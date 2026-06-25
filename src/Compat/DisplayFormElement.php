@@ -7,7 +7,6 @@ namespace ipl\Web\Compat;
 
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
-use ipl\Html\Contract\HtmlElementInterface;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\Html\ValidHtml;
@@ -62,29 +61,9 @@ class DisplayFormElement extends BaseHtmlElement
             HtmlElement::create('div', Attributes::create(['class' => 'display-form-element']), $this->content)
         );
         if ($this->description !== null) {
-            $elementDescription = new Icon('info-circle', Attributes::create([
-                'aria-hidden' => 'true',
-                'class'       => 'control-info',
-                'role'        => 'img',
-                'title'       => $this->description
-            ]));
-
-            if ($this->content instanceof HtmlElementInterface) {
-                if ($this->content->getAttributes()->has('id')) {
-                    $elementId = $this->content->getAttributes()->get('id')->getValue();
-                } else {
-                    $elementId = uniqid();
-                    $this->content->getAttributes()->set('id', $elementId);
-                }
-
-                $descriptionId = 'desc_' . $elementId;
-                $this->content->getAttributes()->add('aria-describedby', $descriptionId);
-
-                $elementDescription->getAttributes()->set('id', $descriptionId);
-                $elementDescription->getAttributes()->add('class', 'form-element-description');
-            }
-
-            $this->addHtml($elementDescription);
+            $this->addHtml(
+                new Icon('info-circle', Attributes::create(['class' => 'control-info', 'title' => $this->description]))
+            );
         }
     }
 }
