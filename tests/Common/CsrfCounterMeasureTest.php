@@ -15,13 +15,13 @@ class CsrfCounterMeasureTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        unset($_SERVER['HTTP_SEC_FETCH_SITE']);
+        unset($_SERVER['HTTP_SEC_FETCH_SITE'], $_SERVER['REQUEST_METHOD']);
     }
 
     protected function tearDown(): void
     {
         parent::tearDown();
-        unset($_SERVER['HTTP_SEC_FETCH_SITE']);
+        unset($_SERVER['HTTP_SEC_FETCH_SITE'], $_SERVER['REQUEST_METHOD']);
     }
 
     public function testTokenCreation()
@@ -110,6 +110,43 @@ class CsrfCounterMeasureTest extends TestCase
         $this->expectExceptionMessage('Rejecting cross-site request');
 
         $this->makeForm()->callCreate('uniqueId');
+    }
+
+    public static function safeMethodProvider(): array
+    {
+        return [
+            'GET'     => ['GET'],
+            'HEAD'    => ['HEAD'],
+            'OPTIONS' => ['OPTIONS'],
+            'TRACE'   => ['TRACE'],
+        ];
+    }
+
+    #[DataProvider('safeMethodProvider')]
+    public function testCreateDoesNotThrowForSafeMethodWithCrossSiteHeader(string $method): void
+    {
+        $_SERVER['REQUEST_METHOD']      = $method;
+        $_SERVER['HTTP_SEC_FETCH_SITE'] = 'cross-site';
+
+        $this->makeForm()->callCreate('uniqueId');
+        $this->addToAssertionCount(1);
+    }
+
+    #[DataProvider('safeMethodProvider')]
+    public function testCreateReturnsTokenElementForSafeMethod(string $method): void
+    {
+        $_SERVER['REQUEST_METHOD']      = $method;
+        $_SERVER['HTTP_SEC_FETCH_SITE'] = 'cross-site';
+
+        $element = $this->makeForm()->callCreate('uniqueId');
+
+        // The token element must reject invalid values; a dummy element would accept them.
+        $element->setValue('garbage');
+
+        $this->expectException(Error::class);
+        $this->expectExceptionMessage('Invalid CSRF token provided');
+
+        $element->isValid();
     }
 
     private function createElement(): FormElement
