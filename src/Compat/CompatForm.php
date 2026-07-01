@@ -197,21 +197,20 @@ class CompatForm extends Form
     /**
      * Log an error and surface it as a form message
      *
-     * When $messageTemplate needs additional formatting before the error message is inserted,
-     * pre-format it with `sprintf()` and escape the error message placeholder as `%%s`:
+     * $template may contain a `{error}` placeholder, which is replaced with the error
+     * message. Any additional $args are forwarded to {@see Form::addMessage()} for
+     * further `sprintf()`-style formatting of $template:
      *
-     *     $this->logAndShowError(
-     *         $e,
-     *         sprintf($this->translate('Method "%s" failed: %%s'), $name)
-     *     );
+     *     $this->logAndShowError($e, $this->translate('Method "%s" failed: {error}'), $name);
      *
      * @param Throwable|Stringable|string $error Exception or error message to log and display
-     * @param string $messageTemplate Message to show in the form. %s is replaced with the
+     * @param string $template Message to show in the form. {error} is replaced with the
      *   error message.
+     * @param mixed ...$args Additional arguments for $template
      *
      * @return void
      */
-    protected function logAndShowError(Throwable|Stringable|string $error, string $messageTemplate): void
+    protected function logAndShowError(Throwable|Stringable|string $error, string $template, mixed ...$args): void
     {
         if ($error instanceof Throwable) {
             Logger::error("%s\n%s", $error->getMessage(), IcingaException::getConfidentialTraceAsString($error));
@@ -221,7 +220,7 @@ class CompatForm extends Form
             $errorMessage = $error;
         }
 
-        $this->addMessage($messageTemplate, $errorMessage);
+        $this->addMessage(str_replace('{error}', $errorMessage, $template), ...$args);
         $this->onError();
     }
 }
