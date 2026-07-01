@@ -2,11 +2,14 @@
 
 namespace ipl\Tests\Web\Compat;
 
+use Exception;
 use ipl\Html\FormElement\SubmitElement;
 use ipl\Html\Test\TestCase;
 use ipl\I18n\NoopTranslator;
 use ipl\I18n\StaticTranslator;
 use ipl\Web\Compat\CompatForm;
+use Stringable;
+use Throwable;
 
 class CompatFormTest extends TestCase
 {
@@ -384,5 +387,85 @@ HTML;
 HTML;
 
         $this->assertHtml($expected, $form);
+    }
+
+    public function testLogAndShowErrorLogsAndDisplaysThrowableMessage(): void
+    {
+        $form = $this->createFormExposingLogAndShowError();
+
+        $form->exposeLogAndShowError(new Exception('Something went wrong'), 'Could not save: %s');
+
+        $this->assertSame(['Could not save: Something went wrong'], $form->getMessages());
+    }
+
+    public function testLogAndShowErrorLogsAndDisplaysStringMessage(): void
+    {
+        $form = $this->createFormExposingLogAndShowError();
+
+        $form->exposeLogAndShowError('Disk full', 'Could not save: %s');
+
+        $this->assertSame(['Could not save: Disk full'], $form->getMessages());
+    }
+
+    public function testLogAndShowErrorAcceptsStringableMessage(): void
+    {
+        $form = $this->createFormExposingLogAndShowError();
+
+        $error = new class implements Stringable {
+            public function __toString(): string
+            {
+                return 'Disk full';
+            }
+        };
+
+        $form->exposeLogAndShowError($error, 'Could not save: %s');
+
+        $this->assertSame(['Could not save: Disk full'], $form->getMessages());
+    }
+
+    public function testLogAndShowErrorSupportsPreFormattedMessageTemplates(): void
+    {
+        $form = $this->createFormExposingLogAndShowError();
+
+        $messageTemplate = sprintf('Method "%s" failed: %%s', 'someMethod');
+        $form->exposeLogAndShowError(new Exception('Disk full'), $messageTemplate);
+
+        $this->assertSame(['Method "someMethod" failed: Disk full'], $form->getMessages());
+    }
+
+    public function testLogAndShowErrorIgnoresErrorMessageWhenTemplateHasNoPlaceholder(): void
+    {
+        $form = $this->createFormExposingLogAndShowError();
+
+        $form->exposeLogAndShowError(new Exception('Something went wrong'), 'Could not save the record');
+
+        $this->assertSame(['Could not save the record'], $form->getMessages());
+    }
+
+    public function testLogAndShowErrorMarksTheFormAsFailed(): void
+    {
+        $form = $this->createFormExposingLogAndShowError();
+
+        $form->exposeLogAndShowError(new Exception('Something went wrong'), 'Could not save: %s');
+
+        $expected = <<<'HTML'
+    <form class="icinga-form icinga-controls" method="POST">
+        <ul class="errors">
+            <li>Could not save: Something went wrong</li>
+        </ul>
+    </form>
+HTML;
+
+        $this->assertHtml($expected, $form);
+    }
+
+    protected function createFormExposingLogAndShowError(): CompatForm
+    {
+        return new class extends CompatForm {
+            public function exposeLogAndShowError(Throwable|Stringable|string $error, string $messageTemplate): void
+            {
+                $this->logAndShowError($error, $messageTemplate);
+            }
+        };
     }
 }
