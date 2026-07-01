@@ -3,6 +3,8 @@
 namespace ipl\Web\Compat;
 
 use Icinga\Application\Icinga;
+use Icinga\Application\Logger;
+use Icinga\Exception\IcingaException;
 use InvalidArgumentException;
 use ipl\Html\Contract\FormElement;
 use ipl\Html\Contract\FormSubmitElement;
@@ -16,6 +18,8 @@ use ipl\I18n\Translation;
 use ipl\Web\Compat\FormDecorator\PrimaryButtonDecorator;
 use ipl\Web\FormDecorator\IcingaFormDecorator;
 use ipl\Web\Compat\FormDecorator\LabelDecorator;
+use Stringable;
+use Throwable;
 
 class CompatForm extends Form
 {
@@ -188,5 +192,36 @@ class CompatForm extends Form
             'Cannot duplicate submit button of type "%s"',
             get_class($originalSubmitButton)
         ));
+    }
+
+    /**
+     * Log an error and surface it as a form message
+     *
+     * When $messageTemplate needs additional formatting before the error message is inserted,
+     * pre-format it with `sprintf()` and escape the error message placeholder as `%%s`:
+     *
+     *     $this->logAndShowError(
+     *         $e,
+     *         sprintf($this->translate('Method "%s" failed: %%s'), $name)
+     *     );
+     *
+     * @param Throwable|Stringable|string $error Exception or error message to log and display
+     * @param string $messageTemplate Message to show in the form. %s is replaced with the
+     *   error message.
+     *
+     * @return void
+     */
+    protected function logAndShowError(Throwable|Stringable|string $error, string $messageTemplate): void
+    {
+        if ($error instanceof Throwable) {
+            Logger::error("%s\n%s", $error->getMessage(), IcingaException::getConfidentialTraceAsString($error));
+            $errorMessage = $error->getMessage();
+        } else {
+            Logger::error($error);
+            $errorMessage = $error;
+        }
+
+        $this->addMessage($messageTemplate, $errorMessage);
+        $this->onError();
     }
 }
