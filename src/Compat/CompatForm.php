@@ -203,14 +203,14 @@ class CompatForm extends Form
      *
      *     $this->logAndShowError($e, $this->translate('Method "%s" failed: {error}'), $name);
      *
-     * @param Throwable|Stringable|string $error Exception or error message to log and display
+     * @param Throwable|string $error Exception or error message to log and display
      * @param string $template Message to show in the form. {error} is replaced with the
      *   error message.
      * @param mixed ...$args Additional arguments for $template
      *
      * @return void
      */
-    protected function logAndShowError(Throwable|Stringable|string $error, string $template, mixed ...$args): void
+    protected function logAndShowError(Throwable|string $error, string $template, mixed ...$args): void
     {
         if ($error instanceof Throwable) {
             Logger::error("%s\n%s", $error->getMessage(), IcingaException::getConfidentialTraceAsString($error));
