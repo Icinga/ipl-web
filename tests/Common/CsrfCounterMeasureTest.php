@@ -6,9 +6,12 @@ use Error;
 use ipl\Html\Contract\FormElement;
 use ipl\Html\Form;
 use ipl\Html\FormElement\HiddenElement;
+use ipl\Stdlib\Contract\Validator;
 use ipl\Tests\Web\TestCase;
 use ipl\Web\Common\CsrfCounterMeasure;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\UriInterface;
 
 class CsrfCounterMeasureTest extends TestCase
 {
@@ -71,45 +74,48 @@ class CsrfCounterMeasureTest extends TestCase
         $token->isValid();
     }
 
-    public static function safeHeaderValueProvider(): array
-    {
-        return [
-            'same-origin' => ['same-origin'],
-            'none'        => ['none'],
-        ];
-    }
-
-    public function testAddThrowsForCrossSiteRequest(): void
+    public function testUnsafeCrossSiteRequestIsRejected(): void
     {
         $_SERVER['HTTP_SEC_FETCH_SITE'] = 'cross-site';
 
         $this->expectException(Error::class);
         $this->expectExceptionMessage('Rejecting cross-site request');
 
-        $this->makeForm()->ensureAssembled();
+        $this->makeForm()->handleRequest($this->requestMock('POST'));
     }
 
-    #[DataProvider('safeHeaderValueProvider')]
-    public function testCreateReturnsDummyElementForSafeRequest(string $headerValue): void
+    public function testCreateReturnsDummyElementForSafeRequest(): void
     {
-        $_SERVER['HTTP_SEC_FETCH_SITE'] = $headerValue;
+        $_SERVER['HTTP_SEC_FETCH_SITE'] = 'same-origin';
 
         $element = $this->makeForm()->callCreate('uniqueId');
-
         $this->assertInstanceOf(HiddenElement::class, $element);
-        $this->assertNotCount(0, $element->getValidators(), 'Dummy element must have at least one validator');
-        $element->setValue('garbage');
-        $this->assertTrue($element->isValid(), 'Dummy element should accept any value without validation');
+
+        $validatorMock = $this->createMock(Validator::class);
+        $validatorMock->expects($this->once())
+            ->method('isValid')
+            ->willReturn(true);
+        $element->getValidators()->add($validatorMock);
+
+        $this->assertTrue($element->isValid(), 'Dummy element must be successfully validated');
     }
 
-    public function testCreateThrowsForCrossSiteRequest(): void
+    public function testCreateReturnsElementWithTokenForIndistinguishableRequests(): void
     {
-        $_SERVER['HTTP_SEC_FETCH_SITE'] = 'cross-site';
+        $_SERVER['HTTP_SEC_FETCH_SITE'] = 'none';
 
-        $this->expectException(Error::class);
-        $this->expectExceptionMessage('Rejecting cross-site request');
+        $element = $this->makeForm()->callCreate('uniqueId');
+        $this->assertInstanceOf(HiddenElement::class, $element);
 
-        $this->makeForm()->callCreate('uniqueId');
+        $element->setValue(base64_encode('seed') . '|' . hash('sha3-256', 'uniqueIdseed'));
+
+        $validatorMock = $this->createMock(Validator::class);
+        $validatorMock->expects($this->once())
+            ->method('isValid')
+            ->willReturn(true);
+        $element->getValidators()->add($validatorMock);
+
+        $this->assertTrue($element->isValid(), 'Dummy element must be successfully validated');
     }
 
     public static function safeMethodProvider(): array
@@ -123,30 +129,29 @@ class CsrfCounterMeasureTest extends TestCase
     }
 
     #[DataProvider('safeMethodProvider')]
-    public function testCreateDoesNotThrowForSafeMethodWithCrossSiteHeader(string $method): void
+    public function testSafeCrossSiteRequestIsNotValidated(string $method): void
     {
-        $_SERVER['REQUEST_METHOD']      = $method;
         $_SERVER['HTTP_SEC_FETCH_SITE'] = 'cross-site';
 
-        $this->makeForm()->callCreate('uniqueId');
-        $this->addToAssertionCount(1);
+        $flag = false;
+
+        $form = $this->makeForm();
+        $form->on(Form::ON_REQUEST, function () use (&$flag) {
+            $flag = true;
+        });
+        $form->handleRequest($this->requestMock($method));
+
+        $this->assertTrue($flag, 'Form did not emit ON_REQUEST event for method ' . $method);
     }
 
-    #[DataProvider('safeMethodProvider')]
-    public function testCreateReturnsTokenElementForSafeMethod(string $method): void
+    public function testValidationThrowsForCrossSiteRequests(): void
     {
-        $_SERVER['REQUEST_METHOD']      = $method;
         $_SERVER['HTTP_SEC_FETCH_SITE'] = 'cross-site';
 
-        $element = $this->makeForm()->callCreate('uniqueId');
-
-        // The token element must reject invalid values; a dummy element would accept them.
-        $element->setValue('garbage');
-
         $this->expectException(Error::class);
-        $this->expectExceptionMessage('Invalid CSRF token provided');
+        $this->expectExceptionMessage('Rejecting cross-site request');
 
-        $element->isValid();
+        $this->makeForm()->isValid();
     }
 
     private function createElement(): FormElement
@@ -180,5 +185,19 @@ class CsrfCounterMeasureTest extends TestCase
                 $this->addCsrfCounterMeasure('uniqueId');
             }
         };
+    }
+
+    private function requestMock(string $method): ServerRequestInterface
+    {
+        $mock = $this->createMock(ServerRequestInterface::class);
+        $mock->method('getMethod')->willReturn($method);
+        $mock->method('getParsedBody')->willReturn([]);
+        $mock->method('getUploadedFiles')->willReturn([]);
+        $mock->method('getUri')->willReturn($this->createConfiguredMock(
+            UriInterface::class,
+            ['getQuery' => '']
+        ));
+
+        return $mock;
     }
 }
