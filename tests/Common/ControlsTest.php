@@ -3,10 +3,13 @@
 namespace ipl\Tests\Web\Common;
 
 use Icinga\Web\UrlParams;
+use InvalidArgumentException;
 use ipl\Html\Form;
 use ipl\I18n\NoopTranslator;
 use ipl\I18n\StaticTranslator;
 use ipl\Web\Common\Controls;
+use ipl\Web\Control\LimitControl;
+use ipl\Web\Control\PaginationControl;
 use ipl\Web\Control\ViewModeSwitcher;
 use ipl\Tests\Web\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
@@ -111,6 +114,52 @@ class ControlsTest extends TestCase
         );
     }
 
+    public function testApplyViewModeLimitDoublesLimitsInMinimalMode(): void
+    {
+        $switcher = $this->createMock(ViewModeSwitcher::class);
+        $switcher->method('getViewMode')->willReturn('minimal');
+
+        $limitControl = $this->createMock(LimitControl::class);
+        $limitControl->method('getDefaultLimit')->willReturn(25);
+        $limitControl->expects($this->once())->method('setDefaultLimit')->with(50);
+
+        $paginationControl = $this->createMock(PaginationControl::class);
+        $paginationControl->method('getDefaultPageSize')->willReturn(25);
+        $paginationControl->expects($this->once())
+            ->method('setDefaultPageSize')
+            ->with(50)
+            ->willReturnSelf();
+        $paginationControl->expects($this->once())->method('apply')->willReturnSelf();
+
+        $controller = $this->controls();
+        $controller->track($switcher);
+        $controller->applyLimit($limitControl, $paginationControl);
+    }
+
+    public function testApplyViewModeLimitLeavesLimitsUntouchedInNonMinimalMode(): void
+    {
+        $switcher = $this->createMock(ViewModeSwitcher::class);
+        $switcher->method('getViewMode')->willReturn('common');
+
+        $limitControl = $this->createMock(LimitControl::class);
+        $limitControl->expects($this->never())->method('setDefaultLimit');
+
+        $paginationControl = $this->createMock(PaginationControl::class);
+        $paginationControl->expects($this->never())->method('setDefaultPageSize');
+
+        $controller = $this->controls();
+        $controller->track($switcher);
+        $controller->applyLimit($limitControl, $paginationControl);
+    }
+
+    public function testApplyViewModeLimitDoesNothingWithoutTrackedSwitcher(): void
+    {
+        $limitControl = $this->createMock(LimitControl::class);
+        $limitControl->expects($this->never())->method('setDefaultLimit');
+
+        $this->controls()->applyLimit($limitControl);
+    }
+
     public function testHandleControls(): void
     {
         $request = $this->createMock(ServerRequestInterface::class);
@@ -156,6 +205,13 @@ class ControlsTest extends TestCase
             public function handle(ServerRequestInterface $request): void
             {
                 $this->handleControls($request);
+            }
+
+            public function applyLimit(
+                LimitControl $limitControl,
+                ?PaginationControl $paginationControl = null
+            ): void {
+                $this->applyViewModeLimit($limitControl, $paginationControl);
             }
         };
     }

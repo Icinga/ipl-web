@@ -71,18 +71,17 @@ trait Controls
     /**
      * Double the default item limit and page size for `minimal` view mode
      *
-     * @param ViewModeSwitcher $viewModeSwitcher
      * @param LimitControl $limitControl
      * @param ?PaginationControl $paginationControl
      *
      * @return void
      */
     protected function applyViewModeLimit(
-        ViewModeSwitcher $viewModeSwitcher,
         LimitControl $limitControl,
         ?PaginationControl $paginationControl = null
     ): void {
-        if ($viewModeSwitcher->getViewMode() === 'minimal') {
+        $viewModeSwitcher = $this->getTrackedControl(ViewModeSwitcher::class);
+        if ($viewModeSwitcher?->getViewMode() === 'minimal') {
             $limitControl->setDefaultLimit($limitControl->getDefaultLimit() * 2);
 
             $paginationControl
@@ -103,6 +102,26 @@ trait Controls
         $this->trackedControls[] = $control;
 
         return $this;
+    }
+
+    /**
+     * Get the tracked control of the given type
+     *
+     * @template TForm of Form
+     *
+     * @param class-string<TForm> $type
+     *
+     * @return ?TForm
+     */
+    protected function getTrackedControl(string $type): ?Form
+    {
+        foreach ($this->trackedControls as $control) {
+            if ($control instanceof $type) {
+                return $control;
+            }
+        }
+
+        return null;
     }
 
     /**
