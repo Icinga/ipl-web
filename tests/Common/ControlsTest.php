@@ -97,6 +97,20 @@ class ControlsTest extends TestCase
         $this->assertInstanceOf($customClass, $switcher);
     }
 
+    public function testCreateViewModeSwitcherThrowsOnClassThatIsNoViewModeSwitcher(): void
+    {
+        if (! class_exists('Icinga\Web\UrlParams')) {
+            $this->markTestSkipped('This test only runs locally');
+        }
+
+        $this->expectException(InvalidArgumentException::class);
+
+        $this->controls()->createViewModeSwitcher(
+            UrlParams::fromQueryString(''),
+            viewModeSwitcherClass: \stdClass::class
+        );
+    }
+
     public function testHandleControls(): void
     {
         $request = $this->createMock(ServerRequestInterface::class);

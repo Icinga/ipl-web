@@ -3,6 +3,7 @@
 namespace ipl\Web\Common;
 
 use Icinga\Web\UrlParams;
+use InvalidArgumentException;
 use ipl\Html\Form;
 use ipl\Web\Compat\CompatController;
 use ipl\Web\Control\LimitControl;
@@ -35,12 +36,20 @@ trait Controls
      * @param class-string<ViewModeSwitcher> $viewModeSwitcherClass
      *
      * @return ViewModeSwitcher
+     *
+     * @throws InvalidArgumentException
      */
     public function createViewModeSwitcher(
         UrlParams $params,
         ?string $viewModeParam = null,
         string $viewModeSwitcherClass = ViewModeSwitcher::class
     ): ViewModeSwitcher {
+        if (! is_a($viewModeSwitcherClass, ViewModeSwitcher::class, true)) {
+            throw new InvalidArgumentException(
+                sprintf('%s is not a subclass of ViewModeSwitcher', $viewModeSwitcherClass)
+            );
+        }
+
         $viewModeSwitcher = new $viewModeSwitcherClass();
         if ($viewModeParam !== null) {
             $viewModeSwitcher->setViewModeParam($viewModeParam);
