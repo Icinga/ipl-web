@@ -29,7 +29,7 @@ class ViewModeSwitcher extends Form
     public static array $viewModes = [
         'minimal' => 'minimal',
         'common' => 'default',
-        'detailed' => 'detailed',
+        'detailed' => 'detailed'
     ];
 
     protected ?string $defaultViewMode = null;
