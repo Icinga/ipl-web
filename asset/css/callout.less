@@ -16,13 +16,26 @@
     margin: 0;
   }
 
-  .callout-title {
-    margin-bottom: .5em;
-  }
-
   .callout-text {
     display: flex;
     flex-direction: column;
+
+    & > * {
+      margin: 0;
+    }
+
+    & > ul,
+    & > ol {
+      padding-left: 1em;
+    }
+
+    & > p {
+      padding: 0;
+    }
+
+    .callout-title {
+      margin-bottom: .5em;
+    }
   }
 }
 
