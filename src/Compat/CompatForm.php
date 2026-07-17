@@ -15,9 +15,11 @@ use ipl\Html\FormElement\SubmitElement;
 use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlString;
 use ipl\I18n\Translation;
+use ipl\Web\Common\CalloutType;
 use ipl\Web\Compat\FormDecorator\PrimaryButtonDecorator;
 use ipl\Web\FormDecorator\IcingaFormDecorator;
 use ipl\Web\Compat\FormDecorator\LabelDecorator;
+use ipl\Web\Widget\Callout;
 use Stringable;
 use Throwable;
 
@@ -222,5 +224,24 @@ class CompatForm extends Form
 
         $this->addMessage(str_replace('{error}', $errorMessage, $template), ...$args);
         $this->onError();
+    }
+
+    /**
+     * Render form error messages as callouts
+     *
+     * Overrides the default rendering, which produces a single `<ul class="errors">`
+     * list, to instead prepend one error callout per message.
+     *
+     * @return void
+     */
+    protected function onError(): void
+    {
+        foreach ($this->getMessages() as $message) {
+            if ($message instanceof Throwable) {
+                $message = $message->getMessage();
+            }
+
+            $this->prependHtml(new Callout(CalloutType::Error, $message));
+        }
     }
 }
