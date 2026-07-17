@@ -322,6 +322,111 @@ HTML;
         $this->assertHtml($expected, $form);
     }
 
+    public function testOnErrorRendersMultipleMessagesInSourceOrder(): void
+    {
+        $form = new class extends CompatForm {
+            public function triggerOnError(): void
+            {
+                $this->onError();
+            }
+        };
+        $form->addMessage('First error');
+        $form->addMessage('Second error');
+        $form->triggerOnError();
+
+        $expected = <<<'HTML'
+<form class="icinga-form icinga-controls" method="POST">
+    <div class="error-callouts" role="list">
+        <div class="callout callout-type-error" role="listitem">
+            <i class="icon fa-circle-xmark fa"></i>
+            <div class="callout-text">First error</div>
+        </div>
+        <div class="callout callout-type-error" role="listitem">
+            <i class="icon fa-circle-xmark fa"></i>
+            <div class="callout-text">Second error</div>
+        </div>
+    </div>
+</form>
+HTML;
+
+        $this->assertHtml($expected, $form);
+    }
+
+    public function testOnErrorRendersMessagesAboveElements(): void
+    {
+        $form = new class extends CompatForm {
+            protected function assemble(): void
+            {
+                $this->addElement('submit', 'submit_form', ['label' => 'Submit']);
+            }
+
+            public function triggerOnError(): void
+            {
+                $this->onError();
+            }
+        };
+        $form->addMessage('Error occurred');
+        $form->triggerOnError();
+
+        $expected = <<<'HTML'
+<form class="icinga-form icinga-controls" method="POST">
+    <div class="error-callouts" role="list">
+        <div class="callout callout-type-error" role="listitem">
+            <i class="icon fa-circle-xmark fa"></i>
+            <div class="callout-text">Error occurred</div>
+        </div>
+    </div>
+    <div class="control-group form-controls">
+        <input class="btn-primary" value="Submit" name="submit_form" type="submit">
+    </div>
+</form>
+HTML;
+
+        $this->assertHtml($expected, $form);
+    }
+
+    public function testOnErrorEscapesHtmlInMessageText(): void
+    {
+        $form = new class extends CompatForm {
+            public function triggerOnError(): void
+            {
+                $this->onError();
+            }
+        };
+        $form->addMessage('<em>italic</em>');
+        $form->triggerOnError();
+
+        $expected = <<<'HTML'
+<form class="icinga-form icinga-controls" method="POST">
+    <div class="error-callouts" role="list">
+        <div class="callout callout-type-error" role="listitem">
+            <i class="icon fa-circle-xmark fa"></i>
+            <div class="callout-text">&lt;em&gt;italic&lt;/em&gt;</div>
+        </div>
+    </div>
+</form>
+HTML;
+
+        $this->assertHtml($expected, $form);
+    }
+
+    public function testOnErrorEmitsNoWrapperWithoutMessages(): void
+    {
+        $form = new class extends CompatForm {
+            public function triggerOnError(): void
+            {
+                $this->onError();
+            }
+        };
+        $form->triggerOnError();
+
+        $expected = <<<'HTML'
+<form class="icinga-form icinga-controls" method="POST"></form>
+HTML;
+
+        $this->assertHtml($expected, $form);
+    }
+
     public function testMethodApplyDefaultElementDecorators(): void
     {
         // A fieldset, a text element, a required checkbox, and a submit button should cover
