@@ -6,6 +6,7 @@ use Icinga\Application\Icinga;
 use Icinga\Application\Logger;
 use Icinga\Exception\IcingaException;
 use InvalidArgumentException;
+use ipl\Html\Attributes;
 use ipl\Html\Contract\FormElement;
 use ipl\Html\Contract\FormSubmitElement;
 use ipl\Html\Contract\HtmlElementInterface;
@@ -13,6 +14,7 @@ use ipl\Html\Form;
 use ipl\Html\FormElement\SubmitButtonElement;
 use ipl\Html\FormElement\SubmitElement;
 use ipl\Html\HtmlDocument;
+use ipl\Html\HtmlElement;
 use ipl\Html\HtmlString;
 use ipl\I18n\Translation;
 use ipl\Web\Common\CalloutType;
@@ -230,18 +232,25 @@ class CompatForm extends Form
      * Render form error messages as callouts
      *
      * Overrides the default rendering, which produces a single `<ul class="errors">`
-     * list, to instead prepend one error callout per message.
+     * list, to instead prepend a `<span class="error-callouts"></span>` containing
+     * one error callout per message.
      *
      * @return void
      */
     protected function onError(): void
     {
+        $errors = new HtmlElement('span', new Attributes(['class' => 'error-callouts']));
+
         foreach ($this->getMessages() as $message) {
             if ($message instanceof Throwable) {
                 $message = $message->getMessage();
             }
 
-            $this->prependHtml(new Callout(CalloutType::Error, $message));
+            $errors->addHtml(new Callout(CalloutType::Error, $message));
+        }
+
+        if (! $errors->isEmpty()) {
+            $this->prependHtml($errors);
         }
     }
 }
