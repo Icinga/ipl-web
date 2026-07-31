@@ -84,6 +84,45 @@ class CsrfCounterMeasureTest extends TestCase
         $this->makeForm()->handleRequest($this->requestMock('POST'));
     }
 
+    public function testSafeRequestDoesNotRequireCounterMeasureId(): void
+    {
+        $_SERVER['HTTP_SEC_FETCH_SITE'] = 'same-origin';
+
+        $form = $this->makeFormWithoutId()->ensureAssembled();
+
+        $this->assertTrue($form->hasElement('CSRFToken'));
+        $this->assertTrue($form->getElement('CSRFToken')->isValid());
+    }
+
+    public function testCrossSiteRequestDoesNotRequireCounterMeasureId(): void
+    {
+        $_SERVER['HTTP_SEC_FETCH_SITE'] = 'cross-site';
+
+        $form = $this->makeFormWithoutId()->ensureAssembled();
+        $this->assertTrue($form->hasElement('CSRFToken'));
+
+        $this->expectException(Error::class);
+        $this->expectExceptionMessage('Rejecting cross-site request');
+
+        $form->isValid();
+    }
+
+    public function testIndistinguishableRequestRequiresCounterMeasureId(): void
+    {
+        $this->expectException(Error::class);
+        $this->expectExceptionMessage('No CSRF counter measure ID set');
+
+        $this->makeFormWithoutId()->ensureAssembled();
+    }
+
+    public function testDisabledCounterMeasureDoesNotAddElement(): void
+    {
+        $form = $this->makeFormWithoutId(true);
+        $form->ensureAssembled();
+
+        $this->assertFalse($form->hasElement('CSRFToken'));
+    }
+
     public function testCreateReturnsDummyElementForSafeRequest(): void
     {
         $_SERVER['HTTP_SEC_FETCH_SITE'] = 'same-origin';
@@ -185,6 +224,24 @@ class CsrfCounterMeasureTest extends TestCase
                 $this->addCsrfCounterMeasure('uniqueId');
             }
         };
+    }
+
+    private function makeFormWithoutId(bool $disabled = false): Form
+    {
+        $form = new class extends Form {
+            use CsrfCounterMeasure;
+
+            protected function assemble(): void
+            {
+                $this->addCsrfCounterMeasure();
+            }
+        };
+
+        if ($disabled) {
+            $form->disableCsrfCounterMeasure();
+        }
+
+        return $form;
     }
 
     private function requestMock(string $method): ServerRequestInterface

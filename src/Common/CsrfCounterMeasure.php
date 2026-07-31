@@ -43,9 +43,9 @@ trait CsrfCounterMeasure
      *
      * If the {@see requestIsSafe()} check concludes the request is safe, returns a dummy element that accepts any
      * value. If it concludes the request is unsafe, throws an {@see Error}. If the check is inconclusive (legacy
-     * browser), creates a token-based CSRF element validated against $uniqueId.
+     * browser), requires $uniqueId and creates a token-based CSRF element validated against it.
      *
-     * @param string $uniqueId A unique ID that persists through different requests
+     * @param ?string $uniqueId A unique ID that persists through different requests
      *
      * @return FormElement
      *
@@ -66,6 +66,10 @@ trait CsrfCounterMeasure
                     throw new Error('Rejecting cross-site request');
                 }]
             ]);
+        }
+
+        if ($uniqueId === null) {
+            throw new Error('No CSRF counter measure ID set');
         }
 
         $hashAlgo = in_array('sha3-256', hash_algos(), true) ? 'sha3-256' : 'sha256';
@@ -109,7 +113,8 @@ trait CsrfCounterMeasure
      * Add the CSRF form element to this form
      *
      * Does nothing if disabled via {@see disableCsrfCounterMeasure()}.
-     * Unless passed as argument, requires a unique ID to be set via {@see setCsrfCounterMeasureId()}.
+     * If request safety cannot be determined, requires a unique ID to be passed as an argument or set via
+     * {@see setCsrfCounterMeasureId()}.
      *
      * @param ?string $uniqueId A unique ID that persists through different requests
      *
@@ -119,10 +124,6 @@ trait CsrfCounterMeasure
     {
         if (! $this->csrfCounterMeasureEnabled) {
             return;
-        }
-
-        if ($uniqueId === null && $this->csrfCounterMeasureId === null) {
-            throw new Error('No CSRF counter measure ID set');
         }
 
         $this->addElement($this->createCsrfCounterMeasure($uniqueId ?? $this->csrfCounterMeasureId));
