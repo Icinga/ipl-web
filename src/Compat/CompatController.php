@@ -2,7 +2,10 @@
 
 namespace ipl\Web\Compat;
 
+use Exception;
 use GuzzleHttp\Psr7\ServerRequest;
+use Icinga\Application\Config;
+use Icinga\Application\Logger;
 use Icinga\Application\Version;
 use InvalidArgumentException;
 use Icinga\Web\Controller;
@@ -10,6 +13,7 @@ use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlString;
 use ipl\Html\ValidHtml;
+use ipl\Orm\Common\SortUtil;
 use ipl\Orm\Query;
 use ipl\Stdlib\Contract\Paginatable;
 use ipl\Web\Control\LimitControl;
@@ -288,8 +292,61 @@ class CompatController extends Controller
      *
      * @return SortControl
      */
+    /**
+     * Fetch additional sort columns for the current view from /etc/icingaweb2/sortcontrols.ini
+     *
+     * An entry applies if its `type` matches the current view. The first segment is always the
+     * module name, so two segments mean module and controller (icingadb/hostgroups) and three
+     * mean module, controller and action (icingadb/host/services).
+     *
+     * @return array<string, string> Sort spec to label map
+     */
+    protected function fetchConfiguredSortColumns(): array
+    {
+        try {
+            $config = Config::app('sortcontrols');
+        } catch (Exception $e) {
+            Logger::error('Cannot load sortcontrols.ini: %s', $e->getMessage());
+
+            return [];
+        }
+
+        $request = $this->getRequest();
+        $view = $request->getModuleName() . '/' . $request->getControllerName();
+        $viewKeys = [$view, $view . '/' . $request->getActionName()];
+
+        $columns = [];
+        foreach ($config as $name => $entry) {
+            $types = array_filter(array_map('trim', explode(',', (string) $entry->get('type'))));
+            if (! array_intersect($viewKeys, $types)) {
+                continue;
+            }
+
+            $sort = trim((string) $entry->get('sort'));
+            if ($sort === '') {
+                Logger::warning('Sort control "%s" in sortcontrols.ini has no sort spec, ignoring it', $name);
+
+                continue;
+            }
+
+            $columns[SortUtil::normalizeSortSpec($sort)] = (string) ($entry->get('title') ?: $sort);
+        }
+
+        return $columns;
+    }
+
     public function createSortControl(Query $query, array $columns): SortControl
     {
+        // Normalize here already, otherwise configured specs won't deduplicate against the built-in ones
+        $normalized = [];
+        foreach ($columns as $spec => $label) {
+            $normalized[SortUtil::normalizeSortSpec($spec)] = $label;
+        }
+
+        // Union, not array_merge: built-in options keep their label and their position. The first
+        // entry is what SortControl falls back to when no sort is given, so it must not shift.
+        $columns = $normalized + $this->fetchConfiguredSortColumns();
+
         $sortControl = SortControl::create($columns);
 
         $this->params->shift($sortControl->getSortParam());
