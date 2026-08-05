@@ -56,13 +56,17 @@ trait CsrfCounterMeasure
     {
         $requestIsSafe = $this->requestIsSafe();
         if ($requestIsSafe !== null) {
-            return new HiddenElement('CSRFToken', [
+            return new class ('CSRFToken', [
                 'ignore' => true,
-                'value' => $requestIsSafe,
                 'validators' => [
                     new CallbackValidator(fn() => $requestIsSafe ?: throw new Error('Rejecting cross-site request')),
                 ],
-            ]);
+            ]) extends HiddenElement {
+                public function hasValue(): bool
+                {
+                    return true; // The validator must run even if no value was submitted
+                }
+            };
         }
 
         $hashAlgo = in_array('sha3-256', hash_algos(), true) ? 'sha3-256' : 'sha256';

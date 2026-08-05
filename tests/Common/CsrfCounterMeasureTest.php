@@ -97,6 +97,19 @@ class CsrfCounterMeasureTest extends TestCase
         $form->isValid();
     }
 
+    public function testCrossSiteRequestIsRejectedWithEmptyToken(): void
+    {
+        $_SERVER['HTTP_SEC_FETCH_SITE'] = 'cross-site';
+
+        $this->expectException(Error::class);
+        $this->expectExceptionMessage('Rejecting cross-site request');
+
+        $form = $this->makeForm();
+        $form->populate(['CSRFToken' => '']);
+        $form->ensureAssembled();
+        $form->isValid();
+    }
+
     public function testCreateReturnsDummyElementForSafeRequest(): void
     {
         $_SERVER['HTTP_SEC_FETCH_SITE'] = 'same-origin';
