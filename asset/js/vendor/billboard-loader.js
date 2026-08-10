@@ -1,0 +1,13 @@
+define("d3-axis", ["d3"], d3 => d3);
+define("d3-brush", ["d3"], d3 => d3);
+define("d3-drag", ["d3"], d3 => d3);
+define("d3-dsv", ["d3"], d3 => d3);
+define("d3-ease", ["d3"], d3 => d3);
+define("d3-hierarchy", ["d3"], d3 => d3);
+define("d3-interpolate", ["d3"], d3 => d3);
+define("d3-scale", ["d3"], d3 => d3);
+define("d3-selection", ["d3"], d3 => d3);
+define("d3-shape", ["d3"], d3 => d3);
+define("d3-time-format", ["d3"], d3 => d3);
+define("d3-transition", ["d3"], d3 => d3);
+define("d3-zoom", ["d3"], d3 => d3);
