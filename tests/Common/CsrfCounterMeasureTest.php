@@ -15,16 +15,37 @@ use Psr\Http\Message\UriInterface;
 
 class CsrfCounterMeasureTest extends TestCase
 {
+    /** @var mixed Original SEC_FETCH_SITE value restored to avoid leaking global test state */
+    private mixed $secFetchSiteHeader;
+
+    /** @var mixed Original REQUEST_METHOD value restored to avoid leaking global test state */
+    private mixed $requestMethodHeader;
+
     protected function setUp(): void
     {
         parent::setUp();
+
+        $this->secFetchSiteHeader = $_SERVER['HTTP_SEC_FETCH_SITE'] ?? null;
+        $this->requestMethodHeader = $_SERVER['REQUEST_METHOD'] ?? null;
+
         unset($_SERVER['HTTP_SEC_FETCH_SITE'], $_SERVER['REQUEST_METHOD']);
     }
 
     protected function tearDown(): void
     {
+        if ($this->secFetchSiteHeader === null) {
+            unset($_SERVER['HTTP_SEC_FETCH_SITE']);
+        } else {
+            $_SERVER['HTTP_SEC_FETCH_SITE'] = $this->secFetchSiteHeader;
+        }
+
+        if ($this->requestMethodHeader === null) {
+            unset($_SERVER['REQUEST_METHOD']);
+        } else {
+            $_SERVER['REQUEST_METHOD'] = $this->requestMethodHeader;
+        }
+
         parent::tearDown();
-        unset($_SERVER['HTTP_SEC_FETCH_SITE'], $_SERVER['REQUEST_METHOD']);
     }
 
     public function testTokenCreation()
