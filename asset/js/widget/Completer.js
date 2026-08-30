@@ -16,6 +16,7 @@ define(["../notjQuery"], function ($) {
             this.completedValue = null;
             this.completedData = null;
             this._termSuggestions = null;
+            this.last_response_times = [];
         }
 
         get termSuggestions() {
@@ -208,6 +209,19 @@ define(["../notjQuery"], function ($) {
         }
 
         requestCompletion(input, data, trigger = 'user') {
+            let showProgress = false;
+            if (this.last_response_times.length === 3) {
+                let avgResponseTime = this.last_response_times.reduce((a, b) => a + b)
+                    / this.last_response_times.length;
+                if (avgResponseTime > 1000) {
+                    if (this.activeSuggestion !== null) {
+                        return;
+                    }
+
+                    showProgress = true;
+                }
+            }
+
             this.abort();
 
             this.nextSuggestion = setTimeout(() => {
@@ -226,8 +240,14 @@ define(["../notjQuery"], function ($) {
                     }
                 }
 
+                let now = Date.now();
                 req.addEventListener('loadend', () => {
+                    let hide = false;
                     if (req.readyState > 0) {
+                        if (this.last_response_times.push(Date.now() - now) > 3) {
+                            this.last_response_times.shift();
+                        }
+
                         if (req.responseText) {
                             let suggestions = this.renderSuggestions(req.responseText);
                             if (trigger === 'script') {
@@ -240,15 +260,30 @@ define(["../notjQuery"], function ($) {
                                 this.showSuggestions(suggestions, input);
                             }
                         } else {
-                            this.hideSuggestions();
+                            hide = true;
                         }
                     }
 
                     this.activeSuggestion = null;
                     this.nextSuggestion = null;
+
+                    if (hide) {
+                        this.hideSuggestions();
+                    }
                 });
 
                 req.send(JSON.stringify(data));
+
+                if (showProgress) {
+                    this.showSuggestions(this.renderSuggestions(`
+                        <ul>
+                            <li class="progress-indicator">
+                                <em>${this.input.dataset.completeActive}</em>
+                                <i class="icon fa fa-spinner spinner active"></i>
+                            </li>
+                        </ul>
+                    `), input);
+                }
 
                 this.activeSuggestion = req;
             }, 200);
