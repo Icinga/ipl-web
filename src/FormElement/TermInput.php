@@ -39,6 +39,9 @@ class TermInput extends FieldsetElement
     /** @var Url The suggestion url */
     protected $suggestionUrl;
 
+    /** @var ?SearchSuggestions Static suggestions to use */
+    protected ?SearchSuggestions $suggestions = null;
+
     /** @var bool Whether term direction is vertical */
     protected $verticalTermDirection = false;
 
@@ -85,6 +88,30 @@ class TermInput extends FieldsetElement
     public function getSuggestionUrl(): ?Url
     {
         return $this->suggestionUrl;
+    }
+
+    /**
+     * Set static suggestions to use
+     *
+     * @param SearchSuggestions $suggestions
+     *
+     * @return $this
+     */
+    public function setSuggestions(SearchSuggestions $suggestions): self
+    {
+        $this->suggestions = $suggestions;
+
+        return $this;
+    }
+
+    /**
+     * Get static suggestions to use
+     *
+     * @return ?SearchSuggestions
+     */
+    public function getSuggestions(): ?SearchSuggestions
+    {
+        return $this->suggestions;
     }
 
     /**
@@ -410,8 +437,12 @@ class TermInput extends FieldsetElement
         $termContainer = $this->termContainer();
 
         $suggestions = (new HtmlElement('div'))
+            ->setAttribute('hidden', true)
             ->setAttribute('id', $suggestionsId)
             ->setAttribute('class', 'search-suggestions');
+        if ($this->suggestions !== null) {
+            $suggestions->addHtml($this->suggestions);
+        }
 
         $termInput = $this->createElement('hidden', 'value', [
             'id' => $termInputId,
