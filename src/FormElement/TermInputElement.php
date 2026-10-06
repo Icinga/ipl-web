@@ -339,7 +339,7 @@ class TermInputElement extends FieldsetElement
      *
      * @return bool
      */
-    private function hasBeenAutoSubmitted(): bool
+    protected function hasBeenAutoSubmitted(): bool
     {
         if ($this->hasBeenAutoSubmitted === null) {
             $termContainerId = Attribute::sanitizeId($this->getValueOfNameAttribute()) . '-terms';
