@@ -4,7 +4,6 @@ namespace ipl\Web\FormElement;
 
 use ipl\Html\Attribute;
 use ipl\Html\Attributes;
-use ipl\Html\Form;
 use ipl\Html\FormElement\FieldsetElement;
 use ipl\Html\FormElement\HiddenElement;
 use ipl\Html\HtmlElement;
@@ -57,8 +56,8 @@ class TermInputElement extends FieldsetElement
     /** @var RegisteredTerm[] The terms */
     protected $terms = [];
 
-    /** @var bool Whether this input has been automatically submitted */
-    private $hasBeenAutoSubmitted = false;
+    /** @var ?bool Whether this input has been automatically submitted */
+    private $hasBeenAutoSubmitted = null;
 
     /** @var bool Whether the term input value has been pasted */
     private $valueHasBeenPasted;
@@ -342,6 +341,15 @@ class TermInputElement extends FieldsetElement
      */
     private function hasBeenAutoSubmitted(): bool
     {
+        if ($this->hasBeenAutoSubmitted === null) {
+            $termContainerId = Attribute::sanitizeId($this->getValueOfNameAttribute()) . '-terms';
+            $mainInputId = Attribute::sanitizeId($this->getValueOfNameAttribute()) . '-search-input';
+            $autoSubmittedBy = $this->form?->getRequest()?->getHeader('X-Icinga-Autosubmittedby') ?? [];
+
+            $this->hasBeenAutoSubmitted = in_array($mainInputId, $autoSubmittedBy, true)
+                || in_array($termContainerId, $autoSubmittedBy, true);
+        }
+
         return $this->hasBeenAutoSubmitted;
     }
 
@@ -357,23 +365,6 @@ class TermInputElement extends FieldsetElement
         }
 
         return $this->valueHasBeenPasted;
-    }
-
-    public function onRegistered(Form $form)
-    {
-        // TODO: In case the form is assembled "by hand", outside of "assemble()", this runs too early
-        //       and no request is set yet. Additionally, this won't ever run in case the input is part
-        //       of a fieldset as there is no "onRegistered()" call for fieldsets. There is clearly too
-        //       much wrong here, so this needs to be properly fixed.
-
-        $termContainerId = Attribute::sanitizeId($this->getValueOfNameAttribute()) . '-terms';
-        $mainInputId = Attribute::sanitizeId($this->getValueOfNameAttribute()) . '-search-input';
-        $autoSubmittedBy = $form->getRequest()->getHeader('X-Icinga-Autosubmittedby');
-
-        $this->hasBeenAutoSubmitted = in_array($mainInputId, $autoSubmittedBy, true)
-            || in_array($termContainerId, $autoSubmittedBy, true);
-
-        parent::onRegistered($form);
     }
 
     /**
