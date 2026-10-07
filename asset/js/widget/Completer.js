@@ -185,6 +185,8 @@ define(["../notjQuery"], function ($) {
             if (this.input.dataset.suggestUrl) {
                 // Only clear the DOM if suggestions are loaded on-demand
                 this.termSuggestions.innerHTML = '';
+            } else {
+                this.getSelectedSuggestions().forEach(input => this.deselectSuggestion(input));
             }
 
             this.completedInput = null;
