@@ -827,11 +827,9 @@ define(["../notjQuery", "../functions", "Completer"], function ($, functions, Co
                 case 'Backspace':
                     removedTerms = this.clearSelectedTerms();
 
-                    if (this.readOnly) {
-                        if (termIndex >= 0) {
-                            removedTerms[termIndex] = this.removeTerm(input.parentNode);
-                            this.moveFocusForward(termIndex - 1);
-                        }
+                    if (this.readOnly && termIndex >= 0) {
+                        removedTerms[termIndex] = this.removeTerm(input.parentNode);
+                        this.moveFocusForward(termIndex - 1);
                     } else if (this.isTermDirectionVertical()) {
                         // pass
                     } else if (termIndex >= 0 && ! input.value) {
