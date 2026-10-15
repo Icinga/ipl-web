@@ -516,9 +516,8 @@ class TermInput extends FieldsetElement
             'data-term-suggestions' => '#' . $suggestionsId
         ]);
         $mainInput->getAttributes()
-            ->registerAttributeCallback('value', function () {
-                return null;
-            });
+            ->registerAttributeCallback('value', fn() => null)
+            ->registerAttributeCallback('disabled', fn() => $this->getAttribute('disabled'));
         if ($this->getSuggestionUrl() !== null) {
             $mainInput->getAttributes()->registerAttributeCallback('data-suggest-url', function () {
                 return (string) $this->getSuggestionUrl();
