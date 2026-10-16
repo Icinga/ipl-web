@@ -140,24 +140,7 @@ define(["../notjQuery"], function ($) {
 
             this.termSuggestions.hidden = false;
 
-            let containingBlock = this.termSuggestions.offsetParent || document.body;
-            let containingBlockRect = containingBlock.getBoundingClientRect();
-            let inputRect = input.getBoundingClientRect();
-            let inputPosX = inputRect.left - containingBlockRect.left;
-            let inputPosY = inputRect.bottom - containingBlockRect.top;
-            let suggestionWidth = this.termSuggestions.offsetWidth;
-
-            let maxAvailableHeight = document.body.clientHeight - inputRect.bottom;
-            let localMarginBottom = window.getComputedStyle(this.termSuggestions).marginBottom;
-
-            this.termSuggestions.style.top = `${ inputPosY }px`;
-            this.termSuggestions.style.maxHeight = `calc(${maxAvailableHeight}px - ${localMarginBottom})`;
-            if (inputPosX + suggestionWidth > containingBlockRect.right - containingBlockRect.left) {
-                this.termSuggestions.style.left =
-                    `${ containingBlockRect.right - containingBlockRect.left - suggestionWidth }px`;
-            } else {
-                this.termSuggestions.style.left = `${ inputPosX }px`;
-            }
+            $(input).attach(this.termSuggestions);
         }
 
         hasSuggestions() {
