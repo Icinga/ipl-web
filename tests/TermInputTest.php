@@ -17,7 +17,7 @@ class TermInputTest extends TestCase
             TermInput::ON_PASTE,
             TermInput::ON_SAVE,
             TermInput::ON_REMOVE,
-            TermInput::ON_ENRICH
+            TermInput::ON_ENRICH,
         ];
 
         foreach ($events as $event) {

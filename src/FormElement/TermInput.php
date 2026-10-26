@@ -360,7 +360,7 @@ class TermInput extends FieldsetElement
     {
         return match ($event) {
             static::ON_ADD, static::ON_PASTE, static::ON_SAVE, static::ON_REMOVE, static::ON_ENRICH => true,
-            default => parent::isValidEvent($event)
+            default => parent::isValidEvent($event),
         };
     }
 
