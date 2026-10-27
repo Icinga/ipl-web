@@ -70,6 +70,15 @@ trait Controls
         );
 
         $viewModeSwitcher->on(
+            ViewModeSwitcher::ON_DEFAULT_VIEW_MODE_INIT,
+            function (
+                ViewModeSwitcher $viewModeSwitcher
+            ): void {
+                $this->emit(static::ON_VIEW_MODE_SET, [$viewModeSwitcher]);
+            }
+        );
+
+        $viewModeSwitcher->on(
             Form::ON_SUBMIT,
             function (
                 ViewModeSwitcher $viewModeSwitcher
