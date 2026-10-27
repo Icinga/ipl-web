@@ -2,7 +2,7 @@
 
 namespace ipl\Web\Common;
 
-use ipl\Html\Form;
+use ipl\Html\Contract\Form;
 use ipl\Stdlib\Events;
 use ipl\Web\Control\ViewModeSwitcher;
 use ipl\Web\Url;
@@ -39,10 +39,10 @@ trait Controls
     /**
      * Create a {@see ViewModeSwitcher} control
      *
-     * On {@see ViewModeSwitcher::ON_REQUEST} the created instance is populated with the view mode from the url
+     * On {@see Form::ON_REQUEST} the created instance is populated with the view mode from the url
      * and {@see static::ON_VIEW_MODE_SET} is emmitted.
      *
-     * On {@see ViewModeSwitcher::ON_SUBMIT}, if the view mode was changed, {@see static::ON_VIEW_MODE_CHANGE}
+     * On {@see Form::ON_SUBMIT}, if the view mode was changed, {@see static::ON_VIEW_MODE_CHANGE}
      * is emmitted with the {@see ViewModeSwitcher}, its previous view mode and a redirect url, which listeners
      * may modify.
      *
@@ -55,7 +55,7 @@ trait Controls
         $this->trackControl($viewModeSwitcher);
 
         $viewModeSwitcher->on(
-            ViewModeSwitcher::ON_REQUEST,
+            Form::ON_REQUEST,
             function (
                 ServerRequestInterface $request,
                 ViewModeSwitcher $viewModeSwitcher
@@ -70,7 +70,16 @@ trait Controls
         );
 
         $viewModeSwitcher->on(
-            ViewModeSwitcher::ON_SUBMIT,
+            ViewModeSwitcher::ON_DEFAULT_VIEW_MODE_INIT,
+            function (
+                ViewModeSwitcher $viewModeSwitcher
+            ): void {
+                $this->emit(static::ON_VIEW_MODE_SET, [$viewModeSwitcher]);
+            }
+        );
+
+        $viewModeSwitcher->on(
+            Form::ON_SUBMIT,
             function (
                 ViewModeSwitcher $viewModeSwitcher
             ): void {

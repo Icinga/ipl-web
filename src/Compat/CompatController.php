@@ -2,8 +2,16 @@
 
 namespace ipl\Web\Compat;
 
+use Exception;
 use GuzzleHttp\Psr7\ServerRequest;
+use Icinga\Application\Config;
+use Icinga\Application\Logger;
 use Icinga\Application\Version;
+use Icinga\Data\ConfigObject;
+use Icinga\Exception\Json\JsonDecodeException;
+use Icinga\User\Preferences;
+use Icinga\User\Preferences\PreferencesStore;
+use Icinga\Util\Json;
 use InvalidArgumentException;
 use Icinga\Web\Controller;
 use ipl\Html\BaseHtmlElement;
@@ -81,6 +89,21 @@ class CompatController extends Controller
         ViewRenderer::inject();
 
         $this->view->document = $this->document;
+
+        $this->on(
+            'view-mode-set', /** {@see \ipl\Web\Common\Controls::ON_VIEW_MODE_SET} */
+            function (ViewModeSwitcher $viewModeSwitcher) {
+                $preferredMode = $this->getPreferredViewMode();
+                if ($preferredMode !== null) {
+                    $viewModeSwitcher->setDefaultViewMode($preferredMode);
+                }
+            }
+        )->on(
+            'view-mode-change', /** {@see \ipl\Web\Common\Controls::ON_VIEW_MODE_CHANGE} */
+            function (ViewModeSwitcher $viewModeSwitcher) {
+                $this->setPreferredViewMode($viewModeSwitcher->getViewMode()->getName());
+            }
+        );
     }
 
     /**
@@ -242,6 +265,57 @@ class CompatController extends Controller
         ])->activate($tabName);
 
         return $this;
+    }
+
+    /**
+     * Set the given view mode as the user's preferred one for the current route
+     *
+     * @param string $viewMode
+     *
+     * @return void
+     */
+    protected function setPreferredViewMode(string $viewMode): void
+    {
+        $user = $this->Auth()->getUser();
+        $preferredModes = $user->getAdditional('icingaweb.view_modes') ?? [];
+        $preferredModes[$this->getRequest()->getUrl()->getPath()] = $viewMode;
+        $user->setAdditional('icingaweb.view_modes', $preferredModes);
+
+        try {
+            $preferencesStore = PreferencesStore::create(new ConfigObject([
+                'resource'  => Config::app()->get('global', 'config_resource')
+            ]), $user);
+            $preferences = $preferencesStore->load();
+            $preferences['icingaweb']['view_modes'] = Json::encode($preferredModes);
+            $preferencesStore->save(new Preferences($preferences));
+        } catch (Exception $e) {
+            Logger::error('Failed to save preferred view mode for user "%s": %s', $user->getUsername(), $e);
+        }
+    }
+
+    /**
+     * Get the user's preferred view mode for the current route
+     *
+     * @return ?string NULL if there's no preference registered
+     */
+    protected function getPreferredViewMode(): ?string
+    {
+        $user = $this->Auth()->getUser();
+        if (($preferredModes = $user->getAdditional('icingaweb.view_modes')) === null) {
+            try {
+                $preferredModes = Json::decode(
+                    $user->getPreferences()->getValue('icingaweb', 'view_modes', '[]'),
+                    true
+                );
+            } catch (JsonDecodeException $e) {
+                Logger::error('Failed to load preferred view modes for user "%s": %s', $user->getUsername(), $e);
+                $preferredModes = [];
+            }
+
+            $user->setAdditional('icingaweb.view_modes', $preferredModes);
+        }
+
+        return $preferredModes[$this->getRequest()->getUrl()->getPath()] ?? null;
     }
 
     /**

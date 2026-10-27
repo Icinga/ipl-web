@@ -29,6 +29,9 @@ class ViewModeSwitcher extends Form
     /** @var string Default view mode param */
     public const DEFAULT_VIEW_MODE_PARAM = 'view';
 
+    /** @var string Emitted when {@see self::getDefaultViewMode()} initializes {@see self::$defaultViewMode} */
+    public const ON_DEFAULT_VIEW_MODE_INIT = 'default-view-mode-init';
+
     /** @var array<string, ViewMode> The available view modes, keyed by their name */
     protected array $viewModes;
 
@@ -147,11 +150,14 @@ class ViewModeSwitcher extends Form
      */
     public function getDefaultViewMode(): ViewMode
     {
-        if ($this->defaultViewMode !== null) {
-            return $this->viewModes[$this->defaultViewMode];
+        if ($this->defaultViewMode === null) {
+            $this->defaultViewMode = ($this->viewModes[static::DEFAULT_VIEW_MODE]
+                ?? $this->viewModes[array_key_first($this->viewModes)])->getName();
+
+            $this->emit(self::ON_DEFAULT_VIEW_MODE_INIT, [$this]);
         }
 
-        return $this->viewModes[static::DEFAULT_VIEW_MODE] ?? $this->viewModes[array_key_first($this->viewModes)];
+        return $this->viewModes[$this->defaultViewMode];
     }
 
     /**
@@ -244,6 +250,15 @@ class ViewModeSwitcher extends Form
         }
 
         return $id;
+    }
+
+    public function isValidEvent($event)
+    {
+        if ($event === self::ON_DEFAULT_VIEW_MODE_INIT) {
+            return true;
+        }
+
+        return parent::isValidEvent($event);
     }
 
     protected function assemble(): void
