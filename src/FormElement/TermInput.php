@@ -10,7 +10,6 @@ use ipl\Html\FormElement\HiddenElement;
 use ipl\Html\HtmlElement;
 use ipl\Html\HtmlString;
 use ipl\Html\ValidHtml;
-use ipl\Stdlib\Events;
 use ipl\Web\FormElement\TermInput\RegisteredTerm;
 use ipl\Web\FormElement\TermInput\TermContainer;
 use ipl\Web\FormElement\TermInput\ValidatedTerm;
@@ -19,8 +18,6 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class TermInput extends FieldsetElement
 {
-    use Events;
-
     /** @var string Emitted in case the user added new terms */
     public const ON_ADD = 'on_add';
 
@@ -357,6 +354,14 @@ class TermInput extends FieldsetElement
             || in_array($termContainerId, $autoSubmittedBy, true);
 
         parent::onRegistered($form);
+    }
+
+    public function isValidEvent($event)
+    {
+        return match ($event) {
+            static::ON_ADD, static::ON_PASTE, static::ON_SAVE, static::ON_REMOVE, static::ON_ENRICH => true,
+            default => parent::isValidEvent($event),
+        };
     }
 
     /**
