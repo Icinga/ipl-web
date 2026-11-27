@@ -23,11 +23,12 @@
                  * @type {RelativeTime}
                  * @private
                  */
-                this._relativeTime = new RelativeTime(icinga.config.timezone);
+                this._relativeTime = new RelativeTime();
             }
 
             onTimeRendered(event) {
                 if (event.target.closest('.container') === event.currentTarget) {
+                    event.data.self._relativeTime.timezone = icinga.config.timezone;
                     event.data.self._relativeTime.scan(event.target);
                 }
             }
