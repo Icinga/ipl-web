@@ -6,8 +6,7 @@ define(function () {
 
         static DYNAMIC_RELATIVE_TIME_THRESHOLD = 60 * 60;
 
-        constructor(timezone) {
-            this.timezone = timezone;
+        constructor() {
             /**
              * Walked by tick() to update the text on each element
              *
@@ -23,6 +22,19 @@ define(function () {
              */
             this._knownElements = new WeakSet();
             this._timer = null;
+            this._timezone = null;
+        }
+
+        set timezone(tz) {
+            this._timezone = tz;
+        }
+
+        get timezone() {
+            if (! this._timezone) {
+                throw new Error('Timezone must be set before scanning for relative time elements');
+            }
+
+            return this._timezone;
         }
 
         scan(root) {
